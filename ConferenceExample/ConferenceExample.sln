@@ -8,6 +8,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Application", "Session\ConferenceExample.Session.Application\ConferenceExample.Session.Application.csproj", "{76061CCC-D29B-4552-9F63-9CDC5AE12AA5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conference.Domain", "Conference\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj", "{B9DE3C8F-3364-4985-9962-D19DC5CEB52D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conference.Persistence", "Conference\ConferenceExample.Conference.Persistence\ConferenceExample.Conference.Persistence.csproj", "{B18F0391-5834-45CC-B151-5BEA852F947E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conference.Application", "Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj", "{51E35659-89D2-4A3F-8BDF-0850C3F38513}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Persistence", "Session\ConferenceExample.Session.Persistence\ConferenceExample.Session.Persistence.csproj", "{DEF172D7-029E-4145-95AB-1716188455D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -16,6 +24,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{9695C38D-535B-4711-9344-F893BC345893} = {8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}
 		{76061CCC-D29B-4552-9F63-9CDC5AE12AA5} = {8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}
+		{B9DE3C8F-3364-4985-9962-D19DC5CEB52D} = {D2F1B72D-4E75-46D2-BF81-C0B6B7E5261D}
+		{B18F0391-5834-45CC-B151-5BEA852F947E} = {D2F1B72D-4E75-46D2-BF81-C0B6B7E5261D}
+		{51E35659-89D2-4A3F-8BDF-0850C3F38513} = {D2F1B72D-4E75-46D2-BF81-C0B6B7E5261D}
+		{DEF172D7-029E-4145-95AB-1716188455D9} = {8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9695C38D-535B-4711-9344-F893BC345893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -26,5 +38,21 @@ Global
 		{76061CCC-D29B-4552-9F63-9CDC5AE12AA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76061CCC-D29B-4552-9F63-9CDC5AE12AA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76061CCC-D29B-4552-9F63-9CDC5AE12AA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9DE3C8F-3364-4985-9962-D19DC5CEB52D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9DE3C8F-3364-4985-9962-D19DC5CEB52D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9DE3C8F-3364-4985-9962-D19DC5CEB52D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9DE3C8F-3364-4985-9962-D19DC5CEB52D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B18F0391-5834-45CC-B151-5BEA852F947E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B18F0391-5834-45CC-B151-5BEA852F947E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B18F0391-5834-45CC-B151-5BEA852F947E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B18F0391-5834-45CC-B151-5BEA852F947E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51E35659-89D2-4A3F-8BDF-0850C3F38513}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E35659-89D2-4A3F-8BDF-0850C3F38513}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E35659-89D2-4A3F-8BDF-0850C3F38513}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E35659-89D2-4A3F-8BDF-0850C3F38513}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEF172D7-029E-4145-95AB-1716188455D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEF172D7-029E-4145-95AB-1716188455D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEF172D7-029E-4145-95AB-1716188455D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEF172D7-029E-4145-95AB-1716188455D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
