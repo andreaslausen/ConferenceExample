@@ -17,7 +17,7 @@ public class Session(
     public SessionId Id { get; } = id;
     public SessionTitle Title { get; private set; } = title;
     public SpeakerId SpeakerId { get; } = speakerId;
-    public SessionStatus Status { get; private set; } = status ?? SessionStatus.Draft;
+    public SessionStatus Status { get; private set; } = status ?? SessionStatus.Submitted;
     public SessionType Type { get; } = type;
     public Abstract Abstract { get; private set; } = @abstract;
     public IReadOnlyList<SessionTag> Tags => _tags;

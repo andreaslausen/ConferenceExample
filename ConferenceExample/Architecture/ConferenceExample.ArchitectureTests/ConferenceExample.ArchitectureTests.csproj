@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,6 +19,17 @@
 
     <ItemGroup>
         <Using Include="Xunit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\API\ConferenceExample.API\ConferenceExample.API.csproj" />
+      <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
+      <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj" />
+      <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Persistence\ConferenceExample.Conference.Persistence.csproj" />
+      <ProjectReference Include="..\..\Persistence\ConferenceExample.Persistence\ConferenceExample.Persistence.csproj" />
+      <ProjectReference Include="..\..\Session\ConferenceExample.Session.Application\ConferenceExample.Session.Application.csproj" />
+      <ProjectReference Include="..\..\Session\ConferenceExample.Session.Domain\ConferenceExample.Session.Domain.csproj" />
+      <ProjectReference Include="..\..\Session\ConferenceExample.Session.Persistence\ConferenceExample.Session.Persistence.csproj" />
     </ItemGroup>
 
 </Project>

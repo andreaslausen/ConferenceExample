@@ -2,8 +2,7 @@ namespace ConferenceExample.Session.Domain;
 
 public enum SessionStatus
 {
-    Draft = 0,
-    Submitted = 1,
-    Accepted = 2,
-    Rejected = 3
+    Submitted = 0,
+    Accepted = 1,
+    Rejected = 2
 }
