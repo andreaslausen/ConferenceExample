@@ -1,4 +1,4 @@
-namespace ConferenceExample.Session.Domain;
+namespace ConferenceExample.Conference.Domain;
 
 public enum SessionStatus
 {

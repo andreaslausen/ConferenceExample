@@ -7,37 +7,21 @@ public class Session(
     SessionId id,
     SessionTitle title,
     SpeakerId speakerId,
-    SessionStatus status,
     IEnumerable<SessionTag> tags,
     SessionType type,
     Abstract @abstract,
-    ConferenceId conferenceId)
+    ConferenceId conferenceId,
+    SessionStatus? status)
 {
     private readonly List<SessionTag> _tags = [..tags];
     public SessionId Id { get; } = id;
     public SessionTitle Title { get; private set; } = title;
     public SpeakerId SpeakerId { get; } = speakerId;
-    public SessionStatus Status { get; private set; } = status;
+    public SessionStatus Status { get; private set; } = status ?? SessionStatus.Draft;
     public SessionType Type { get; } = type;
     public Abstract Abstract { get; private set; } = @abstract;
     public IReadOnlyList<SessionTag> Tags => _tags;
     public ConferenceId ConferenceId { get; } = conferenceId;
-
-    // TODO: Maybe this has to go to a domain service. What happens if the cfp is closed?
-    public void Submit()
-    {
-        Status = SessionStatus.Submitted;
-    }
-
-    public void Accept()
-    {
-        Status = SessionStatus.Accepted;
-    }
-
-    public void Reject()
-    {
-        Status = SessionStatus.Rejected;
-    }
 
     public void EditTitle(SessionTitle title)
     {

@@ -16,6 +16,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conferenc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Persistence", "Session\ConferenceExample.Session.Persistence\ConferenceExample.Session.Persistence.csproj", "{DEF172D7-029E-4145-95AB-1716188455D9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{9AEA0592-CC14-4A69-83FE-7DA975E173DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.API", "API\ConferenceExample.API\ConferenceExample.API.csproj", "{1BC20B63-CC74-46B6-B908-5C81588939A2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Persistence", "Persistence", "{658233FC-ED88-467C-BDAB-6968FABC0816}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Persistence", "Persistence\ConferenceExample.Persistence\ConferenceExample.Persistence.csproj", "{988A8EFB-9286-439F-A436-910DC2B2D385}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Architecture", "Architecture", "{D23236E9-3FEC-4B72-A433-30C44697C87A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.ArchitectureTests", "Architecture\ConferenceExample.ArchitectureTests\ConferenceExample.ArchitectureTests.csproj", "{F01A71D6-4AB0-47B7-940C-B6C302761E34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +40,9 @@ Global
 		{B18F0391-5834-45CC-B151-5BEA852F947E} = {D2F1B72D-4E75-46D2-BF81-C0B6B7E5261D}
 		{51E35659-89D2-4A3F-8BDF-0850C3F38513} = {D2F1B72D-4E75-46D2-BF81-C0B6B7E5261D}
 		{DEF172D7-029E-4145-95AB-1716188455D9} = {8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}
+		{1BC20B63-CC74-46B6-B908-5C81588939A2} = {9AEA0592-CC14-4A69-83FE-7DA975E173DB}
+		{988A8EFB-9286-439F-A436-910DC2B2D385} = {658233FC-ED88-467C-BDAB-6968FABC0816}
+		{F01A71D6-4AB0-47B7-940C-B6C302761E34} = {D23236E9-3FEC-4B72-A433-30C44697C87A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9695C38D-535B-4711-9344-F893BC345893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -54,5 +69,17 @@ Global
 		{DEF172D7-029E-4145-95AB-1716188455D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEF172D7-029E-4145-95AB-1716188455D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEF172D7-029E-4145-95AB-1716188455D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BC20B63-CC74-46B6-B908-5C81588939A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BC20B63-CC74-46B6-B908-5C81588939A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BC20B63-CC74-46B6-B908-5C81588939A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BC20B63-CC74-46B6-B908-5C81588939A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{988A8EFB-9286-439F-A436-910DC2B2D385}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{988A8EFB-9286-439F-A436-910DC2B2D385}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{988A8EFB-9286-439F-A436-910DC2B2D385}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{988A8EFB-9286-439F-A436-910DC2B2D385}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F01A71D6-4AB0-47B7-940C-B6C302761E34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F01A71D6-4AB0-47B7-940C-B6C302761E34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F01A71D6-4AB0-47B7-940C-B6C302761E34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F01A71D6-4AB0-47B7-940C-B6C302761E34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

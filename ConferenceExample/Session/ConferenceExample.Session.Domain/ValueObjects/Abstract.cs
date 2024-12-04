@@ -1,4 +1,4 @@
-namespace ConferenceExample.Session.Domain;
+namespace ConferenceExample.Session.Domain.ValueObjects;
 
 public record Abstract
 {
