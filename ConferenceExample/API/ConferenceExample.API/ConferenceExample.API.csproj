@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
+      <ProjectReference Include="..\..\Persistence\ConferenceExample.Persistence\ConferenceExample.Persistence.csproj" />
       <ProjectReference Include="..\..\Session\ConferenceExample.Session.Application\ConferenceExample.Session.Application.csproj" />
     </ItemGroup>
 

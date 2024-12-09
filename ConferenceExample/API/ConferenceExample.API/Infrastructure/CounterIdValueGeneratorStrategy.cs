@@ -1,6 +1,6 @@
 using ConferenceExample.Conference.Application;
 
-namespace ConferenceExample.API;
+namespace ConferenceExample.API.Infrastructure;
 
 public class CounterIdValueGeneratorStrategy : IIdValueGeneratorStrategy, Session.Application.IIdValueGeneratorStrategy
 {

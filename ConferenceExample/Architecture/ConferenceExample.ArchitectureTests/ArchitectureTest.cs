@@ -1,5 +1,6 @@
 ﻿using ArchUnitNET.Domain;
 using ArchUnitNET.Loader;
+using ConferenceExample.API.Infrastructure;
 using ConferenceExample.Conference.Domain.Entities;
 using Assembly = System.Reflection.Assembly;
 
@@ -27,7 +28,7 @@ public abstract class ArchitectureTest
     protected static readonly Assembly[] PersistenceAssemblies = [Persistence];    
 
     // API
-    protected static Assembly Api => typeof(ConferenceExample.API.Test).Assembly;
+    protected static Assembly Api => typeof(CounterIdValueGeneratorStrategy).Assembly;
     
     protected static readonly Assembly[] ApiAssemblies = [Api];
     
