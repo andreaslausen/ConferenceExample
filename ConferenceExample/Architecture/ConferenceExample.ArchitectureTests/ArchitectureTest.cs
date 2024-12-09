@@ -7,14 +7,14 @@ namespace ConferenceExample.ArchitectureTests;
 public abstract class ArchitectureTest
 {
     // Conference
-    protected static Assembly ConferenceApplication => typeof(Conference.Application.Class1).Assembly;
+    protected static Assembly ConferenceApplication => typeof(Conference.Application.IdGenerator).Assembly;
     protected static Assembly ConferenceDomain => typeof(Conference.Domain.ValueObjects.Room).Assembly;
     protected static Assembly ConferencePersistence => typeof(Conference.Persistence.Class1).Assembly;
     
     protected static readonly Assembly[] ConferenceAssemblies = [ConferenceApplication, ConferenceDomain, ConferencePersistence];
     
     // Session
-    protected static Assembly SessionApplication => typeof(Session.Application.Class1).Assembly;
+    protected static Assembly SessionApplication => typeof(Session.Application.IdGenerator).Assembly;
     protected static Assembly SessionDomain => typeof(Session.Domain.ValueObjects.Abstract).Assembly;
     protected static Assembly SessionPersistence => typeof(Session.Persistence.Class1).Assembly;
     

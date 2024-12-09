@@ -7,4 +7,8 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

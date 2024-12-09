@@ -1,3 +1,6 @@
 namespace ConferenceExample.Session.Domain.ValueObjects.Ids;
 
-public record SessionId(long Value) : IId;
+public interface IId
+{
+    long Value { get; }
+}

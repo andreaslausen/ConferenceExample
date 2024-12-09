@@ -1,7 +1,7 @@
 ﻿using ConferenceExample.Session.Domain.ValueObjects;
 using ConferenceExample.Session.Domain.ValueObjects.Ids;
 
-namespace ConferenceExample.Session.Domain;
+namespace ConferenceExample.Session.Domain.Entities;
 
 public class Session(
     SessionId id,
