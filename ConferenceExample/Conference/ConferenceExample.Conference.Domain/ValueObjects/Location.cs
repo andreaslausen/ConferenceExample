@@ -1,3 +1,3 @@
 namespace ConferenceExample.Conference.Domain.ValueObjects;
 
-public record Location(string Name, Address Address);
+public record Location(Text Name, Address Address);

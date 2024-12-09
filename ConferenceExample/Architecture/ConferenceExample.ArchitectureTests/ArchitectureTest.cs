@@ -1,5 +1,6 @@
 ﻿using ArchUnitNET.Domain;
 using ArchUnitNET.Loader;
+using ConferenceExample.Conference.Domain.Entities;
 using Assembly = System.Reflection.Assembly;
 
 namespace ConferenceExample.ArchitectureTests;
@@ -8,7 +9,7 @@ public abstract class ArchitectureTest
 {
     // Conference
     protected static Assembly ConferenceApplication => typeof(Conference.Application.IdGenerator).Assembly;
-    protected static Assembly ConferenceDomain => typeof(Conference.Domain.ValueObjects.Room).Assembly;
+    protected static Assembly ConferenceDomain => typeof(Room).Assembly;
     protected static Assembly ConferencePersistence => typeof(Conference.Persistence.Class1).Assembly;
     
     protected static readonly Assembly[] ConferenceAssemblies = [ConferenceApplication, ConferenceDomain, ConferencePersistence];
@@ -21,7 +22,7 @@ public abstract class ArchitectureTest
     protected static readonly Assembly[] SessionAssemblies = [SessionApplication, SessionDomain, SessionPersistence];
     
     // Persistence
-    protected static Assembly Persistence => typeof(Persistence.Class1).Assembly;
+    protected static Assembly Persistence => typeof(Persistence.IDatabaseContext).Assembly;
 
     protected static readonly Assembly[] PersistenceAssemblies = [Persistence];    
 

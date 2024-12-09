@@ -1,4 +1,5 @@
-﻿using ConferenceExample.Conference.Domain.ValueObjects.Ids;
+﻿using ConferenceExample.Conference.Domain.Entities;
+using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Application;
 
@@ -12,6 +13,7 @@ public class IdGenerator(IIdValueGeneratorStrategy idValueGeneratorStrategy) : I
     private readonly Dictionary<Type, Func<long, IId>> _idGeneratorsFunctions = new()
     {
         { typeof(ConferenceId), id => new ConferenceId(id) },
-        { typeof(SessionId), id => new SessionId(id) }
+        { typeof(SessionId), id => new SessionId(id) },
+        { typeof(Room), id => new RoomId(id) }
     };
 }
