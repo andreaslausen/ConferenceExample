@@ -18,7 +18,7 @@ public abstract class ArchitectureTest
     // Session
     protected static Assembly SessionApplication => typeof(Session.Application.IdGenerator).Assembly;
     protected static Assembly SessionDomain => typeof(Session.Domain.ValueObjects.Abstract).Assembly;
-    protected static Assembly SessionPersistence => typeof(Session.Persistence.Class1).Assembly;
+    protected static Assembly SessionPersistence => typeof(Session.Persistence.SessionRepository).Assembly;
     
     protected static readonly Assembly[] SessionAssemblies = [SessionApplication, SessionDomain, SessionPersistence];
     

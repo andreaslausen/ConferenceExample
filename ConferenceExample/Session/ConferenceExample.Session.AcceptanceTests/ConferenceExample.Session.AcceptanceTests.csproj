@@ -6,6 +6,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
+        <PackageReference Include="Reqnroll.Microsoft.Extensions.DependencyInjection" Version="2.2.1" />
         <PackageReference Include="Reqnroll.xUnit" Version="2.2.1"/>
         <PackageReference Include="xunit" Version="2.6.6"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
@@ -23,6 +24,14 @@
       <Compile Update="Features\Session.feature.cs">
         <DependentUpon>Session.feature</DependentUpon>
       </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\API\ConferenceExample.API\ConferenceExample.API.csproj" />
+      <ProjectReference Include="..\..\Persistence\ConferenceExample.Persistence\ConferenceExample.Persistence.csproj" />
+      <ProjectReference Include="..\ConferenceExample.Session.Application\ConferenceExample.Session.Application.csproj" />
+      <ProjectReference Include="..\ConferenceExample.Session.Domain\ConferenceExample.Session.Domain.csproj" />
+      <ProjectReference Include="..\ConferenceExample.Session.Persistence\ConferenceExample.Session.Persistence.csproj" />
     </ItemGroup>
     
 </Project>

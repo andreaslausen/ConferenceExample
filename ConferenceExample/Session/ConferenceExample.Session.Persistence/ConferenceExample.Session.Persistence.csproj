@@ -7,4 +7,9 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Persistence\ConferenceExample.Persistence\ConferenceExample.Persistence.csproj" />
+      <ProjectReference Include="..\ConferenceExample.Session.Domain\ConferenceExample.Session.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

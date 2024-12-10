@@ -8,17 +8,17 @@ public class Session(
     SessionTitle title,
     SpeakerId speakerId,
     IEnumerable<SessionTag> tags,
-    SessionType type,
+    SessionTypeId sessionTypeId,
     Abstract @abstract,
     ConferenceId conferenceId,
-    SessionStatus? status)
+    SessionStatus? status = null)
 {
     private readonly List<SessionTag> _tags = [..tags];
     public SessionId Id { get; } = id;
     public SessionTitle Title { get; private set; } = title;
     public SpeakerId SpeakerId { get; } = speakerId;
     public SessionStatus Status { get; private set; } = status ?? SessionStatus.Submitted;
-    public SessionType Type { get; } = type;
+    public SessionTypeId SessionTypeId { get; } = sessionTypeId;
     public Abstract Abstract { get; private set; } = @abstract;
     public IReadOnlyList<SessionTag> Tags => _tags;
     public ConferenceId ConferenceId { get; } = conferenceId;
