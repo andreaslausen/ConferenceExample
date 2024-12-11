@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ConferenceExample.Session.Application;
 using ConferenceExample.Session.Application.Dtos;
+using ConferenceExample.Session.Domain;
 using FluentAssertions;
 using Reqnroll;
 using IDatabaseContext = ConferenceExample.Persistence.IDatabaseContext;
@@ -51,6 +52,7 @@ public sealed class SessionStepDefinitions(IDatabaseContext databaseContext, ISe
         sessions[0].SessionTypeId.Should().Be(1);
         sessions[0].ConferenceId.Should().Be(_conferenceId);
         sessions[0].SpeakerId.Should().Be(_speakerId);
+        sessions[0].SessionStatus.Should().Be((int)SessionStatus.Submitted);
     }
 
     private class SessionDataFromTable
