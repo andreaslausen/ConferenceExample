@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ConferenceExample.API;
 using ConferenceExample.Session.Application;
 using ConferenceExample.Session.Application.Dtos;
 using FluentAssertions;
 using Reqnroll;
+using IDatabaseContext = ConferenceExample.Persistence.IDatabaseContext;
 
 namespace ConferenceExample.Session.AcceptanceTests.StepDefinitions;
 
 [Binding]
-public sealed class SessionStepDefinitions(DatabaseContext databaseContext, ISessionService sessionService)
+public sealed class SessionStepDefinitions(IDatabaseContext databaseContext, ISessionService sessionService)
 {
     private long _conferenceId;
     private long _speakerId;
@@ -32,7 +32,10 @@ public sealed class SessionStepDefinitions(DatabaseContext databaseContext, ISes
         var sessionDataFromTable = table.CreateInstance<SessionDataFromTable>();
         await sessionService.SubmitSession(new SubmitSessionDto
         {
-            Title = sessionDataFromTable.Title, Abstract = sessionDataFromTable.Abstract, Tags = sessionDataFromTable.Tags, SessionTypeId = sessionDataFromTable.SessionTypeId,
+            Title = sessionDataFromTable.Title,
+            Abstract = sessionDataFromTable.Abstract,
+            Tags = sessionDataFromTable.Tags,
+            SessionTypeId = sessionDataFromTable.SessionTypeId,
             ConferenceId = _conferenceId, SpeakerId = _speakerId
         });
     }
