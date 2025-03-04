@@ -1,3 +1,4 @@
+using ArchUnitNET.Fluent.Syntax.Elements.Types;
 using ArchUnitNET.xUnit;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
@@ -8,9 +9,7 @@ public class ConferenceDependencyRules : ArchitectureTest
     [Fact]
     public void ConferenceDomain_ShouldOnlyDependOnItself()
     {
-        var rule = Types().That().ResideInAssembly(ConferenceDomain)
-            .Should()
-            .OnlyDependOn(Types().That().ResideInAssembly(ConferenceDomain).Or().ResideInNamespace("System.*", true));
+        var rule = CheckDependencies(ConferenceDomain, [], "System");
 
         rule.Check(Architecture);
     }
@@ -18,9 +17,7 @@ public class ConferenceDependencyRules : ArchitectureTest
     [Fact]
     public void ConferenceApplication_ShouldOnlyDependOnItselfAndDomain()
     {
-        var rule = Types().That().ResideInAssembly(ConferenceApplication)
-            .Should()
-            .OnlyDependOn(Types().That().ResideInAssembly(ConferenceApplication).Or().ResideInAssembly(ConferenceDomain).Or().ResideInNamespace("System.*", true));
+        var rule = CheckDependencies(ConferenceApplication, [ConferenceDomain], "System");
 
         rule.Check(Architecture);
     }
@@ -28,11 +25,27 @@ public class ConferenceDependencyRules : ArchitectureTest
     [Fact]
     public void ConferencePersistence_ShouldOnlyDependOnItselfAndDomainAndPersistence()
     {
-        var rule = Types().That().ResideInAssembly(ConferencePersistence)
-            .Should()
-            .OnlyDependOn(Types().That().ResideInAssembly(ConferencePersistence).Or().ResideInAssembly(Persistence).Or().ResideInAssembly(ConferenceDomain).Or()
-                .ResideInNamespace("System.*", true));
+        var rule = CheckDependencies(ConferencePersistence, [ConferenceDomain, Persistence], "System");
 
         rule.Check(Architecture);
+    }
+
+    private static TypesShouldConjunction CheckDependencies(System.Reflection.Assembly source,
+        IEnumerable<System.Reflection.Assembly> target,
+        params string[] allowedNamespaces)
+    {
+        var allowedTypes = Types().That().ResideInAssembly(source);
+        allowedTypes = target.Aggregate(allowedTypes, (current, assembly)
+            => current.Or().ResideInAssembly(assembly));
+        allowedTypes = allowedNamespaces.Aggregate(allowedTypes, (current, allowedNamespace)
+            => current.Or().ResideInNamespace($"{allowedNamespace}.*", true));
+
+        var rule = Types()
+            .That()
+            .ResideInAssembly(source)
+            .Should()
+            .OnlyDependOn(allowedTypes);
+
+        return rule;
     }
 }
