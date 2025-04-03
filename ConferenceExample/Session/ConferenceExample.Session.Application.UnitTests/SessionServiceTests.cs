@@ -4,7 +4,7 @@ using ConferenceExample.Session.Application.Dtos;
 using ConferenceExample.Session.Domain.Repositories;
 using ConferenceExample.Session.Domain.ValueObjects.Ids;
 using NSubstitute;
-using Shouldly;
+using Xunit;
 
 public class SessionServiceTests
 {
@@ -94,14 +94,14 @@ public class SessionServiceTests
         await sut.SubmitSession(submitSessionDto);
 
         // Assert
-        capturedSession.ShouldNotBeNull();
-        capturedSession.Id.Value.ShouldBe(sessionId.Value);
-        capturedSession.Title.Title.ShouldBe(submitSessionDto.Title);
-        capturedSession.Abstract.Content.ShouldBe(submitSessionDto.Abstract);
-        capturedSession.ConferenceId.Value.ShouldBe(submitSessionDto.ConferenceId);
-        capturedSession.SpeakerId.Value.ShouldBe(submitSessionDto.SpeakerId);
-        capturedSession.SessionTypeId.Value.ShouldBe(submitSessionDto.SessionTypeId);
-        capturedSession.Tags.Select(t => t.Tag).ShouldBe(submitSessionDto.Tags);
-        capturedSession.Status.ShouldBe(Domain.SessionStatus.Submitted);
+        Assert.NotNull(capturedSession);
+        Assert.Equal(sessionId.Value, capturedSession.Id.Value);
+        Assert.Equal(submitSessionDto.Title, capturedSession.Title.Title);
+        Assert.Equal(submitSessionDto.Abstract, capturedSession.Abstract.Content);
+        Assert.Equal(submitSessionDto.ConferenceId, capturedSession.ConferenceId.Value);
+        Assert.Equal(submitSessionDto.SpeakerId, capturedSession.SpeakerId.Value);
+        Assert.Equal(submitSessionDto.SessionTypeId, capturedSession.SessionTypeId.Value);
+        Assert.Equal(submitSessionDto.Tags, capturedSession.Tags.Select(t => t.Tag));
+        Assert.Equal(Domain.SessionStatus.Submitted, capturedSession.Status);
     }
 }

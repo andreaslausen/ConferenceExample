@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using ConferenceExample.Session.Application;
 using ConferenceExample.Session.Application.Dtos;
 using ConferenceExample.Session.Domain;
-using Shouldly;
 using Reqnroll;
+using Xunit;
 using IDatabaseContext = ConferenceExample.Persistence.IDatabaseContext;
 
 namespace ConferenceExample.Session.AcceptanceTests.StepDefinitions;
@@ -46,14 +46,14 @@ public sealed class SessionStepDefinitions(IDatabaseContext databaseContext, ISe
     public void ThenTheSessionShouldBeSubmitted()
     {
         var sessions = databaseContext.Sessions;
-        sessions.Count.ShouldBe(1);
-        sessions[0].Title.ShouldBe("Besser testen mit Akzeptanztests");
-        sessions[0].Abstract.ShouldBe("Akzeptanztests in .NET mit Reqnroll");
-        sessions[0].Tags.ShouldBe(new List<string> { ".NET", "Testing" });
-        sessions[0].SessionTypeId.ShouldBe(1);
-        sessions[0].ConferenceId.ShouldBe(_conferenceId);
-        sessions[0].SpeakerId.ShouldBe(_speakerId);
-        sessions[0].SessionStatus.ShouldBe((int)SessionStatus.Submitted);
+        Assert.Single(sessions);
+        Assert.Equal("Besser testen mit Akzeptanztests", sessions[0].Title);
+        Assert.Equal("Akzeptanztests in .NET mit Reqnroll", sessions[0].Abstract);
+        Assert.Equal(new List<string> { ".NET", "Testing" }, sessions[0].Tags);
+        Assert.Equal(1, sessions[0].SessionTypeId);
+        Assert.Equal(_conferenceId, sessions[0].ConferenceId);
+        Assert.Equal(_speakerId, sessions[0].SpeakerId);
+        Assert.Equal((int)SessionStatus.Submitted, sessions[0].SessionStatus);
     }
 
     private class SessionDataFromTable

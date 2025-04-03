@@ -1,7 +1,6 @@
 ﻿using ConferenceExample.Session.Domain.Entities;
 using ConferenceExample.Session.Domain.ValueObjects;
 using ConferenceExample.Session.Domain.ValueObjects.Ids;
-using Shouldly;
 using Xunit;
 
 namespace ConferenceExample.Session.Domain.UnitTests;
@@ -19,7 +18,7 @@ public class SessionTests
         session.EditTitle(newTitle);
 
         // Assert
-        session.Title.ShouldBe(newTitle);
+        Assert.Equal(newTitle, session.Title);
     }
 
     [Fact]
@@ -33,7 +32,7 @@ public class SessionTests
         session.EditAbstract(newAbstract);
 
         // Assert
-        session.Abstract.ShouldBe(newAbstract);
+        Assert.Equal(newAbstract, session.Abstract);
     }
 
     [Fact]
@@ -47,7 +46,7 @@ public class SessionTests
         session.AddTag(newTag);
 
         // Assert
-        session.Tags.ShouldContain(newTag);
+        Assert.Contains(newTag, session.Tags);
     }
 
     [Fact]
@@ -62,7 +61,7 @@ public class SessionTests
         session.RemoveTag(tagToRemove);
 
         // Assert
-        session.Tags.ShouldNotContain(tagToRemove);
+        Assert.DoesNotContain(tagToRemove, session.Tags);
     }
 
     [Fact]
@@ -82,14 +81,14 @@ public class SessionTests
         var session = new Entities.Session(sessionId, title, speakerId, tags, sessionTypeId, @abstract, conferenceId, status);
 
         // Assert
-        session.Id.ShouldBe(sessionId);
-        session.Title.ShouldBe(title);
-        session.SpeakerId.ShouldBe(speakerId);
-        session.Tags.ShouldBe(tags);
-        session.SessionTypeId.ShouldBe(sessionTypeId);
-        session.Abstract.ShouldBe(@abstract);
-        session.ConferenceId.ShouldBe(conferenceId);
-        session.Status.ShouldBe(status);
+        Assert.Equal(sessionId, session.Id);
+        Assert.Equal(title, session.Title);
+        Assert.Equal(speakerId, session.SpeakerId);
+        Assert.Equal(tags, session.Tags);
+        Assert.Equal(sessionTypeId, session.SessionTypeId);
+        Assert.Equal(@abstract, session.Abstract);
+        Assert.Equal(conferenceId, session.ConferenceId);
+        Assert.Equal(status, session.Status);
     }
 
     private Entities.Session CreateSession()
