@@ -1,4 +1,0 @@
-So schreiben wir Unit Tests: Benutze bitte xUnit, Shouldly und (wenn nötig) NSubstitute. Benenne die Methoden nach dem Schema: Methodenname_Bedingungen_ErwartetesErgebnis. Trenne bitte Arrange, Act und Assert sauber mit Kommentaren. Verwende bitte file scoped Namespaces. Verwende keine Setup Methoden und keine Fields und keine Properties. Unterscheide zwischen Stubs und Mocks. Stubs simulieren feste Werte. Mocks testen den Aufruf von Methoden anderer Objekte. Verwende nur einen Mock pro Test. Das bedeutet, dass du nur einmal .Receive in einem Test aufrufen darfst. Wenn du mehrere Aufrufe von .Receive in einem Test hast, dann musst du zwei Tests daraus machen. Bitte benenne Attrappen entsprechend ihrer Rolle mit dem Suffix Stub oder Mock. Teste alle Methoden und den Konstruktor vollständig. Berücksichtige sämtliche Randfälle. 
-
-Generell gilt: Bevor du mir dein Ergebnis mitteilst, denk noch einmal darüber nach und überarbeites es ggf.
-
