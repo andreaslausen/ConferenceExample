@@ -1,7 +1,7 @@
 ﻿using ConferenceExample.Session.Domain.Entities;
 using ConferenceExample.Session.Domain.ValueObjects;
 using ConferenceExample.Session.Domain.ValueObjects.Ids;
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace ConferenceExample.Session.Domain.UnitTests;
@@ -19,7 +19,7 @@ public class SessionTests
         session.EditTitle(newTitle);
 
         // Assert
-        session.Title.Should().Be(newTitle);
+        session.Title.ShouldBe(newTitle);
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class SessionTests
         session.EditAbstract(newAbstract);
 
         // Assert
-        session.Abstract.Should().Be(newAbstract);
+        session.Abstract.ShouldBe(newAbstract);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class SessionTests
         session.AddTag(newTag);
 
         // Assert
-        session.Tags.Should().Contain(newTag);
+        session.Tags.ShouldContain(newTag);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class SessionTests
         session.RemoveTag(tagToRemove);
 
         // Assert
-        session.Tags.Should().NotContain(tagToRemove);
+        session.Tags.ShouldNotContain(tagToRemove);
     }
 
     [Fact]
@@ -82,14 +82,14 @@ public class SessionTests
         var session = new Entities.Session(sessionId, title, speakerId, tags, sessionTypeId, @abstract, conferenceId, status);
 
         // Assert
-        session.Id.Should().Be(sessionId);
-        session.Title.Should().Be(title);
-        session.SpeakerId.Should().Be(speakerId);
-        session.Tags.Should().BeEquivalentTo(tags);
-        session.SessionTypeId.Should().Be(sessionTypeId);
-        session.Abstract.Should().Be(@abstract);
-        session.ConferenceId.Should().Be(conferenceId);
-        session.Status.Should().Be(status);
+        session.Id.ShouldBe(sessionId);
+        session.Title.ShouldBe(title);
+        session.SpeakerId.ShouldBe(speakerId);
+        session.Tags.ShouldBe(tags);
+        session.SessionTypeId.ShouldBe(sessionTypeId);
+        session.Abstract.ShouldBe(@abstract);
+        session.ConferenceId.ShouldBe(conferenceId);
+        session.Status.ShouldBe(status);
     }
 
     private Entities.Session CreateSession()

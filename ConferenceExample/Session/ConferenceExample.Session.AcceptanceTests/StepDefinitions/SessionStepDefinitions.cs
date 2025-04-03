@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using ConferenceExample.Session.Application;
 using ConferenceExample.Session.Application.Dtos;
 using ConferenceExample.Session.Domain;
-using FluentAssertions;
+using Shouldly;
 using Reqnroll;
 using IDatabaseContext = ConferenceExample.Persistence.IDatabaseContext;
 
@@ -37,7 +37,8 @@ public sealed class SessionStepDefinitions(IDatabaseContext databaseContext, ISe
             Abstract = sessionDataFromTable.Abstract,
             Tags = sessionDataFromTable.Tags,
             SessionTypeId = sessionDataFromTable.SessionTypeId,
-            ConferenceId = _conferenceId, SpeakerId = _speakerId
+            ConferenceId = _conferenceId, 
+            SpeakerId = _speakerId
         });
     }
 
@@ -45,14 +46,14 @@ public sealed class SessionStepDefinitions(IDatabaseContext databaseContext, ISe
     public void ThenTheSessionShouldBeSubmitted()
     {
         var sessions = databaseContext.Sessions;
-        sessions.Should().HaveCount(1);
-        sessions[0].Title.Should().Be("Besser testen mit Akzeptanztests");
-        sessions[0].Abstract.Should().Be("Akzeptanztests in .NET mit Reqnroll");
-        sessions[0].Tags.Should().BeEquivalentTo(new List<string> { ".NET", "Testing" });
-        sessions[0].SessionTypeId.Should().Be(1);
-        sessions[0].ConferenceId.Should().Be(_conferenceId);
-        sessions[0].SpeakerId.Should().Be(_speakerId);
-        sessions[0].SessionStatus.Should().Be((int)SessionStatus.Submitted);
+        sessions.Count.ShouldBe(1);
+        sessions[0].Title.ShouldBe("Besser testen mit Akzeptanztests");
+        sessions[0].Abstract.ShouldBe("Akzeptanztests in .NET mit Reqnroll");
+        sessions[0].Tags.ShouldBe(new List<string> { ".NET", "Testing" });
+        sessions[0].SessionTypeId.ShouldBe(1);
+        sessions[0].ConferenceId.ShouldBe(_conferenceId);
+        sessions[0].SpeakerId.ShouldBe(_speakerId);
+        sessions[0].SessionStatus.ShouldBe((int)SessionStatus.Submitted);
     }
 
     private class SessionDataFromTable
