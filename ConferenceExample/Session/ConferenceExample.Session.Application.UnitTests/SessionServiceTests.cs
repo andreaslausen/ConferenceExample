@@ -1,106 +1,107 @@
-﻿using ConferenceExample.Session.Application.Dtos;
+namespace ConferenceExample.Session.Application.UnitTests;
+
+using ConferenceExample.Session.Application.Dtos;
 using ConferenceExample.Session.Domain.Repositories;
 using ConferenceExample.Session.Domain.ValueObjects.Ids;
-using FluentAssertions;
-using Xunit;
-
-namespace ConferenceExample.Session.Application.UnitTests;
+using NSubstitute;
+using Shouldly;
 
 public class SessionServiceTests
 {
-    private class FakeSessionRepository : ISessionRepository
-    {
-        public Domain.Entities.Session SavedSession { get; private set; }
-
-        public Task Save(Domain.Entities.Session session)
-        {
-            SavedSession = session;
-            return Task.CompletedTask;
-        }
-
-        public Task<IReadOnlyList<Domain.Entities.Session>> GetSessions(ConferenceId conferenceId)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    private class FakeDatabaseContext : IDatabaseContext
-    {
-        public bool SaveChangesCalled { get; private set; }
-
-        public Task SaveChanges()
-        {
-            SaveChangesCalled = true;
-            return Task.CompletedTask;
-        }
-    }
-
-    private class FakeIdGenerator : IIdGenerator
-    {
-        private readonly SessionId _sessionId;
-
-        public FakeIdGenerator(SessionId sessionId)
-        {
-            _sessionId = sessionId;
-        }
-
-        public T New<T>() where T : IId
-        {
-            return (T)(object)_sessionId;
-        }
-    }
-
     [Fact]
-    public async Task SubmitSession_ShouldCallSave()
+    public async Task SubmitSession_ValidDto_SavesSessionInRepository()
     {
         // Arrange
-        var sessionRepository = new FakeSessionRepository();
-        var databaseContext = new FakeDatabaseContext();
-        var sessionId = new SessionId(5);
-        var idGenerator = new FakeIdGenerator(sessionId);
-        var sessionService = new SessionService(sessionRepository, databaseContext, idGenerator);
-
+        var sessionRepositoryMock = Substitute.For<ISessionRepository>();
+        var databaseContextStub = Substitute.For<IDatabaseContext>();
+        var idGeneratorStub = Substitute.For<IIdGenerator>();
+        var sessionId = new SessionId(42);
+        idGeneratorStub.New<SessionId>().Returns(sessionId);
+        
+        var sut = new SessionService(sessionRepositoryMock, databaseContextStub, idGeneratorStub);
+        
         var submitSessionDto = new SubmitSessionDto
         {
             Title = "Test Session",
-            SpeakerId = 2,
-            Tags = new List<string> { "tag1", "tag2" },
-            SessionTypeId = 6,
             Abstract = "Test Abstract",
-            ConferenceId = 9
+            ConferenceId = 1,
+            SpeakerId = 2,
+            Tags = new List<string> { "Tag1", "Tag2" },
+            SessionTypeId = 3
         };
 
         // Act
-        await sessionService.SubmitSession(submitSessionDto);
+        await sut.SubmitSession(submitSessionDto);
 
         // Assert
-        sessionRepository.SavedSession.Should().NotBeNull();
+        await sessionRepositoryMock.Received(1).Save(Arg.Any<Domain.Entities.Session>());
     }
 
     [Fact]
-    public async Task SubmitSession_ShouldCallSaveChanges()
+    public async Task SubmitSession_ValidDto_SavesChangesInDatabase()
     {
         // Arrange
-        var sessionRepository = new FakeSessionRepository();
-        var databaseContext = new FakeDatabaseContext();
-        var sessionId = new SessionId(5);
-        var idGenerator = new FakeIdGenerator(sessionId);
-        var sessionService = new SessionService(sessionRepository, databaseContext, idGenerator);
-
+        var sessionRepositoryStub = Substitute.For<ISessionRepository>();
+        var databaseContextMock = Substitute.For<IDatabaseContext>();
+        var idGeneratorStub = Substitute.For<IIdGenerator>();
+        var sessionId = new SessionId(42);
+        idGeneratorStub.New<SessionId>().Returns(sessionId);
+        
+        var sut = new SessionService(sessionRepositoryStub, databaseContextMock, idGeneratorStub);
+        
         var submitSessionDto = new SubmitSessionDto
         {
             Title = "Test Session",
-            SpeakerId = 2,
-            Tags = new List<string> { "tag1", "tag2" },
-            SessionTypeId = 6,
             Abstract = "Test Abstract",
-            ConferenceId = 9
+            ConferenceId = 1,
+            SpeakerId = 2,
+            Tags = new List<string> { "Tag1", "Tag2" },
+            SessionTypeId = 3
         };
 
         // Act
-        await sessionService.SubmitSession(submitSessionDto);
+        await sut.SubmitSession(submitSessionDto);
 
         // Assert
-        databaseContext.SaveChangesCalled.Should().BeTrue();
+        await databaseContextMock.Received(1).SaveChanges();
+    }
+
+    [Fact]
+    public async Task SubmitSession_ValidDto_CreatesSessionWithCorrectValues()
+    {
+        // Arrange
+        var sessionRepositoryStub = Substitute.For<ISessionRepository>();
+        var databaseContextStub = Substitute.For<IDatabaseContext>();
+        var idGeneratorStub = Substitute.For<IIdGenerator>();
+        var sessionId = new SessionId(42);
+        idGeneratorStub.New<SessionId>().Returns(sessionId);
+        Domain.Entities.Session? capturedSession = null;
+        await sessionRepositoryStub.Save(Arg.Do<Domain.Entities.Session>(s => capturedSession = s));
+        
+        var sut = new SessionService(sessionRepositoryStub, databaseContextStub, idGeneratorStub);
+        
+        var submitSessionDto = new SubmitSessionDto
+        {
+            Title = "Test Session",
+            Abstract = "Test Abstract",
+            ConferenceId = 1,
+            SpeakerId = 2,
+            Tags = ["Tag1", "Tag2"],
+            SessionTypeId = 3
+        };
+
+        // Act
+        await sut.SubmitSession(submitSessionDto);
+
+        // Assert
+        capturedSession.ShouldNotBeNull();
+        capturedSession.Id.Value.ShouldBe(sessionId.Value);
+        capturedSession.Title.Title.ShouldBe(submitSessionDto.Title);
+        capturedSession.Abstract.Content.ShouldBe(submitSessionDto.Abstract);
+        capturedSession.ConferenceId.Value.ShouldBe(submitSessionDto.ConferenceId);
+        capturedSession.SpeakerId.Value.ShouldBe(submitSessionDto.SpeakerId);
+        capturedSession.SessionTypeId.Value.ShouldBe(submitSessionDto.SessionTypeId);
+        capturedSession.Tags.Select(t => t.Tag).ShouldBe(submitSessionDto.Tags);
+        capturedSession.Status.ShouldBe(Domain.SessionStatus.Submitted);
     }
 }
