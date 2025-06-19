@@ -1,5 +1,5 @@
-using ArchUnitNET.Domain.Dependencies;
-using ArchUnitNET.Domain.Extensions;
+using ArchUnitNET.xUnit;
+using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace ConferenceExample.ArchitectureTests;
 
@@ -8,14 +8,23 @@ public class PersistenceRules : ArchitectureTest
     [Fact]
     public void Repositories_ShouldNotUseOtherRepositories()
     {
-        var services =
-            Architecture.Classes.Where(s => s.Namespace.NameContains("Persistence") && s.NameEndsWith("Repository"));
+        var repositories = Types()
+            .That()
+            .ResideInAssembly(SessionDomain,
+                SessionPersistence,
+                ConferenceDomain,
+                ConferencePersistence)
+            .And()
+            .HaveNameEndingWith("Repository");
 
-        Assert.All(services, c => Assert.True(
-            c.Dependencies.Find(d =>
-                d is not ImplementsInterfaceDependency &&
-                d.Origin.FullName != d.Target.FullName &&
-                d.Target.NameEndsWith("Repository"))
-            == null));
+        var rule = repositories.Should()
+            .NotCallAny(MethodMembers()
+                .That()
+                .ArePublic()
+                .And()
+                .AreDeclaredIn(repositories))
+            .WithoutRequiringPositiveResults();
+
+        rule.Check(Architecture);
     }
 }

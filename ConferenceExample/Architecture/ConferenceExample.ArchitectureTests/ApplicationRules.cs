@@ -1,5 +1,5 @@
-using ArchUnitNET.Domain.Dependencies;
-using ArchUnitNET.Domain.Extensions;
+using ArchUnitNET.xUnit;
+using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace ConferenceExample.ArchitectureTests;
 
@@ -8,13 +8,23 @@ public class ApplicationRules : ArchitectureTest
     [Fact]
     public void ApplicationServices_ShouldNotCallOtherApplicationServices()
     {
-        var applicationServices =
-            Architecture.Classes.Where(s => s.Namespace.NameContains("Application") && s.NameEndsWith("Service"));
+        var applicationServices = Types()
+            .That()
+            .ResideInAssembly(ConferenceApplication, SessionApplication)
+            .And()
+            .HaveNameEndingWith("Service");
 
-        Assert.All(applicationServices,
-            c => Assert.Null(c.Dependencies.Find(d =>
-                d is not ImplementsInterfaceDependency &&
-                d.Origin.FullName != d.Target.FullName && d.Target.NameContains("Service") &&
-                d.Target.FullNameContains("Application"))));
+        var rule = MethodMembers()
+            .That()
+            .AreDeclaredIn(applicationServices)
+            .Should()
+            .NotCallAny(MethodMembers()
+                .That()
+                .AreDeclaredIn(applicationServices)
+                .And()
+                .ArePublic())
+            .WithoutRequiringPositiveResults();
+
+        rule.Check(Architecture);
     }
 }
