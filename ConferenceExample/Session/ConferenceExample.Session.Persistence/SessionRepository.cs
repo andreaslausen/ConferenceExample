@@ -10,7 +10,7 @@ public class SessionRepository(IDatabaseContext databaseContext) : ISessionRepos
     public Task<IReadOnlyList<Domain.Entities.Session>> GetSessions(ConferenceId conferenceId)
     {
         return Task.FromResult<IReadOnlyList<Domain.Entities.Session>>(
-            databaseContext.Sessions.Where(s => s.ConferenceId == conferenceId.Value.Value)
+            databaseContext.Sessions.Where(s => new ConferenceId(s.ConferenceId) == conferenceId)
                 .Select(s => s.ToDomain())
                 .ToList());
     }

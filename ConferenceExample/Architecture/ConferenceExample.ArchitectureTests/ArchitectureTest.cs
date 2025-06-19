@@ -32,7 +32,9 @@ public abstract class ArchitectureTest
 
     protected static readonly Assembly[] ApiAssemblies = [Api];
 
+    protected static readonly Assembly[] AllAssemblies = [..ConferenceAssemblies, ..SessionAssemblies, ..PersistenceAssemblies, ..ApiAssemblies];
+
     protected static readonly Architecture Architecture = new ArchLoader().LoadAssembliesIncludingDependencies(
-            [..ConferenceAssemblies, ..SessionAssemblies, ..PersistenceAssemblies, ..ApiAssemblies])
+        AllAssemblies)
         .Build();
 }
