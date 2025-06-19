@@ -14,14 +14,17 @@ public static class Dependencies
             => current.Or().ResideInAssembly(assembly));
         allowedTypes = allowedNamespaces.Aggregate(allowedTypes, (current, allowedNamespace)
             => current.Or().ResideInNamespace($"{allowedNamespace}.*", true));
-
+    
         var rule = Types()
             .That()
             .ResideInAssembly(source)
             .Should()
             .OnlyDependOn(allowedTypes);
-
-        var architecture = new ArchLoader().LoadAssemblyIncludingDependencies(source).LoadAssemblies(target).Build();
+    
+        var architecture = new ArchLoader()
+            .LoadAssemblyIncludingDependencies(source)
+            .LoadAssemblies(target)
+            .Build();
         
         rule.Check(architecture);
     }
