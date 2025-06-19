@@ -1,5 +1,4 @@
 using ConferenceExample.API;
-using ConferenceExample.API.Infrastructure;
 using ConferenceExample.Session.Application;
 using ConferenceExample.Session.Domain.Repositories;
 using ConferenceExample.Session.Persistence;
@@ -21,10 +20,6 @@ public class SetupTestDependencies
         services.AddSingleton(databaseContext);
         services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<ISessionService, SessionService>();
-        services.AddScoped<IIdGenerator, IdGenerator>();
-        var counterIdValueGeneratorStrategy = new CounterIdValueGeneratorStrategy();
-        services.AddSingleton<IIdValueGeneratorStrategy>(counterIdValueGeneratorStrategy);
-
         return services;
     }
 }

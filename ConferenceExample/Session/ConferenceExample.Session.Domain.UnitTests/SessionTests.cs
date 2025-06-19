@@ -12,13 +12,13 @@ public class SessionTests
     public void Constructor_ValidParameters_InitializesProperties()
     {
         // Arrange
-        var id = new SessionId(1);
+        var id = new SessionId(GuidV7.NewGuid());
         var title = new SessionTitle("Test Title");
-        var speakerId = new SpeakerId(2);
+        var speakerId = new SpeakerId(GuidV7.NewGuid());
         var tags = new List<SessionTag> { new SessionTag("Tag1"), new SessionTag("Tag2") };
-        var sessionTypeId = new SessionTypeId(3);
+        var sessionTypeId = new SessionTypeId(GuidV7.NewGuid());
         var @abstract = new Abstract("Test Abstract");
-        var conferenceId = new ConferenceId(4);
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Act
         var session = new Entities.Session(id, title, speakerId, tags, sessionTypeId, @abstract, conferenceId);
@@ -38,12 +38,12 @@ public class SessionTests
     public void Constructor_NullTags_ThrowsArgumentNullException()
     {
         // Arrange
-        var id = new SessionId(1);
+        var id = new SessionId(GuidV7.NewGuid());
         var title = new SessionTitle("Test Title");
-        var speakerId = new SpeakerId(2);
-        var sessionTypeId = new SessionTypeId(3);
+        var speakerId = new SpeakerId(GuidV7.NewGuid());
+        var sessionTypeId = new SessionTypeId(GuidV7.NewGuid());
         var @abstract = new Abstract("Test Abstract");
-        var conferenceId = new ConferenceId(4);
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new Entities.Session(id, title, speakerId, null!, sessionTypeId, @abstract, conferenceId));
@@ -93,13 +93,13 @@ public class SessionTests
 
     private Entities.Session CreateValidSession()
     {
-        var id = new SessionId(1);
+        var id = new SessionId(GuidV7.NewGuid());
         var title = new SessionTitle("Test Title");
-        var speakerId = new SpeakerId(2);
+        var speakerId = new SpeakerId(GuidV7.NewGuid());
         var tags = new List<SessionTag> { new SessionTag("Tag1"), new SessionTag("Tag2") };
-        var sessionTypeId = new SessionTypeId(3);
+        var sessionTypeId = new SessionTypeId(GuidV7.NewGuid());
         var @abstract = new Abstract("Test Abstract");
-        var conferenceId = new ConferenceId(4);
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         return new Entities.Session(id, title, speakerId, tags, sessionTypeId, @abstract, conferenceId);
     }

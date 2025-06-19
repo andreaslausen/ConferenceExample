@@ -5,11 +5,11 @@ using ConferenceExample.Session.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Session.Application;
 
-public class SessionService(ISessionRepository sessionRepository, IDatabaseContext databaseContext, IIdGenerator idGenerator) : ISessionService
+public class SessionService(ISessionRepository sessionRepository, IDatabaseContext databaseContext) : ISessionService
 {
     public async Task SubmitSession(SubmitSessionDto submitSessionDto)
     {
-        var sessionId = idGenerator.New<SessionId>();
+        var sessionId = new SessionId(GuidV7.NewGuid());
         var session = new Domain.Entities.Session(sessionId, new SessionTitle(submitSessionDto.Title), new SpeakerId(submitSessionDto.SpeakerId),
             submitSessionDto.Tags.Select(t => new SessionTag(t)), new SessionTypeId(submitSessionDto.SessionTypeId), new Abstract(submitSessionDto.Abstract),
             new ConferenceId(submitSessionDto.ConferenceId));

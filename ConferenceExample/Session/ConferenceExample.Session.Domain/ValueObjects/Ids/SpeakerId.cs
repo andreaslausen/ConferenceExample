@@ -1,3 +1,3 @@
 namespace ConferenceExample.Session.Domain.ValueObjects.Ids;
 
-public record SpeakerId(long Value) : IId;
+public record SpeakerId(GuidV7 Value);

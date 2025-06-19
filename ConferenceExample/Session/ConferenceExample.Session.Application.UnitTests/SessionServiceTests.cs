@@ -1,6 +1,7 @@
 using NSubstitute;
 using ConferenceExample.Session.Application.Dtos;
 using ConferenceExample.Session.Domain.Repositories;
+using ConferenceExample.Session.Domain.ValueObjects;
 using ConferenceExample.Session.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Session.Application.UnitTests;
@@ -8,31 +9,12 @@ namespace ConferenceExample.Session.Application.UnitTests;
 public class SessionServiceTests
 {
     [Fact]
-    public async Task SubmitSession_CallsIdGeneratorNew_MethodCalled()
-    {
-        // Arrange
-        var sessionRepository = Substitute.For<ISessionRepository>();
-        var databaseContext = Substitute.For<IDatabaseContext>();
-        var idGenerator = Substitute.For<IIdGenerator>();
-        var service = new SessionService(sessionRepository, databaseContext, idGenerator);
-        var dto = CreateSubmitSessionDto();
-
-        // Act
-        await service.SubmitSession(dto);
-
-        // Assert
-        idGenerator.Received(1).New<SessionId>();
-    }
-
-    [Fact]
     public async Task SubmitSession_CallsSessionRepositorySave_MethodCalled()
     {
         // Arrange
         var sessionRepository = Substitute.For<ISessionRepository>();
         var databaseContext = Substitute.For<IDatabaseContext>();
-        var idGenerator = Substitute.For<IIdGenerator>();
-        idGenerator.New<SessionId>().Returns(new SessionId(1));
-        var service = new SessionService(sessionRepository, databaseContext, idGenerator);
+        var service = new SessionService(sessionRepository, databaseContext);
         var dto = CreateSubmitSessionDto();
 
         // Act
@@ -48,9 +30,7 @@ public class SessionServiceTests
         // Arrange
         var sessionRepository = Substitute.For<ISessionRepository>();
         var databaseContext = Substitute.For<IDatabaseContext>();
-        var idGenerator = Substitute.For<IIdGenerator>();
-        idGenerator.New<SessionId>().Returns(new SessionId(1));
-        var service = new SessionService(sessionRepository, databaseContext, idGenerator);
+        var service = new SessionService(sessionRepository, databaseContext);
         var dto = CreateSubmitSessionDto();
 
         // Act
@@ -65,11 +45,11 @@ public class SessionServiceTests
         return new SubmitSessionDto
         {
             Title = "Test Title",
-            SpeakerId = 1,
+            SpeakerId = GuidV7.NewGuid(),
             Tags = new List<string> { "tag1", "tag2" },
-            SessionTypeId = 1,
+            SessionTypeId = GuidV7.NewGuid(),
             Abstract = "Test Abstract",
-            ConferenceId = 1
+            ConferenceId = GuidV7.NewGuid()
         };
     }
 }
