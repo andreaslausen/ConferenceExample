@@ -18,8 +18,7 @@ public class ClassRules : ArchitectureTest
 
         var rule = Classes()
             .That()
-            .ResideInNamespace("ConferenceExample*",
-                true)
+            .ResideInNamespaceMatching("ConferenceExample*")
             .And()
             .AreNot(typeof(GuidV7))
             .And()

@@ -16,8 +16,7 @@ public class SessionDependencyRules : ArchitectureTest
                 .That()
                 .ResideInAssembly(SessionDomain)
                 .Or()
-                .ResideInNamespace("System*",
-                    true));
+                .ResideInNamespaceMatching("System*"));
 
         rule.Check(Architecture);
     }
@@ -35,8 +34,7 @@ public class SessionDependencyRules : ArchitectureTest
                 .Or()
                 .ResideInAssembly(SessionDomain)
                 .Or()
-                .ResideInNamespace("System*",
-                    true));
+                .ResideInNamespaceMatching("System*"));
 
         rule.Check(Architecture);
     }
@@ -56,8 +54,7 @@ public class SessionDependencyRules : ArchitectureTest
                 .Or()
                 .ResideInAssembly(Persistence)
                 .Or()
-                .ResideInAssembly("System*",
-                    true));
+                .ResideInAssemblyMatching("System*"));
 
         rule.Check(Architecture);
     }

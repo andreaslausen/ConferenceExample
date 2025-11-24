@@ -13,7 +13,7 @@ public static class Dependencies
         allowedTypes = target.Aggregate(allowedTypes, (current, assembly)
             => current.Or().ResideInAssembly(assembly));
         allowedTypes = allowedNamespaces.Aggregate(allowedTypes, (current, allowedNamespace)
-            => current.Or().ResideInNamespace($"{allowedNamespace}.*", true));
+            => current.Or().ResideInNamespaceMatching($"{allowedNamespace}.*"));
     
         var rule = Types()
             .That()
