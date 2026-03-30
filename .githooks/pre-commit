@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# Collect staged C# files only
+STAGED_CS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cs$' || true)
+
+if [ -z "$STAGED_CS_FILES" ]; then
+  exit 0
+fi
+
+echo "Running CSharpier on staged C# files..."
+
+cd "$REPO_ROOT"
+
+while IFS= read -r FILE; do
+  dotnet csharpier "$FILE"
+  git add "$FILE"
+done <<< "$STAGED_CS_FILES"
