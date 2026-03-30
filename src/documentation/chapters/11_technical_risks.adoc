@@ -1,0 +1,7 @@
+= Risks and Technical Debts
+
+[cols="1,2,1",options="header"]
+|===
+| Risk / Technical Debt | Description | Mitigation
+| | |
+|===

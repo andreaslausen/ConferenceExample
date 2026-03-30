@@ -3,29 +3,37 @@ set -euo pipefail
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
-# Collect staged C# files only
+# ── CSharpier ──────────────────────────────────────────────────────────────────
 STAGED_CS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cs$' || true)
 
-if [ -z "$STAGED_CS_FILES" ]; then
-  exit 0
-fi
+if [ -n "$STAGED_CS_FILES" ]; then
+  cd "$REPO_ROOT"
 
-cd "$REPO_ROOT"
-
-# Ensure CSharpier is available; restore from manifest if needed
-if ! dotnet tool list --local 2>/dev/null | grep -q 'csharpier'; then
-  if [ ! -f ".config/dotnet-tools.json" ]; then
-    echo "ERROR: CSharpier is not installed and no dotnet tool manifest found."
-    echo "       Please run ./init-hooks.sh first."
-    exit 1
+  # Ensure CSharpier is available; restore from manifest if needed
+  if ! dotnet tool list --local 2>/dev/null | grep -q 'csharpier'; then
+    if [ ! -f ".config/dotnet-tools.json" ]; then
+      echo "ERROR: CSharpier is not installed and no dotnet tool manifest found."
+      echo "       Please run ./init-hooks.sh first."
+      exit 1
+    fi
+    echo "Restoring dotnet tools..."
+    dotnet tool restore --no-cache
   fi
-  echo "Restoring dotnet tools..."
-  dotnet tool restore --no-cache
+
+  echo "Running CSharpier on staged C# files..."
+
+  while IFS= read -r FILE; do
+    dotnet csharpier format "$FILE"
+    git add "$FILE"
+  done <<< "$STAGED_CS_FILES"
 fi
 
-echo "Running CSharpier on staged C# files..."
+# ── Architecture documentation ─────────────────────────────────────────────────
+STAGED_DOC_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '^src/documentation/' || true)
 
-while IFS= read -r FILE; do
-  dotnet csharpier format "$FILE"
-  git add "$FILE"
-done <<< "$STAGED_CS_FILES"
+if [ -n "$STAGED_DOC_FILES" ]; then
+  echo "Documentation changes detected. Building HTML documentation..."
+  "$REPO_ROOT/build-docs.sh"
+  git add "$REPO_ROOT/docs/"
+  echo "Documentation added to commit."
+fi

@@ -1,0 +1,19 @@
+= Building Block View
+
+== Whitebox Overall System
+
+[plantuml, building-block-level1, png]
+....
+@startuml
+@enduml
+....
+
+=== Contained Building Blocks
+
+[cols="1,2",options="header"]
+|===
+| Building Block | Responsibility
+| |
+|===
+
+=== Important Interfaces

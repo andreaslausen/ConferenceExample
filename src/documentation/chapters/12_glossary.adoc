@@ -1,0 +1,7 @@
+= Glossary
+
+[cols="1,2",options="header"]
+|===
+| Term | Definition
+| |
+|===

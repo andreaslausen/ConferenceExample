@@ -1,0 +1,7 @@
+= Architecture Constraints
+
+[cols="1,2",options="header"]
+|===
+| Constraint | Background / Motivation
+| |
+|===

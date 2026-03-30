@@ -1,0 +1,17 @@
+= System Scope and Context
+
+== Business Context
+
+[plantuml, business-context, png]
+....
+@startuml
+@enduml
+....
+
+== Technical Context
+
+[plantuml, technical-context, png]
+....
+@startuml
+@enduml
+....
