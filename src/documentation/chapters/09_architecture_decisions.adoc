@@ -1,1 +1,47 @@
 = Architecture Decisions
+
+== Open Decisions
+
+=== OD-1: Frontend Technology
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Open
+
+| Question
+| Which frontend technology should be used for the user interface?
+
+| Options Considered
+a|
+* React
+* Angular
+* Blazor (WebAssembly or Server)
+* Vue.js
+
+| Decision Criteria
+| Developer experience, alignment with the .NET backend ecosystem, suitability as a demonstration technology for talks and workshops.
+|===
+
+=== OD-2: Frontend Boundary — Shared vs. Per Bounded Context
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Open
+
+| Question
+| Should there be a single shared frontend application, or a separate frontend application per bounded context (Conference and Session)?
+
+| Options Considered
+a|
+* *Shared frontend* — one application consumes APIs from both bounded contexts. Simpler deployment, but introduces coupling between bounded contexts at the UI layer.
+* *Frontend per bounded context* — each bounded context owns its own frontend. Stronger isolation and autonomy per context, but requires a composition strategy (e.g. micro frontends) to present a unified user experience.
+
+| Decision Criteria
+| Degree of desired autonomy between bounded contexts, operational complexity, and value as a demonstration of DDD and Clean Architecture principles.
+|===

@@ -473,7 +473,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_cross_cutting_concepts">8. Cross-cutting Concepts</a></li>
-<li><a href="#_architecture_decisions">9. Architecture Decisions</a></li>
+<li><a href="#_architecture_decisions">9. Architecture Decisions</a>
+<ul class="sectlevel2">
+<li><a href="#_open_decisions">9.1. Open Decisions</a>
+<ul class="sectlevel3">
+<li><a href="#_od_1_frontend_technology">9.1.1. OD-1: Frontend Technology</a></li>
+<li><a href="#_od_2_frontend_boundary_shared_vs_per_bounded_context">9.1.2. OD-2: Frontend Boundary — Shared vs. Per Bounded Context</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#_quality_requirements">10. Quality Requirements</a>
 <ul class="sectlevel2">
 <li><a href="#_quality_tree">10.1. Quality Tree</a></li>
@@ -729,7 +738,99 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="_architecture_decisions">9. Architecture Decisions</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_open_decisions">9.1. Open Decisions</h3>
+<div class="sect3">
+<h4 id="_od_1_frontend_technology">9.1.1. OD-1: Frontend Technology</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Which frontend technology should be used for the user interface?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Options Considered</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>React</p>
+</li>
+<li>
+<p>Angular</p>
+</li>
+<li>
+<p>Blazor (WebAssembly or Server)</p>
+</li>
+<li>
+<p>Vue.js</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision Criteria</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developer experience, alignment with the .NET backend ecosystem, suitability as a demonstration technology for talks and workshops.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_od_2_frontend_boundary_shared_vs_per_bounded_context">9.1.2. OD-2: Frontend Boundary — Shared vs. Per Bounded Context</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should there be a single shared frontend application, or a separate frontend application per bounded context (Conference and Session)?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Options Considered</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Shared frontend</strong> — one application consumes APIs from both bounded contexts. Simpler deployment, but introduces coupling between bounded contexts at the UI layer.</p>
+</li>
+<li>
+<p><strong>Frontend per bounded context</strong> — each bounded context owns its own frontend. Stronger isolation and autonomy per context, but requires a composition strategy (e.g. micro frontends) to present a unified user experience.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision Criteria</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Degree of desired autonomy between bounded contexts, operational complexity, and value as a demonstration of DDD and Clean Architecture principles.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
