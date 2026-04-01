@@ -2,7 +2,35 @@
 
 == Architecture Decision Records
 
-=== ADR-1: Event Sourcing and CQRS
+=== ADR-1: Modular Monolith as Deployment Architecture
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Accepted
+
+| Context
+| The system consists of multiple bounded contexts (Conference, Session, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.
+
+| Decision
+| Deploy all bounded contexts as modules within a *single ASP.NET Core application* (modular monolith). Each module owns its own database schema within a shared database instance. Modules communicate in-process via defined interfaces (domain events, mediator, or explicit contracts) — not via network calls.
+
+| Rationale
+a|
+* *Operational simplicity* — one deployable unit, one database instance. No distributed-systems overhead (service discovery, network resilience, distributed transactions).
+* *Developer experience* — straightforward local development and debugging; all modules run in a single process.
+* *Strict boundaries* — despite sharing a process, modules are isolated via schema-per-module and enforced dependency rules (architecture tests). This preserves the option to extract modules into separate services if scaling or organisational needs require it.
+* *Demonstration value* — shows how DDD bounded contexts can be implemented with strong isolation without prematurely adopting microservices.
+
+| Consequences
+a|
+* *Positive:* Low operational complexity, fast in-process communication, simple transactions within a module, easy local development.
+* *Negative / trade-offs:* All modules must be deployed together; a bug in one module can affect the entire application. Independent scaling of individual modules is not possible without extraction. Discipline is required to maintain module boundaries over time.
+|===
+
+=== ADR-2: Event Sourcing and CQRS
 
 [cols="1,3",options="header"]
 |===
@@ -69,11 +97,11 @@ a|
 | Open
 
 | Question
-| Should there be a single shared frontend application, or a separate frontend application per bounded context (Conference and Session)?
+| Should there be a single shared frontend application, or a separate frontend application per bounded context?
 
 | Options Considered
 a|
-* *Shared frontend* — one application consumes APIs from both bounded contexts. Simpler deployment, but introduces coupling between bounded contexts at the UI layer.
+* *Shared frontend* — one application consumes APIs from all bounded contexts. Simpler deployment, but introduces coupling between bounded contexts at the UI layer.
 * *Frontend per bounded context* — each bounded context owns its own frontend. Stronger isolation and autonomy per context, but requires a composition strategy (e.g. micro frontends) to present a unified user experience.
 
 | Decision Criteria
@@ -127,4 +155,26 @@ a|
 
 | Decision Criteria
 | Query complexity, read performance requirements, operational simplicity, and consistency with the chosen event store technology.
+|===
+
+=== OD-5: Identity Provider
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Open
+
+| Question
+| Which identity provider should be used for authentication and role management?
+
+| Options Considered
+a|
+* *Keycloak* — open-source, self-hosted, feature-rich (SSO, social login, fine-grained roles). Requires operational effort for hosting and maintenance.
+* *Auth0* — managed SaaS identity platform. Low operational effort, but introduces a vendor dependency and recurring costs.
+* *Microsoft Entra ID (formerly Azure AD)* — managed identity service, strong integration with the Microsoft/.NET ecosystem. Ties the system to the Azure platform.
+
+| Decision Criteria
+| Operational simplicity (self-hosted vs. managed), cost, alignment with the .NET ecosystem, ease of local development (Docker-based setup), and suitability as a demonstration technology.
 |===

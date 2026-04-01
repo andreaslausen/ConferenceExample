@@ -443,7 +443,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#_introduction_and_goals">1. Introduction and Goals</a>
 <ul class="sectlevel2">
-<li><a href="#_requirements_overview">1.1. Requirements Overview</a></li>
+<li><a href="#_requirements_overview">1.1. Requirements Overview</a>
+<ul class="sectlevel3">
+<li><a href="#_additional_context">1.1.1. Additional Context</a></li>
+</ul>
+</li>
 <li><a href="#_quality_goals">1.2. Quality Goals</a></li>
 <li><a href="#_stakeholders">1.3. Stakeholders</a></li>
 </ul>
@@ -455,10 +459,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_technical_context">3.2. Technical Context</a></li>
 </ul>
 </li>
-<li><a href="#_solution_strategy">4. Solution Strategy</a></li>
+<li><a href="#_solution_strategy">4. Solution Strategy</a>
+<ul class="sectlevel2">
+<li><a href="#_domain_driven_design">4.1. Domain-Driven Design</a>
+<ul class="sectlevel3">
+<li><a href="#_subdomains">4.1.1. Subdomains</a></li>
+<li><a href="#_mapping_subdomains_to_bounded_contexts">4.1.2. Mapping Subdomains to Bounded Contexts</a></li>
+</ul>
+</li>
+<li><a href="#_modular_monolith">4.2. Modular Monolith</a></li>
+<li><a href="#_clean_architecture">4.3. Clean Architecture</a></li>
+</ul>
+</li>
 <li><a href="#_building_block_view">5. Building Block View</a>
 <ul class="sectlevel2">
-<li><a href="#_whitebox_overall_system">5.1. Whitebox Overall System</a>
+<li><a href="#_whitebox_overall_system_bounded_context_map">5.1. Whitebox Overall System — Bounded Context Map</a>
 <ul class="sectlevel3">
 <li><a href="#_contained_building_blocks">5.1.1. Contained Building Blocks</a></li>
 <li><a href="#_important_interfaces">5.1.2. Important Interfaces</a></li>
@@ -477,7 +492,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_architecture_decision_records">9.1. Architecture Decision Records</a>
 <ul class="sectlevel3">
-<li><a href="#_adr_1_event_sourcing_and_cqrs">9.1.1. ADR-1: Event Sourcing and CQRS</a></li>
+<li><a href="#_adr_1_modular_monolith_as_deployment_architecture">9.1.1. ADR-1: Modular Monolith as Deployment Architecture</a></li>
+<li><a href="#_adr_2_event_sourcing_and_cqrs">9.1.2. ADR-2: Event Sourcing and CQRS</a></li>
 </ul>
 </li>
 <li><a href="#_open_decisions">9.2. Open Decisions</a>
@@ -486,6 +502,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_od_2_frontend_boundary_shared_vs_per_bounded_context">9.2.2. OD-2: Frontend Boundary — Shared vs. Per Bounded Context</a></li>
 <li><a href="#_od_3_event_store_persistence_technology">9.2.3. OD-3: Event Store Persistence Technology</a></li>
 <li><a href="#_od_4_read_model_persistence_technology">9.2.4. OD-4: Read Model Persistence Technology</a></li>
+<li><a href="#_od_5_identity_provider">9.2.5. OD-5: Identity Provider</a></li>
 </ul>
 </li>
 </ul>
@@ -508,7 +525,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_requirements_overview">1.1. Requirements Overview</h3>
 <div class="paragraph">
-<p>Conference Example is a conference management system that allows organizers to create and publish conferences, and speakers to register and submit talk proposals.</p>
+<p>Conference Example is a conference management system used by speakers (hundreds), organizers (dozens), and attendees (thousands) to organize and manage conferences in the German-speaking region.</p>
 </div>
 <div class="paragraph">
 <p>The key features are:</p>
@@ -516,21 +533,46 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p><strong>User registration</strong> — users can create an account to act as organizers or speakers</p>
+<p><strong>Conference program</strong> — attendees can view the conference program including times and rooms online</p>
 </li>
 <li>
-<p><strong>Conference management</strong> — organizers can create, configure, and publish conferences</p>
+<p><strong>Talk management</strong> — speakers can manage their talks (submit, edit)</p>
 </li>
 <li>
-<p><strong>Talk submission</strong> — speakers can discover published conferences and submit talk proposals</p>
+<p><strong>Talk rating</strong> — attendees can rate the popularity of talks (thumbs up, thumbs down)</p>
 </li>
 <li>
-<p><strong>Schedule management</strong> — organizers can assign accepted talks to rooms and time slots</p>
+<p><strong>Real-time notifications</strong> — organizers can notify attendees in real time about changes to the conference program (opt-in required)</p>
+</li>
+<li>
+<p><strong>Conference branding</strong> — each conference can have its own branding</p>
+</li>
+<li>
+<p><strong>Slide sharing</strong> — presentation slides are made available to attendees online</p>
+</li>
+<li>
+<p><strong>Mobile app</strong> — a mobile conference app for attendees is envisioned for the future</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
 <p>Beyond the functional scope, the primary purpose of this project is to serve as a comprehensive example system for presentations and workshops covering topics such as Domain-Driven Design, Clean Architecture, software architecture, architecture documentation, architecture tests, and testing.</p>
+</div>
+<div class="sect3">
+<h4 id="_additional_context">1.1.1. Additional Context</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Conferences take place in the German-speaking region.</p>
+</li>
+<li>
+<p>There are only a few support staff members.</p>
+</li>
+<li>
+<p>Very high traffic is expected while a conference is running.</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -596,7 +638,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Conference Attendee</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">(fictional)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Can view the published schedule of a conference.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Can view the conference program including times and rooms, rate talks (thumbs up / thumbs down), receive real-time notifications about program changes (opt-in), and access presentation slides.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Presenter / Author</p></td>
@@ -657,17 +699,53 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_business_context">3.1. Business Context</h3>
+<div class="paragraph">
+<p>The Conference Management System interacts with three primary user roles and one external system.</p>
+</div>
 <div class="imageblock">
 <div class="content">
-<img src="images/business-context.png" alt="business context" width="585" height="256">
+<img src="images/business-context.png" alt="business context" width="542" height="369">
 </div>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Actor / System</th>
+<th class="tableblock halign-left valign-top">Interaction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Organizer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates and configures conferences (rooms, time slots). Assigns accepted sessions to the program. Triggers notifications to attendees about program changes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Speaker</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Submits and edits talk proposals (title, abstract, tags). Uploads presentation slides for accepted talks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attendee</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Views the conference program (times, rooms). Rates talks (thumbs up / thumbs down). Opts in to receive real-time notifications about program changes. Accesses presentation slides.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Identity Provider</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">External system providing authentication and role-based authorization. The Conference Management System delegates all identity concerns to this provider and consumes tokens/claims via an anti-corruption layer.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_technical_context">3.2. Technical Context</h3>
+<div class="paragraph">
+<p>The system is deployed as a <strong>modular monolith</strong>: a single ASP.NET Core application that hosts all bounded contexts as in-process modules. Each module owns its own database schema within a shared database instance.</p>
+</div>
 <div class="imageblock">
 <div class="content">
-<img src="images/technical-context.png" alt="technical context" width="585" height="256">
+<img src="images/technical-context.png" alt="technical context" width="1366" height="497">
 </div>
 </div>
 </div>
@@ -676,43 +754,260 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="_solution_strategy">4. Solution Strategy</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_domain_driven_design">4.1. Domain-Driven Design</h3>
+<div class="paragraph">
+<p>The system follows a Domain-Driven Design approach. The problem space is decomposed into subdomains, each of which is mapped to a solution-space bounded context.</p>
+</div>
+<div class="sect3">
+<h4 id="_subdomains">4.1.1. Subdomains</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Subdomain</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Managing conferences, rooms, time slots, and the conference program (scheduling).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Managing talks, speakers, abstracts, and tags. Sessions are submitted and curated independently before being assigned to the conference program.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attendees rate the popularity of talks (thumbs up / thumbs down). High-traffic subdomain during a running conference — requires independent scalability.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Real-time notifications to attendees about changes to the conference program. Attendees must opt in to receive notifications.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attendee</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attendee registration, profiles, and preferences (e.g. notification opt-in).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Upload and distribution of presentation slides. Speakers upload slides for their talks; attendees can access them online.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Identity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication, authorization, and user/role management (speaker, organizer, attendee). This subdomain is best served by a standard identity provider (e.g. Keycloak, Auth0, Entra ID) rather than custom development.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_mapping_subdomains_to_bounded_contexts">4.1.2. Mapping Subdomains to Bounded Contexts</h4>
+<div class="paragraph">
+<p>Not every subdomain requires a custom-built bounded context. The following table shows how subdomains map to bounded contexts in the solution space.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Subdomain</th>
+<th class="tableblock halign-left valign-top">Bounded Context</th>
+<th class="tableblock halign-left valign-top">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain with conference-specific business rules.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain with its own aggregate lifecycle (submit → review → accept).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — isolated due to fundamentally different traffic and scaling characteristics (thousands of concurrent votes).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — event-driven, asynchronous delivery, own infrastructure concerns (WebSocket, push).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attendee</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attendee</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — manages attendee-specific domain logic (registration, preferences).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — handles file storage and distribution, potentially backed by a CDN or object store.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Identity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(no custom BC)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Addressed by a standard identity provider. An anti-corruption layer in the API translates external identity tokens into domain-specific role concepts.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_modular_monolith">4.2. Modular Monolith</h3>
+<div class="paragraph">
+<p>The system is built as a <strong>modular monolith</strong>: all bounded contexts are deployed within a single ASP.NET Core application, but are strictly isolated as modules with clear boundaries.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Single API</strong> — one ASP.NET Core host exposes all endpoints. Each module registers its own controllers/endpoints, but externally there is one unified API.</p>
+</li>
+<li>
+<p><strong>Schema per module</strong> — all modules share one physical database, but each module owns a dedicated database schema. No module may read from or write to another module&#8217;s schema directly.</p>
+</li>
+<li>
+<p><strong>In-process communication</strong> — modules communicate via defined interfaces (domain events, mediator, or explicit contracts), not via network calls.</p>
+</li>
+<li>
+<p><strong>Extractability</strong> — the strict module boundaries are designed so that individual bounded contexts can be extracted into separate services later if scaling or organisational needs require it.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_clean_architecture">4.3. Clean Architecture</h3>
+<div class="paragraph">
+<p>Each custom bounded context follows a Clean Architecture layered structure:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>API  ──►  Application  ──►  Domain
+                  └──────►  Persistence</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Domain</strong> — aggregates, entities, value objects, domain events. No dependencies on infrastructure.</p>
+</li>
+<li>
+<p><strong>Application</strong> — use cases (commands and queries). Depends on the domain and on persistence abstractions.</p>
+</li>
+<li>
+<p><strong>Persistence</strong> — shared data models and the <code>IDatabaseContext</code> interface.</p>
+</li>
+<li>
+<p><strong>API</strong> — ASP.NET Core entry point, dependency injection, HTTP endpoints.</p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_building_block_view">5. Building Block View</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_whitebox_overall_system">5.1. Whitebox Overall System</h3>
+<h3 id="_whitebox_overall_system_bounded_context_map">5.1. Whitebox Overall System — Bounded Context Map</h3>
+<div class="paragraph">
+<p>The following diagram shows the bounded contexts of the system and their relationships.</p>
+</div>
 <div class="imageblock">
 <div class="content">
-<img src="images/building-block-level1.png" alt="building block level1" width="585" height="256">
+<img src="images/bounded-context-map.png" alt="bounded context map" width="631" height="519">
 </div>
 </div>
 <div class="sect3">
 <h4 id="_contained_building_blocks">5.1.1. Contained Building Blocks</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 66.6667%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Building Block</th>
+<th class="tableblock halign-left valign-top">Bounded Context</th>
+<th class="tableblock halign-left valign-top">Type</th>
 <th class="tableblock halign-left valign-top">Responsibility</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of sessions to slots. References sessions by ID only.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages talks, speakers, abstracts, and tags. Sessions have their own lifecycle (submit → review → accept) independent of the conference program.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Handles attendee ratings of talks (thumbs up / thumbs down). Designed for high throughput and independent scalability.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Delivers real-time notifications to attendees about conference program changes. Event-driven, asynchronous. Respects attendee opt-in preferences.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attendee</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages attendee registration, profiles, and preferences (e.g. notification opt-in).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Handles upload and distribution of presentation slides. Speakers upload slides linked to their sessions.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Identity Provider</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generic (external)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication and role management. Not a custom bounded context — addressed by a standard identity product. Other contexts integrate via an anti-corruption layer that translates tokens/claims into domain-specific roles.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
 <h4 id="_important_interfaces">5.1.2. Important Interfaces</h4>
-
+<div class="paragraph">
+<p>Bounded contexts communicate through well-defined interfaces. The following integration patterns are used:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>ID references</strong> — contexts reference entities from other contexts by ID only (e.g. <code>SessionId</code>, <code>AttendeeId</code>). No shared domain models.</p>
+</li>
+<li>
+<p><strong>Domain events</strong> — the Notification context subscribes to domain events from the Conference context (e.g. <code>ProgramChanged</code>) to trigger attendee notifications.</p>
+</li>
+<li>
+<p><strong>Anti-corruption layer (ACL)</strong> — contexts that interact with the external identity provider translate external claims into internal role/permission concepts.</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -748,7 +1043,68 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_architecture_decision_records">9.1. Architecture Decision Records</h3>
 <div class="sect3">
-<h4 id="_adr_1_event_sourcing_and_cqrs">9.1.1. ADR-1: Event Sourcing and CQRS</h4>
+<h4 id="_adr_1_modular_monolith_as_deployment_architecture">9.1.1. ADR-1: Modular Monolith as Deployment Architecture</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system consists of multiple bounded contexts (Conference, Session, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Deploy all bounded contexts as modules within a <strong>single ASP.NET Core application</strong> (modular monolith). Each module owns its own database schema within a shared database instance. Modules communicate in-process via defined interfaces (domain events, mediator, or explicit contracts) — not via network calls.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rationale</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Operational simplicity</strong> — one deployable unit, one database instance. No distributed-systems overhead (service discovery, network resilience, distributed transactions).</p>
+</li>
+<li>
+<p><strong>Developer experience</strong> — straightforward local development and debugging; all modules run in a single process.</p>
+</li>
+<li>
+<p><strong>Strict boundaries</strong> — despite sharing a process, modules are isolated via schema-per-module and enforced dependency rules (architecture tests). This preserves the option to extract modules into separate services if scaling or organisational needs require it.</p>
+</li>
+<li>
+<p><strong>Demonstration value</strong> — shows how DDD bounded contexts can be implemented with strong isolation without prematurely adopting microservices.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Consequences</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Positive:</strong> Low operational complexity, fast in-process communication, simple transactions within a module, easy local development.</p>
+</li>
+<li>
+<p><strong>Negative / trade-offs:</strong> All modules must be deployed together; a bug in one module can affect the entire application. Independent scaling of individual modules is not possible without extraction. Discipline is required to maintain module boundaries over time.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_adr_2_event_sourcing_and_cqrs">9.1.2. ADR-2: Event Sourcing and CQRS</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -891,14 +1247,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Question</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Should there be a single shared frontend application, or a separate frontend application per bounded context (Conference and Session)?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should there be a single shared frontend application, or a separate frontend application per bounded context?</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Options Considered</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
 <ul>
 <li>
-<p><strong>Shared frontend</strong> — one application consumes APIs from both bounded contexts. Simpler deployment, but introduces coupling between bounded contexts at the UI layer.</p>
+<p><strong>Shared frontend</strong> — one application consumes APIs from all bounded contexts. Simpler deployment, but introduces coupling between bounded contexts at the UI layer.</p>
 </li>
 <li>
 <p><strong>Frontend per bounded context</strong> — each bounded context owns its own frontend. Stronger isolation and autonomy per context, but requires a composition strategy (e.g. micro frontends) to present a unified user experience.</p>
@@ -1014,6 +1370,51 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decision Criteria</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Query complexity, read performance requirements, operational simplicity, and consistency with the chosen event store technology.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_od_5_identity_provider">9.2.5. OD-5: Identity Provider</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Which identity provider should be used for authentication and role management?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Options Considered</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Keycloak</strong> — open-source, self-hosted, feature-rich (SSO, social login, fine-grained roles). Requires operational effort for hosting and maintenance.</p>
+</li>
+<li>
+<p><strong>Auth0</strong> — managed SaaS identity platform. Low operational effort, but introduces a vendor dependency and recurring costs.</p>
+</li>
+<li>
+<p><strong>Microsoft Entra ID (formerly Azure AD)</strong> — managed identity service, strong integration with the Microsoft/.NET ecosystem. Ties the system to the Azure platform.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision Criteria</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operational simplicity (self-hosted vs. managed), cost, alignment with the .NET ecosystem, ease of local development (Docker-based setup), and suitability as a demonstration technology.</p></td>
 </tr>
 </tbody>
 </table>

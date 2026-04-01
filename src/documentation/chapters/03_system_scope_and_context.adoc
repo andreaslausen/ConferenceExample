@@ -2,16 +2,80 @@
 
 == Business Context
 
+The Conference Management System interacts with three primary user roles and one external system.
+
 [plantuml, business-context, png]
 ....
 @startuml
+skinparam actorStyle awesome
+
+actor "Organizer" as org
+actor "Speaker" as spk
+actor "Attendee" as att
+
+rectangle "Conference Management System" as sys
+
+org --> sys : create & manage\nconferences, rooms,\nschedules
+spk --> sys : submit & edit talks,\nupload slides
+att --> sys : view program, rate talks,\nreceive notifications,\naccess slides
+
+sys --> [Identity Provider] : authentication &\nauthorization
+
 @enduml
 ....
 
+[cols="1,2",options="header"]
+|===
+| Actor / System | Interaction
+
+| Organizer
+| Creates and configures conferences (rooms, time slots). Assigns accepted sessions to the program. Triggers notifications to attendees about program changes.
+
+| Speaker
+| Submits and edits talk proposals (title, abstract, tags). Uploads presentation slides for accepted talks.
+
+| Attendee
+| Views the conference program (times, rooms). Rates talks (thumbs up / thumbs down). Opts in to receive real-time notifications about program changes. Accesses presentation slides.
+
+| Identity Provider
+| External system providing authentication and role-based authorization. The Conference Management System delegates all identity concerns to this provider and consumes tokens/claims via an anti-corruption layer.
+|===
+
 == Technical Context
+
+The system is deployed as a *modular monolith*: a single ASP.NET Core application that hosts all bounded contexts as in-process modules. Each module owns its own database schema within a shared database instance.
 
 [plantuml, technical-context, png]
 ....
 @startuml
+node "Browser / Mobile App" as client
+node "Conference Management System\n(ASP.NET Core — Modular Monolith)" as sys {
+  component "API\n(single host)" as api
+  component "Conference Module" as conf
+  component "Session Module" as sess
+  component "Voting Module" as vote
+  component "Notification Module" as notif
+  component "Attendee Module" as att
+  component "Content Module" as content
+}
+node "Identity Provider" as idp
+database "Database\n(schema per module)" as db
+cloud "File / Object Storage" as storage
+
+client --> api : HTTPS / WebSocket
+api --> conf
+api --> sess
+api --> vote
+api --> notif
+api --> att
+api --> content
+api --> idp : token validation
+conf --> db
+sess --> db
+vote --> db
+notif --> db
+att --> db
+content --> storage
+
 @enduml
 ....

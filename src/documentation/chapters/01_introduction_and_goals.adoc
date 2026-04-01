@@ -2,16 +2,25 @@
 
 == Requirements Overview
 
-Conference Example is a conference management system that allows organizers to create and publish conferences, and speakers to register and submit talk proposals.
+Conference Example is a conference management system used by speakers (hundreds), organizers (dozens), and attendees (thousands) to organize and manage conferences in the German-speaking region.
 
 The key features are:
 
-* *User registration* — users can create an account to act as organizers or speakers
-* *Conference management* — organizers can create, configure, and publish conferences
-* *Talk submission* — speakers can discover published conferences and submit talk proposals
-* *Schedule management* — organizers can assign accepted talks to rooms and time slots
+* *Conference program* — attendees can view the conference program including times and rooms online
+* *Talk management* — speakers can manage their talks (submit, edit)
+* *Talk rating* — attendees can rate the popularity of talks (thumbs up, thumbs down)
+* *Real-time notifications* — organizers can notify attendees in real time about changes to the conference program (opt-in required)
+* *Conference branding* — each conference can have its own branding
+* *Slide sharing* — presentation slides are made available to attendees online
+* *Mobile app* — a mobile conference app for attendees is envisioned for the future
 
 Beyond the functional scope, the primary purpose of this project is to serve as a comprehensive example system for presentations and workshops covering topics such as Domain-Driven Design, Clean Architecture, software architecture, architecture documentation, architecture tests, and testing.
+
+=== Additional Context
+
+* Conferences take place in the German-speaking region.
+* There are only a few support staff members.
+* Very high traffic is expected while a conference is running.
 
 == Quality Goals
 
@@ -48,7 +57,7 @@ Beyond the functional scope, the primary purpose of this project is to serve as 
 
 | Conference Attendee
 | (fictional)
-| Can view the published schedule of a conference.
+| Can view the conference program including times and rooms, rate talks (thumbs up / thumbs down), receive real-time notifications about program changes (opt-in), and access presentation slides.
 
 | Presenter / Author
 | Andreas Lausen

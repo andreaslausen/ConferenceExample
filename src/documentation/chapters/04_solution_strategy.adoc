@@ -1,1 +1,100 @@
 = Solution Strategy
+
+== Domain-Driven Design
+
+The system follows a Domain-Driven Design approach. The problem space is decomposed into subdomains, each of which is mapped to a solution-space bounded context.
+
+=== Subdomains
+
+[cols="1,1,3",options="header"]
+|===
+| Subdomain | Type | Description
+
+| Conference
+| Core
+| Managing conferences, rooms, time slots, and the conference program (scheduling).
+
+| Session
+| Core
+| Managing talks, speakers, abstracts, and tags. Sessions are submitted and curated independently before being assigned to the conference program.
+
+| Voting
+| Supporting
+| Attendees rate the popularity of talks (thumbs up / thumbs down). High-traffic subdomain during a running conference — requires independent scalability.
+
+| Notification
+| Supporting
+| Real-time notifications to attendees about changes to the conference program. Attendees must opt in to receive notifications.
+
+| Attendee
+| Supporting
+| Attendee registration, profiles, and preferences (e.g. notification opt-in).
+
+| Content
+| Supporting
+| Upload and distribution of presentation slides. Speakers upload slides for their talks; attendees can access them online.
+
+| Identity
+| Generic
+| Authentication, authorization, and user/role management (speaker, organizer, attendee). This subdomain is best served by a standard identity provider (e.g. Keycloak, Auth0, Entra ID) rather than custom development.
+|===
+
+=== Mapping Subdomains to Bounded Contexts
+
+Not every subdomain requires a custom-built bounded context. The following table shows how subdomains map to bounded contexts in the solution space.
+
+[cols="1,1,2",options="header"]
+|===
+| Subdomain | Bounded Context | Rationale
+
+| Conference
+| Conference
+| Custom implementation — core domain with conference-specific business rules.
+
+| Session
+| Session
+| Custom implementation — core domain with its own aggregate lifecycle (submit → review → accept).
+
+| Voting
+| Voting
+| Custom implementation — isolated due to fundamentally different traffic and scaling characteristics (thousands of concurrent votes).
+
+| Notification
+| Notification
+| Custom implementation — event-driven, asynchronous delivery, own infrastructure concerns (WebSocket, push).
+
+| Attendee
+| Attendee
+| Custom implementation — manages attendee-specific domain logic (registration, preferences).
+
+| Content
+| Content
+| Custom implementation — handles file storage and distribution, potentially backed by a CDN or object store.
+
+| Identity
+| _(no custom BC)_
+| Addressed by a standard identity provider. An anti-corruption layer in the API translates external identity tokens into domain-specific role concepts.
+|===
+
+== Modular Monolith
+
+The system is built as a *modular monolith*: all bounded contexts are deployed within a single ASP.NET Core application, but are strictly isolated as modules with clear boundaries.
+
+* *Single API* — one ASP.NET Core host exposes all endpoints. Each module registers its own controllers/endpoints, but externally there is one unified API.
+* *Schema per module* — all modules share one physical database, but each module owns a dedicated database schema. No module may read from or write to another module's schema directly.
+* *In-process communication* — modules communicate via defined interfaces (domain events, mediator, or explicit contracts), not via network calls.
+* *Extractability* — the strict module boundaries are designed so that individual bounded contexts can be extracted into separate services later if scaling or organisational needs require it.
+
+== Clean Architecture
+
+Each custom bounded context follows a Clean Architecture layered structure:
+
+....
+API  ──►  Application  ──►  Domain
+                  └──────►  Persistence
+....
+
+* *Domain* — aggregates, entities, value objects, domain events. No dependencies on infrastructure.
+* *Application* — use cases (commands and queries). Depends on the domain and on persistence abstractions.
+* *Persistence* — shared data models and the `IDatabaseContext` interface.
+* *API* — ASP.NET Core entry point, dependency injection, HTTP endpoints.

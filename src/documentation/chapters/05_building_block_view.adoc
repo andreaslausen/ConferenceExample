@@ -1,19 +1,78 @@
 = Building Block View
 
-== Whitebox Overall System
+== Whitebox Overall System — Bounded Context Map
 
-[plantuml, building-block-level1, png]
+The following diagram shows the bounded contexts of the system and their relationships.
+
+[plantuml, bounded-context-map, png]
 ....
 @startuml
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+package "Conference Management System" {
+  component "Conference\n(Core)" as conf
+  component "Session\n(Core)" as sess
+  component "Voting\n(Supporting)" as vote
+  component "Notification\n(Supporting)" as notif
+  component "Attendee\n(Supporting)" as att
+  component "Content\n(Supporting)" as content
+}
+
+component "Identity Provider\n(Generic — standard product)" as idp #LightGray
+
+sess ..> conf : Session ID\n(reference only)
+vote ..> sess : Session ID\n(reference only)
+vote ..> att : Attendee ID\n(reference only)
+notif ..> conf : subscribes to\nprogram changes
+notif ..> att : delivery targets\n(opt-in)
+content ..> sess : Session ID\n(reference only)
+conf ..> idp : ACL
+sess ..> idp : ACL
+att ..> idp : ACL
+
 @enduml
 ....
 
 === Contained Building Blocks
 
-[cols="1,2",options="header"]
+[cols="1,1,2",options="header"]
 |===
-| Building Block | Responsibility
-| |
+| Bounded Context | Type | Responsibility
+
+| Conference
+| Core
+| Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of sessions to slots. References sessions by ID only.
+
+| Session
+| Core
+| Manages talks, speakers, abstracts, and tags. Sessions have their own lifecycle (submit → review → accept) independent of the conference program.
+
+| Voting
+| Supporting
+| Handles attendee ratings of talks (thumbs up / thumbs down). Designed for high throughput and independent scalability.
+
+| Notification
+| Supporting
+| Delivers real-time notifications to attendees about conference program changes. Event-driven, asynchronous. Respects attendee opt-in preferences.
+
+| Attendee
+| Supporting
+| Manages attendee registration, profiles, and preferences (e.g. notification opt-in).
+
+| Content
+| Supporting
+| Handles upload and distribution of presentation slides. Speakers upload slides linked to their sessions.
+
+| Identity Provider
+| Generic (external)
+| Authentication and role management. Not a custom bounded context — addressed by a standard identity product. Other contexts integrate via an anti-corruption layer that translates tokens/claims into domain-specific roles.
 |===
 
 === Important Interfaces
+
+Bounded contexts communicate through well-defined interfaces. The following integration patterns are used:
+
+* *ID references* — contexts reference entities from other contexts by ID only (e.g. `SessionId`, `AttendeeId`). No shared domain models.
+* *Domain events* — the Notification context subscribes to domain events from the Conference context (e.g. `ProgramChanged`) to trigger attendee notifications.
+* *Anti-corruption layer (ACL)* — contexts that interact with the external identity provider translate external claims into internal role/permission concepts.
