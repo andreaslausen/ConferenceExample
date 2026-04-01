@@ -91,10 +91,11 @@ Each custom bounded context follows a Clean Architecture layered structure:
 
 ....
 API  ──►  Application  ──►  Domain
-                  └──────►  Persistence
+ │                            ▲
+ └──────►  Persistence  ──────┘
 ....
 
-* *Domain* — aggregates, entities, value objects, domain events. No dependencies on infrastructure.
-* *Application* — use cases (commands and queries). Depends on the domain and on persistence abstractions.
-* *Persistence* — shared data models and the `IDatabaseContext` interface.
-* *API* — ASP.NET Core entry point, dependency injection, HTTP endpoints.
+* *Domain* — aggregates, entities, value objects, domain events. No dependencies on other layers.
+* *Application* — use cases (commands and queries). Depends on the domain only; does not know Persistence directly.
+* *Persistence* — shared data models and the `IDatabaseContext` interface. Depends on the domain.
+* *API* — ASP.NET Core entry point, dependency injection, HTTP endpoints. Depends on all other layers.

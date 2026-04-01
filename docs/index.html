@@ -901,22 +901,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="literalblock">
 <div class="content">
 <pre>API  ──►  Application  ──►  Domain
-                  └──────►  Persistence</pre>
+ │                            ▲
+ └──────►  Persistence  ──────┘</pre>
 </div>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Domain</strong> — aggregates, entities, value objects, domain events. No dependencies on infrastructure.</p>
+<p><strong>Domain</strong> — aggregates, entities, value objects, domain events. No dependencies on other layers.</p>
 </li>
 <li>
-<p><strong>Application</strong> — use cases (commands and queries). Depends on the domain and on persistence abstractions.</p>
+<p><strong>Application</strong> — use cases (commands and queries). Depends on the domain only; does not know Persistence directly.</p>
 </li>
 <li>
-<p><strong>Persistence</strong> — shared data models and the <code>IDatabaseContext</code> interface.</p>
+<p><strong>Persistence</strong> — shared data models and the <code>IDatabaseContext</code> interface. Depends on the domain.</p>
 </li>
 <li>
-<p><strong>API</strong> — ASP.NET Core entry point, dependency injection, HTTP endpoints.</p>
+<p><strong>API</strong> — ASP.NET Core entry point, dependency injection, HTTP endpoints. Depends on all other layers.</p>
 </li>
 </ul>
 </div>
