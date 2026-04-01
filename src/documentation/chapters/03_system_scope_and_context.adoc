@@ -29,7 +29,7 @@ sys --> [Identity Provider] : authentication &\nauthorization
 | Actor / System | Interaction
 
 | Organizer
-| Creates and configures conferences (rooms, time slots). Assigns accepted sessions to the program. Triggers notifications to attendees about program changes.
+| Creates and configures conferences (rooms, time slots). Assigns accepted talks to the program. Triggers notifications to attendees about program changes.
 
 | Speaker
 | Submits and edits talk proposals (title, abstract, tags). Uploads presentation slides for accepted talks.

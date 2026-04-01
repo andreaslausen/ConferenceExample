@@ -721,7 +721,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Organizer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Creates and configures conferences (rooms, time slots). Assigns accepted sessions to the program. Triggers notifications to attendees about program changes.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates and configures conferences (rooms, time slots). Assigns accepted talks to the program. Triggers notifications to attendees about program changes.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Speaker</p></td>
@@ -783,7 +783,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Managing talks, speakers, abstracts, and tags. Sessions are submitted and curated independently before being assigned to the conference program.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Managing talks, speakers, abstracts, and tags. Talks are submitted and curated independently before being assigned to the conference program.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
@@ -955,12 +955,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of sessions to slots. References sessions by ID only.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of talks to slots. References talks by ID only.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Manages talks, speakers, abstracts, and tags. Sessions have their own lifecycle (submit → review → accept) independent of the conference program.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages talks, speakers, abstracts, and tags. Talks have their own lifecycle (submit → review → accept) independent of the conference program.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
@@ -980,7 +980,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Supporting</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Handles upload and distribution of presentation slides. Speakers upload slides linked to their sessions.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Handles upload and distribution of presentation slides. Speakers upload slides linked to their talks.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Identity Provider</p></td>
@@ -1123,7 +1123,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The system serves as a demonstration project for talks and workshops, as well as a real-world example of modern architectural patterns. For conference and session management, traceability of changes and efficient queries for different views are relevant concerns.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system serves as a demonstration project for talks and workshops, as well as a real-world example of modern architectural patterns. For conference and talk management, traceability of changes and efficient queries for different views are relevant concerns.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
@@ -1137,7 +1137,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><strong>Demonstration value</strong> — the pattern is well-suited for illustrating DDD, domain events, and Clean Architecture in talks and workshops.</p>
 </li>
 <li>
-<p><strong>Read-side performance</strong> — read models can be tailored exactly to each use case (e.g. conference overview, session list by track) and are pre-computed, so no joins or aggregations are required at query time.</p>
+<p><strong>Read-side performance</strong> — read models can be tailored exactly to each use case (e.g. conference overview, talk list by track) and are pre-computed, so no joins or aggregations are required at query time.</p>
 </li>
 <li>
 <p><strong>Complete audit trail</strong> — all state changes are persisted as events; no information is ever lost through overwriting.</p>

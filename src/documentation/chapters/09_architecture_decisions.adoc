@@ -40,7 +40,7 @@ a|
 | Accepted
 
 | Context
-| The system serves as a demonstration project for talks and workshops, as well as a real-world example of modern architectural patterns. For conference and session management, traceability of changes and efficient queries for different views are relevant concerns.
+| The system serves as a demonstration project for talks and workshops, as well as a real-world example of modern architectural patterns. For conference and talk management, traceability of changes and efficient queries for different views are relevant concerns.
 
 | Decision
 | Adopt *Event Sourcing* combined with *CQRS* (Command Query Responsibility Segregation). Aggregate state is not stored as a current snapshot but as an immutable sequence of domain events. The write and read sides are explicitly separated: commands mutate state via the event store, while queries are served by optimised read models (projections).
@@ -48,7 +48,7 @@ a|
 | Rationale
 a|
 * *Demonstration value* — the pattern is well-suited for illustrating DDD, domain events, and Clean Architecture in talks and workshops.
-* *Read-side performance* — read models can be tailored exactly to each use case (e.g. conference overview, session list by track) and are pre-computed, so no joins or aggregations are required at query time.
+* *Read-side performance* — read models can be tailored exactly to each use case (e.g. conference overview, talk list by track) and are pre-computed, so no joins or aggregations are required at query time.
 * *Complete audit trail* — all state changes are persisted as events; no information is ever lost through overwriting.
 * *Temporal queries* — the state at any point in the past can be reconstructed by replaying events up to a given position in the stream.
 * *Debugging and traceability* — bugs can be reproduced and analysed by inspecting the exact sequence of events that led to a given state.

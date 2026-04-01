@@ -42,11 +42,11 @@ att ..> idp : ACL
 
 | Conference
 | Core
-| Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of sessions to slots. References sessions by ID only.
+| Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of talks to slots. References talks by ID only.
 
 | Session
 | Core
-| Manages talks, speakers, abstracts, and tags. Sessions have their own lifecycle (submit → review → accept) independent of the conference program.
+| Manages talks, speakers, abstracts, and tags. Talks have their own lifecycle (submit → review → accept) independent of the conference program.
 
 | Voting
 | Supporting
@@ -62,7 +62,7 @@ att ..> idp : ACL
 
 | Content
 | Supporting
-| Handles upload and distribution of presentation slides. Speakers upload slides linked to their sessions.
+| Handles upload and distribution of presentation slides. Speakers upload slides linked to their talks.
 
 | Identity Provider
 | Generic (external)

@@ -16,7 +16,7 @@ The system follows a Domain-Driven Design approach. The problem space is decompo
 
 | Session
 | Core
-| Managing talks, speakers, abstracts, and tags. Sessions are submitted and curated independently before being assigned to the conference program.
+| Managing talks, speakers, abstracts, and tags. Talks are submitted and curated independently before being assigned to the conference program.
 
 | Voting
 | Supporting
