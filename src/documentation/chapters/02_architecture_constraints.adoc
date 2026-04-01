@@ -3,5 +3,19 @@
 [cols="1,2",options="header"]
 |===
 | Constraint | Background / Motivation
-| |
+
+| Backend implemented in .NET / C# (latest version)
+| The author's primary platform and language. Using the current version ensures the project stays relevant and showcases modern language features.
+
+| Runnable locally without external infrastructure
+| Anyone cloning the repository must be able to start the full system — including the databases — on their own machine using Docker. No cloud account, hosted service, or manual setup beyond Docker is required.
+
+| English for all code and documentation
+| The project is publicly available and used in talks with an international audience. English as a shared language maximises accessibility.
+
+| Architecture documentation using arc42 and AsciiDoc
+| Documentation is treated as code: stored in the repository, version-controlled, and generated reproducibly via `./build-docs.sh`. The arc42 template provides a proven, widely recognised structure for software architecture documentation.
+
+| Freely accessible source code
+| The project is open source and publicly hosted. Anyone can clone, run, and extend it — a prerequisite for its use as a teaching and reference example.
 |===
