@@ -491,11 +491,65 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_requirements_overview">1.1. Requirements Overview</h3>
-
+<div class="paragraph">
+<p>Conference Example is a conference management system that allows organizers to create and publish conferences, and speakers to register and submit talk proposals.</p>
+</div>
+<div class="paragraph">
+<p>The key features are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>User registration</strong> — users can create an account to act as organizers or speakers</p>
+</li>
+<li>
+<p><strong>Conference management</strong> — organizers can create, configure, and publish conferences</p>
+</li>
+<li>
+<p><strong>Talk submission</strong> — speakers can discover published conferences and submit talk proposals</p>
+</li>
+<li>
+<p><strong>Schedule management</strong> — organizers can assign accepted talks to rooms and time slots</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Beyond the functional scope, the primary purpose of this project is to serve as a comprehensive example system for presentations and workshops covering topics such as Domain-Driven Design, Clean Architecture, software architecture, architecture documentation, architecture tests, and testing.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_quality_goals">1.2. Quality Goals</h3>
-
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Priority</th>
+<th class="tableblock halign-left valign-top">Quality Goal</th>
+<th class="tableblock halign-left valign-top">Motivation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Understandability</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The codebase is used in talks and workshops. Concepts must be immediately graspable by an audience encountering the code for the first time.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Testability</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system demonstrates various testing strategies (unit, acceptance, architecture tests). Every layer must be independently testable with minimal setup.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maintainability</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The project evolves alongside new talk topics. Adding new features or demonstrating new patterns must be straightforward without breaking existing examples.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_stakeholders">1.3. Stakeholders</h3>
@@ -514,9 +568,29 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference Organizer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(fictional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Can create and publish conferences, manage rooms and schedules, and review submitted talk proposals.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Speaker</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(fictional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Can register, browse published conferences, and submit talk proposals including title, abstract, and tags.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference Attendee</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(fictional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Can view the published schedule of a conference.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Presenter / Author</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Andreas Lausen</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Needs a realistic, well-structured example project that can be used across different talks and extended incrementally to demonstrate new architectural concepts.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Talk Audience</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(various)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expects the code to be clean, readable, and representative of the concepts being presented — not oversimplified, but not overwhelming.</p></td>
 </tr>
 </tbody>
 </table>

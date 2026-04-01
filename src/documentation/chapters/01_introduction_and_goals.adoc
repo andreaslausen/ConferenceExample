@@ -2,12 +2,59 @@
 
 == Requirements Overview
 
+Conference Example is a conference management system that allows organizers to create and publish conferences, and speakers to register and submit talk proposals.
+
+The key features are:
+
+* *User registration* — users can create an account to act as organizers or speakers
+* *Conference management* — organizers can create, configure, and publish conferences
+* *Talk submission* — speakers can discover published conferences and submit talk proposals
+* *Schedule management* — organizers can assign accepted talks to rooms and time slots
+
+Beyond the functional scope, the primary purpose of this project is to serve as a comprehensive example system for presentations and workshops covering topics such as Domain-Driven Design, Clean Architecture, software architecture, architecture documentation, architecture tests, and testing.
+
 == Quality Goals
+
+[cols="1,2,4",options="header"]
+|===
+| Priority | Quality Goal | Motivation
+
+| 1
+| Understandability
+| The codebase is used in talks and workshops. Concepts must be immediately graspable by an audience encountering the code for the first time.
+
+| 2
+| Testability
+| The system demonstrates various testing strategies (unit, acceptance, architecture tests). Every layer must be independently testable with minimal setup.
+
+| 3
+| Maintainability
+| The project evolves alongside new talk topics. Adding new features or demonstrating new patterns must be straightforward without breaking existing examples.
+|===
 
 == Stakeholders
 
 [cols="1,1,2",options="header"]
 |===
 | Role | Name | Expectations
-| | |
+
+| Conference Organizer
+| (fictional)
+| Can create and publish conferences, manage rooms and schedules, and review submitted talk proposals.
+
+| Speaker
+| (fictional)
+| Can register, browse published conferences, and submit talk proposals including title, abstract, and tags.
+
+| Conference Attendee
+| (fictional)
+| Can view the published schedule of a conference.
+
+| Presenter / Author
+| Andreas Lausen
+| Needs a realistic, well-structured example project that can be used across different talks and extended incrementally to demonstrate new architectural concepts.
+
+| Talk Audience
+| (various)
+| Expects the code to be clean, readable, and representative of the concepts being presented — not oversimplified, but not overwhelming.
 |===
