@@ -475,10 +475,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_cross_cutting_concepts">8. Cross-cutting Concepts</a></li>
 <li><a href="#_architecture_decisions">9. Architecture Decisions</a>
 <ul class="sectlevel2">
-<li><a href="#_open_decisions">9.1. Open Decisions</a>
+<li><a href="#_architecture_decision_records">9.1. Architecture Decision Records</a>
 <ul class="sectlevel3">
-<li><a href="#_od_1_frontend_technology">9.1.1. OD-1: Frontend Technology</a></li>
-<li><a href="#_od_2_frontend_boundary_shared_vs_per_bounded_context">9.1.2. OD-2: Frontend Boundary — Shared vs. Per Bounded Context</a></li>
+<li><a href="#_adr_1_event_sourcing_and_cqrs">9.1.1. ADR-1: Event Sourcing and CQRS</a></li>
+</ul>
+</li>
+<li><a href="#_open_decisions">9.2. Open Decisions</a>
+<ul class="sectlevel3">
+<li><a href="#_od_1_frontend_technology">9.2.1. OD-1: Frontend Technology</a></li>
+<li><a href="#_od_2_frontend_boundary_shared_vs_per_bounded_context">9.2.2. OD-2: Frontend Boundary — Shared vs. Per Bounded Context</a></li>
+<li><a href="#_od_3_event_store_persistence_technology">9.2.3. OD-3: Event Store Persistence Technology</a></li>
+<li><a href="#_od_4_read_model_persistence_technology">9.2.4. OD-4: Read Model Persistence Technology</a></li>
 </ul>
 </li>
 </ul>
@@ -739,9 +746,85 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_architecture_decisions">9. Architecture Decisions</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_open_decisions">9.1. Open Decisions</h3>
+<h3 id="_architecture_decision_records">9.1. Architecture Decision Records</h3>
 <div class="sect3">
-<h4 id="_od_1_frontend_technology">9.1.1. OD-1: Frontend Technology</h4>
+<h4 id="_adr_1_event_sourcing_and_cqrs">9.1.1. ADR-1: Event Sourcing and CQRS</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system serves as a demonstration project for talks and workshops, as well as a real-world example of modern architectural patterns. For conference and session management, traceability of changes and efficient queries for different views are relevant concerns.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Adopt <strong>Event Sourcing</strong> combined with <strong>CQRS</strong> (Command Query Responsibility Segregation). Aggregate state is not stored as a current snapshot but as an immutable sequence of domain events. The write and read sides are explicitly separated: commands mutate state via the event store, while queries are served by optimised read models (projections).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rationale</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Demonstration value</strong> — the pattern is well-suited for illustrating DDD, domain events, and Clean Architecture in talks and workshops.</p>
+</li>
+<li>
+<p><strong>Read-side performance</strong> — read models can be tailored exactly to each use case (e.g. conference overview, session list by track) and are pre-computed, so no joins or aggregations are required at query time.</p>
+</li>
+<li>
+<p><strong>Complete audit trail</strong> — all state changes are persisted as events; no information is ever lost through overwriting.</p>
+</li>
+<li>
+<p><strong>Temporal queries</strong> — the state at any point in the past can be reconstructed by replaying events up to a given position in the stream.</p>
+</li>
+<li>
+<p><strong>Debugging and traceability</strong> — bugs can be reproduced and analysed by inspecting the exact sequence of events that led to a given state.</p>
+</li>
+<li>
+<p><strong>Natural expressiveness in the domain model</strong> — domain events (<code>SessionProposed</code>, <code>SpeakerConfirmed</code>, …) are first-class citizens and directly reflect the ubiquitous language.</p>
+</li>
+<li>
+<p><strong>Independent scaling</strong> — the read and write sides can be scaled separately; read models can be materialised in a query-optimised store (e.g. Redis, Elasticsearch).</p>
+</li>
+<li>
+<p><strong>Integration capability</strong> — the event stream provides a natural foundation for integrating with other systems or bounded contexts via asynchronous message processing.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Consequences</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Positive:</strong> High traceability, flexible read models, good testability of aggregates via event sequences.</p>
+</li>
+<li>
+<p><strong>Negative / trade-offs:</strong> Higher initial complexity compared to a classic CRUD approach; eventual consistency between the write and read sides must be consciously accounted for; event schema evolution requires care (upcasting).</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_open_decisions">9.2. Open Decisions</h3>
+<div class="sect3">
+<h4 id="_od_1_frontend_technology">9.2.1. OD-1: Frontend Technology</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -789,7 +872,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </table>
 </div>
 <div class="sect3">
-<h4 id="_od_2_frontend_boundary_shared_vs_per_bounded_context">9.1.2. OD-2: Frontend Boundary — Shared vs. Per Bounded Context</h4>
+<h4 id="_od_2_frontend_boundary_shared_vs_per_bounded_context">9.2.2. OD-2: Frontend Boundary — Shared vs. Per Bounded Context</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -826,6 +909,111 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decision Criteria</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Degree of desired autonomy between bounded contexts, operational complexity, and value as a demonstration of DDD and Clean Architecture principles.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_od_3_event_store_persistence_technology">9.2.3. OD-3: Event Store Persistence Technology</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Which persistence technology should be used as the event store?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Options Considered</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>EventStoreDB</strong> — purpose-built event store with native support for event streams, subscriptions, and projections. Ideal fit for Event Sourcing, but introduces an additional infrastructure component.</p>
+</li>
+<li>
+<p><strong>PostgreSQL</strong> — relational database used as an event store via an append-only events table. Familiar technology, easy to operate, but requires more custom infrastructure code.</p>
+</li>
+<li>
+<p><strong>SQL Server</strong> — same approach as PostgreSQL; already common in .NET ecosystems.</p>
+</li>
+<li>
+<p><strong>MongoDB</strong> — document-oriented store that can serve as an event store via an append-only collection. Designed to handle large volumes of data efficiently, which is relevant given that events are never deleted and the store grows continuously over time. Good .NET support via the official MongoDB driver.</p>
+</li>
+<li>
+<p><strong>Marten</strong> — .NET library that turns PostgreSQL into a document/event store with first-class Event Sourcing support and projections built in.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision Criteria</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operational simplicity, .NET integration, suitability as a demonstration technology, and alignment with the existing infrastructure.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_od_4_read_model_persistence_technology">9.2.4. OD-4: Read Model Persistence Technology</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Question</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Which persistence technology should be used to store and serve read models (projections)?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Options Considered</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>In-memory store</strong> — projections are held in memory and rebuilt on startup by replaying all events. Zero operational overhead, but not suitable for production deployments with large event streams.</p>
+</li>
+<li>
+<p><strong>PostgreSQL</strong> — projections are materialised into relational tables. Flexible querying via SQL, easy to operate alongside the event store if PostgreSQL is already chosen there.</p>
+</li>
+<li>
+<p><strong>Redis</strong> — in-memory key/value store for very fast reads. Well-suited for simple, flat projections; less ideal for complex query patterns.</p>
+</li>
+<li>
+<p><strong>Elasticsearch / OpenSearch</strong> — full-text search and complex aggregations out of the box. High operational overhead; most valuable when rich search capabilities are required.</p>
+</li>
+<li>
+<p><strong>MongoDB</strong> — document-oriented store well-suited for read models, as projections map naturally to documents. Good .NET support via the official MongoDB driver; flexible schema makes it easy to evolve projection shapes without migrations.</p>
+</li>
+<li>
+<p><strong>Marten (with PostgreSQL)</strong> — if Marten is chosen for the event store, it also provides built-in projection support writing into PostgreSQL, avoiding a separate read-side store entirely.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision Criteria</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query complexity, read performance requirements, operational simplicity, and consistency with the chosen event store technology.</p></td>
 </tr>
 </tbody>
 </table>

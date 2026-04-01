@@ -1,5 +1,39 @@
 = Architecture Decisions
 
+== Architecture Decision Records
+
+=== ADR-1: Event Sourcing and CQRS
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Accepted
+
+| Context
+| The system serves as a demonstration project for talks and workshops, as well as a real-world example of modern architectural patterns. For conference and session management, traceability of changes and efficient queries for different views are relevant concerns.
+
+| Decision
+| Adopt *Event Sourcing* combined with *CQRS* (Command Query Responsibility Segregation). Aggregate state is not stored as a current snapshot but as an immutable sequence of domain events. The write and read sides are explicitly separated: commands mutate state via the event store, while queries are served by optimised read models (projections).
+
+| Rationale
+a|
+* *Demonstration value* — the pattern is well-suited for illustrating DDD, domain events, and Clean Architecture in talks and workshops.
+* *Read-side performance* — read models can be tailored exactly to each use case (e.g. conference overview, session list by track) and are pre-computed, so no joins or aggregations are required at query time.
+* *Complete audit trail* — all state changes are persisted as events; no information is ever lost through overwriting.
+* *Temporal queries* — the state at any point in the past can be reconstructed by replaying events up to a given position in the stream.
+* *Debugging and traceability* — bugs can be reproduced and analysed by inspecting the exact sequence of events that led to a given state.
+* *Natural expressiveness in the domain model* — domain events (`SessionProposed`, `SpeakerConfirmed`, …) are first-class citizens and directly reflect the ubiquitous language.
+* *Independent scaling* — the read and write sides can be scaled separately; read models can be materialised in a query-optimised store (e.g. Redis, Elasticsearch).
+* *Integration capability* — the event stream provides a natural foundation for integrating with other systems or bounded contexts via asynchronous message processing.
+
+| Consequences
+a|
+* *Positive:* High traceability, flexible read models, good testability of aggregates via event sequences.
+* *Negative / trade-offs:* Higher initial complexity compared to a classic CRUD approach; eventual consistency between the write and read sides must be consciously accounted for; event schema evolution requires care (upcasting).
+|===
+
 == Open Decisions
 
 === OD-1: Frontend Technology
@@ -44,4 +78,53 @@ a|
 
 | Decision Criteria
 | Degree of desired autonomy between bounded contexts, operational complexity, and value as a demonstration of DDD and Clean Architecture principles.
+|===
+
+=== OD-3: Event Store Persistence Technology
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Open
+
+| Question
+| Which persistence technology should be used as the event store?
+
+| Options Considered
+a|
+* *EventStoreDB* — purpose-built event store with native support for event streams, subscriptions, and projections. Ideal fit for Event Sourcing, but introduces an additional infrastructure component.
+* *PostgreSQL* — relational database used as an event store via an append-only events table. Familiar technology, easy to operate, but requires more custom infrastructure code.
+* *SQL Server* — same approach as PostgreSQL; already common in .NET ecosystems.
+* *MongoDB* — document-oriented store that can serve as an event store via an append-only collection. Designed to handle large volumes of data efficiently, which is relevant given that events are never deleted and the store grows continuously over time. Good .NET support via the official MongoDB driver.
+* *Marten* — .NET library that turns PostgreSQL into a document/event store with first-class Event Sourcing support and projections built in.
+
+| Decision Criteria
+| Operational simplicity, .NET integration, suitability as a demonstration technology, and alignment with the existing infrastructure.
+|===
+
+=== OD-4: Read Model Persistence Technology
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Open
+
+| Question
+| Which persistence technology should be used to store and serve read models (projections)?
+
+| Options Considered
+a|
+* *In-memory store* — projections are held in memory and rebuilt on startup by replaying all events. Zero operational overhead, but not suitable for production deployments with large event streams.
+* *PostgreSQL* — projections are materialised into relational tables. Flexible querying via SQL, easy to operate alongside the event store if PostgreSQL is already chosen there.
+* *Redis* — in-memory key/value store for very fast reads. Well-suited for simple, flat projections; less ideal for complex query patterns.
+* *Elasticsearch / OpenSearch* — full-text search and complex aggregations out of the box. High operational overhead; most valuable when rich search capabilities are required.
+* *MongoDB* — document-oriented store well-suited for read models, as projections map naturally to documents. Good .NET support via the official MongoDB driver; flexible schema makes it easy to evolve projection shapes without migrations.
+* *Marten (with PostgreSQL)* — if Marten is chosen for the event store, it also provides built-in projection support writing into PostgreSQL, avoiding a separate read-side store entirely.
+
+| Decision Criteria
+| Query complexity, read performance requirements, operational simplicity, and consistency with the chosen event store technology.
 |===
