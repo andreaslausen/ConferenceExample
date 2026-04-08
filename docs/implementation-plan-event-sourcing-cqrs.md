@@ -54,7 +54,11 @@ ConferenceExample.Persistence               (ENTFERNEN)
 
 Neues Projekt `ConferenceExample.EventStore` erstellen. Dieses Projekt enthaelt die Infrastruktur fuer Event-Persistierung und den EventBus. Es kennt keine Domain-Events direkt -- es arbeitet mit serialisierten Events (`StoredEvent`).
 
-### 1.1 StoredEvent und IEventStore
+### 1.1 Projekt anlegen und zur Solution hinzufuegen
+
+Neues Class-Library-Projekt `ConferenceExample.EventStore` erstellen und in `ConferenceExample.sln` einbinden.
+
+### 1.2 StoredEvent und IEventStore
 
 **`StoredEvent`** -- Wrapper fuer persistierte Events:
 ```csharp
@@ -79,7 +83,7 @@ public interface IEventStore
 
 **`InMemoryEventStore`** -- Thread-sichere In-Memory-Implementierung mit einer Liste von `StoredEvent`. Optimistic Concurrency ueber `expectedVersion`.
 
-### 1.2 EventBus (Observer Pattern)
+### 1.3 EventBus (Observer Pattern)
 
 **`IEventBus`**:
 ```csharp
@@ -94,11 +98,19 @@ public interface IEventBus
 
 Der EventBus arbeitet auf `StoredEvent`-Ebene. Die Deserialisierung in konkrete Domain-Event-Typen erfolgt in den jeweiligen Bounded Contexts.
 
-### 1.3 IDomainEvent und AggregateRoot (pro Domain-Projekt dupliziert)
+### 1.4 Build verifizieren
 
-Diese Typen werden **nicht** im EventStore-Projekt definiert, sondern in jedem Domain-Projekt eigenstaendig:
+`dotnet build` -- das neue Projekt muss eigenstaendig kompilieren.
 
-**`IDomainEvent`** -- Marker-Interface:
+---
+
+## Schritt 2: Session-Domain umbauen (Session.Domain)
+
+### 2.1 IDomainEvent und AggregateRoot anlegen
+
+`IDomainEvent` (Marker-Interface) und `AggregateRoot` (Basisklasse) direkt im Session.Domain-Projekt anlegen -- keine externe Abhaengigkeit.
+
+**`IDomainEvent`**:
 ```csharp
 public interface IDomainEvent
 {
@@ -107,7 +119,7 @@ public interface IDomainEvent
 }
 ```
 
-**`AggregateRoot`** -- Basisklasse:
+**`AggregateRoot`**:
 ```csharp
 public abstract class AggregateRoot
 {
@@ -137,15 +149,7 @@ public abstract class AggregateRoot
 }
 ```
 
-Dadurch bleibt jedes Domain-Projekt frei von externen Abhaengigkeiten. Die Persistence-Projekte uebernehmen die Serialisierung/Deserialisierung zwischen den Domain-Events und `StoredEvent`.
-
----
-
-## Schritt 2: Session Bounded Context umbauen
-
-### 2.1 Domain Events definieren (Session.Domain)
-
-`IDomainEvent` und `AggregateRoot` werden direkt im Session.Domain-Projekt angelegt (keine externe Abhaengigkeit).
+### 2.2 Domain Events definieren
 
 Events fuer die Session-Entitaet:
 - `SessionSubmittedEvent` -- enthaelt alle initialen Daten (Title, Abstract, SpeakerId, Tags, SessionTypeId, ConferenceId)
@@ -154,7 +158,7 @@ Events fuer die Session-Entitaet:
 - `SessionTagAddedEvent` -- enthaelt Tag
 - `SessionTagRemovedEvent` -- enthaelt Tag
 
-### 2.2 Session-Aggregate umbauen (Session.Domain)
+### 2.3 Session-Aggregate umbauen
 
 `Session` erbt von `AggregateRoot`. Zustandsaenderungen erfolgen nur noch ueber `RaiseEvent()`:
 
@@ -187,7 +191,7 @@ public class Session : AggregateRoot
 }
 ```
 
-### 2.3 ISessionRepository anpassen (Session.Domain)
+### 2.4 ISessionRepository anpassen
 
 ```csharp
 public interface ISessionRepository
@@ -198,43 +202,96 @@ public interface ISessionRepository
 }
 ```
 
-### 2.4 SessionRepository umbauen (Session.Persistence)
+### 2.5 Session.Domain.UnitTests anpassen
 
-- Abhaengigkeit auf `ConferenceExample.EventStore` statt `ConferenceExample.Persistence`
-- `Save()`: Events aus dem Aggregate an den EventStore appenden, dann ueber EventBus publishen
-- `GetById()`: Events aus dem EventStore laden, neues Aggregate instanziieren, `ReplayEvents()` aufrufen
-- `GetSessions()`: Alle Events laden, nach ConferenceId filtern, Aggregates aufbauen (einfache Loesung fuer den Anfang)
+- Tests aktualisieren: Session wird jetzt ueber Factory-Methode `Session.Submit()` erstellt
+- Validieren, dass korrekte Events erzeugt werden (`GetUncommittedEvents()`)
+- Validieren, dass `ApplyEvent` den Zustand korrekt setzt (via `ReplayEvents()`)
 
-### 2.5 Application Layer anpassen (Session.Application)
+### 2.6 Build und Tests verifizieren
 
-- `IDatabaseContext` aus Session.Application **entfernen** (wird nicht mehr benoetigt)
-- `SessionService` vereinfachen: nutzt nur noch `ISessionRepository`
-- Spaeter Aufspaltung in dedizierte CommandHandler/QueryHandler moeglich, aber fuers Erste reicht der Service
+`dotnet build` und `dotnet test --filter "FullyQualifiedName~Session.Domain"` muessen gruen sein.
 
 ---
 
-## Schritt 3: Conference Bounded Context umbauen
+## Schritt 3: Session-Persistence umbauen (Session.Persistence)
 
-### 3.1 Domain Events definieren (Conference.Domain)
+### 3.1 EventStore-Referenz hinzufuegen
 
-`IDomainEvent` und `AggregateRoot` werden direkt im Conference.Domain-Projekt angelegt (keine externe Abhaengigkeit, Duplikation wie im Session-BC).
+Projektreferenz auf `ConferenceExample.EventStore` in `Session.Persistence.csproj` hinzufuegen.
+
+### 3.2 SessionRepository umbauen
+
+- `Save()`: Events aus dem Aggregate serialisieren, an den EventStore appenden, dann ueber EventBus publishen, danach `ClearUncommittedEvents()`
+- `GetById()`: Events aus dem EventStore laden, deserialisieren, neues Aggregate instanziieren, `ReplayEvents()` aufrufen
+- `GetSessions()`: Alle Events laden, nach ConferenceId filtern, Aggregates aufbauen (einfache Loesung fuer den Anfang)
+
+### 3.3 SpeakerRepository umbauen oder entfernen
+
+Pruefen, ob der SpeakerRepository noch benoetigt wird. Falls ja, analog zum SessionRepository umbauen. Falls nicht, entfernen.
+
+### 3.4 SessionExtensions entfernen
+
+Die Mapping-Extensions zwischen Persistence-Models und Domain-Entities werden nicht mehr benoetigt, da Aggregates jetzt direkt ueber Event Replay geladen werden.
+
+### 3.5 Shared-Persistence-Referenz entfernen
+
+Projektreferenz auf `ConferenceExample.Persistence` aus `Session.Persistence.csproj` entfernen.
+
+### 3.6 Build verifizieren
+
+`dotnet build` muss kompilieren. (Tests koennen hier noch fehlschlagen, da die Application-Schicht noch nicht angepasst ist.)
+
+---
+
+## Schritt 4: Session-Application anpassen (Session.Application)
+
+### 4.1 IDatabaseContext entfernen
+
+`IDatabaseContext.cs` aus Session.Application loeschen -- wird nicht mehr benoetigt.
+
+### 4.2 SessionService anpassen
+
+`SessionService` nutzt nur noch `ISessionRepository` statt `IDatabaseContext`. Alle Methoden aktualisieren.
+
+### 4.3 Session.Application.UnitTests anpassen
+
+- `IDatabaseContext`-Mock entfernen
+- `ISessionRepository`-Mock verwenden
+- Pruefen, dass `Save()` aufgerufen wird
+
+### 4.4 Build und Tests verifizieren
+
+`dotnet build` und `dotnet test --filter "FullyQualifiedName~Session"` muessen gruen sein (Domain + Application UnitTests).
+
+---
+
+## Schritt 5: Conference-Domain umbauen (Conference.Domain)
+
+### 5.1 IDomainEvent und AggregateRoot anlegen
+
+Wie in Session.Domain: `IDomainEvent` und `AggregateRoot` direkt im Conference.Domain-Projekt anlegen (eigenstaendige Duplikation, keine externe Abhaengigkeit).
+
+### 5.2 Conference Domain Events definieren
 
 Events fuer Conference:
 - `ConferenceCreatedEvent` -- Name, Time, Location
 - `ConferenceRenamedEvent` -- neuer Name
 
-Events fuer Conference.Session (die Session-Entitaet im Conference-BC):
+### 5.3 Conference-Aggregate umbauen
+
+`Conference` erbt von `AggregateRoot`. Enthaelt intern eine Liste von Sessions. Alle Mutationen ueber Events. Factory-Methode `Conference.Create(...)`.
+
+### 5.4 Session-Events im Conference-BC definieren
+
+Events fuer die Session-Entitaet innerhalb des Conference-BC:
 - `SessionSubmittedToConferenceEvent`
 - `SessionAcceptedEvent`
 - `SessionRejectedEvent`
 - `SessionScheduledEvent`
 - `SessionAssignedToRoomEvent`
 
-### 3.2 Conference-Aggregate umbauen (Conference.Domain)
-
-`Conference` erbt von `AggregateRoot`. Enthaelt intern eine Liste von Sessions. Alle Mutationen ueber Events.
-
-### 3.3 Repository-Interfaces anlegen (Conference.Domain)
+### 5.5 IConferenceRepository anlegen
 
 ```csharp
 public interface IConferenceRepository
@@ -244,127 +301,204 @@ public interface IConferenceRepository
 }
 ```
 
-### 3.4 ConferenceRepository implementieren (Conference.Persistence)
+### 5.6 Conference.Domain.UnitTests anlegen
 
-- Abhaengigkeit auf `ConferenceExample.EventStore`
-- Gleiche Logik wie SessionRepository: Load via Replay, Save via Append + Publish
+- Tests fuer Conference-Aggregate: Erzeugung, Events, State nach Replay
+- Tests fuer Session-Lifecycle im Conference-BC (submit, accept, reject, schedule)
 
-### 3.5 Application Layer (Conference.Application)
+### 5.7 Build und Tests verifizieren
 
-- `IConferenceService` mit `CreateConference`-Methode implementieren
-- Nutzt `IConferenceRepository`
-
----
-
-## Schritt 4: Cross-BC-Kommunikation ueber EventBus
-
-### 4.1 Beispiel: Session eingereicht im Session-BC -> Conference-BC reagiert
-
-Wenn im Session-BC ein `SessionSubmittedEvent` publiziert wird, kann ein EventHandler im Conference-BC darauf reagieren und eine `Session`-Entitaet im Conference-Aggregate anlegen (`SessionSubmittedToConferenceEvent`).
-
-### 4.2 EventHandler registrieren
-
-In `ServiceCollectionExtensions` beim App-Start die Subscriptions einrichten:
-
-```csharp
-eventBus.Subscribe<SessionSubmittedEvent>(async e =>
-{
-    var conferenceRepo = serviceProvider.GetRequiredService<IConferenceRepository>();
-    var conference = await conferenceRepo.GetById(new ConferenceId(e.ConferenceId));
-    conference.SubmitSession(new SessionId(e.AggregateId));
-    await conferenceRepo.Save(conference);
-});
-```
+`dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference.Domain"` muessen gruen sein.
 
 ---
 
-## Schritt 5: Shared Persistence Projekt entfernen
+## Schritt 6: Conference-Persistence implementieren (Conference.Persistence)
 
-### 5.1 Abhaengigkeiten aufloesen
+### 6.1 EventStore-Referenz hinzufuegen
 
-- `ConferenceExample.API` referenziert nicht mehr `ConferenceExample.Persistence`, sondern `ConferenceExample.EventStore`
-- `DatabaseContext` in der API wird durch EventStore/EventBus-Registrierung ersetzt
-- `Session.Persistence` referenziert `ConferenceExample.EventStore` statt `ConferenceExample.Persistence`
-- `Conference.Persistence` referenziert `ConferenceExample.EventStore` statt `ConferenceExample.Persistence`
+Projektreferenz auf `ConferenceExample.EventStore` in `Conference.Persistence.csproj` hinzufuegen.
 
-### 5.2 Projekt entfernen
+### 6.2 ConferenceRepository implementieren
 
-- `ConferenceExample.Persistence` aus der Solution entfernen
-- Projektordner loeschen
+Gleiche Logik wie SessionRepository: Load via Event Replay, Save via Append + Publish.
+
+### 6.3 Platzhalter-Code entfernen
+
+`Class1.cs` aus Conference.Persistence loeschen.
+
+### 6.4 Shared-Persistence-Referenz entfernen
+
+Projektreferenz auf `ConferenceExample.Persistence` aus `Conference.Persistence.csproj` entfernen.
+
+### 6.5 Build verifizieren
+
+`dotnet build` muss kompilieren.
 
 ---
 
-## Schritt 6: API-Layer anpassen
+## Schritt 7: Conference-Application implementieren (Conference.Application)
 
-### 6.1 ServiceCollectionExtensions
+### 7.1 ConferenceService implementieren
+
+`IConferenceService` mit `CreateConference`-Methode implementieren. Nutzt `IConferenceRepository`.
+
+### 7.2 Conference.Application.UnitTests anlegen
+
+- Tests fuer ConferenceService
+- `IConferenceRepository`-Mock verwenden
+
+### 7.3 Build und Tests verifizieren
+
+`dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference"` muessen gruen sein.
+
+---
+
+## Schritt 8: API-Layer anpassen
+
+### 8.1 EventStore-Referenz hinzufuegen
+
+Projektreferenz auf `ConferenceExample.EventStore` in `ConferenceExample.API.csproj` hinzufuegen.
+
+### 8.2 Persistence-Projekt-Referenzen hinzufuegen
+
+Projektreferenzen auf `Session.Persistence` und `Conference.Persistence` in `ConferenceExample.API.csproj` hinzufuegen (fuer DI-Registrierung der Repositories).
+
+### 8.3 ServiceCollectionExtensions anpassen
 
 - `InMemoryEventStore` als Singleton registrieren
 - `InMemoryEventBus` als Singleton registrieren
-- Repositories registrieren
-- Application Services registrieren
-- EventBus-Subscriptions fuer Cross-BC-Kommunikation einrichten
+- `SessionRepository` und `ConferenceRepository` registrieren
+- Application Services (`SessionService`, `ConferenceService`) registrieren
 
-### 6.2 DatabaseContext entfernen
+### 8.4 Shared-Persistence-Referenz entfernen
+
+Projektreferenz auf `ConferenceExample.Persistence` aus `ConferenceExample.API.csproj` entfernen.
+
+### 8.5 DatabaseContext entfernen
 
 `DatabaseContext.cs` in der API wird nicht mehr benoetigt und kann entfernt werden.
 
+### 8.6 Build verifizieren
+
+`dotnet build` muss kompilieren.
+
 ---
 
-## Schritt 7: Architecture Tests anpassen
+## Schritt 9: Cross-BC-Kommunikation ueber EventBus
 
-### 7.1 Neue Abhaengigkeiten abbilden
+### 9.1 EventHandler implementieren
 
-- Domain-Projekte haben **keine** neue externe Abhaengigkeit (IDomainEvent und AggregateRoot sind dupliziert)
-- Persistence-Projekte duerfen auf `ConferenceExample.EventStore` zugreifen (fuer `IEventStore`, `IEventBus`, `StoredEvent`)
-- `ConferenceExample.Persistence` Assembly-Referenz entfernen
+Wenn im Session-BC ein `SessionSubmittedEvent` publiziert wird, reagiert ein EventHandler im Conference-BC: Er deserialisiert das `StoredEvent`, laedt das Conference-Aggregate, ruft `SubmitSession()` auf und speichert es.
 
-### 7.2 ArchitectureTest.cs anpassen
+Der EventHandler arbeitet auf `StoredEvent`-Ebene (String-basierter EventType). Die Deserialisierung in das konkrete Event erfolgt im Handler selbst:
+
+```csharp
+eventBus.Subscribe("SessionSubmittedEvent", storedEvent =>
+{
+    var sessionEvent = JsonSerializer.Deserialize<SessionSubmittedEvent>(storedEvent.Payload);
+    var conferenceRepo = serviceProvider.GetRequiredService<IConferenceRepository>();
+    var conference = conferenceRepo.GetById(new ConferenceId(sessionEvent.ConferenceId)).Result;
+    conference.SubmitSession(new SessionId(storedEvent.AggregateId));
+    conferenceRepo.Save(conference).Wait();
+});
+```
+
+### 9.2 EventBus-Subscriptions registrieren
+
+In `ServiceCollectionExtensions` beim App-Start die Subscriptions einrichten. Dies geschieht nach der Registrierung aller Services.
+
+### 9.3 Build verifizieren
+
+`dotnet build` muss kompilieren.
+
+---
+
+## Schritt 10: Shared-Persistence-Projekt entfernen
+
+### 10.1 Alle Referenzen pruefen
+
+Sicherstellen, dass kein Projekt mehr `ConferenceExample.Persistence` referenziert. Betrifft auch Testprojekte (insbesondere `Session.AcceptanceTests`).
+
+### 10.2 AcceptanceTests-Referenz anpassen
+
+`ConferenceExample.Persistence`-Referenz aus `Session.AcceptanceTests.csproj` entfernen. DI-Setup in den AcceptanceTests auf EventStore umstellen.
+
+### 10.3 Projekt aus Solution entfernen und loeschen
+
+- `ConferenceExample.Persistence` aus der Solution entfernen (`dotnet sln remove`)
+- Projektordner loeschen
+
+### 10.4 Build verifizieren
+
+`dotnet build` muss kompilieren.
+
+---
+
+## Schritt 11: Architecture Tests anpassen
+
+### 11.1 Dependencies aktualisieren
 
 - `Persistence`-Assembly-Referenz (shared) entfernen
 - Neue `EventStore`-Assembly-Referenz hinzufuegen
+
+### 11.2 Dependency Rules aktualisieren
+
 - Domain Dependency Rules bleiben gleich (Domain haengt weiterhin nur von sich selbst + System ab)
 - Persistence Dependency Rules aktualisieren: `EventStore` statt shared `Persistence`
+- Application Dependency Rules bleiben gleich (Application haengt von Domain ab, nicht von Persistence/EventStore)
+
+### 11.3 Architecture Tests ausfuehren
+
+`dotnet test --filter "FullyQualifiedName~Architecture"` muss gruen sein.
 
 ---
 
-## Schritt 8: Bestehende Tests anpassen
+## Schritt 12: Acceptance Tests anpassen
 
-### 8.1 Unit Tests (Session.Domain.UnitTests)
+### 12.1 DI-Setup aktualisieren
 
-- Tests anpassen: Session wird jetzt ueber Factory-Methode `Session.Submit()` erstellt
-- Validieren, dass korrekte Events erzeugt werden
-- Validieren, dass `ApplyEvent` den Zustand korrekt setzt
+In `SetupTestDependencies.cs`: `InMemoryEventStore` und `InMemoryEventBus` registrieren, Repositories registrieren, `DatabaseContext` entfernen.
 
-### 8.2 Application Unit Tests (Session.Application.UnitTests)
+### 12.2 Acceptance Tests ausfuehren
 
-- `IDatabaseContext`-Mock entfernen
-- `ISessionRepository`-Mock beibehalten
-- Pruefen, dass `Save()` aufgerufen wird
+`dotnet test --filter "FullyQualifiedName~AcceptanceTests"` muss gruen sein.
 
-### 8.3 Acceptance Tests (Session.AcceptanceTests)
+---
 
-- DI-Setup anpassen: `InMemoryEventStore` und `InMemoryEventBus` registrieren
-- `DatabaseContext` durch EventStore ersetzen
+## Schritt 13: Alle Tests gruen
+
+### 13.1 Gesamten Build und alle Tests ausfuehren
+
+```bash
+dotnet build
+dotnet test
+```
+
+Alle Tests muessen gruen sein. Keine Warnings (TreatWarningsAsErrors ist aktiv).
 
 ---
 
 ## Reihenfolge der Umsetzung
 
-| # | Schritt | Abhaengigkeit |
-|---|---------|---------------|
-| 1 | EventStore-Projekt anlegen (Interfaces, InMemory, EventBus, AggregateRoot) | -- |
-| 2 | Session-Domain umbauen (Events, Aggregate mit AggregateRoot) | 1 |
-| 3 | Session-Persistence umbauen (Repository mit EventStore) | 1, 2 |
-| 4 | Session-Application anpassen (IDatabaseContext entfernen) | 3 |
-| 5 | Conference-Domain umbauen (Events, Aggregate mit AggregateRoot) | 1 |
-| 6 | Conference-Persistence implementieren (Repository mit EventStore) | 1, 5 |
-| 7 | Conference-Application implementieren | 6 |
-| 8 | Cross-BC EventHandler einrichten | 4, 7 |
-| 9 | Shared Persistence Projekt entfernen | 3, 6 |
-| 10 | API-Layer anpassen (DI, Controller, alten DatabaseContext entfernen) | 4, 7, 8, 9 |
-| 11 | Architecture Tests anpassen | 9, 10 |
-| 12 | Unit Tests + Acceptance Tests anpassen | 2-10 |
-| 13 | Build + alle Tests gruen | 12 |
+Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (und wo moeglich die Tests) verifiziert.
+
+| # | Schritt | Baut auf |
+|---|---------|----------|
+| 1 | EventStore-Projekt anlegen (StoredEvent, IEventStore, InMemoryEventStore, IEventBus, InMemoryEventBus) | -- |
+| 2 | Session-Domain umbauen (IDomainEvent, AggregateRoot, Events, Aggregate) + UnitTests anpassen | 1 |
+| 3 | Session-Persistence umbauen (Repository mit EventStore, Shared-Persistence-Referenz entfernen) | 1, 2 |
+| 4 | Session-Application anpassen (IDatabaseContext entfernen, SessionService anpassen) + UnitTests anpassen | 3 |
+| 5 | Conference-Domain umbauen (IDomainEvent, AggregateRoot, Events, Aggregate) + UnitTests anlegen | 1 |
+| 6 | Conference-Persistence implementieren (Repository mit EventStore, Shared-Persistence-Referenz entfernen) | 1, 5 |
+| 7 | Conference-Application implementieren (ConferenceService) + UnitTests anlegen | 6 |
+| 8 | API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen) | 4, 7 |
+| 9 | Cross-BC-Kommunikation (EventHandler + Subscriptions) | 8 |
+| 10 | Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen) | 8 |
+| 11 | Architecture Tests anpassen | 10 |
+| 12 | Acceptance Tests anpassen | 10 |
+| 13 | Alle Tests gruen (Gesamtbuild + alle Tests) | 11, 12 |
+
+**Hinweis:** Schritte 2-4 (Session-BC) und 5-7 (Conference-BC) sind untereinander unabhaengig und koennten theoretisch parallel bearbeitet werden. Die lineare Reihenfolge ist empfohlen, damit Erkenntnisse aus dem Session-BC-Umbau in den Conference-BC einfliessen.
 
 ---
 
