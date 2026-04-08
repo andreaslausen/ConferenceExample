@@ -1,27 +1,34 @@
 namespace ConferenceExample.Session.Domain.UnitTests;
 
-using Xunit;
-using System;
-using System.Collections.Generic;
+using ConferenceExample.Session.Domain.Events;
 using ConferenceExample.Session.Domain.ValueObjects;
 using ConferenceExample.Session.Domain.ValueObjects.Ids;
+using Xunit;
 
 public class SessionTests
 {
     [Fact]
-    public void Constructor_ValidParameters_InitializesProperties()
+    public void Submit_ValidParameters_InitializesProperties()
     {
         // Arrange
         var id = new SessionId(GuidV7.NewGuid());
         var title = new SessionTitle("Test Title");
         var speakerId = new SpeakerId(GuidV7.NewGuid());
-        var tags = new List<SessionTag> { new SessionTag("Tag1"), new SessionTag("Tag2") };
+        var tags = new List<SessionTag> { new("Tag1"), new("Tag2") };
         var sessionTypeId = new SessionTypeId(GuidV7.NewGuid());
         var @abstract = new Abstract("Test Abstract");
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Act
-        var session = new Entities.Session(id, title, speakerId, tags, sessionTypeId, @abstract, conferenceId);
+        var session = Entities.Session.Submit(
+            id,
+            title,
+            speakerId,
+            tags,
+            sessionTypeId,
+            @abstract,
+            conferenceId
+        );
 
         // Assert
         Assert.Equal(id, session.Id);
@@ -35,7 +42,7 @@ public class SessionTests
     }
 
     [Fact]
-    public void Constructor_NullTags_ThrowsArgumentNullException()
+    public void Submit_NullTags_ThrowsArgumentNullException()
     {
         // Arrange
         var id = new SessionId(GuidV7.NewGuid());
@@ -46,7 +53,29 @@ public class SessionTests
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new Entities.Session(id, title, speakerId, null!, sessionTypeId, @abstract, conferenceId));
+        Assert.Throws<ArgumentNullException>(() =>
+            Entities.Session.Submit(
+                id,
+                title,
+                speakerId,
+                null!,
+                sessionTypeId,
+                @abstract,
+                conferenceId
+            )
+        );
+    }
+
+    [Fact]
+    public void Submit_RaisesSessionSubmittedEvent()
+    {
+        // Act
+        var session = CreateValidSession();
+
+        // Assert
+        var events = session.GetUncommittedEvents();
+        var submittedEvent = Assert.Single(events);
+        Assert.IsType<SessionSubmittedEvent>(submittedEvent);
     }
 
     [Fact]
@@ -61,6 +90,35 @@ public class SessionTests
 
         // Assert
         Assert.Equal(newTitle, session.Title);
+    }
+
+    [Fact]
+    public void EditTitle_RaisesSessionTitleEditedEvent()
+    {
+        // Arrange
+        var session = CreateValidSession();
+
+        // Act
+        session.EditTitle(new SessionTitle("Updated Title"));
+
+        // Assert
+        var events = session.GetUncommittedEvents();
+        Assert.Equal(2, events.Count);
+        Assert.IsType<SessionTitleEditedEvent>(events[1]);
+    }
+
+    [Fact]
+    public void EditAbstract_ValidAbstract_UpdatesAbstract()
+    {
+        // Arrange
+        var session = CreateValidSession();
+        var newAbstract = new Abstract("Updated Abstract");
+
+        // Act
+        session.EditAbstract(newAbstract);
+
+        // Assert
+        Assert.Equal(newAbstract, session.Abstract);
     }
 
     [Fact]
@@ -91,16 +149,43 @@ public class SessionTests
         Assert.DoesNotContain(tagToRemove, session.Tags);
     }
 
-    private Entities.Session CreateValidSession()
+    [Fact]
+    public void ReplayEvents_RestoresState()
+    {
+        // Arrange
+        var session = CreateValidSession();
+        session.EditTitle(new SessionTitle("Replayed Title"));
+        var events = session.GetUncommittedEvents().ToList();
+
+        // Act
+        var replayedSession = Entities.Session.LoadFromHistory(events);
+
+        // Assert
+        Assert.Equal(session.Id, replayedSession.Id);
+        Assert.Equal(new SessionTitle("Replayed Title"), replayedSession.Title);
+        Assert.Equal(session.SpeakerId, replayedSession.SpeakerId);
+        Assert.Equal(session.Tags, replayedSession.Tags);
+        Assert.Equal(1, replayedSession.Version);
+    }
+
+    private static Entities.Session CreateValidSession()
     {
         var id = new SessionId(GuidV7.NewGuid());
         var title = new SessionTitle("Test Title");
         var speakerId = new SpeakerId(GuidV7.NewGuid());
-        var tags = new List<SessionTag> { new SessionTag("Tag1"), new SessionTag("Tag2") };
+        var tags = new List<SessionTag> { new("Tag1"), new("Tag2") };
         var sessionTypeId = new SessionTypeId(GuidV7.NewGuid());
         var @abstract = new Abstract("Test Abstract");
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
-        return new Entities.Session(id, title, speakerId, tags, sessionTypeId, @abstract, conferenceId);
+        return Entities.Session.Submit(
+            id,
+            title,
+            speakerId,
+            tags,
+            sessionTypeId,
+            @abstract,
+            conferenceId
+        );
     }
 }

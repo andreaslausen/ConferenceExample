@@ -104,9 +104,9 @@ Der EventBus arbeitet auf `StoredEvent`-Ebene. Die Deserialisierung in konkrete 
 
 ---
 
-## Schritt 2: Session-Domain umbauen (Session.Domain)
+## Schritt 2: Session-Domain umbauen (Session.Domain) ✅
 
-### 2.1 IDomainEvent und AggregateRoot anlegen
+### 2.1 IDomainEvent und AggregateRoot anlegen ✅
 
 `IDomainEvent` (Marker-Interface) und `AggregateRoot` (Basisklasse) direkt im Session.Domain-Projekt anlegen -- keine externe Abhaengigkeit.
 
@@ -149,7 +149,7 @@ public abstract class AggregateRoot
 }
 ```
 
-### 2.2 Domain Events definieren
+### 2.2 Domain Events definieren ✅
 
 Events fuer die Session-Entitaet:
 - `SessionSubmittedEvent` -- enthaelt alle initialen Daten (Title, Abstract, SpeakerId, Tags, SessionTypeId, ConferenceId)
@@ -158,7 +158,7 @@ Events fuer die Session-Entitaet:
 - `SessionTagAddedEvent` -- enthaelt Tag
 - `SessionTagRemovedEvent` -- enthaelt Tag
 
-### 2.3 Session-Aggregate umbauen
+### 2.3 Session-Aggregate umbauen ✅
 
 `Session` erbt von `AggregateRoot`. Zustandsaenderungen erfolgen nur noch ueber `RaiseEvent()`:
 
@@ -191,7 +191,7 @@ public class Session : AggregateRoot
 }
 ```
 
-### 2.4 ISessionRepository anpassen
+### 2.4 ISessionRepository anpassen ✅
 
 ```csharp
 public interface ISessionRepository
@@ -202,13 +202,13 @@ public interface ISessionRepository
 }
 ```
 
-### 2.5 Session.Domain.UnitTests anpassen
+### 2.5 Session.Domain.UnitTests anpassen ✅
 
 - Tests aktualisieren: Session wird jetzt ueber Factory-Methode `Session.Submit()` erstellt
 - Validieren, dass korrekte Events erzeugt werden (`GetUncommittedEvents()`)
 - Validieren, dass `ApplyEvent` den Zustand korrekt setzt (via `ReplayEvents()`)
 
-### 2.6 Build und Tests verifizieren
+### 2.6 Build und Tests verifizieren ✅
 
 `dotnet build` und `dotnet test --filter "FullyQualifiedName~Session.Domain"` muessen gruen sein.
 
