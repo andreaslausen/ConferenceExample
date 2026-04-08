@@ -312,81 +312,186 @@ public interface IConferenceRepository
 
 ---
 
-## Schritt 6: Conference-Persistence implementieren (Conference.Persistence)
+## Schritt 6: Fehlende Unit Tests nachholen (EventStore, Persistence, Value Objects)
 
-### 6.1 EventStore-Referenz hinzufuegen
+Bevor es mit der Conference-Persistence weitergeht, werden alle Unit Tests nachgeholt, die in den bisherigen Schritten nicht beruecksichtigt waren. So ist die bestehende Codebasis vollstaendig abgedeckt, bevor neuer Code entsteht.
 
-Projektreferenz auf `ConferenceExample.EventStore` in `Conference.Persistence.csproj` hinzufuegen.
+### 6.1 EventStore Unit Tests anlegen
 
-### 6.2 ConferenceRepository implementieren
+Neues Testprojekt `ConferenceExample.EventStore.UnitTests` erstellen und in die Solution einbinden. Referenz auf `ConferenceExample.EventStore`.
 
-Gleiche Logik wie SessionRepository: Load via Event Replay, Save via Append + Publish.
+**InMemoryEventStore Tests:**
+- `AppendEvents_StoresEvents_GetEventsReturnsThem` -- Events speichern und per `GetEvents` abrufen
+- `GetEvents_UnknownAggregate_ReturnsEmptyList` -- unbekannte AggregateId liefert leere Liste
+- `GetEvents_ReturnsEventsOrderedByVersion` -- Events sind nach Version sortiert
+- `GetAllEvents_ReturnsEventsAcrossMultipleAggregates` -- alle Events aller Aggregates
+- `AppendEvents_VersionMismatch_ThrowsConcurrencyException` -- Optimistic Concurrency: falscher `expectedVersion` wirft `ConcurrencyException`
+- `AppendEvents_MultipleAggregates_KeepsEventsSeparate` -- Events verschiedener Aggregates sind unabhaengig
 
-### 6.3 Platzhalter-Code entfernen
+**InMemoryEventBus Tests:**
+- `Publish_SubscribedHandler_ReceivesEvent` -- abonnierter Handler wird aufgerufen
+- `Publish_NoSubscribers_DoesNotThrow` -- kein Subscriber fuer EventType wirft nicht
+- `Publish_MultipleSubscribers_AllReceiveEvent` -- mehrere Handler fuer gleichen EventType werden alle aufgerufen
+- `Publish_DifferentEventTypes_OnlyMatchingSubscribersReceive` -- Handler nur fuer passenden EventType
 
-`Class1.cs` aus Conference.Persistence loeschen.
+### 6.2 Session.Persistence Unit Tests anlegen
 
-### 6.4 Shared-Persistence-Referenz entfernen
+Neues Testprojekt `ConferenceExample.Session.Persistence.UnitTests` erstellen und in die Solution einbinden. Referenzen auf `Session.Persistence`, `Session.Domain`, `ConferenceExample.EventStore`.
 
-Projektreferenz auf `ConferenceExample.Persistence` aus `Conference.Persistence.csproj` entfernen.
+**SessionRepository Tests:**
+- `Save_NewSession_AppendsSerializedEventsToEventStore` -- Events werden serialisiert und im EventStore gespeichert
+- `Save_NewSession_PublishesEventsToEventBus` -- Events werden ueber den EventBus publiziert
+- `Save_ClearsUncommittedEventsAfterSaving` -- nach Save sind keine uncommitted Events mehr vorhanden
+- `Save_NoUncommittedEvents_DoesNothing` -- Session ohne uncommitted Events fuehrt zu keinem EventStore-Aufruf
+- `GetById_ExistingSession_RebuildsSessionFromEvents` -- Events laden, deserialisieren, Session per Replay aufbauen
+- `GetById_UnknownSession_ThrowsInvalidOperationException` -- unbekannte SessionId wirft Exception
+- `GetSessions_FiltersSessionsByConferenceId` -- nur Sessions der angegebenen ConferenceId werden zurueckgegeben
+- `GetSessions_NoMatchingSessions_ReturnsEmptyList` -- keine passenden Sessions liefert leere Liste
 
-### 6.5 Build verifizieren
+### 6.3 Session.Domain: Fehlende Event-Assertions ergaenzen
 
-`dotnet build` muss kompilieren.
+Folgende Tests in `SessionTests.cs` hinzufuegen:
+
+- `EditAbstract_RaisesSessionAbstractEditedEvent` -- validiert, dass das korrekte Event erzeugt wird
+- `AddTag_RaisesSessionTagAddedEvent` -- validiert, dass das korrekte Event erzeugt wird
+- `RemoveTag_RaisesSessionTagRemovedEvent` -- validiert, dass das korrekte Event erzeugt wird
+
+### 6.4 Session.Domain: Value Object Tests anlegen
+
+Neue Testklassen in `Session.Domain.UnitTests` fuer Value Objects:
+
+**SessionTitleTests:**
+- `Constructor_ValidTitle_SetsProperty` -- gueltiger Title wird gesetzt
+- `Constructor_TitleExceeds100Characters_ThrowsArgumentException` -- zu langer Title wirft Exception
+
+**AbstractTests:**
+- `Constructor_ValidAbstract_SetsProperty` -- gueltiges Abstract wird gesetzt
+- `Constructor_AbstractExceeds1000Characters_ThrowsArgumentException` -- zu langes Abstract wirft Exception
+
+**SessionTagTests:**
+- `Constructor_ValidTag_SetsProperty` -- gueltiger Tag wird gesetzt
+- `Constructor_TagExceeds20Characters_ThrowsArgumentException` -- zu langer Tag wirft Exception
+
+### 6.5 Conference.Domain: Value Object Tests anlegen
+
+Neue Testklasse in `Conference.Domain.UnitTests`:
+
+**TextTests:**
+- `Constructor_ValidText_SetsProperty` -- gueltiger Text wird gesetzt
+- `Constructor_NullOrWhitespace_ThrowsArgumentException` -- null/leer/Whitespace wirft Exception
+
+### 6.6 Conference.Domain: Fehlende Event-Assertions ergaenzen
+
+Folgende Tests in `ConferenceTests.cs` hinzufuegen:
+
+- `AcceptSession_RaisesSessionAcceptedEvent` -- validiert, dass das korrekte Event erzeugt wird
+- `RejectSession_RaisesSessionRejectedEvent` -- validiert, dass das korrekte Event erzeugt wird
+- `ScheduleSession_RaisesSessionScheduledEvent` -- validiert, dass das korrekte Event erzeugt wird
+- `AssignSessionToRoom_RaisesSessionAssignedToRoomEvent` -- validiert, dass das korrekte Event erzeugt wird
+
+### 6.7 Platzhalter-Tests entfernen
+
+`Conference.UnitTests/UnitTest1.cs` enthaelt einen leeren Platzhalter-Test. Pruefen ob das Projekt noch benoetigt wird (die echten Tests liegen in `Conference.Domain.UnitTests` und `Conference.Application.UnitTests`). Falls nicht, Projekt aus der Solution entfernen.
+
+### 6.8 Build und alle Tests verifizieren
+
+```bash
+dotnet build
+dotnet test
+```
+
+Alle bisherigen und neuen Tests muessen gruen sein.
 
 ---
 
-## Schritt 7: Conference-Application implementieren (Conference.Application)
+## Schritt 7: Conference-Persistence implementieren (Conference.Persistence)
 
-### 7.1 ConferenceService implementieren
+### 7.1 EventStore-Referenz hinzufuegen
 
-`IConferenceService` mit `CreateConference`-Methode implementieren. Nutzt `IConferenceRepository`.
+Projektreferenz auf `ConferenceExample.EventStore` in `Conference.Persistence.csproj` hinzufuegen.
 
-### 7.2 Conference.Application.UnitTests anlegen
+### 7.2 ConferenceRepository implementieren
 
-- Tests fuer ConferenceService
-- `IConferenceRepository`-Mock verwenden
+Gleiche Logik wie SessionRepository: Load via Event Replay, Save via Append + Publish.
 
-### 7.3 Build und Tests verifizieren
+### 7.3 Platzhalter-Code entfernen
+
+`Class1.cs` aus Conference.Persistence loeschen.
+
+### 7.4 Shared-Persistence-Referenz entfernen
+
+Projektreferenz auf `ConferenceExample.Persistence` aus `Conference.Persistence.csproj` entfernen.
+
+### 7.5 Conference.Persistence Unit Tests anlegen
+
+Neues Testprojekt `ConferenceExample.Conference.Persistence.UnitTests` erstellen und in die Solution einbinden. Referenzen auf `Conference.Persistence`, `Conference.Domain`, `ConferenceExample.EventStore`.
+
+**ConferenceRepository Tests:**
+- `Save_NewConference_AppendsSerializedEventsToEventStore` -- Events werden serialisiert und im EventStore gespeichert
+- `Save_NewConference_PublishesEventsToEventBus` -- Events werden ueber den EventBus publiziert
+- `Save_ClearsUncommittedEventsAfterSaving` -- nach Save sind keine uncommitted Events mehr vorhanden
+- `Save_NoUncommittedEvents_DoesNothing` -- Conference ohne uncommitted Events fuehrt zu keinem EventStore-Aufruf
+- `GetById_ExistingConference_RebuildsConferenceFromEvents` -- Events laden, deserialisieren, Conference per Replay aufbauen
+- `GetById_UnknownConference_ThrowsInvalidOperationException` -- unbekannte ConferenceId wirft Exception
+
+### 7.6 Build und Tests verifizieren
 
 `dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference"` muessen gruen sein.
 
 ---
 
-## Schritt 8: API-Layer anpassen
+## Schritt 8: Conference-Application implementieren (Conference.Application)
 
-### 8.1 EventStore-Referenz hinzufuegen
+### 8.1 ConferenceService implementieren
+
+`IConferenceService` mit `CreateConference`-Methode implementieren. Nutzt `IConferenceRepository`.
+
+### 8.2 Conference.Application.UnitTests anlegen
+
+**ConferenceServiceTests:**
+- `CreateConference_ValidDto_CallsRepositorySave` -- `Save()` wird mit korrekt erzeugtem Aggregate aufgerufen
+- `CreateConference_ValidDto_CreatesConferenceWithCorrectProperties` -- das gespeicherte Aggregate hat die richtigen Werte aus dem DTO
+
+### 8.3 Build und Tests verifizieren
+
+`dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference"` muessen gruen sein.
+
+---
+
+## Schritt 9: API-Layer anpassen
+
+### 9.1 EventStore-Referenz hinzufuegen
 
 Projektreferenz auf `ConferenceExample.EventStore` in `ConferenceExample.API.csproj` hinzufuegen.
 
-### 8.2 Persistence-Projekt-Referenzen hinzufuegen
+### 9.2 Persistence-Projekt-Referenzen hinzufuegen
 
 Projektreferenzen auf `Session.Persistence` und `Conference.Persistence` in `ConferenceExample.API.csproj` hinzufuegen (fuer DI-Registrierung der Repositories).
 
-### 8.3 ServiceCollectionExtensions anpassen
+### 9.3 ServiceCollectionExtensions anpassen
 
 - `InMemoryEventStore` als Singleton registrieren
 - `InMemoryEventBus` als Singleton registrieren
 - `SessionRepository` und `ConferenceRepository` registrieren
 - Application Services (`SessionService`, `ConferenceService`) registrieren
 
-### 8.4 Shared-Persistence-Referenz entfernen
+### 9.4 Shared-Persistence-Referenz entfernen
 
 Projektreferenz auf `ConferenceExample.Persistence` aus `ConferenceExample.API.csproj` entfernen.
 
-### 8.5 DatabaseContext entfernen
+### 9.5 DatabaseContext entfernen
 
 `DatabaseContext.cs` in der API wird nicht mehr benoetigt und kann entfernt werden.
 
-### 8.6 Build verifizieren
+### 9.6 Build verifizieren
 
 `dotnet build` muss kompilieren.
 
 ---
 
-## Schritt 9: Cross-BC-Kommunikation ueber EventBus
+## Schritt 10: Cross-BC-Kommunikation ueber EventBus
 
-### 9.1 EventHandler implementieren
+### 10.1 EventHandler implementieren
 
 Wenn im Session-BC ein `SessionSubmittedEvent` publiziert wird, reagiert ein EventHandler im Conference-BC: Er deserialisiert das `StoredEvent`, laedt das Conference-Aggregate, ruft `SubmitSession()` auf und speichert es.
 
@@ -403,71 +508,71 @@ eventBus.Subscribe("SessionSubmittedEvent", storedEvent =>
 });
 ```
 
-### 9.2 EventBus-Subscriptions registrieren
+### 10.2 EventBus-Subscriptions registrieren
 
 In `ServiceCollectionExtensions` beim App-Start die Subscriptions einrichten. Dies geschieht nach der Registrierung aller Services.
 
-### 9.3 Build verifizieren
+### 10.3 Build verifizieren
 
 `dotnet build` muss kompilieren.
 
 ---
 
-## Schritt 10: Shared-Persistence-Projekt entfernen
+## Schritt 11: Shared-Persistence-Projekt entfernen
 
-### 10.1 Alle Referenzen pruefen
+### 11.1 Alle Referenzen pruefen
 
 Sicherstellen, dass kein Projekt mehr `ConferenceExample.Persistence` referenziert. Betrifft auch Testprojekte (insbesondere `Session.AcceptanceTests`).
 
-### 10.2 AcceptanceTests-Referenz anpassen
+### 11.2 AcceptanceTests-Referenz anpassen
 
 `ConferenceExample.Persistence`-Referenz aus `Session.AcceptanceTests.csproj` entfernen. DI-Setup in den AcceptanceTests auf EventStore umstellen.
 
-### 10.3 Projekt aus Solution entfernen und loeschen
+### 11.3 Projekt aus Solution entfernen und loeschen
 
 - `ConferenceExample.Persistence` aus der Solution entfernen (`dotnet sln remove`)
 - Projektordner loeschen
 
-### 10.4 Build verifizieren
+### 11.4 Build verifizieren
 
 `dotnet build` muss kompilieren.
 
 ---
 
-## Schritt 11: Architecture Tests anpassen
+## Schritt 12: Architecture Tests anpassen
 
-### 11.1 Dependencies aktualisieren
+### 12.1 Dependencies aktualisieren
 
 - `Persistence`-Assembly-Referenz (shared) entfernen
 - Neue `EventStore`-Assembly-Referenz hinzufuegen
 
-### 11.2 Dependency Rules aktualisieren
+### 12.2 Dependency Rules aktualisieren
 
 - Domain Dependency Rules bleiben gleich (Domain haengt weiterhin nur von sich selbst + System ab)
 - Persistence Dependency Rules aktualisieren: `EventStore` statt shared `Persistence`
 - Application Dependency Rules bleiben gleich (Application haengt von Domain ab, nicht von Persistence/EventStore)
 
-### 11.3 Architecture Tests ausfuehren
+### 12.3 Architecture Tests ausfuehren
 
 `dotnet test --filter "FullyQualifiedName~Architecture"` muss gruen sein.
 
 ---
 
-## Schritt 12: Acceptance Tests anpassen
+## Schritt 13: Acceptance Tests anpassen
 
-### 12.1 DI-Setup aktualisieren
+### 13.1 DI-Setup aktualisieren
 
 In `SetupTestDependencies.cs`: `InMemoryEventStore` und `InMemoryEventBus` registrieren, Repositories registrieren, `DatabaseContext` entfernen.
 
-### 12.2 Acceptance Tests ausfuehren
+### 13.2 Acceptance Tests ausfuehren
 
 `dotnet test --filter "FullyQualifiedName~AcceptanceTests"` muss gruen sein.
 
 ---
 
-## Schritt 13: Alle Tests gruen
+## Schritt 14: Alle Tests gruen
 
-### 13.1 Gesamten Build und alle Tests ausfuehren
+### 14.1 Gesamten Build und alle Tests ausfuehren
 
 ```bash
 dotnet build
@@ -489,16 +594,17 @@ Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (un
 | 3 | Session-Persistence umbauen (Repository mit EventStore, Shared-Persistence-Referenz entfernen) | 1, 2 |
 | 4 | Session-Application anpassen (IDatabaseContext entfernen, SessionService anpassen) + UnitTests anpassen | 3 |
 | 5 | Conference-Domain umbauen (IDomainEvent, AggregateRoot, Events, Aggregate) + UnitTests anlegen | 1 |
-| 6 | Conference-Persistence implementieren (Repository mit EventStore, Shared-Persistence-Referenz entfernen) | 1, 5 |
-| 7 | Conference-Application implementieren (ConferenceService) + UnitTests anlegen | 6 |
-| 8 | API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen) | 4, 7 |
-| 9 | Cross-BC-Kommunikation (EventHandler + Subscriptions) | 8 |
-| 10 | Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen) | 8 |
-| 11 | Architecture Tests anpassen | 10 |
-| 12 | Acceptance Tests anpassen | 10 |
-| 13 | Alle Tests gruen (Gesamtbuild + alle Tests) | 11, 12 |
+| **6** | **Fehlende Unit Tests nachholen: EventStore, Session.Persistence, Value Objects, Event-Assertions** | **1-5** |
+| 7 | Conference-Persistence implementieren (Repository mit EventStore) + UnitTests anlegen | 1, 5, 6 |
+| 8 | Conference-Application implementieren (ConferenceService) + UnitTests anlegen | 7 |
+| 9 | API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen) | 4, 8 |
+| 10 | Cross-BC-Kommunikation (EventHandler + Subscriptions) | 9 |
+| 11 | Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen) | 9 |
+| 12 | Architecture Tests anpassen | 11 |
+| 13 | Acceptance Tests anpassen | 11 |
+| 14 | Alle Tests gruen (Gesamtbuild + alle Tests) | 12, 13 |
 
-**Hinweis:** Schritte 2-4 (Session-BC) und 5-7 (Conference-BC) sind untereinander unabhaengig und koennten theoretisch parallel bearbeitet werden. Die lineare Reihenfolge ist empfohlen, damit Erkenntnisse aus dem Session-BC-Umbau in den Conference-BC einfliessen.
+**Hinweis:** Schritte 2-4 (Session-BC) und 5 (Conference-Domain) sind untereinander unabhaengig und koennten theoretisch parallel bearbeitet werden. Die lineare Reihenfolge ist empfohlen, damit Erkenntnisse aus dem Session-BC-Umbau in den Conference-BC einfliessen.
 
 ---
 
