@@ -498,9 +498,9 @@ Hinweis: Das Loeschen von `DatabaseContext.cs` hat zwei weitere Dateien gebroche
 
 ---
 
-## Schritt 10: Cross-BC-Kommunikation ueber EventBus
+## Schritt 10: Cross-BC-Kommunikation ueber EventBus ✅
 
-### 10.1 EventHandler implementieren
+### 10.1 EventHandler implementieren ✅
 
 Wenn im Session-BC ein `SessionSubmittedEvent` publiziert wird, reagiert ein EventHandler im Conference-BC: Er deserialisiert das `StoredEvent`, laedt das Conference-Aggregate, ruft `SubmitSession()` auf und speichert es.
 
@@ -517,13 +517,15 @@ eventBus.Subscribe("SessionSubmittedEvent", storedEvent =>
 });
 ```
 
-### 10.2 EventBus-Subscriptions registrieren
+Umgesetzt in `ServiceCollectionExtensions.AddEventBusSubscriptions`: Subscription ueber `IEventBus.Subscribe("SessionSubmittedEvent", ...)`. Payload wird in lokales `SessionSubmittedPayload`-DTO deserialisiert (nur `ConferenceId`). `IConferenceRepository` wird per `IServiceScopeFactory` pro Handler-Aufruf in einem neuen Scope aufgeloest.
 
-In `ServiceCollectionExtensions` beim App-Start die Subscriptions einrichten. Dies geschieht nach der Registrierung aller Services.
+### 10.2 EventBus-Subscriptions registrieren ✅
 
-### 10.3 Build verifizieren
+`AddEventBusSubscriptions` als `WebApplication`-Extension-Method in `ServiceCollectionExtensions` implementiert. Aufruf in `Program.cs` direkt nach `app.Build()`.
 
-`dotnet build` muss kompilieren.
+### 10.3 Build verifizieren ✅
+
+`dotnet build` -- 0 Fehler, 0 Warnungen.
 
 ---
 
@@ -607,7 +609,7 @@ Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (un
 | **7** ✅ | **Conference-Persistence implementieren (Repository mit EventStore) + UnitTests anlegen** | **1, 5, 6** |
 | **8** ✅ | **Conference-Application implementieren (ConferenceService) + UnitTests anlegen** | **7** |
 | **9** ✅ | **API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen)** | **4, 8** |
-| 10 | Cross-BC-Kommunikation (EventHandler + Subscriptions) | 9 |
+| **10** ✅ | **Cross-BC-Kommunikation (EventHandler + Subscriptions)** | **9** |
 | 11 | Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen) | 9 |
 | 12 | Architecture Tests anpassen | 11 |
 | 13 | Acceptance Tests anpassen | 11 |

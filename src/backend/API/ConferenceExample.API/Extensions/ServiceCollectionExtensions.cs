@@ -1,5 +1,7 @@
+using System.Text.Json;
 using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Domain.Repositories;
+using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence;
 using ConferenceExample.EventStore;
 using ConferenceExample.Session.Application;
@@ -23,4 +25,35 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    public static WebApplication AddEventBusSubscriptions(this WebApplication app)
+    {
+        var eventBus = app.Services.GetRequiredService<IEventBus>();
+        var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+
+        eventBus.Subscribe(
+            "SessionSubmittedEvent",
+            storedEvent =>
+            {
+                var payload = JsonSerializer.Deserialize<SessionSubmittedPayload>(
+                    storedEvent.Payload
+                );
+                if (payload is null)
+                    return;
+
+                using var scope = scopeFactory.CreateScope();
+                var conferenceRepo =
+                    scope.ServiceProvider.GetRequiredService<IConferenceRepository>();
+                var conference = conferenceRepo
+                    .GetById(new ConferenceId(new GuidV7(payload.ConferenceId)))
+                    .Result;
+                conference.SubmitSession(new SessionId(new GuidV7(storedEvent.AggregateId)));
+                conferenceRepo.Save(conference).Wait();
+            }
+        );
+
+        return app;
+    }
+
+    private record SessionSubmittedPayload(Guid ConferenceId);
 }
