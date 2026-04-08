@@ -10,7 +10,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
-    <ProjectReference Include="..\..\Persistence\ConferenceExample.Persistence\ConferenceExample.Persistence.csproj" />
+    <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Persistence\ConferenceExample.Conference.Persistence.csproj" />
+    <ProjectReference Include="..\..\EventStore\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
     <ProjectReference Include="..\..\Session\ConferenceExample.Session.Application\ConferenceExample.Session.Application.csproj" />
+    <ProjectReference Include="..\..\Session\ConferenceExample.Session.Persistence\ConferenceExample.Session.Persistence.csproj" />
   </ItemGroup>
 </Project>

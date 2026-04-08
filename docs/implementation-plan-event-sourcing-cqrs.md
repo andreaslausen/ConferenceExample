@@ -463,34 +463,38 @@ Neues Testprojekt `ConferenceExample.Conference.Persistence.UnitTests` erstellen
 
 ---
 
-## Schritt 9: API-Layer anpassen
+## Schritt 9: API-Layer anpassen ✅
 
-### 9.1 EventStore-Referenz hinzufuegen
+### 9.1 EventStore-Referenz hinzufuegen ✅
 
 Projektreferenz auf `ConferenceExample.EventStore` in `ConferenceExample.API.csproj` hinzufuegen.
 
-### 9.2 Persistence-Projekt-Referenzen hinzufuegen
+### 9.2 Persistence-Projekt-Referenzen hinzufuegen ✅
 
 Projektreferenzen auf `Session.Persistence` und `Conference.Persistence` in `ConferenceExample.API.csproj` hinzufuegen (fuer DI-Registrierung der Repositories).
 
-### 9.3 ServiceCollectionExtensions anpassen
+### 9.3 ServiceCollectionExtensions anpassen ✅
 
 - `InMemoryEventStore` als Singleton registrieren
 - `InMemoryEventBus` als Singleton registrieren
 - `SessionRepository` und `ConferenceRepository` registrieren
 - Application Services (`SessionService`, `ConferenceService`) registrieren
 
-### 9.4 Shared-Persistence-Referenz entfernen
+### 9.4 Shared-Persistence-Referenz entfernen ✅
 
 Projektreferenz auf `ConferenceExample.Persistence` aus `ConferenceExample.API.csproj` entfernen.
 
-### 9.5 DatabaseContext entfernen
+### 9.5 DatabaseContext entfernen ✅
 
 `DatabaseContext.cs` in der API wird nicht mehr benoetigt und kann entfernt werden.
 
-### 9.6 Build verifizieren
+Hinweis: Das Loeschen von `DatabaseContext.cs` hat zwei weitere Dateien gebrochen, die minimale Korrekturen benoetigt haben:
+- `ArchitectureTest.cs`: `typeof(DatabaseContext)` ersetzt durch `typeof(ConferenceExample.API.Extensions.ServiceCollectionExtensions)`
+- `SetupTestDependencies.cs` (AcceptanceTests): DI-Setup von `DatabaseContext`/`IDatabaseContext` auf `InMemoryEventStore`/`InMemoryEventBus` umgestellt (Persistence-Projektreferenz bleibt noch -- wird in Schritt 11 entfernt)
 
-`dotnet build` muss kompilieren.
+### 9.6 Build verifizieren ✅
+
+`dotnet build` kompiliert erfolgreich (0 Fehler, 0 Warnungen).
 
 ---
 
@@ -602,7 +606,7 @@ Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (un
 | **6** ✅ | **Fehlende Unit Tests nachholen: EventStore, Session.Persistence, Value Objects, Event-Assertions** | **1-5** |
 | **7** ✅ | **Conference-Persistence implementieren (Repository mit EventStore) + UnitTests anlegen** | **1, 5, 6** |
 | **8** ✅ | **Conference-Application implementieren (ConferenceService) + UnitTests anlegen** | **7** |
-| 9 | API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen) | 4, 8 |
+| **9** ✅ | **API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen)** | **4, 8** |
 | 10 | Cross-BC-Kommunikation (EventHandler + Subscriptions) | 9 |
 | 11 | Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen) | 9 |
 | 12 | Architecture Tests anpassen | 11 |

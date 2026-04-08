@@ -43,7 +43,8 @@ public abstract class ArchitectureTest
     protected static readonly Assembly[] PersistenceAssemblies = [Persistence];
 
     // API
-    protected static Assembly Api => typeof(DatabaseContext).Assembly;
+    protected static Assembly Api =>
+        typeof(ConferenceExample.API.Extensions.ServiceCollectionExtensions).Assembly;
 
     protected static readonly Assembly[] ApiAssemblies = [Api];
 
