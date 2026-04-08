@@ -1,43 +1,26 @@
-﻿using ConferenceExample.Conference.Domain.ValueObjects;
+using ConferenceExample.Conference.Domain.ValueObjects;
 using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Domain.Entities;
 
-public class Session(
-    SessionId id,
-    ConferenceId conferenceId,
-    SessionStatus status,
-    Time? slot,
-    Room? room)
+public class Session
 {
-    public SessionId Id { get; } = id;
-    public ConferenceId ConferenceId { get; } = conferenceId;
-    public SessionStatus Status { get; private set; } = status;
-    public Time? Slot { get; private set; } = slot;
-    public Room? Room { get; private set; } = room;
+    public SessionId Id { get; }
+    public SessionStatus Status { get; private set; }
+    public Time? Slot { get; private set; }
+    public Room? Room { get; private set; }
 
-    public void Submit()
+    internal Session(SessionId id)
     {
+        Id = id;
         Status = SessionStatus.Submitted;
     }
 
-    public void Accept()
-    {
-        Status = SessionStatus.Accepted;
-    }
+    internal void Accept() => Status = SessionStatus.Accepted;
 
-    public void Reject()
-    {
-        Status = SessionStatus.Rejected;
-    }
+    internal void Reject() => Status = SessionStatus.Rejected;
 
-    public void Schedule(Time slot)
-    {
-        Slot = slot;
-    }
-    
-    public void Assign(Room room)
-    {
-        Room = room;
-    }
+    internal void Schedule(Time slot) => Slot = slot;
+
+    internal void AssignRoom(RoomId roomId, Text roomName) => Room = new Room(roomId, roomName);
 }

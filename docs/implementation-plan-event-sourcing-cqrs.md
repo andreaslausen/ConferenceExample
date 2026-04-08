@@ -266,23 +266,23 @@ Projektreferenz auf `ConferenceExample.Persistence` aus `Session.Persistence.csp
 
 ---
 
-## Schritt 5: Conference-Domain umbauen (Conference.Domain)
+## Schritt 5: Conference-Domain umbauen (Conference.Domain) ✅
 
-### 5.1 IDomainEvent und AggregateRoot anlegen
+### 5.1 IDomainEvent und AggregateRoot anlegen ✅
 
 Wie in Session.Domain: `IDomainEvent` und `AggregateRoot` direkt im Conference.Domain-Projekt anlegen (eigenstaendige Duplikation, keine externe Abhaengigkeit).
 
-### 5.2 Conference Domain Events definieren
+### 5.2 Conference Domain Events definieren ✅
 
 Events fuer Conference:
 - `ConferenceCreatedEvent` -- Name, Time, Location
 - `ConferenceRenamedEvent` -- neuer Name
 
-### 5.3 Conference-Aggregate umbauen
+### 5.3 Conference-Aggregate umbauen ✅
 
 `Conference` erbt von `AggregateRoot`. Enthaelt intern eine Liste von Sessions. Alle Mutationen ueber Events. Factory-Methode `Conference.Create(...)`.
 
-### 5.4 Session-Events im Conference-BC definieren
+### 5.4 Session-Events im Conference-BC definieren ✅
 
 Events fuer die Session-Entitaet innerhalb des Conference-BC:
 - `SessionSubmittedToConferenceEvent`
@@ -291,7 +291,7 @@ Events fuer die Session-Entitaet innerhalb des Conference-BC:
 - `SessionScheduledEvent`
 - `SessionAssignedToRoomEvent`
 
-### 5.5 IConferenceRepository anlegen
+### 5.5 IConferenceRepository anlegen ✅
 
 ```csharp
 public interface IConferenceRepository
@@ -301,12 +301,12 @@ public interface IConferenceRepository
 }
 ```
 
-### 5.6 Conference.Domain.UnitTests anlegen
+### 5.6 Conference.Domain.UnitTests anlegen ✅
 
 - Tests fuer Conference-Aggregate: Erzeugung, Events, State nach Replay
 - Tests fuer Session-Lifecycle im Conference-BC (submit, accept, reject, schedule)
 
-### 5.7 Build und Tests verifizieren
+### 5.7 Build und Tests verifizieren ✅
 
 `dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference.Domain"` muessen gruen sein.
 
