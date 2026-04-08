@@ -150,6 +150,52 @@ public class SessionTests
     }
 
     [Fact]
+    public void EditAbstract_RaisesSessionAbstractEditedEvent()
+    {
+        // Arrange
+        var session = CreateValidSession();
+
+        // Act
+        session.EditAbstract(new Abstract("Updated Abstract"));
+
+        // Assert
+        var events = session.GetUncommittedEvents();
+        Assert.Equal(2, events.Count);
+        Assert.IsType<SessionAbstractEditedEvent>(events[1]);
+    }
+
+    [Fact]
+    public void AddTag_RaisesSessionTagAddedEvent()
+    {
+        // Arrange
+        var session = CreateValidSession();
+
+        // Act
+        session.AddTag(new SessionTag("NewTag"));
+
+        // Assert
+        var events = session.GetUncommittedEvents();
+        Assert.Equal(2, events.Count);
+        Assert.IsType<SessionTagAddedEvent>(events[1]);
+    }
+
+    [Fact]
+    public void RemoveTag_RaisesSessionTagRemovedEvent()
+    {
+        // Arrange
+        var session = CreateValidSession();
+        var tagToRemove = session.Tags[0];
+
+        // Act
+        session.RemoveTag(tagToRemove);
+
+        // Assert
+        var events = session.GetUncommittedEvents();
+        Assert.Equal(2, events.Count);
+        Assert.IsType<SessionTagRemovedEvent>(events[1]);
+    }
+
+    [Fact]
     public void ReplayEvents_RestoresState()
     {
         // Arrange

@@ -312,95 +312,100 @@ public interface IConferenceRepository
 
 ---
 
-## Schritt 6: Fehlende Unit Tests nachholen (EventStore, Persistence, Value Objects)
+## Schritt 6: Fehlende Unit Tests nachholen (EventStore, Persistence, Value Objects) ✅
 
 Bevor es mit der Conference-Persistence weitergeht, werden alle Unit Tests nachgeholt, die in den bisherigen Schritten nicht beruecksichtigt waren. So ist die bestehende Codebasis vollstaendig abgedeckt, bevor neuer Code entsteht.
 
-### 6.1 EventStore Unit Tests anlegen
+### 6.1 EventStore Unit Tests anlegen ✅
 
 Neues Testprojekt `ConferenceExample.EventStore.UnitTests` erstellen und in die Solution einbinden. Referenz auf `ConferenceExample.EventStore`.
 
 **InMemoryEventStore Tests:**
-- `AppendEvents_StoresEvents_GetEventsReturnsThem` -- Events speichern und per `GetEvents` abrufen
-- `GetEvents_UnknownAggregate_ReturnsEmptyList` -- unbekannte AggregateId liefert leere Liste
-- `GetEvents_ReturnsEventsOrderedByVersion` -- Events sind nach Version sortiert
-- `GetAllEvents_ReturnsEventsAcrossMultipleAggregates` -- alle Events aller Aggregates
-- `AppendEvents_VersionMismatch_ThrowsConcurrencyException` -- Optimistic Concurrency: falscher `expectedVersion` wirft `ConcurrencyException`
-- `AppendEvents_MultipleAggregates_KeepsEventsSeparate` -- Events verschiedener Aggregates sind unabhaengig
+- `AppendEvents_StoresEvents_GetEventsReturnsThem` -- Events speichern und per `GetEvents` abrufen ✅
+- `GetEvents_UnknownAggregate_ReturnsEmptyList` -- unbekannte AggregateId liefert leere Liste ✅
+- `GetEvents_ReturnsEventsOrderedByVersion` -- Events sind nach Version sortiert ✅
+- `GetAllEvents_ReturnsEventsAcrossMultipleAggregates` -- alle Events aller Aggregates ✅
+- `AppendEvents_VersionMismatch_ThrowsConcurrencyException` -- Optimistic Concurrency: falscher `expectedVersion` wirft `ConcurrencyException` ✅
+- `AppendEvents_MultipleAggregates_KeepsEventsSeparate` -- Events verschiedener Aggregates sind unabhaengig ✅
 
 **InMemoryEventBus Tests:**
-- `Publish_SubscribedHandler_ReceivesEvent` -- abonnierter Handler wird aufgerufen
-- `Publish_NoSubscribers_DoesNotThrow` -- kein Subscriber fuer EventType wirft nicht
-- `Publish_MultipleSubscribers_AllReceiveEvent` -- mehrere Handler fuer gleichen EventType werden alle aufgerufen
-- `Publish_DifferentEventTypes_OnlyMatchingSubscribersReceive` -- Handler nur fuer passenden EventType
+- `Publish_SubscribedHandler_ReceivesEvent` -- abonnierter Handler wird aufgerufen ✅
+- `Publish_NoSubscribers_DoesNotThrow` -- kein Subscriber fuer EventType wirft nicht ✅
+- `Publish_MultipleSubscribers_AllReceiveEvent` -- mehrere Handler fuer gleichen EventType werden alle aufgerufen ✅
+- `Publish_DifferentEventTypes_OnlyMatchingSubscribersReceive` -- Handler nur fuer passenden EventType ✅
 
-### 6.2 Session.Persistence Unit Tests anlegen
+### 6.2 Session.Persistence Unit Tests anlegen ✅
 
 Neues Testprojekt `ConferenceExample.Session.Persistence.UnitTests` erstellen und in die Solution einbinden. Referenzen auf `Session.Persistence`, `Session.Domain`, `ConferenceExample.EventStore`.
 
 **SessionRepository Tests:**
-- `Save_NewSession_AppendsSerializedEventsToEventStore` -- Events werden serialisiert und im EventStore gespeichert
-- `Save_NewSession_PublishesEventsToEventBus` -- Events werden ueber den EventBus publiziert
-- `Save_ClearsUncommittedEventsAfterSaving` -- nach Save sind keine uncommitted Events mehr vorhanden
-- `Save_NoUncommittedEvents_DoesNothing` -- Session ohne uncommitted Events fuehrt zu keinem EventStore-Aufruf
-- `GetById_ExistingSession_RebuildsSessionFromEvents` -- Events laden, deserialisieren, Session per Replay aufbauen
-- `GetById_UnknownSession_ThrowsInvalidOperationException` -- unbekannte SessionId wirft Exception
-- `GetSessions_FiltersSessionsByConferenceId` -- nur Sessions der angegebenen ConferenceId werden zurueckgegeben
-- `GetSessions_NoMatchingSessions_ReturnsEmptyList` -- keine passenden Sessions liefert leere Liste
+- `Save_NewSession_AppendsSerializedEventsToEventStore` -- Events werden serialisiert und im EventStore gespeichert ✅
+- `Save_NewSession_PublishesEventsToEventBus` -- Events werden ueber den EventBus publiziert ✅
+- `Save_ClearsUncommittedEventsAfterSaving` -- nach Save sind keine uncommitted Events mehr vorhanden ✅
+- `Save_NoUncommittedEvents_DoesNothing` -- Session ohne uncommitted Events fuehrt zu keinem EventStore-Aufruf ✅
+- `GetById_ExistingSession_RebuildsSessionFromEvents` -- Events laden, deserialisieren, Session per Replay aufbauen ✅
+- `GetById_UnknownSession_ThrowsInvalidOperationException` -- unbekannte SessionId wirft Exception ✅
+- `GetSessions_FiltersSessionsByConferenceId` -- nur Sessions der angegebenen ConferenceId werden zurueckgegeben ✅
+- `GetSessions_NoMatchingSessions_ReturnsEmptyList` -- keine passenden Sessions liefert leere Liste ✅
 
-### 6.3 Session.Domain: Fehlende Event-Assertions ergaenzen
+### 6.3 Session.Domain: Fehlende Event-Assertions ergaenzen ✅
 
-Folgende Tests in `SessionTests.cs` hinzufuegen:
+Folgende Tests in `SessionTests.cs` hinzugefuegt:
 
-- `EditAbstract_RaisesSessionAbstractEditedEvent` -- validiert, dass das korrekte Event erzeugt wird
-- `AddTag_RaisesSessionTagAddedEvent` -- validiert, dass das korrekte Event erzeugt wird
-- `RemoveTag_RaisesSessionTagRemovedEvent` -- validiert, dass das korrekte Event erzeugt wird
+- `EditAbstract_RaisesSessionAbstractEditedEvent` -- validiert, dass das korrekte Event erzeugt wird ✅
+- `AddTag_RaisesSessionTagAddedEvent` -- validiert, dass das korrekte Event erzeugt wird ✅
+- `RemoveTag_RaisesSessionTagRemovedEvent` -- validiert, dass das korrekte Event erzeugt wird ✅
 
-### 6.4 Session.Domain: Value Object Tests anlegen
+### 6.4 Session.Domain: Value Object Tests anlegen ✅
 
 Neue Testklassen in `Session.Domain.UnitTests` fuer Value Objects:
 
-**SessionTitleTests:**
-- `Constructor_ValidTitle_SetsProperty` -- gueltiger Title wird gesetzt
-- `Constructor_TitleExceeds100Characters_ThrowsArgumentException` -- zu langer Title wirft Exception
+**SessionTitleTests:** ✅
+- `Constructor_ValidTitle_SetsProperty` -- gueltiger Title wird gesetzt ✅
+- `Constructor_TitleExceeds100Characters_ThrowsArgumentException` -- zu langer Title wirft Exception ✅
+- `Constructor_TitleExactly100Characters_DoesNotThrow` -- Grenzwert wird akzeptiert ✅
 
-**AbstractTests:**
-- `Constructor_ValidAbstract_SetsProperty` -- gueltiges Abstract wird gesetzt
-- `Constructor_AbstractExceeds1000Characters_ThrowsArgumentException` -- zu langes Abstract wirft Exception
+**AbstractTests:** ✅
+- `Constructor_ValidAbstract_SetsProperty` -- gueltiges Abstract wird gesetzt ✅
+- `Constructor_AbstractExceeds1000Characters_ThrowsArgumentException` -- zu langes Abstract wirft Exception ✅
+- `Constructor_AbstractExactly1000Characters_DoesNotThrow` -- Grenzwert wird akzeptiert ✅
 
-**SessionTagTests:**
-- `Constructor_ValidTag_SetsProperty` -- gueltiger Tag wird gesetzt
-- `Constructor_TagExceeds20Characters_ThrowsArgumentException` -- zu langer Tag wirft Exception
+**SessionTagTests:** ✅
+- `Constructor_ValidTag_SetsProperty` -- gueltiger Tag wird gesetzt ✅
+- `Constructor_TagExceeds20Characters_ThrowsArgumentException` -- zu langer Tag wirft Exception ✅
+- `Constructor_TagExactly20Characters_DoesNotThrow` -- Grenzwert wird akzeptiert ✅
 
-### 6.5 Conference.Domain: Value Object Tests anlegen
+### 6.5 Conference.Domain: Value Object Tests anlegen ✅
 
 Neue Testklasse in `Conference.Domain.UnitTests`:
 
-**TextTests:**
-- `Constructor_ValidText_SetsProperty` -- gueltiger Text wird gesetzt
-- `Constructor_NullOrWhitespace_ThrowsArgumentException` -- null/leer/Whitespace wirft Exception
+**TextTests:** ✅
+- `Constructor_ValidText_SetsProperty` -- gueltiger Text wird gesetzt ✅
+- `Constructor_NullValue_ThrowsArgumentException` -- null wirft Exception ✅
+- `Constructor_EmptyString_ThrowsArgumentException` -- leerer String wirft Exception ✅
+- `Constructor_WhitespaceOnly_ThrowsArgumentException` -- Whitespace wirft Exception ✅
 
-### 6.6 Conference.Domain: Fehlende Event-Assertions ergaenzen
+### 6.6 Conference.Domain: Fehlende Event-Assertions ergaenzen ✅
 
-Folgende Tests in `ConferenceTests.cs` hinzufuegen:
+Folgende Tests in `ConferenceTests.cs` hinzugefuegt:
 
-- `AcceptSession_RaisesSessionAcceptedEvent` -- validiert, dass das korrekte Event erzeugt wird
-- `RejectSession_RaisesSessionRejectedEvent` -- validiert, dass das korrekte Event erzeugt wird
-- `ScheduleSession_RaisesSessionScheduledEvent` -- validiert, dass das korrekte Event erzeugt wird
-- `AssignSessionToRoom_RaisesSessionAssignedToRoomEvent` -- validiert, dass das korrekte Event erzeugt wird
+- `AcceptSession_RaisesSessionAcceptedEvent` -- validiert, dass das korrekte Event erzeugt wird ✅
+- `RejectSession_RaisesSessionRejectedEvent` -- validiert, dass das korrekte Event erzeugt wird ✅
+- `ScheduleSession_RaisesSessionScheduledEvent` -- validiert, dass das korrekte Event erzeugt wird ✅
+- `AssignSessionToRoom_RaisesSessionAssignedToRoomEvent` -- validiert, dass das korrekte Event erzeugt wird ✅
 
-### 6.7 Platzhalter-Tests entfernen
+### 6.7 Platzhalter-Tests entfernen ✅
 
-`Conference.UnitTests/UnitTest1.cs` enthaelt einen leeren Platzhalter-Test. Pruefen ob das Projekt noch benoetigt wird (die echten Tests liegen in `Conference.Domain.UnitTests` und `Conference.Application.UnitTests`). Falls nicht, Projekt aus der Solution entfernen.
+`Conference.UnitTests` war bereits nicht in der Solution eingebunden -- kein Handlungsbedarf.
 
-### 6.8 Build und alle Tests verifizieren
+### 6.8 Build und alle Tests verifizieren ✅
 
 ```bash
 dotnet build
 dotnet test
 ```
 
-Alle bisherigen und neuen Tests muessen gruen sein.
+Alle Unit Tests gruen (59 Tests). Die 2 Fehler in ArchitectureTests sind pre-existing und werden in Schritt 12 behoben.
 
 ---
 
@@ -594,7 +599,7 @@ Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (un
 | 3 | Session-Persistence umbauen (Repository mit EventStore, Shared-Persistence-Referenz entfernen) | 1, 2 |
 | 4 | Session-Application anpassen (IDatabaseContext entfernen, SessionService anpassen) + UnitTests anpassen | 3 |
 | 5 | Conference-Domain umbauen (IDomainEvent, AggregateRoot, Events, Aggregate) + UnitTests anlegen | 1 |
-| **6** | **Fehlende Unit Tests nachholen: EventStore, Session.Persistence, Value Objects, Event-Assertions** | **1-5** |
+| **6** ✅ | **Fehlende Unit Tests nachholen: EventStore, Session.Persistence, Value Objects, Event-Assertions** | **1-5** |
 | 7 | Conference-Persistence implementieren (Repository mit EventStore) + UnitTests anlegen | 1, 5, 6 |
 | 8 | Conference-Application implementieren (ConferenceService) + UnitTests anlegen | 7 |
 | 9 | API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen) | 4, 8 |

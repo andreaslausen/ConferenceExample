@@ -160,6 +160,82 @@ public class ConferenceTests
     }
 
     [Fact]
+    public void AcceptSession_RaisesSessionAcceptedEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var sessionId = new SessionId(GuidV7.NewGuid());
+        conference.SubmitSession(sessionId);
+        conference.ClearUncommittedEvents();
+
+        // Act
+        conference.AcceptSession(sessionId);
+
+        // Assert
+        var events = conference.GetUncommittedEvents();
+        var single = Assert.Single(events);
+        Assert.IsType<SessionAcceptedEvent>(single);
+    }
+
+    [Fact]
+    public void RejectSession_RaisesSessionRejectedEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var sessionId = new SessionId(GuidV7.NewGuid());
+        conference.SubmitSession(sessionId);
+        conference.ClearUncommittedEvents();
+
+        // Act
+        conference.RejectSession(sessionId);
+
+        // Assert
+        var events = conference.GetUncommittedEvents();
+        var single = Assert.Single(events);
+        Assert.IsType<SessionRejectedEvent>(single);
+    }
+
+    [Fact]
+    public void ScheduleSession_RaisesSessionScheduledEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var sessionId = new SessionId(GuidV7.NewGuid());
+        conference.SubmitSession(sessionId);
+        conference.AcceptSession(sessionId);
+        conference.ClearUncommittedEvents();
+        var slot = new Time(DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddHours(2));
+
+        // Act
+        conference.ScheduleSession(sessionId, slot);
+
+        // Assert
+        var events = conference.GetUncommittedEvents();
+        var single = Assert.Single(events);
+        Assert.IsType<SessionScheduledEvent>(single);
+    }
+
+    [Fact]
+    public void AssignSessionToRoom_RaisesSessionAssignedToRoomEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var sessionId = new SessionId(GuidV7.NewGuid());
+        conference.SubmitSession(sessionId);
+        conference.AcceptSession(sessionId);
+        conference.ClearUncommittedEvents();
+        var room = new Entities.Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
+
+        // Act
+        conference.AssignSessionToRoom(sessionId, room);
+
+        // Assert
+        var events = conference.GetUncommittedEvents();
+        var single = Assert.Single(events);
+        Assert.IsType<SessionAssignedToRoomEvent>(single);
+    }
+
+    [Fact]
     public void ReplayEvents_RestoresState()
     {
         // Arrange
