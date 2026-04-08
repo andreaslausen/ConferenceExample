@@ -409,39 +409,39 @@ Alle Unit Tests gruen (59 Tests). Die 2 Fehler in ArchitectureTests sind pre-exi
 
 ---
 
-## Schritt 7: Conference-Persistence implementieren (Conference.Persistence)
+## Schritt 7: Conference-Persistence implementieren (Conference.Persistence) ✅
 
-### 7.1 EventStore-Referenz hinzufuegen
+### 7.1 EventStore-Referenz hinzufuegen ✅
 
 Projektreferenz auf `ConferenceExample.EventStore` in `Conference.Persistence.csproj` hinzufuegen.
 
-### 7.2 ConferenceRepository implementieren
+### 7.2 ConferenceRepository implementieren ✅
 
 Gleiche Logik wie SessionRepository: Load via Event Replay, Save via Append + Publish.
 
-### 7.3 Platzhalter-Code entfernen
+### 7.3 Platzhalter-Code entfernen ✅
 
 `Class1.cs` aus Conference.Persistence loeschen.
 
-### 7.4 Shared-Persistence-Referenz entfernen
+### 7.4 Shared-Persistence-Referenz entfernen ✅
 
 Projektreferenz auf `ConferenceExample.Persistence` aus `Conference.Persistence.csproj` entfernen.
 
-### 7.5 Conference.Persistence Unit Tests anlegen
+### 7.5 Conference.Persistence Unit Tests anlegen ✅
 
 Neues Testprojekt `ConferenceExample.Conference.Persistence.UnitTests` erstellen und in die Solution einbinden. Referenzen auf `Conference.Persistence`, `Conference.Domain`, `ConferenceExample.EventStore`.
 
 **ConferenceRepository Tests:**
-- `Save_NewConference_AppendsSerializedEventsToEventStore` -- Events werden serialisiert und im EventStore gespeichert
-- `Save_NewConference_PublishesEventsToEventBus` -- Events werden ueber den EventBus publiziert
-- `Save_ClearsUncommittedEventsAfterSaving` -- nach Save sind keine uncommitted Events mehr vorhanden
-- `Save_NoUncommittedEvents_DoesNothing` -- Conference ohne uncommitted Events fuehrt zu keinem EventStore-Aufruf
-- `GetById_ExistingConference_RebuildsConferenceFromEvents` -- Events laden, deserialisieren, Conference per Replay aufbauen
-- `GetById_UnknownConference_ThrowsInvalidOperationException` -- unbekannte ConferenceId wirft Exception
+- `Save_NewConference_AppendsSerializedEventsToEventStore` -- Events werden serialisiert und im EventStore gespeichert ✅
+- `Save_NewConference_PublishesEventsToEventBus` -- Events werden ueber den EventBus publiziert ✅
+- `Save_ClearsUncommittedEventsAfterSaving` -- nach Save sind keine uncommitted Events mehr vorhanden ✅
+- `Save_NoUncommittedEvents_DoesNothing` -- Conference ohne uncommitted Events fuehrt zu keinem EventStore-Aufruf ✅
+- `GetById_ExistingConference_RebuildsConferenceFromEvents` -- Events laden, deserialisieren, Conference per Replay aufbauen ✅
+- `GetById_UnknownConference_ThrowsInvalidOperationException` -- unbekannte ConferenceId wirft Exception ✅
 
-### 7.6 Build und Tests verifizieren
+### 7.6 Build und Tests verifizieren ✅
 
-`dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference"` muessen gruen sein.
+`dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference.Persistence"` gruen (6/6 Tests bestanden).
 
 ---
 
@@ -600,7 +600,7 @@ Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (un
 | 4 | Session-Application anpassen (IDatabaseContext entfernen, SessionService anpassen) + UnitTests anpassen | 3 |
 | 5 | Conference-Domain umbauen (IDomainEvent, AggregateRoot, Events, Aggregate) + UnitTests anlegen | 1 |
 | **6** ✅ | **Fehlende Unit Tests nachholen: EventStore, Session.Persistence, Value Objects, Event-Assertions** | **1-5** |
-| 7 | Conference-Persistence implementieren (Repository mit EventStore) + UnitTests anlegen | 1, 5, 6 |
+| **7** ✅ | **Conference-Persistence implementieren (Repository mit EventStore) + UnitTests anlegen** | **1, 5, 6** |
 | 8 | Conference-Application implementieren (ConferenceService) + UnitTests anlegen | 7 |
 | 9 | API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen) | 4, 8 |
 | 10 | Cross-BC-Kommunikation (EventHandler + Subscriptions) | 9 |

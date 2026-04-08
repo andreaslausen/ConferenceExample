@@ -13,7 +13,7 @@ public abstract class ArchitectureTest
         typeof(Conference.Application.CreateConferenceDto).Assembly;
     protected static Assembly ConferenceDomain => typeof(Room).Assembly;
     protected static Assembly ConferencePersistence =>
-        typeof(Conference.Persistence.Class1).Assembly;
+        typeof(Conference.Persistence.ConferenceRepository).Assembly;
 
     protected static readonly Assembly[] ConferenceAssemblies =
     [
