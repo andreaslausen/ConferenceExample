@@ -244,23 +244,23 @@ Projektreferenz auf `ConferenceExample.Persistence` aus `Session.Persistence.csp
 
 ---
 
-## Schritt 4: Session-Application anpassen (Session.Application)
+## Schritt 4: Session-Application anpassen (Session.Application) ✅
 
-### 4.1 IDatabaseContext entfernen
+### 4.1 IDatabaseContext entfernen ✅
 
 `IDatabaseContext.cs` aus Session.Application loeschen -- wird nicht mehr benoetigt.
 
-### 4.2 SessionService anpassen
+### 4.2 SessionService anpassen ✅
 
 `SessionService` nutzt nur noch `ISessionRepository` statt `IDatabaseContext`. Alle Methoden aktualisieren.
 
-### 4.3 Session.Application.UnitTests anpassen
+### 4.3 Session.Application.UnitTests anpassen ✅
 
 - `IDatabaseContext`-Mock entfernen
 - `ISessionRepository`-Mock verwenden
 - Pruefen, dass `Save()` aufgerufen wird
 
-### 4.4 Build und Tests verifizieren
+### 4.4 Build und Tests verifizieren ✅
 
 `dotnet build` und `dotnet test --filter "FullyQualifiedName~Session"` muessen gruen sein (Domain + Application UnitTests).
 

@@ -16,7 +16,6 @@ public class SetupTestDependencies
         var services = new ServiceCollection();
         var databaseContext = new DatabaseContext();
         services.AddSingleton<IDatabaseContext>(databaseContext);
-        services.AddSingleton<Session.Application.IDatabaseContext>(databaseContext);
         services.AddSingleton(databaseContext);
         services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<ISessionService, SessionService>();
