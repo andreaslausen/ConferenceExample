@@ -445,21 +445,21 @@ Neues Testprojekt `ConferenceExample.Conference.Persistence.UnitTests` erstellen
 
 ---
 
-## Schritt 8: Conference-Application implementieren (Conference.Application)
+## Schritt 8: Conference-Application implementieren (Conference.Application) ✅
 
-### 8.1 ConferenceService implementieren
+### 8.1 ConferenceService implementieren ✅
 
 `IConferenceService` mit `CreateConference`-Methode implementieren. Nutzt `IConferenceRepository`.
 
-### 8.2 Conference.Application.UnitTests anlegen
+### 8.2 Conference.Application.UnitTests anlegen ✅
 
 **ConferenceServiceTests:**
-- `CreateConference_ValidDto_CallsRepositorySave` -- `Save()` wird mit korrekt erzeugtem Aggregate aufgerufen
-- `CreateConference_ValidDto_CreatesConferenceWithCorrectProperties` -- das gespeicherte Aggregate hat die richtigen Werte aus dem DTO
+- `CreateConference_ValidDto_CallsRepositorySave` -- `Save()` wird mit korrekt erzeugtem Aggregate aufgerufen ✅
+- `CreateConference_ValidDto_CreatesConferenceWithCorrectProperties` -- das gespeicherte Aggregate hat die richtigen Werte aus dem DTO ✅
 
-### 8.3 Build und Tests verifizieren
+### 8.3 Build und Tests verifizieren ✅
 
-`dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference"` muessen gruen sein.
+`dotnet build` und `dotnet test --filter "FullyQualifiedName~Conference.Application"` gruen (2/2 Tests bestanden).
 
 ---
 
@@ -601,7 +601,7 @@ Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (un
 | 5 | Conference-Domain umbauen (IDomainEvent, AggregateRoot, Events, Aggregate) + UnitTests anlegen | 1 |
 | **6** ✅ | **Fehlende Unit Tests nachholen: EventStore, Session.Persistence, Value Objects, Event-Assertions** | **1-5** |
 | **7** ✅ | **Conference-Persistence implementieren (Repository mit EventStore) + UnitTests anlegen** | **1, 5, 6** |
-| 8 | Conference-Application implementieren (ConferenceService) + UnitTests anlegen | 7 |
+| **8** ✅ | **Conference-Application implementieren (ConferenceService) + UnitTests anlegen** | **7** |
 | 9 | API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen) | 4, 8 |
 | 10 | Cross-BC-Kommunikation (EventHandler + Subscriptions) | 9 |
 | 11 | Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen) | 9 |
