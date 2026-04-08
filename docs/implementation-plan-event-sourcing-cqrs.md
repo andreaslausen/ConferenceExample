@@ -214,31 +214,31 @@ public interface ISessionRepository
 
 ---
 
-## Schritt 3: Session-Persistence umbauen (Session.Persistence)
+## Schritt 3: Session-Persistence umbauen (Session.Persistence) ✅
 
-### 3.1 EventStore-Referenz hinzufuegen
+### 3.1 EventStore-Referenz hinzufuegen ✅
 
 Projektreferenz auf `ConferenceExample.EventStore` in `Session.Persistence.csproj` hinzufuegen.
 
-### 3.2 SessionRepository umbauen
+### 3.2 SessionRepository umbauen ✅
 
 - `Save()`: Events aus dem Aggregate serialisieren, an den EventStore appenden, dann ueber EventBus publishen, danach `ClearUncommittedEvents()`
 - `GetById()`: Events aus dem EventStore laden, deserialisieren, neues Aggregate instanziieren, `ReplayEvents()` aufrufen
 - `GetSessions()`: Alle Events laden, nach ConferenceId filtern, Aggregates aufbauen (einfache Loesung fuer den Anfang)
 
-### 3.3 SpeakerRepository umbauen oder entfernen
+### 3.3 SpeakerRepository umbauen oder entfernen ✅
 
 Pruefen, ob der SpeakerRepository noch benoetigt wird. Falls ja, analog zum SessionRepository umbauen. Falls nicht, entfernen.
 
-### 3.4 SessionExtensions entfernen
+### 3.4 SessionExtensions entfernen ✅
 
 Die Mapping-Extensions zwischen Persistence-Models und Domain-Entities werden nicht mehr benoetigt, da Aggregates jetzt direkt ueber Event Replay geladen werden.
 
-### 3.5 Shared-Persistence-Referenz entfernen
+### 3.5 Shared-Persistence-Referenz entfernen ✅
 
 Projektreferenz auf `ConferenceExample.Persistence` aus `Session.Persistence.csproj` entfernen.
 
-### 3.6 Build verifizieren
+### 3.6 Build verifizieren ✅
 
 `dotnet build` muss kompilieren. (Tests koennen hier noch fehlschlagen, da die Application-Schicht noch nicht angepasst ist.)
 
