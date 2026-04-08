@@ -50,15 +50,15 @@ ConferenceExample.Persistence               (ENTFERNEN)
 
 ---
 
-## Schritt 1: Zentrales EventStore-Projekt anlegen
+## Schritt 1: Zentrales EventStore-Projekt anlegen ✅
 
 Neues Projekt `ConferenceExample.EventStore` erstellen. Dieses Projekt enthaelt die Infrastruktur fuer Event-Persistierung und den EventBus. Es kennt keine Domain-Events direkt -- es arbeitet mit serialisierten Events (`StoredEvent`).
 
-### 1.1 Projekt anlegen und zur Solution hinzufuegen
+### 1.1 Projekt anlegen und zur Solution hinzufuegen ✅
 
 Neues Class-Library-Projekt `ConferenceExample.EventStore` erstellen und in `ConferenceExample.sln` einbinden.
 
-### 1.2 StoredEvent und IEventStore
+### 1.2 StoredEvent und IEventStore ✅
 
 **`StoredEvent`** -- Wrapper fuer persistierte Events:
 ```csharp
@@ -83,7 +83,7 @@ public interface IEventStore
 
 **`InMemoryEventStore`** -- Thread-sichere In-Memory-Implementierung mit einer Liste von `StoredEvent`. Optimistic Concurrency ueber `expectedVersion`.
 
-### 1.3 EventBus (Observer Pattern)
+### 1.3 EventBus (Observer Pattern) ✅
 
 **`IEventBus`**:
 ```csharp
@@ -98,7 +98,7 @@ public interface IEventBus
 
 Der EventBus arbeitet auf `StoredEvent`-Ebene. Die Deserialisierung in konkrete Domain-Event-Typen erfolgt in den jeweiligen Bounded Contexts.
 
-### 1.4 Build verifizieren
+### 1.4 Build verifizieren ✅
 
 `dotnet build` -- das neue Projekt muss eigenstaendig kompilieren.
 
