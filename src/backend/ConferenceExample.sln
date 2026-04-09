@@ -20,9 +20,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{9AEA0592-CC1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.API", "API\ConferenceExample.API\ConferenceExample.API.csproj", "{1BC20B63-CC74-46B6-B908-5C81588939A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Architecture", "Architecture", "{D23236E9-3FEC-4B72-A433-30C44697C87A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D23236E9-3FEC-4B72-A433-30C44697C87A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.ArchitectureTests", "Architecture\ConferenceExample.ArchitectureTests\ConferenceExample.ArchitectureTests.csproj", "{F01A71D6-4AB0-47B7-940C-B6C302761E34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.ArchitectureTests", "Tests\ConferenceExample.ArchitectureTests\ConferenceExample.ArchitectureTests.csproj", "{F01A71D6-4AB0-47B7-940C-B6C302761E34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.AcceptanceTests", "Talk\ConferenceExample.Talk.AcceptanceTests\ConferenceExample.Talk.AcceptanceTests.csproj", "{47D0DF6B-C3B2-49D9-B01A-746ABFBA93DC}"
 EndProject
@@ -34,11 +34,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conferenc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conference.Domain.UnitTests", "Conference\ConferenceExample.Conference.Domain.UnitTests\ConferenceExample.Conference.Domain.UnitTests.csproj", "{9AA9F34D-89F8-44A6-A71D-CDBEE6BCA94B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventStore", "EventStore", "{356C7FD4-FC88-2604-97C4-A36582C1E781}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{356C7FD4-FC88-2604-97C4-A36582C1E781}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.EventStore", "EventStore\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj", "{8FA18AA1-8624-4D48-AD6C-8BC8B0A673AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.EventStore", "Infrastructure\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj", "{8FA18AA1-8624-4D48-AD6C-8BC8B0A673AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.EventStore.UnitTests", "EventStore\ConferenceExample.EventStore.UnitTests\ConferenceExample.EventStore.UnitTests.csproj", "{6EFBD04B-A4D1-4300-97AB-E530A8417335}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.EventStore.UnitTests", "Infrastructure\ConferenceExample.EventStore.UnitTests\ConferenceExample.EventStore.UnitTests.csproj", "{6EFBD04B-A4D1-4300-97AB-E530A8417335}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.Persistence.UnitTests", "Talk\ConferenceExample.Talk.Persistence.UnitTests\ConferenceExample.Talk.Persistence.UnitTests.csproj", "{A3BF8C9B-81A7-4CE5-BE69-1018A26586BD}"
 EndProject
