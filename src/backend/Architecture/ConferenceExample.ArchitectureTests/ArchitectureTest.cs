@@ -37,10 +37,11 @@ public abstract class ArchitectureTest
         SessionPersistence,
     ];
 
-    // Persistence
-    protected static Assembly Persistence => typeof(Persistence.IDatabaseContext).Assembly;
+    // EventStore
+    protected static Assembly EventStore =>
+        typeof(ConferenceExample.EventStore.IEventStore).Assembly;
 
-    protected static readonly Assembly[] PersistenceAssemblies = [Persistence];
+    protected static readonly Assembly[] EventStoreAssemblies = [EventStore];
 
     // API
     protected static Assembly Api =>
@@ -52,7 +53,7 @@ public abstract class ArchitectureTest
     [
         .. ConferenceAssemblies,
         .. SessionAssemblies,
-        .. PersistenceAssemblies,
+        .. EventStoreAssemblies,
         .. ApiAssemblies,
     ];
 

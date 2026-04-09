@@ -529,43 +529,44 @@ Umgesetzt in `ServiceCollectionExtensions.AddEventBusSubscriptions`: Subscriptio
 
 ---
 
-## Schritt 11: Shared-Persistence-Projekt entfernen
+## Schritt 11: Shared-Persistence-Projekt entfernen ✅
 
-### 11.1 Alle Referenzen pruefen
+### 11.1 Alle Referenzen pruefen ✅
 
 Sicherstellen, dass kein Projekt mehr `ConferenceExample.Persistence` referenziert. Betrifft auch Testprojekte (insbesondere `Session.AcceptanceTests`).
 
-### 11.2 AcceptanceTests-Referenz anpassen
+### 11.2 AcceptanceTests-Referenz anpassen ✅
 
 `ConferenceExample.Persistence`-Referenz aus `Session.AcceptanceTests.csproj` entfernen. DI-Setup in den AcceptanceTests auf EventStore umstellen.
 
-### 11.3 Projekt aus Solution entfernen und loeschen
+### 11.3 Projekt aus Solution entfernen und loeschen ✅
 
 - `ConferenceExample.Persistence` aus der Solution entfernen (`dotnet sln remove`)
 - Projektordner loeschen
 
-### 11.4 Build verifizieren
+### 11.4 Build verifizieren ✅
 
 `dotnet build` muss kompilieren.
 
 ---
 
-## Schritt 12: Architecture Tests anpassen
+## Schritt 12: Architecture Tests anpassen ✅
 
-### 12.1 Dependencies aktualisieren
+### 12.1 Dependencies aktualisieren ✅
 
 - `Persistence`-Assembly-Referenz (shared) entfernen
 - Neue `EventStore`-Assembly-Referenz hinzufuegen
 
-### 12.2 Dependency Rules aktualisieren
+### 12.2 Dependency Rules aktualisieren ✅
 
 - Domain Dependency Rules bleiben gleich (Domain haengt weiterhin nur von sich selbst + System ab)
 - Persistence Dependency Rules aktualisieren: `EventStore` statt shared `Persistence`
 - Application Dependency Rules bleiben gleich (Application haengt von Domain ab, nicht von Persistence/EventStore)
+- Drei pre-existing Guid-Violations behoben: `Conference.FindSession` (GuidV7-Vergleich statt Guid-Cast), `SessionRepository.Save` (GuidV7.NewGuid() statt Guid.CreateVersion7()), `InMemoryEventStore` als Exception in ClassRules eingetragen (legitime Infrastructure-Nutzung)
 
-### 12.3 Architecture Tests ausfuehren
+### 12.3 Architecture Tests ausfuehren ✅
 
-`dotnet test --filter "FullyQualifiedName~Architecture"` muss gruen sein.
+`dotnet test --filter "FullyQualifiedName~Architecture"` -- 10/10 Tests gruen.
 
 ---
 
@@ -610,8 +611,8 @@ Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (un
 | **8** ✅ | **Conference-Application implementieren (ConferenceService) + UnitTests anlegen** | **7** |
 | **9** ✅ | **API-Layer anpassen (DI, EventStore/Repos/Services registrieren, Shared-Persistence-Referenz + DatabaseContext entfernen)** | **4, 8** |
 | **10** ✅ | **Cross-BC-Kommunikation (EventHandler + Subscriptions)** | **9** |
-| 11 | Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen) | 9 |
-| 12 | Architecture Tests anpassen | 11 |
+| **11** ✅ | **Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen)** | **9** |
+| **12** ✅ | **Architecture Tests anpassen** | **11** |
 | 13 | Acceptance Tests anpassen | 11 |
 | 14 | Alle Tests gruen (Gesamtbuild + alle Tests) | 12, 13 |
 

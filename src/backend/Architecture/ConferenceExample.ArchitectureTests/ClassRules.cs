@@ -1,5 +1,6 @@
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnit;
+using ConferenceExample.EventStore;
 using ConferenceExample.Session.Domain.Extensions;
 using ConferenceExample.Session.Domain.ValueObjects;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
@@ -31,10 +32,10 @@ public class ClassRules : ArchitectureTest
             .AreNot(typeof(Conference.Domain.Extensions.GuidExtensions))
             .And()
             .AreNot(typeof(Conference.Domain.Extensions.StringExtensions))
+            .And()
+            .AreNot(typeof(InMemoryEventStore))
             .Should()
-            .NotCallAny(MethodMembers()
-                .That()
-                .AreDeclaredIn(typeof(Guid)))
+            .NotCallAny(MethodMembers().That().AreDeclaredIn(typeof(Guid)))
             .WithoutRequiringPositiveResults();
 
         rule.Check(architecture);

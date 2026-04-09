@@ -17,7 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\API\ConferenceExample.API\ConferenceExample.API.csproj" />
-    <ProjectReference Include="..\..\Persistence\ConferenceExample.Persistence\ConferenceExample.Persistence.csproj" />
     <ProjectReference Include="..\ConferenceExample.Session.Application\ConferenceExample.Session.Application.csproj" />
     <ProjectReference Include="..\ConferenceExample.Session.Domain\ConferenceExample.Session.Domain.csproj" />
     <ProjectReference Include="..\ConferenceExample.Session.Persistence\ConferenceExample.Session.Persistence.csproj" />

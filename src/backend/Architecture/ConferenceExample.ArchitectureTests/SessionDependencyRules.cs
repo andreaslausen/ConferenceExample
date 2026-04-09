@@ -12,11 +12,13 @@ public class SessionDependencyRules : ArchitectureTest
             .That()
             .ResideInAssembly(SessionDomain)
             .Should()
-            .OnlyDependOn(Types()
-                .That()
-                .ResideInAssembly(SessionDomain)
-                .Or()
-                .ResideInNamespaceMatching("System*"));
+            .OnlyDependOn(
+                Types()
+                    .That()
+                    .ResideInAssembly(SessionDomain)
+                    .Or()
+                    .ResideInNamespaceMatching("System*")
+            );
 
         rule.Check(Architecture);
     }
@@ -28,33 +30,37 @@ public class SessionDependencyRules : ArchitectureTest
             .That()
             .ResideInAssembly(SessionApplication)
             .Should()
-            .OnlyDependOn(Types()
-                .That()
-                .ResideInAssembly(SessionApplication)
-                .Or()
-                .ResideInAssembly(SessionDomain)
-                .Or()
-                .ResideInNamespaceMatching("System*"));
+            .OnlyDependOn(
+                Types()
+                    .That()
+                    .ResideInAssembly(SessionApplication)
+                    .Or()
+                    .ResideInAssembly(SessionDomain)
+                    .Or()
+                    .ResideInNamespaceMatching("System*")
+            );
 
         rule.Check(Architecture);
     }
 
     [Fact]
-    public void SessionPersistence_ShouldOnlyDependOnItselfAndDomainAndPersistence()
+    public void SessionPersistence_ShouldOnlyDependOnItselfAndDomainAndEventStore()
     {
         var rule = Types()
             .That()
             .ResideInAssembly(SessionPersistence)
             .Should()
-            .OnlyDependOn(Types()
-                .That()
-                .ResideInAssembly(SessionPersistence)
-                .Or()
-                .ResideInAssembly(SessionDomain)
-                .Or()
-                .ResideInAssembly(Persistence)
-                .Or()
-                .ResideInAssemblyMatching("System*"));
+            .OnlyDependOn(
+                Types()
+                    .That()
+                    .ResideInAssembly(SessionPersistence)
+                    .Or()
+                    .ResideInAssembly(SessionDomain)
+                    .Or()
+                    .ResideInAssembly(EventStore)
+                    .Or()
+                    .ResideInAssemblyMatching("System*")
+            );
 
         rule.Check(Architecture);
     }

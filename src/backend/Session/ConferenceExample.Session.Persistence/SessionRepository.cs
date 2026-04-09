@@ -3,6 +3,7 @@ using ConferenceExample.EventStore;
 using ConferenceExample.Session.Domain;
 using ConferenceExample.Session.Domain.Events;
 using ConferenceExample.Session.Domain.Repositories;
+using ConferenceExample.Session.Domain.ValueObjects;
 using ConferenceExample.Session.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Session.Persistence;
@@ -68,7 +69,7 @@ public class SessionRepository(IEventStore eventStore, IEventBus eventBus) : ISe
             .Select(
                 (e, i) =>
                     new StoredEvent(
-                        Guid.CreateVersion7(),
+                        GuidV7.NewGuid().Value,
                         e.AggregateId,
                         e.GetType().Name,
                         JsonSerializer.Serialize(e, e.GetType()),

@@ -134,5 +134,5 @@ public class Conference : AggregateRoot
     }
 
     private Session FindSession(Guid sessionId) =>
-        _sessions.First(s => (Guid)s.Id.Value == sessionId);
+        _sessions.First(s => s.Id.Value == (GuidV7)sessionId);
 }

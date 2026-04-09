@@ -23,28 +23,35 @@ public class ConferenceDependencyRules : ArchitectureTest
     }
 
     [Fact]
-    public void ConferencePersistence_ShouldOnlyDependOnItselfAndDomainAndPersistence()
+    public void ConferencePersistence_ShouldOnlyDependOnItselfAndDomainAndEventStore()
     {
-        var rule = CheckDependencies(ConferencePersistence, [ConferenceDomain, Persistence], "System");
+        var rule = CheckDependencies(
+            ConferencePersistence,
+            [ConferenceDomain, EventStore],
+            "System"
+        );
 
         rule.Check(Architecture);
     }
 
-    private static TypesShouldConjunction CheckDependencies(System.Reflection.Assembly source,
+    private static TypesShouldConjunction CheckDependencies(
+        System.Reflection.Assembly source,
         IEnumerable<System.Reflection.Assembly> target,
-        params string[] allowedNamespaces)
+        params string[] allowedNamespaces
+    )
     {
         var allowedTypes = Types().That().ResideInAssembly(source);
-        allowedTypes = target.Aggregate(allowedTypes, (current, assembly)
-            => current.Or().ResideInAssembly(assembly));
-        allowedTypes = allowedNamespaces.Aggregate(allowedTypes, (current, allowedNamespace)
-            => current.Or().ResideInNamespaceMatching($"{allowedNamespace}.*"));
+        allowedTypes = target.Aggregate(
+            allowedTypes,
+            (current, assembly) => current.Or().ResideInAssembly(assembly)
+        );
+        allowedTypes = allowedNamespaces.Aggregate(
+            allowedTypes,
+            (current, allowedNamespace) =>
+                current.Or().ResideInNamespaceMatching($"{allowedNamespace}.*")
+        );
 
-        var rule = Types()
-            .That()
-            .ResideInAssembly(source)
-            .Should()
-            .OnlyDependOn(allowedTypes);
+        var rule = Types().That().ResideInAssembly(source).Should().OnlyDependOn(allowedTypes);
 
         return rule;
     }
