@@ -31,7 +31,7 @@ public class Talk : AggregateRoot
         TalkTitle title,
         SpeakerId speakerId,
         IEnumerable<TalkTag> tags,
-        TalkTypeId sessionTypeId,
+        TalkTypeId talkTypeId,
         Abstract @abstract,
         ConferenceId conferenceId
     )
@@ -47,7 +47,7 @@ public class Talk : AggregateRoot
                 @abstract.Content,
                 speakerId.Value,
                 tags.Select(t => t.Tag).ToList(),
-                sessionTypeId.Value,
+                talkTypeId.Value,
                 conferenceId.Value
             )
         );

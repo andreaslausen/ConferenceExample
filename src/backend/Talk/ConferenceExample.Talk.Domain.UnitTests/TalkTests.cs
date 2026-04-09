@@ -15,7 +15,7 @@ public class TalkTests
         var title = new TalkTitle("Test Title");
         var speakerId = new SpeakerId(GuidV7.NewGuid());
         var tags = new List<TalkTag> { new("Tag1"), new("Tag2") };
-        var sessionTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
         var @abstract = new Abstract("Test Abstract");
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
@@ -25,7 +25,7 @@ public class TalkTests
             title,
             speakerId,
             tags,
-            sessionTypeId,
+            talkTypeId,
             @abstract,
             conferenceId
         );
@@ -34,7 +34,7 @@ public class TalkTests
         Assert.Equal(id, talk.Id);
         Assert.Equal(title, talk.Title);
         Assert.Equal(speakerId, talk.SpeakerId);
-        Assert.Equal(sessionTypeId, talk.TalkTypeId);
+        Assert.Equal(talkTypeId, talk.TalkTypeId);
         Assert.Equal(@abstract, talk.Abstract);
         Assert.Equal(conferenceId, talk.ConferenceId);
         Assert.Equal(TalkStatus.Submitted, talk.Status);
@@ -48,21 +48,13 @@ public class TalkTests
         var id = new TalkId(GuidV7.NewGuid());
         var title = new TalkTitle("Test Title");
         var speakerId = new SpeakerId(GuidV7.NewGuid());
-        var sessionTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
         var @abstract = new Abstract("Test Abstract");
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            Entities.Talk.Submit(
-                id,
-                title,
-                speakerId,
-                null!,
-                sessionTypeId,
-                @abstract,
-                conferenceId
-            )
+            Entities.Talk.Submit(id, title, speakerId, null!, talkTypeId, @abstract, conferenceId)
         );
     }
 
@@ -122,7 +114,7 @@ public class TalkTests
     }
 
     [Fact]
-    public void AddTag_ValidTag_AddsTagToSession()
+    public void AddTag_ValidTag_AddsTagToTalk()
     {
         // Arrange
         var talk = CreateValidTalk();
@@ -136,7 +128,7 @@ public class TalkTests
     }
 
     [Fact]
-    public void RemoveTag_ValidTag_RemovesTagFromSession()
+    public void RemoveTag_ValidTag_RemovesTagFromTalk()
     {
         // Arrange
         var talk = CreateValidTalk();
@@ -204,14 +196,14 @@ public class TalkTests
         var events = talk.GetUncommittedEvents().ToList();
 
         // Act
-        var replayedSession = Entities.Talk.LoadFromHistory(events);
+        var replayedTalk = Entities.Talk.LoadFromHistory(events);
 
         // Assert
-        Assert.Equal(talk.Id, replayedSession.Id);
-        Assert.Equal(new TalkTitle("Replayed Title"), replayedSession.Title);
-        Assert.Equal(talk.SpeakerId, replayedSession.SpeakerId);
-        Assert.Equal(talk.Tags, replayedSession.Tags);
-        Assert.Equal(1, replayedSession.Version);
+        Assert.Equal(talk.Id, replayedTalk.Id);
+        Assert.Equal(new TalkTitle("Replayed Title"), replayedTalk.Title);
+        Assert.Equal(talk.SpeakerId, replayedTalk.SpeakerId);
+        Assert.Equal(talk.Tags, replayedTalk.Tags);
+        Assert.Equal(1, replayedTalk.Version);
     }
 
     private static Entities.Talk CreateValidTalk()
@@ -220,7 +212,7 @@ public class TalkTests
         var title = new TalkTitle("Test Title");
         var speakerId = new SpeakerId(GuidV7.NewGuid());
         var tags = new List<TalkTag> { new("Tag1"), new("Tag2") };
-        var sessionTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
         var @abstract = new Abstract("Test Abstract");
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
@@ -229,7 +221,7 @@ public class TalkTests
             title,
             speakerId,
             tags,
-            sessionTypeId,
+            talkTypeId,
             @abstract,
             conferenceId
         );

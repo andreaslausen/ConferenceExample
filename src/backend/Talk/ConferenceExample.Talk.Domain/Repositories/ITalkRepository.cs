@@ -6,5 +6,5 @@ public interface ITalkRepository
 {
     Task<Entities.Talk> GetById(TalkId id);
     Task<IReadOnlyList<Entities.Talk>> GetTalks(ConferenceId conferenceId);
-    Task Save(Entities.Talk session);
+    Task Save(Entities.Talk talk);
 }

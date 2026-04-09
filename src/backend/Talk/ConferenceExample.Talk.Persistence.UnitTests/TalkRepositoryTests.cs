@@ -22,7 +22,7 @@ public class TalkRepositoryTests
     }
 
     [Fact]
-    public async Task Save_NewSession_AppendsSerializedEventsToEventStore()
+    public async Task Save_NewTalk_AppendsSerializedEventsToEventStore()
     {
         // Arrange
         var eventStore = new InMemoryEventStore();
@@ -41,7 +41,7 @@ public class TalkRepositoryTests
     }
 
     [Fact]
-    public async Task Save_NewSession_PublishesEventsToEventBus()
+    public async Task Save_NewTalk_PublishesEventsToEventBus()
     {
         // Arrange
         var eventStore = new InMemoryEventStore();
@@ -97,7 +97,7 @@ public class TalkRepositoryTests
     }
 
     [Fact]
-    public async Task GetById_ExistingSession_RebuildsSessionFromEvents()
+    public async Task GetById_ExistingTalk_RebuildsTalkFromEvents()
     {
         // Arrange
         var eventStore = new InMemoryEventStore();
@@ -118,7 +118,7 @@ public class TalkRepositoryTests
     }
 
     [Fact]
-    public async Task GetById_UnknownSession_ThrowsInvalidOperationException()
+    public async Task GetById_UnknownTalk_ThrowsInvalidOperationException()
     {
         // Arrange
         var eventStore = new InMemoryEventStore();
@@ -132,7 +132,7 @@ public class TalkRepositoryTests
     }
 
     [Fact]
-    public async Task GetTalks_FiltersSessionsByConferenceId()
+    public async Task GetTalks_FiltersTalksByConferenceId()
     {
         // Arrange
         var eventStore = new InMemoryEventStore();
@@ -140,22 +140,22 @@ public class TalkRepositoryTests
         var repo = new TalkRepository(eventStore, eventBus);
 
         var targetConferenceId = new ConferenceId(GuidV7.NewGuid());
-        var sessionA = CreateValidTalk(targetConferenceId);
-        var sessionB = CreateValidTalk();
+        var talkA = CreateValidTalk(targetConferenceId);
+        var talkB = CreateValidTalk();
 
-        await repo.Save(sessionA);
-        await repo.Save(sessionB);
+        await repo.Save(talkA);
+        await repo.Save(talkB);
 
         // Act
         var result = await repo.GetTalks(targetConferenceId);
 
         // Assert
         var single = Assert.Single(result);
-        Assert.Equal(sessionA.Id, single.Id);
+        Assert.Equal(talkA.Id, single.Id);
     }
 
     [Fact]
-    public async Task GetTalks_NoMatchingSessions_ReturnsEmptyList()
+    public async Task GetTalks_NoMatchingTalks_ReturnsEmptyList()
     {
         // Arrange
         var eventStore = new InMemoryEventStore();

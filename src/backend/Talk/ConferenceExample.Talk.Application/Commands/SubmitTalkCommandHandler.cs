@@ -4,7 +4,7 @@ using ConferenceExample.Talk.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Talk.Application.Commands;
 
-public class SubmitTalkCommandHandler(ITalkRepository sessionRepository) : ISubmitTalkCommandHandler
+public class SubmitTalkCommandHandler(ITalkRepository talkRepository) : ISubmitTalkCommandHandler
 {
     public async Task Handle(SubmitTalkCommand command)
     {
@@ -18,6 +18,6 @@ public class SubmitTalkCommandHandler(ITalkRepository sessionRepository) : ISubm
             new ConferenceId(command.ConferenceId)
         );
 
-        await sessionRepository.Save(talk);
+        await talkRepository.Save(talk);
     }
 }

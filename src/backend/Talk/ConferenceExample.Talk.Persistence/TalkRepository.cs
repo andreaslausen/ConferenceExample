@@ -36,24 +36,24 @@ public class TalkRepository(IEventStore eventStore, IEventBus eventBus) : ITalkR
     {
         var allEvents = await eventStore.GetAllEvents();
 
-        var sessionEvents = allEvents
+        var talkEvents = allEvents
             .Where(e => EventTypeMap.ContainsKey(e.EventType))
             .GroupBy(e => e.AggregateId);
 
-        var sessions = new List<Domain.Entities.Talk>();
+        var talks = new List<Domain.Entities.Talk>();
 
-        foreach (var group in sessionEvents)
+        foreach (var group in talkEvents)
         {
             var domainEvents = group.OrderBy(e => e.Version).Select(Deserialize).ToList();
             var talk = Domain.Entities.Talk.LoadFromHistory(domainEvents);
 
             if (talk.ConferenceId == conferenceId)
             {
-                sessions.Add(talk);
+                talks.Add(talk);
             }
         }
 
-        return sessions;
+        return talks;
     }
 
     public async Task Save(Domain.Entities.Talk talk)
@@ -79,11 +79,7 @@ public class TalkRepository(IEventStore eventStore, IEventBus eventBus) : ITalkR
             )
             .ToList();
 
-        await eventStore.AppendEvents(
-            uncommittedEvents[0].AggregateId,
-            storedEvents,
-            talk.Version
-        );
+        await eventStore.AppendEvents(uncommittedEvents[0].AggregateId, storedEvents, talk.Version);
 
         await eventBus.Publish(storedEvents);
 
