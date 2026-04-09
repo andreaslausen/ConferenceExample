@@ -10,19 +10,13 @@ public class PersistenceRules : ArchitectureTest
     {
         var repositories = Types()
             .That()
-            .ResideInAssembly(SessionDomain,
-                SessionPersistence,
-                ConferenceDomain,
-                ConferencePersistence)
+            .ResideInAssembly(TalkDomain, TalkPersistence, ConferenceDomain, ConferencePersistence)
             .And()
             .HaveNameEndingWith("Repository");
 
-        var rule = repositories.Should()
-            .NotCallAny(MethodMembers()
-                .That()
-                .ArePublic()
-                .And()
-                .AreDeclaredIn(repositories))
+        var rule = repositories
+            .Should()
+            .NotCallAny(MethodMembers().That().ArePublic().And().AreDeclaredIn(repositories))
             .WithoutRequiringPositiveResults();
 
         rule.Check(Architecture);

@@ -15,8 +15,8 @@
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Persistence\ConferenceExample.Conference.Persistence.csproj" />
     <ProjectReference Include="..\..\EventStore\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
-    <ProjectReference Include="..\..\Session\ConferenceExample.Session.Application\ConferenceExample.Session.Application.csproj" />
-    <ProjectReference Include="..\..\Session\ConferenceExample.Session.Persistence\ConferenceExample.Session.Persistence.csproj" />
+    <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
+    <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

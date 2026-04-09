@@ -17,7 +17,7 @@ public class ConferenceTests
         Assert.NotNull(conference.Id);
         Assert.Equal("Test Conference", conference.Name.Value);
         Assert.Equal("Test Venue", conference.Location.Name.Value);
-        Assert.Empty(conference.Sessions);
+        Assert.Empty(conference.Talks);
     }
 
     [Fact]
@@ -62,177 +62,177 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void SubmitSession_AddsSessionWithSubmittedStatus()
+    public void SubmitTalk_AddsTalkWithSubmittedStatus()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
+        var talkId = new TalkId(GuidV7.NewGuid());
 
         // Act
-        conference.SubmitSession(sessionId);
+        conference.SubmitTalk(talkId);
 
         // Assert
-        var session = Assert.Single(conference.Sessions);
-        Assert.Equal(sessionId, session.Id);
-        Assert.Equal(SessionStatus.Submitted, session.Status);
+        var talk = Assert.Single(conference.Talks);
+        Assert.Equal(talkId, talk.Id);
+        Assert.Equal(TalkStatus.Submitted, talk.Status);
     }
 
     [Fact]
-    public void SubmitSession_RaisesSessionSubmittedToConferenceEvent()
+    public void SubmitTalk_RaisesTalkSubmittedToConferenceEvent()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
+        var talkId = new TalkId(GuidV7.NewGuid());
 
         // Act
-        conference.SubmitSession(sessionId);
+        conference.SubmitTalk(talkId);
 
         // Assert
         var events = conference.GetUncommittedEvents();
         Assert.Equal(2, events.Count);
-        Assert.IsType<SessionSubmittedToConferenceEvent>(events[1]);
+        Assert.IsType<TalkSubmittedToConferenceEvent>(events[1]);
     }
 
     [Fact]
-    public void AcceptSession_ChangesStatusToAccepted()
+    public void AcceptTalk_ChangesStatusToAccepted()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
 
         // Act
-        conference.AcceptSession(sessionId);
+        conference.AcceptTalk(talkId);
 
         // Assert
-        Assert.Equal(SessionStatus.Accepted, conference.Sessions[0].Status);
+        Assert.Equal(TalkStatus.Accepted, conference.Talks[0].Status);
     }
 
     [Fact]
-    public void RejectSession_ChangesStatusToRejected()
+    public void RejectTalk_ChangesStatusToRejected()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
 
         // Act
-        conference.RejectSession(sessionId);
+        conference.RejectTalk(talkId);
 
         // Assert
-        Assert.Equal(SessionStatus.Rejected, conference.Sessions[0].Status);
+        Assert.Equal(TalkStatus.Rejected, conference.Talks[0].Status);
     }
 
     [Fact]
-    public void ScheduleSession_SetsSlot()
+    public void ScheduleTalk_SetsSlot()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
-        conference.AcceptSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
         var slot = new Time(DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddHours(2));
 
         // Act
-        conference.ScheduleSession(sessionId, slot);
+        conference.ScheduleTalk(talkId, slot);
 
         // Assert
-        Assert.Equal(slot, conference.Sessions[0].Slot);
+        Assert.Equal(slot, conference.Talks[0].Slot);
     }
 
     [Fact]
-    public void AssignSessionToRoom_SetsRoom()
+    public void AssignTalkToRoom_SetsRoom()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
-        conference.AcceptSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
         var room = new Entities.Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
 
         // Act
-        conference.AssignSessionToRoom(sessionId, room);
+        conference.AssignTalkToRoom(talkId, room);
 
         // Assert
-        Assert.NotNull(conference.Sessions[0].Room);
-        Assert.Equal(room.Id, conference.Sessions[0].Room!.Id);
-        Assert.Equal(room.Name, conference.Sessions[0].Room!.Name);
+        Assert.NotNull(conference.Talks[0].Room);
+        Assert.Equal(room.Id, conference.Talks[0].Room!.Id);
+        Assert.Equal(room.Name, conference.Talks[0].Room!.Name);
     }
 
     [Fact]
-    public void AcceptSession_RaisesSessionAcceptedEvent()
+    public void AcceptTalk_RaisesTalkAcceptedEvent()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
         conference.ClearUncommittedEvents();
 
         // Act
-        conference.AcceptSession(sessionId);
+        conference.AcceptTalk(talkId);
 
         // Assert
         var events = conference.GetUncommittedEvents();
         var single = Assert.Single(events);
-        Assert.IsType<SessionAcceptedEvent>(single);
+        Assert.IsType<TalkAcceptedEvent>(single);
     }
 
     [Fact]
-    public void RejectSession_RaisesSessionRejectedEvent()
+    public void RejectTalk_RaisesTalkRejectedEvent()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
         conference.ClearUncommittedEvents();
 
         // Act
-        conference.RejectSession(sessionId);
+        conference.RejectTalk(talkId);
 
         // Assert
         var events = conference.GetUncommittedEvents();
         var single = Assert.Single(events);
-        Assert.IsType<SessionRejectedEvent>(single);
+        Assert.IsType<TalkRejectedEvent>(single);
     }
 
     [Fact]
-    public void ScheduleSession_RaisesSessionScheduledEvent()
+    public void ScheduleTalk_RaisesTalkScheduledEvent()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
-        conference.AcceptSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
         conference.ClearUncommittedEvents();
         var slot = new Time(DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddHours(2));
 
         // Act
-        conference.ScheduleSession(sessionId, slot);
+        conference.ScheduleTalk(talkId, slot);
 
         // Assert
         var events = conference.GetUncommittedEvents();
         var single = Assert.Single(events);
-        Assert.IsType<SessionScheduledEvent>(single);
+        Assert.IsType<TalkScheduledEvent>(single);
     }
 
     [Fact]
-    public void AssignSessionToRoom_RaisesSessionAssignedToRoomEvent()
+    public void AssignTalkToRoom_RaisesTalkAssignedToRoomEvent()
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
-        conference.AcceptSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
         conference.ClearUncommittedEvents();
         var room = new Entities.Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
 
         // Act
-        conference.AssignSessionToRoom(sessionId, room);
+        conference.AssignTalkToRoom(talkId, room);
 
         // Assert
         var events = conference.GetUncommittedEvents();
         var single = Assert.Single(events);
-        Assert.IsType<SessionAssignedToRoomEvent>(single);
+        Assert.IsType<TalkAssignedToRoomEvent>(single);
     }
 
     [Fact]
@@ -240,9 +240,9 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        var sessionId = new SessionId(GuidV7.NewGuid());
-        conference.SubmitSession(sessionId);
-        conference.AcceptSession(sessionId);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
         conference.Rename(new Text("Replayed Conference"));
         var events = conference.GetUncommittedEvents().ToList();
 
@@ -254,9 +254,9 @@ public class ConferenceTests
         Assert.Equal(new Text("Replayed Conference"), replayedConference.Name);
         Assert.Equal(conference.Location, replayedConference.Location);
         Assert.Equal(conference.ConferenceTime, replayedConference.ConferenceTime);
-        var session = Assert.Single(replayedConference.Sessions);
-        Assert.Equal(sessionId, session.Id);
-        Assert.Equal(SessionStatus.Accepted, session.Status);
+        var talk = Assert.Single(replayedConference.Talks);
+        Assert.Equal(talkId, talk.Id);
+        Assert.Equal(TalkStatus.Accepted, talk.Status);
         Assert.Equal(3, replayedConference.Version);
     }
 

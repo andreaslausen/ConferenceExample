@@ -10,8 +10,7 @@ public class ApplicationRules : ArchitectureTest
     {
         var applicationServices = Types()
             .That()
-            .ResideInAssembly(ConferenceApplication,
-                SessionApplication)
+            .ResideInAssembly(ConferenceApplication, TalkApplication)
             .And()
             .HaveNameEndingWith("Service");
 
@@ -19,11 +18,7 @@ public class ApplicationRules : ArchitectureTest
             .That()
             .AreDeclaredIn(applicationServices)
             .Should()
-            .NotCallAny(MethodMembers()
-                .That()
-                .AreDeclaredIn(applicationServices)
-                .And()
-                .ArePublic())
+            .NotCallAny(MethodMembers().That().AreDeclaredIn(applicationServices).And().ArePublic())
             .WithoutRequiringPositiveResults();
 
         rule.Check(Architecture);

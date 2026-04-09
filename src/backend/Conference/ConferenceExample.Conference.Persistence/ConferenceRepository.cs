@@ -15,11 +15,11 @@ public class ConferenceRepository(IEventStore eventStore, IEventBus eventBus)
     {
         [nameof(ConferenceCreatedEvent)] = typeof(ConferenceCreatedEvent),
         [nameof(ConferenceRenamedEvent)] = typeof(ConferenceRenamedEvent),
-        [nameof(SessionSubmittedToConferenceEvent)] = typeof(SessionSubmittedToConferenceEvent),
-        [nameof(SessionAcceptedEvent)] = typeof(SessionAcceptedEvent),
-        [nameof(SessionRejectedEvent)] = typeof(SessionRejectedEvent),
-        [nameof(SessionScheduledEvent)] = typeof(SessionScheduledEvent),
-        [nameof(SessionAssignedToRoomEvent)] = typeof(SessionAssignedToRoomEvent),
+        [nameof(TalkSubmittedToConferenceEvent)] = typeof(TalkSubmittedToConferenceEvent),
+        [nameof(TalkAcceptedEvent)] = typeof(TalkAcceptedEvent),
+        [nameof(TalkRejectedEvent)] = typeof(TalkRejectedEvent),
+        [nameof(TalkScheduledEvent)] = typeof(TalkScheduledEvent),
+        [nameof(TalkAssignedToRoomEvent)] = typeof(TalkAssignedToRoomEvent),
     };
 
     public async Task<Domain.Conference> GetById(ConferenceId id)

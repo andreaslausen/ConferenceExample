@@ -22,19 +22,16 @@ public abstract class ArchitectureTest
         ConferencePersistence,
     ];
 
-    // Session
-    protected static Assembly SessionApplication =>
-        typeof(Session.Application.SessionService).Assembly;
-    protected static Assembly SessionDomain =>
-        typeof(Session.Domain.ValueObjects.Abstract).Assembly;
-    protected static Assembly SessionPersistence =>
-        typeof(Session.Persistence.SessionRepository).Assembly;
+    // Talk
+    protected static Assembly TalkApplication => typeof(Talk.Application.TalkService).Assembly;
+    protected static Assembly TalkDomain => typeof(Talk.Domain.ValueObjects.Abstract).Assembly;
+    protected static Assembly TalkPersistence => typeof(Talk.Persistence.TalkRepository).Assembly;
 
-    protected static readonly Assembly[] SessionAssemblies =
+    protected static readonly Assembly[] TalkAssemblies =
     [
-        SessionApplication,
-        SessionDomain,
-        SessionPersistence,
+        TalkApplication,
+        TalkDomain,
+        TalkPersistence,
     ];
 
     // EventStore
@@ -52,7 +49,7 @@ public abstract class ArchitectureTest
     protected static readonly Assembly[] AllAssemblies =
     [
         .. ConferenceAssemblies,
-        .. SessionAssemblies,
+        .. TalkAssemblies,
         .. EventStoreAssemblies,
         .. ApiAssemblies,
     ];

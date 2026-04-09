@@ -2,11 +2,11 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Conference", "Conference", "{D2F1B72D-4E75-46D2-BF81-C0B6B7E5261D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Session", "Session", "{8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Talk", "Talk", "{8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Domain", "Session\ConferenceExample.Session.Domain\ConferenceExample.Session.Domain.csproj", "{9695C38D-535B-4711-9344-F893BC345893}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.Domain", "Talk\ConferenceExample.Talk.Domain\ConferenceExample.Talk.Domain.csproj", "{9695C38D-535B-4711-9344-F893BC345893}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Application", "Session\ConferenceExample.Session.Application\ConferenceExample.Session.Application.csproj", "{76061CCC-D29B-4552-9F63-9CDC5AE12AA5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.Application", "Talk\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj", "{76061CCC-D29B-4552-9F63-9CDC5AE12AA5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conference.Domain", "Conference\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj", "{B9DE3C8F-3364-4985-9962-D19DC5CEB52D}"
 EndProject
@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conferenc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conference.Application", "Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj", "{51E35659-89D2-4A3F-8BDF-0850C3F38513}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Persistence", "Session\ConferenceExample.Session.Persistence\ConferenceExample.Session.Persistence.csproj", "{DEF172D7-029E-4145-95AB-1716188455D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.Persistence", "Talk\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj", "{DEF172D7-029E-4145-95AB-1716188455D9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{9AEA0592-CC14-4A69-83FE-7DA975E173DB}"
 EndProject
@@ -24,11 +24,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Architecture", "Architectur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.ArchitectureTests", "Architecture\ConferenceExample.ArchitectureTests\ConferenceExample.ArchitectureTests.csproj", "{F01A71D6-4AB0-47B7-940C-B6C302761E34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.AcceptanceTests", "Session\ConferenceExample.Session.AcceptanceTests\ConferenceExample.Session.AcceptanceTests.csproj", "{47D0DF6B-C3B2-49D9-B01A-746ABFBA93DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.AcceptanceTests", "Talk\ConferenceExample.Talk.AcceptanceTests\ConferenceExample.Talk.AcceptanceTests.csproj", "{47D0DF6B-C3B2-49D9-B01A-746ABFBA93DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Application.UnitTests", "Session\ConferenceExample.Session.Application.UnitTests\ConferenceExample.Session.Application.UnitTests.csproj", "{E13D91E7-E09B-42D3-AD1C-E99347784688}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.Application.UnitTests", "Talk\ConferenceExample.Talk.Application.UnitTests\ConferenceExample.Talk.Application.UnitTests.csproj", "{E13D91E7-E09B-42D3-AD1C-E99347784688}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Domain.UnitTests", "Session\ConferenceExample.Session.Domain.UnitTests\ConferenceExample.Session.Domain.UnitTests.csproj", "{639EE963-B786-4E66-8B43-C0AA1594145D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.Domain.UnitTests", "Talk\ConferenceExample.Talk.Domain.UnitTests\ConferenceExample.Talk.Domain.UnitTests.csproj", "{639EE963-B786-4E66-8B43-C0AA1594145D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conference.Application.UnitTests", "Conference\ConferenceExample.Conference.Application.UnitTests\ConferenceExample.Conference.Application.UnitTests.csproj", "{3134AA8C-6998-4FE0-8ABA-505F031F7E5E}"
 EndProject
@@ -40,7 +40,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.EventStor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.EventStore.UnitTests", "EventStore\ConferenceExample.EventStore.UnitTests\ConferenceExample.EventStore.UnitTests.csproj", "{6EFBD04B-A4D1-4300-97AB-E530A8417335}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Session.Persistence.UnitTests", "Session\ConferenceExample.Session.Persistence.UnitTests\ConferenceExample.Session.Persistence.UnitTests.csproj", "{A3BF8C9B-81A7-4CE5-BE69-1018A26586BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.Persistence.UnitTests", "Talk\ConferenceExample.Talk.Persistence.UnitTests\ConferenceExample.Talk.Persistence.UnitTests.csproj", "{A3BF8C9B-81A7-4CE5-BE69-1018A26586BD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conference.Persistence.UnitTests", "Conference\ConferenceExample.Conference.Persistence.UnitTests\ConferenceExample.Conference.Persistence.UnitTests.csproj", "{D53ECE01-7782-4A9C-8BFE-3AE3C983FFB3}"
 EndProject

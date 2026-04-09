@@ -4,10 +4,10 @@ using ConferenceExample.Conference.Domain.Repositories;
 using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence;
 using ConferenceExample.EventStore;
-using ConferenceExample.Session.Application;
-using ConferenceExample.Session.Application.Commands;
-using ConferenceExample.Session.Domain.Repositories;
-using ConferenceExample.Session.Persistence;
+using ConferenceExample.Talk.Application;
+using ConferenceExample.Talk.Application.Commands;
+using ConferenceExample.Talk.Domain.Repositories;
+using ConferenceExample.Talk.Persistence;
 
 namespace ConferenceExample.API.Extensions;
 
@@ -19,12 +19,12 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEventBus, InMemoryEventBus>();
 
         services.AddScoped<IConferenceRepository, ConferenceRepository>();
-        services.AddScoped<ISessionRepository, SessionRepository>();
+        services.AddScoped<ITalkRepository, TalkRepository>();
 
-        services.AddScoped<ISubmitSessionCommandHandler, SubmitSessionCommandHandler>();
+        services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
 
         services.AddScoped<IConferenceService, ConferenceService>();
-        services.AddScoped<ISessionService, SessionService>();
+        services.AddScoped<ITalkService, TalkService>();
 
         return services;
     }
@@ -35,12 +35,10 @@ public static class ServiceCollectionExtensions
         var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 
         eventBus.Subscribe(
-            "SessionSubmittedEvent",
+            "TalkSubmittedEvent",
             storedEvent =>
             {
-                var payload = JsonSerializer.Deserialize<SessionSubmittedPayload>(
-                    storedEvent.Payload
-                );
+                var payload = JsonSerializer.Deserialize<TalkSubmittedPayload>(storedEvent.Payload);
                 if (payload is null)
                     return;
 
@@ -50,7 +48,7 @@ public static class ServiceCollectionExtensions
                 var conference = conferenceRepo
                     .GetById(new ConferenceId(new GuidV7(payload.ConferenceId)))
                     .Result;
-                conference.SubmitSession(new SessionId(new GuidV7(storedEvent.AggregateId)));
+                conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
                 conferenceRepo.Save(conference).Wait();
             }
         );
@@ -58,5 +56,5 @@ public static class ServiceCollectionExtensions
         return app;
     }
 
-    private record SessionSubmittedPayload(Guid ConferenceId);
+    private record TalkSubmittedPayload(Guid ConferenceId);
 }

@@ -7,13 +7,13 @@ namespace ConferenceExample.Conference.Domain;
 
 public class Conference : AggregateRoot
 {
-    private readonly List<Session> _sessions = [];
+    private readonly List<Talk> _talks = [];
 
     public ConferenceId Id { get; private set; } = null!;
     public Text Name { get; private set; } = null!;
     public Time ConferenceTime { get; private set; } = null!;
     public Location Location { get; private set; } = null!;
-    public IReadOnlyList<Session> Sessions => _sessions;
+    public IReadOnlyList<Talk> Talks => _talks;
 
     private Conference() { }
 
@@ -55,43 +55,43 @@ public class Conference : AggregateRoot
         RaiseEvent(new ConferenceRenamedEvent(Id.Value, DateTimeOffset.UtcNow, name.Value));
     }
 
-    public void SubmitSession(SessionId sessionId)
+    public void SubmitTalk(TalkId talkId)
     {
         RaiseEvent(
-            new SessionSubmittedToConferenceEvent(Id.Value, DateTimeOffset.UtcNow, sessionId.Value)
+            new TalkSubmittedToConferenceEvent(Id.Value, DateTimeOffset.UtcNow, talkId.Value)
         );
     }
 
-    public void AcceptSession(SessionId sessionId)
+    public void AcceptTalk(TalkId talkId)
     {
-        RaiseEvent(new SessionAcceptedEvent(Id.Value, DateTimeOffset.UtcNow, sessionId.Value));
+        RaiseEvent(new TalkAcceptedEvent(Id.Value, DateTimeOffset.UtcNow, talkId.Value));
     }
 
-    public void RejectSession(SessionId sessionId)
+    public void RejectTalk(TalkId talkId)
     {
-        RaiseEvent(new SessionRejectedEvent(Id.Value, DateTimeOffset.UtcNow, sessionId.Value));
+        RaiseEvent(new TalkRejectedEvent(Id.Value, DateTimeOffset.UtcNow, talkId.Value));
     }
 
-    public void ScheduleSession(SessionId sessionId, Time slot)
+    public void ScheduleTalk(TalkId talkId, Time slot)
     {
         RaiseEvent(
-            new SessionScheduledEvent(
+            new TalkScheduledEvent(
                 Id.Value,
                 DateTimeOffset.UtcNow,
-                sessionId.Value,
+                talkId.Value,
                 slot.Start,
                 slot.End
             )
         );
     }
 
-    public void AssignSessionToRoom(SessionId sessionId, Room room)
+    public void AssignTalkToRoom(TalkId talkId, Room room)
     {
         RaiseEvent(
-            new SessionAssignedToRoomEvent(
+            new TalkAssignedToRoomEvent(
                 Id.Value,
                 DateTimeOffset.UtcNow,
-                sessionId.Value,
+                talkId.Value,
                 room.Id.Value,
                 room.Name.Value
             )
@@ -114,25 +114,24 @@ public class Conference : AggregateRoot
             case ConferenceRenamedEvent e:
                 Name = new Text(e.Name);
                 break;
-            case SessionSubmittedToConferenceEvent e:
-                _sessions.Add(new Session(new SessionId(new GuidV7(e.SessionId))));
+            case TalkSubmittedToConferenceEvent e:
+                _talks.Add(new Talk(new TalkId(new GuidV7(e.TalkId))));
                 break;
-            case SessionAcceptedEvent e:
-                FindSession(e.SessionId).Accept();
+            case TalkAcceptedEvent e:
+                FindTalk(e.TalkId).Accept();
                 break;
-            case SessionRejectedEvent e:
-                FindSession(e.SessionId).Reject();
+            case TalkRejectedEvent e:
+                FindTalk(e.TalkId).Reject();
                 break;
-            case SessionScheduledEvent e:
-                FindSession(e.SessionId).Schedule(new Time(e.Start, e.End));
+            case TalkScheduledEvent e:
+                FindTalk(e.TalkId).Schedule(new Time(e.Start, e.End));
                 break;
-            case SessionAssignedToRoomEvent e:
-                FindSession(e.SessionId)
+            case TalkAssignedToRoomEvent e:
+                FindTalk(e.TalkId)
                     .AssignRoom(new RoomId(new GuidV7(e.RoomId)), new Text(e.RoomName));
                 break;
         }
     }
 
-    private Session FindSession(Guid sessionId) =>
-        _sessions.First(s => s.Id.Value == (GuidV7)sessionId);
+    private Talk FindTalk(Guid talkId) => _talks.First(s => s.Id.Value == (GuidV7)talkId);
 }
