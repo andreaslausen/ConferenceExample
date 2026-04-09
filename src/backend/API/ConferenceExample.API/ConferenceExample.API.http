@@ -1,4 +1,4 @@
-@ConferenceExample.API_HostAddress = http://localhost:5021
+@ConferenceExample.API_HostAddress = http://localhost:5185
 
 GET {{ConferenceExample.API_HostAddress}}/weatherforecast/
 Accept: application/json
