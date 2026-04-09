@@ -65,15 +65,11 @@ public abstract class ArchitectureTest
         typeof(Conference.Application.UnitTests.ConferenceServiceTests).Assembly;
     protected static Assembly ConferencePersistenceUnitTests =>
         typeof(Conference.Persistence.UnitTests.ConferenceRepositoryTests).Assembly;
-    protected static Assembly ConferenceUnitTests =>
-        typeof(Conference.UnitTests.UnitTest1).Assembly;
-
     protected static readonly Assembly[] ConferenceTestAssemblies =
     [
         ConferenceDomainUnitTests,
         ConferenceApplicationUnitTests,
         ConferencePersistenceUnitTests,
-        ConferenceUnitTests,
     ];
 
     // Talk Test Assemblies

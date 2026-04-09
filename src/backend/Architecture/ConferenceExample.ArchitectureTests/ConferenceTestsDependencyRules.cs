@@ -6,26 +6,6 @@ namespace ConferenceExample.ArchitectureTests;
 public class ConferenceTestsDependencyRules : ArchitectureTest
 {
     [Fact]
-    public void ConferenceUnitTests_ShouldNotDependOn_AnyProductionCode()
-    {
-        var rule = Types()
-            .That()
-            .ResideInAssembly(ConferenceUnitTests)
-            .Should()
-            .OnlyDependOn(
-                Types()
-                    .That()
-                    .ResideInAssembly(ConferenceUnitTests)
-                    .Or()
-                    .ResideInNamespaceMatching("System.*")
-                    .Or()
-                    .ResideInNamespaceMatching("Xunit.*")
-            );
-
-        rule.Check(TestArchitecture);
-    }
-
-    [Fact]
     public void ConferenceDomainUnitTests_ShouldOnlyDependOn_ConferenceDomain()
     {
         var rule = Types()
