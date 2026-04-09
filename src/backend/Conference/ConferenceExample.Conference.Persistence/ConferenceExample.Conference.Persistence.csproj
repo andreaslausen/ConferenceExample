@@ -6,7 +6,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\EventStore\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
     <ProjectReference Include="..\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj" />
   </ItemGroup>
 </Project>

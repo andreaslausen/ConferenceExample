@@ -14,7 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Persistence\ConferenceExample.Conference.Persistence.csproj" />
-    <ProjectReference Include="..\..\EventStore\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />
   </ItemGroup>

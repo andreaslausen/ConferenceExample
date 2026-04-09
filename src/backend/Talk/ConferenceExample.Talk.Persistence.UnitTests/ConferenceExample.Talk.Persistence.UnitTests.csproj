@@ -25,6 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />
     <ProjectReference Include="..\ConferenceExample.Talk.Domain\ConferenceExample.Talk.Domain.csproj" />
-    <ProjectReference Include="..\..\EventStore\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
   </ItemGroup>
 </Project>

@@ -28,14 +28,14 @@
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Persistence\ConferenceExample.Conference.Persistence.csproj" />
-    <ProjectReference Include="..\..\EventStore\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Domain\ConferenceExample.Talk.Domain.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Domain.UnitTests\ConferenceExample.Conference.Domain.UnitTests.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application.UnitTests\ConferenceExample.Conference.Application.UnitTests.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Persistence.UnitTests\ConferenceExample.Conference.Persistence.UnitTests.csproj" />
-<ProjectReference Include="..\..\EventStore\ConferenceExample.EventStore.UnitTests\ConferenceExample.EventStore.UnitTests.csproj" />
+<ProjectReference Include="..\..\Infrastructure\ConferenceExample.EventStore.UnitTests\ConferenceExample.EventStore.UnitTests.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Domain.UnitTests\ConferenceExample.Talk.Domain.UnitTests.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Application.UnitTests\ConferenceExample.Talk.Application.UnitTests.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Persistence.UnitTests\ConferenceExample.Talk.Persistence.UnitTests.csproj" />
