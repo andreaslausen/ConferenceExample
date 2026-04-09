@@ -5,4 +5,5 @@ namespace ConferenceExample.Conference.Application;
 public interface IConferenceService
 {
     Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto createConferenceDto);
+    Task RenameConference(Guid id, RenameConferenceDto dto);
 }

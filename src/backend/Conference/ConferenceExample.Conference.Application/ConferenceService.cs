@@ -30,4 +30,11 @@ public class ConferenceService(IConferenceRepository conferenceRepository) : ICo
             conference.Location.Name.Value
         );
     }
+
+    public async Task RenameConference(Guid id, RenameConferenceDto dto)
+    {
+        var conference = await conferenceRepository.GetById(new ConferenceId(new GuidV7(id)));
+        conference.Rename(new Text(dto.Name));
+        await conferenceRepository.Save(conference);
+    }
 }

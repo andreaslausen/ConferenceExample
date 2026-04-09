@@ -19,4 +19,14 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         var result = await conferenceService.CreateConference(dto);
         return Created($"/api/conferences/{result.Id}", result);
     }
+
+    [HttpPut("{id:guid}/name")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RenameConference(Guid id, [FromBody] RenameConferenceDto dto)
+    {
+        await conferenceService.RenameConference(id, dto);
+        return NoContent();
+    }
 }

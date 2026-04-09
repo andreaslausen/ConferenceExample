@@ -15,3 +15,12 @@ Content-Type: application/json
   "postalCode": "10178",
   "country": "Germany"
 }
+
+### Rename Conference
+# Replace <conference-id> with the id returned by "Create Conference"
+PUT {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/name
+Content-Type: application/json
+
+{
+  "name": "DotNet Conf 2026 – Renamed"
+}
