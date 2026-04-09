@@ -570,28 +570,36 @@ Sicherstellen, dass kein Projekt mehr `ConferenceExample.Persistence` referenzie
 
 ---
 
-## Schritt 13: Acceptance Tests anpassen
+## Schritt 13: Acceptance Tests anpassen ✅
 
-### 13.1 DI-Setup aktualisieren
+### 13.1 DI-Setup aktualisieren ✅
 
-In `SetupTestDependencies.cs`: `InMemoryEventStore` und `InMemoryEventBus` registrieren, Repositories registrieren, `DatabaseContext` entfernen.
+In `SetupTestDependencies.cs`: `InMemoryEventStore` und `InMemoryEventBus` registrieren, Repositories registrieren, `DatabaseContext` entfernen. (Bereits in Schritt 11 erledigt.)
 
-### 13.2 Acceptance Tests ausfuehren
+`ImplicitUsings`, `Nullable` und `TreatWarningsAsErrors` in `Session.AcceptanceTests.csproj` nachgetragen.
 
-`dotnet test --filter "FullyQualifiedName~AcceptanceTests"` muss gruen sein.
+### 13.2 Acceptance Tests ausfuehren ✅
+
+Feature-Datei `Features/SessionSubmission.feature` und Step Definitions `StepDefinitions/SessionSubmissionSteps.cs` erstellt.
+
+**Szenarien:**
+- `Submit a session proposal` -- Session einreichen, Status Submitted pruefen
+- `Submit a session with tags` -- Session mit Tags einreichen, Tags pruefen
+
+`dotnet test --filter "FullyQualifiedName~AcceptanceTests"` -- 2/2 Tests gruen.
 
 ---
 
-## Schritt 14: Alle Tests gruen
+## Schritt 14: Alle Tests gruen ✅
 
-### 14.1 Gesamten Build und alle Tests ausfuehren
+### 14.1 Gesamten Build und alle Tests ausfuehren ✅
 
 ```bash
 dotnet build
 dotnet test
 ```
 
-Alle Tests muessen gruen sein. Keine Warnings (TreatWarningsAsErrors ist aktiv).
+Alle Tests gruen (0 Fehler, 0 Warnungen). Kein Test schlaegt fehl.
 
 ---
 
@@ -613,8 +621,8 @@ Jeder Schritt baut auf den vorherigen auf. Nach jedem Schritt wird der Build (un
 | **10** ✅ | **Cross-BC-Kommunikation (EventHandler + Subscriptions)** | **9** |
 | **11** ✅ | **Shared-Persistence-Projekt entfernen (AcceptanceTests anpassen, Projekt aus Solution loeschen)** | **9** |
 | **12** ✅ | **Architecture Tests anpassen** | **11** |
-| 13 | Acceptance Tests anpassen | 11 |
-| 14 | Alle Tests gruen (Gesamtbuild + alle Tests) | 12, 13 |
+| **13** ✅ | **Acceptance Tests anpassen** | **11** |
+| **14** ✅ | **Alle Tests gruen (Gesamtbuild + alle Tests)** | **12, 13** |
 
 **Hinweis:** Schritte 2-4 (Session-BC) und 5 (Conference-Domain) sind untereinander unabhaengig und koennten theoretisch parallel bearbeitet werden. Die lineare Reihenfolge ist empfohlen, damit Erkenntnisse aus dem Session-BC-Umbau in den Conference-BC einfliessen.
 
