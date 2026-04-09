@@ -17,7 +17,7 @@ dotnet restore
 
 # Run tests
 dotnet test
-dotnet test --filter "FullyQualifiedName~Session"   # Run a single test class or namespace
+dotnet test --filter "FullyQualifiedName~Talk"   # Run a single test class or namespace
 
 # Format code
 dotnet csharpier .
@@ -35,7 +35,7 @@ This is a .NET 10 / ASP.NET Core conference management system demonstrating **Cl
 There are two separate bounded contexts, each with its own layered stack:
 
 - **Conference** — manages conferences, rooms, schedules
-- **Session** — manages sessions, speakers, tags, abstracts
+- **Talk** — manages talks, speakers, tags, abstracts
 
 ### Layers (per bounded context)
 
@@ -44,9 +44,9 @@ API  ──►  Application  ──►  Domain
                   └──────►  Persistence (shared models + IDatabaseContext)
 ```
 
-- **Domain** projects contain aggregates, entities, and value objects. Strong typing is enforced via value objects (e.g. `SessionId`, `SpeakerId`, `GuidV7`, `SessionTitle`, `Abstract`).
+- **Domain** projects contain aggregates, entities, and value objects. Strong typing is enforced via value objects (e.g. `TalkId`, `SpeakerId`, `GuidV7`, `TalkTitle`, `Abstract`).
 - **Application** projects contain use cases and depend on `IDatabaseContext` from the shared Persistence project.
-- **ConferenceExample.Persistence** holds shared data models (`Session`, `Speaker`, `Conference`) and the `IDatabaseContext` interface.
+- **ConferenceExample.Persistence** holds shared data models (`Talk`, `Speaker`, `Conference`) and the `IDatabaseContext` interface.
 - **ConferenceExample.API** is the ASP.NET Core entry point. `ServiceCollectionExtensions` registers infrastructure; an in-memory `DatabaseContext` implements `IDatabaseContext`.
 
 ### Testing

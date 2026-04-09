@@ -14,7 +14,7 @@ The system follows a Domain-Driven Design approach. The problem space is decompo
 | Core
 | Managing conferences, rooms, time slots, and the conference program (scheduling).
 
-| Session
+| Talk
 | Core
 | Managing talks, speakers, abstracts, and tags. Talks are submitted and curated independently before being assigned to the conference program.
 
@@ -51,8 +51,8 @@ Not every subdomain requires a custom-built bounded context. The following table
 | Conference
 | Custom implementation — core domain with conference-specific business rules.
 
-| Session
-| Session
+| Talk
+| Talk
 | Custom implementation — core domain with its own aggregate lifecycle (submit → review → accept).
 
 | Voting

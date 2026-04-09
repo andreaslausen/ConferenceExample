@@ -12,7 +12,7 @@
 | Accepted
 
 | Context
-| The system consists of multiple bounded contexts (Conference, Session, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.
+| The system consists of multiple bounded contexts (Conference, Talk, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.
 
 | Decision
 | Deploy all bounded contexts as modules within a *single ASP.NET Core application* (modular monolith). Each module owns its own database schema within a shared database instance. Modules communicate in-process via defined interfaces (domain events, mediator, or explicit contracts) — not via network calls.
@@ -52,7 +52,7 @@ a|
 * *Complete audit trail* — all state changes are persisted as events; no information is ever lost through overwriting.
 * *Temporal queries* — the state at any point in the past can be reconstructed by replaying events up to a given position in the stream.
 * *Debugging and traceability* — bugs can be reproduced and analysed by inspecting the exact sequence of events that led to a given state.
-* *Natural expressiveness in the domain model* — domain events (`SessionProposed`, `SpeakerConfirmed`, …) are first-class citizens and directly reflect the ubiquitous language.
+* *Natural expressiveness in the domain model* — domain events (`TalkSubmitted`, `SpeakerConfirmed`, …) are first-class citizens and directly reflect the ubiquitous language.
 * *Independent scaling* — the read and write sides can be scaled separately; read models can be materialised in a query-optimised store (e.g. Redis, Elasticsearch).
 * *Integration capability* — the event stream provides a natural foundation for integrating with other systems or bounded contexts via asynchronous message processing.
 

@@ -745,7 +745,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/technical-context.png" alt="technical context" width="1366" height="497">
+<img src="images/technical-context.png" alt="technical context" width="1342" height="497">
 </div>
 </div>
 </div>
@@ -781,7 +781,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Managing conferences, rooms, time slots, and the conference program (scheduling).</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Talk</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Managing talks, speakers, abstracts, and tags. Talks are submitted and curated independently before being assigned to the conference program.</p></td>
 </tr>
@@ -838,8 +838,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain with conference-specific business rules.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Talk</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Talk</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain with its own aggregate lifecycle (submit → review → accept).</p></td>
 </tr>
 <tr>
@@ -959,7 +959,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of talks to slots. References talks by ID only.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Talk</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Manages talks, speakers, abstracts, and tags. Talks have their own lifecycle (submit → review → accept) independent of the conference program.</p></td>
 </tr>
@@ -999,7 +999,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p><strong>ID references</strong> — contexts reference entities from other contexts by ID only (e.g. <code>SessionId</code>, <code>AttendeeId</code>). No shared domain models.</p>
+<p><strong>ID references</strong> — contexts reference entities from other contexts by ID only (e.g. <code>TalkId</code>, <code>AttendeeId</code>). No shared domain models.</p>
 </li>
 <li>
 <p><strong>Domain events</strong> — the Notification context subscribes to domain events from the Conference context (e.g. <code>ProgramChanged</code>) to trigger attendee notifications.</p>
@@ -1063,7 +1063,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The system consists of multiple bounded contexts (Conference, Session, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system consists of multiple bounded contexts (Conference, Talk, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
@@ -1150,7 +1150,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><strong>Debugging and traceability</strong> — bugs can be reproduced and analysed by inspecting the exact sequence of events that led to a given state.</p>
 </li>
 <li>
-<p><strong>Natural expressiveness in the domain model</strong> — domain events (<code>SessionProposed</code>, <code>SpeakerConfirmed</code>, …) are first-class citizens and directly reflect the ubiquitous language.</p>
+<p><strong>Natural expressiveness in the domain model</strong> — domain events (<code>TalkSubmitted</code>, <code>SpeakerConfirmed</code>, …) are first-class citizens and directly reflect the ubiquitous language.</p>
 </li>
 <li>
 <p><strong>Independent scaling</strong> — the read and write sides can be scaled separately; read models can be materialised in a query-optimised store (e.g. Redis, Elasticsearch).</p>

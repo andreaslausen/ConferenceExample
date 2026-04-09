@@ -12,7 +12,7 @@ skinparam defaultTextAlignment center
 
 package "Conference Management System" {
   component "Conference\n(Core)" as conf
-  component "Session\n(Core)" as sess
+  component "Talk\n(Core)" as sess
   component "Voting\n(Supporting)" as vote
   component "Notification\n(Supporting)" as notif
   component "Attendee\n(Supporting)" as att
@@ -21,12 +21,12 @@ package "Conference Management System" {
 
 component "Identity Provider\n(Generic — standard product)" as idp #LightGray
 
-sess ..> conf : Session ID\n(reference only)
-vote ..> sess : Session ID\n(reference only)
+sess ..> conf : Talk ID\n(reference only)
+vote ..> sess : Talk ID\n(reference only)
 vote ..> att : Attendee ID\n(reference only)
 notif ..> conf : subscribes to\nprogram changes
 notif ..> att : delivery targets\n(opt-in)
-content ..> sess : Session ID\n(reference only)
+content ..> sess : Talk ID\n(reference only)
 conf ..> idp : ACL
 sess ..> idp : ACL
 att ..> idp : ACL
@@ -44,7 +44,7 @@ att ..> idp : ACL
 | Core
 | Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of talks to slots. References talks by ID only.
 
-| Session
+| Talk
 | Core
 | Manages talks, speakers, abstracts, and tags. Talks have their own lifecycle (submit → review → accept) independent of the conference program.
 
@@ -73,6 +73,6 @@ att ..> idp : ACL
 
 Bounded contexts communicate through well-defined interfaces. The following integration patterns are used:
 
-* *ID references* — contexts reference entities from other contexts by ID only (e.g. `SessionId`, `AttendeeId`). No shared domain models.
+* *ID references* — contexts reference entities from other contexts by ID only (e.g. `TalkId`, `AttendeeId`). No shared domain models.
 * *Domain events* — the Notification context subscribes to domain events from the Conference context (e.g. `ProgramChanged`) to trigger attendee notifications.
 * *Anti-corruption layer (ACL)* — contexts that interact with the external identity provider translate external claims into internal role/permission concepts.

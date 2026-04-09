@@ -52,7 +52,7 @@ node "Browser / Mobile App" as client
 node "Conference Management System\n(ASP.NET Core — Modular Monolith)" as sys {
   component "API\n(single host)" as api
   component "Conference Module" as conf
-  component "Session Module" as sess
+  component "Talk Module" as sess
   component "Voting Module" as vote
   component "Notification Module" as notif
   component "Attendee Module" as att
