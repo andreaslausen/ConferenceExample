@@ -19,7 +19,6 @@
     <Content Include="**/*.feature" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\API\ConferenceExample.API\ConferenceExample.API.csproj" />
     <ProjectReference Include="..\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
     <ProjectReference Include="..\ConferenceExample.Talk.Domain\ConferenceExample.Talk.Domain.csproj" />
     <ProjectReference Include="..\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />
