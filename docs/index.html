@@ -882,7 +882,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><strong>Single API</strong> — one ASP.NET Core host exposes all endpoints. Each module registers its own controllers/endpoints, but externally there is one unified API.</p>
 </li>
 <li>
-<p><strong>Schema per module</strong> — all modules share one physical database, but each module owns a dedicated database schema. No module may read from or write to another module&#8217;s schema directly.</p>
+<p><strong>Event Store per module</strong> — each module persists its aggregate state as an immutable sequence of domain events via <code>IEventStore</code>. No module may access another module&#8217;s event stream directly. The concrete persistence technology behind <code>IEventStore</code> is not yet decided (see open decision OD-3); the current implementation uses an in-memory event store as a placeholder.</p>
 </li>
 <li>
 <p><strong>In-process communication</strong> — modules communicate via defined interfaces (domain events, mediator, or explicit contracts), not via network calls.</p>
@@ -914,7 +914,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><strong>Application</strong> — use cases (commands and queries). Depends on the domain only; does not know Persistence directly.</p>
 </li>
 <li>
-<p><strong>Persistence</strong> — shared data models and the <code>IDatabaseContext</code> interface. Depends on the domain.</p>
+<p><strong>Persistence</strong> — contains the repository implementations for the bounded context. Repositories load and save aggregate state as domain events by using the <code>IEventStore</code> interface provided by the shared infrastructure. Depends on the domain.</p>
 </li>
 <li>
 <p><strong>API</strong> — ASP.NET Core entry point, dependency injection, HTTP endpoints. Depends on all other layers.</p>

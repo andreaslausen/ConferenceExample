@@ -81,7 +81,7 @@ Not every subdomain requires a custom-built bounded context. The following table
 The system is built as a *modular monolith*: all bounded contexts are deployed within a single ASP.NET Core application, but are strictly isolated as modules with clear boundaries.
 
 * *Single API* — one ASP.NET Core host exposes all endpoints. Each module registers its own controllers/endpoints, but externally there is one unified API.
-* *Schema per module* — all modules share one physical database, but each module owns a dedicated database schema. No module may read from or write to another module's schema directly.
+* *Event Store per module* — each module persists its aggregate state as an immutable sequence of domain events via `IEventStore`. No module may access another module's event stream directly. The concrete persistence technology behind `IEventStore` is not yet decided (see open decision OD-3); the current implementation uses an in-memory event store as a placeholder.
 * *In-process communication* — modules communicate via defined interfaces (domain events, mediator, or explicit contracts), not via network calls.
 * *Extractability* — the strict module boundaries are designed so that individual bounded contexts can be extracted into separate services later if scaling or organisational needs require it.
 
@@ -97,5 +97,5 @@ API  ──►  Application  ──►  Domain
 
 * *Domain* — aggregates, entities, value objects, domain events. No dependencies on other layers.
 * *Application* — use cases (commands and queries). Depends on the domain only; does not know Persistence directly.
-* *Persistence* — shared data models and the `IDatabaseContext` interface. Depends on the domain.
+* *Persistence* — contains the repository implementations for the bounded context. Repositories load and save aggregate state as domain events by using the `IEventStore` interface provided by the shared infrastructure. Depends on the domain.
 * *API* — ASP.NET Core entry point, dependency injection, HTTP endpoints. Depends on all other layers.
