@@ -1,0 +1,14 @@
+@host = http://localhost:5185
+
+### Submit Talk
+POST {{host}}/api/talks
+Content-Type: application/json
+
+{
+  "title": "Clean Architecture in Practice",
+  "abstract": "A deep dive into applying Clean Architecture principles in a real-world .NET application.",
+  "conferenceId": "00000000-0000-0000-0000-000000000001",
+  "speakerId": "00000000-0000-0000-0000-000000000002",
+  "talkTypeId": "00000000-0000-0000-0000-000000000003",
+  "tags": ["dotnet", "architecture", "ddd"]
+}
