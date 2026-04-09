@@ -1,6 +1,8 @@
+using ConferenceExample.Conference.Application.Dtos;
+
 namespace ConferenceExample.Conference.Application;
 
 public interface IConferenceService
 {
-    Task CreateConference(CreateConferenceDto createConferenceDto);
+    Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto createConferenceDto);
 }

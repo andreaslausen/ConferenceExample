@@ -1,3 +1,4 @@
+using ConferenceExample.Conference.Application.Dtos;
 using ConferenceExample.Conference.Domain;
 using ConferenceExample.Conference.Domain.Repositories;
 using ConferenceExample.Conference.Domain.ValueObjects;
@@ -7,7 +8,7 @@ namespace ConferenceExample.Conference.Application;
 
 public class ConferenceService(IConferenceRepository conferenceRepository) : IConferenceService
 {
-    public async Task CreateConference(CreateConferenceDto dto)
+    public async Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto dto)
     {
         var conference = Domain.Conference.Create(
             new ConferenceId(GuidV7.NewGuid()),
@@ -20,5 +21,13 @@ public class ConferenceService(IConferenceRepository conferenceRepository) : ICo
         );
 
         await conferenceRepository.Save(conference);
+
+        return new ConferenceCreatedDto(
+            conference.Id.Value,
+            conference.Name.Value,
+            conference.ConferenceTime.Start,
+            conference.ConferenceTime.End,
+            conference.Location.Name.Value
+        );
     }
 }

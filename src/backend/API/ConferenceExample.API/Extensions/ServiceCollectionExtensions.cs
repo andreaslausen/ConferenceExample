@@ -5,6 +5,7 @@ using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence;
 using ConferenceExample.EventStore;
 using ConferenceExample.Session.Application;
+using ConferenceExample.Session.Application.Commands;
 using ConferenceExample.Session.Domain.Repositories;
 using ConferenceExample.Session.Persistence;
 
@@ -19,6 +20,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IConferenceRepository, ConferenceRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
+
+        services.AddScoped<ISubmitSessionCommandHandler, SubmitSessionCommandHandler>();
 
         services.AddScoped<IConferenceService, ConferenceService>();
         services.AddScoped<ISessionService, SessionService>();
