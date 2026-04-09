@@ -57,4 +57,59 @@ public abstract class ArchitectureTest
     protected static readonly Architecture Architecture = new ArchLoader()
         .LoadAssembliesIncludingDependencies(AllAssemblies)
         .Build();
+
+    // Conference Test Assemblies
+    protected static Assembly ConferenceDomainUnitTests =>
+        typeof(Conference.Domain.UnitTests.ConferenceTests).Assembly;
+    protected static Assembly ConferenceApplicationUnitTests =>
+        typeof(Conference.Application.UnitTests.ConferenceServiceTests).Assembly;
+    protected static Assembly ConferencePersistenceUnitTests =>
+        typeof(Conference.Persistence.UnitTests.ConferenceRepositoryTests).Assembly;
+    protected static Assembly ConferenceUnitTests =>
+        typeof(Conference.UnitTests.UnitTest1).Assembly;
+
+    protected static readonly Assembly[] ConferenceTestAssemblies =
+    [
+        ConferenceDomainUnitTests,
+        ConferenceApplicationUnitTests,
+        ConferencePersistenceUnitTests,
+        ConferenceUnitTests,
+    ];
+
+    // Talk Test Assemblies
+    protected static Assembly TalkDomainUnitTests =>
+        typeof(Talk.Domain.UnitTests.AbstractTests).Assembly;
+    protected static Assembly TalkApplicationUnitTests =>
+        typeof(Talk.Application.UnitTests.TalkServiceTests).Assembly;
+    protected static Assembly TalkPersistenceUnitTests =>
+        typeof(Talk.Persistence.UnitTests.TalkRepositoryTests).Assembly;
+    protected static Assembly TalkAcceptanceTests =>
+        typeof(Talk.AcceptanceTests.SetupTestDependencies).Assembly;
+
+    protected static readonly Assembly[] TalkTestAssemblies =
+    [
+        TalkDomainUnitTests,
+        TalkApplicationUnitTests,
+        TalkPersistenceUnitTests,
+        TalkAcceptanceTests,
+    ];
+
+    // EventStore Test Assemblies
+    protected static Assembly EventStoreUnitTests =>
+        typeof(EventStore.UnitTests.InMemoryEventBusTests).Assembly;
+
+    protected static readonly Assembly[] EventStoreTestAssemblies = [EventStoreUnitTests];
+
+    protected static readonly Assembly[] AllTestAssemblies =
+    [
+        .. ConferenceTestAssemblies,
+        .. TalkTestAssemblies,
+        .. EventStoreTestAssemblies,
+    ];
+
+    // Separate architecture for test assembly dependency checks.
+    // Kept separate from Architecture to prevent test code from affecting production rules (e.g. ClassRules).
+    protected static readonly Architecture TestArchitecture = new ArchLoader()
+        .LoadAssembliesIncludingDependencies([.. AllAssemblies, .. AllTestAssemblies])
+        .Build();
 }
