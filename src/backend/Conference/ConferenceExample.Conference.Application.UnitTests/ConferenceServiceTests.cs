@@ -1,6 +1,5 @@
+using ConferenceExample.Conference.Application.Commands;
 using ConferenceExample.Conference.Application.Queries;
-using ConferenceExample.Conference.Domain;
-using ConferenceExample.Conference.Domain.Repositories;
 using NSubstitute;
 
 namespace ConferenceExample.Conference.Application.UnitTests;
@@ -8,45 +7,46 @@ namespace ConferenceExample.Conference.Application.UnitTests;
 public class ConferenceServiceTests
 {
     [Fact]
-    public async Task CreateConference_ValidDto_CallsRepositorySave()
+    public async Task CreateConference_ValidDto_CallsCommandHandler()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceRepository>();
+        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
+        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
-        var service = new ConferenceService(repository, queryHandler);
+        var service = new ConferenceService(
+            createCommandHandler,
+            renameCommandHandler,
+            queryHandler
+        );
 
         // Act
         await service.CreateConference(CreateDto());
 
         // Assert
-        await repository.Received(1).Save(Arg.Any<Domain.Conference>());
+        await createCommandHandler.Received(1).Handle(Arg.Any<CreateConferenceCommand>());
     }
 
     [Fact]
-    public async Task CreateConference_ValidDto_CreatesConferenceWithCorrectProperties()
+    public async Task RenameConference_ValidDto_CallsCommandHandler()
     {
         // Arrange
-        Domain.Conference? savedConference = null;
-        var repository = Substitute.For<IConferenceRepository>();
-        repository
-            .Save(Arg.Do<Domain.Conference>(c => savedConference = c))
-            .Returns(Task.CompletedTask);
+        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
+        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
-        var service = new ConferenceService(repository, queryHandler);
-
-        var dto = CreateDto();
+        var service = new ConferenceService(
+            createCommandHandler,
+            renameCommandHandler,
+            queryHandler
+        );
 
         // Act
-        await service.CreateConference(dto);
+        await service.RenameConference(
+            Guid.NewGuid(),
+            new RenameConferenceDto { Name = "New Name" }
+        );
 
         // Assert
-        Assert.NotNull(savedConference);
-        Assert.Equal(dto.Name, savedConference.Name.Value);
-        Assert.Equal(dto.Start, savedConference.ConferenceTime.Start);
-        Assert.Equal(dto.End, savedConference.ConferenceTime.End);
-        Assert.Equal(dto.LocationName, savedConference.Location.Name.Value);
-        Assert.Equal(dto.Street, savedConference.Location.Address.Street);
-        Assert.Equal(dto.City, savedConference.Location.Address.City);
+        await renameCommandHandler.Received(1).Handle(Arg.Any<RenameConferenceCommand>());
     }
 
     private static CreateConferenceDto CreateDto() =>

@@ -1,45 +1,36 @@
+using ConferenceExample.Conference.Application.Commands;
 using ConferenceExample.Conference.Application.Dtos;
 using ConferenceExample.Conference.Application.Queries;
-using ConferenceExample.Conference.Domain;
-using ConferenceExample.Conference.Domain.Repositories;
-using ConferenceExample.Conference.Domain.ValueObjects;
-using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Application;
 
 public class ConferenceService(
-    IConferenceRepository conferenceRepository,
+    ICreateConferenceCommandHandler createConferenceCommandHandler,
+    IRenameConferenceCommandHandler renameConferenceCommandHandler,
     IGetConferenceSessionsQueryHandler getConferenceSessionsQueryHandler
 ) : IConferenceService
 {
     public async Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto dto)
     {
-        var conference = Domain.Conference.Create(
-            new ConferenceId(GuidV7.NewGuid()),
-            new Text(dto.Name),
-            new Time(dto.Start, dto.End),
-            new Location(
-                new Text(dto.LocationName),
-                new Address(dto.Street, dto.City, dto.State, dto.PostalCode, dto.Country)
-            )
+        var command = new CreateConferenceCommand(
+            dto.Name,
+            dto.Start,
+            dto.End,
+            dto.LocationName,
+            dto.Street,
+            dto.City,
+            dto.State,
+            dto.PostalCode,
+            dto.Country
         );
 
-        await conferenceRepository.Save(conference);
-
-        return new ConferenceCreatedDto(
-            conference.Id.Value,
-            conference.Name.Value,
-            conference.ConferenceTime.Start,
-            conference.ConferenceTime.End,
-            conference.Location.Name.Value
-        );
+        return await createConferenceCommandHandler.Handle(command);
     }
 
     public async Task RenameConference(Guid id, RenameConferenceDto dto)
     {
-        var conference = await conferenceRepository.GetById(new ConferenceId(new GuidV7(id)));
-        conference.Rename(new Text(dto.Name));
-        await conferenceRepository.Save(conference);
+        var command = new RenameConferenceCommand(id, dto.Name);
+        await renameConferenceCommandHandler.Handle(command);
     }
 
     public async Task<IReadOnlyList<SessionDto>> GetSessions(Guid conferenceId)
