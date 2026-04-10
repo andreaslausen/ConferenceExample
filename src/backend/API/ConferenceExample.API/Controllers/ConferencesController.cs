@@ -29,4 +29,13 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         await conferenceService.RenameConference(id, dto);
         return NoContent();
     }
+
+    [HttpGet("{id:guid}/sessions")]
+    [ProducesResponseType<IReadOnlyList<SessionDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<SessionDto>>> GetSessions(Guid id)
+    {
+        var sessions = await conferenceService.GetSessions(id);
+        return Ok(sessions);
+    }
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ConferenceExample.Conference.Application;
+using ConferenceExample.Conference.Application.Queries;
 using ConferenceExample.Conference.Domain.Repositories;
 using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence;
@@ -22,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITalkRepository, TalkRepository>();
 
         services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
+        services.AddScoped<IGetConferenceSessionsQueryHandler, GetConferenceSessionsQueryHandler>();
 
         services.AddScoped<IConferenceService, ConferenceService>();
         services.AddScoped<ITalkService, TalkService>();

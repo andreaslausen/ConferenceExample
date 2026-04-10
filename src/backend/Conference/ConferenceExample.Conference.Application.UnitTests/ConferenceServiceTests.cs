@@ -1,3 +1,4 @@
+using ConferenceExample.Conference.Application.Queries;
 using ConferenceExample.Conference.Domain;
 using ConferenceExample.Conference.Domain.Repositories;
 using NSubstitute;
@@ -11,7 +12,8 @@ public class ConferenceServiceTests
     {
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
-        var service = new ConferenceService(repository);
+        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var service = new ConferenceService(repository, queryHandler);
 
         // Act
         await service.CreateConference(CreateDto());
@@ -29,7 +31,8 @@ public class ConferenceServiceTests
         repository
             .Save(Arg.Do<Domain.Conference>(c => savedConference = c))
             .Returns(Task.CompletedTask);
-        var service = new ConferenceService(repository);
+        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var service = new ConferenceService(repository, queryHandler);
 
         var dto = CreateDto();
 

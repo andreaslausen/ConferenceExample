@@ -24,3 +24,7 @@ Content-Type: application/json
 {
   "name": "DotNet Conf 2026 – Renamed"
 }
+
+### Get Conference Sessions
+# Replace <conference-id> with the id returned by "Create Conference"
+GET {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/sessions

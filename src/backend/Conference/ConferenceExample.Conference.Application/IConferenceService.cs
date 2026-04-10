@@ -6,4 +6,5 @@ public interface IConferenceService
 {
     Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto createConferenceDto);
     Task RenameConference(Guid id, RenameConferenceDto dto);
+    Task<IReadOnlyList<SessionDto>> GetSessions(Guid conferenceId);
 }

@@ -1,4 +1,5 @@
 using ConferenceExample.Conference.Application.Dtos;
+using ConferenceExample.Conference.Application.Queries;
 using ConferenceExample.Conference.Domain;
 using ConferenceExample.Conference.Domain.Repositories;
 using ConferenceExample.Conference.Domain.ValueObjects;
@@ -6,7 +7,10 @@ using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Application;
 
-public class ConferenceService(IConferenceRepository conferenceRepository) : IConferenceService
+public class ConferenceService(
+    IConferenceRepository conferenceRepository,
+    IGetConferenceSessionsQueryHandler getConferenceSessionsQueryHandler
+) : IConferenceService
 {
     public async Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto dto)
     {
@@ -36,5 +40,11 @@ public class ConferenceService(IConferenceRepository conferenceRepository) : ICo
         var conference = await conferenceRepository.GetById(new ConferenceId(new GuidV7(id)));
         conference.Rename(new Text(dto.Name));
         await conferenceRepository.Save(conference);
+    }
+
+    public async Task<IReadOnlyList<SessionDto>> GetSessions(Guid conferenceId)
+    {
+        var query = new GetConferenceSessionsQuery(conferenceId);
+        return await getConferenceSessionsQueryHandler.Handle(query);
     }
 }
