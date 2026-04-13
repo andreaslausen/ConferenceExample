@@ -26,8 +26,8 @@ public class TalkRepositoryTests
     public async Task Save_NewTalk_AppendsSerializedEventsToEventStore()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var repo = new TalkRepository(eventStore, eventBus);
         var talk = CreateValidTalk();
 
@@ -35,38 +35,49 @@ public class TalkRepositoryTests
         await repo.Save(talk);
 
         // Assert
-        var stored = await eventStore.GetEvents(talk.Id.Value);
-        Assert.Single(stored);
-        Assert.Equal((Guid)talk.Id.Value, stored[0].AggregateId);
-        Assert.Equal("TalkSubmittedEvent", stored[0].EventType);
+        await eventStore
+            .Received(1)
+            .AppendEvents(
+                talk.Id.Value,
+                Arg.Is<IEnumerable<StoredEvent>>(events =>
+                    events.Count() == 1
+                    && events.First().AggregateId == (Guid)talk.Id.Value
+                    && events.First().EventType == "TalkSubmittedEvent"
+                ),
+                Arg.Any<long>()
+            );
     }
 
     [Fact]
     public async Task Save_NewTalk_PublishesEventsToEventBus()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var repo = new TalkRepository(eventStore, eventBus);
         var talk = CreateValidTalk();
-
-        var publishedEvents = new List<StoredEvent>();
-        eventBus.Subscribe("TalkSubmittedEvent", e => publishedEvents.Add(e));
 
         // Act
         await repo.Save(talk);
 
         // Assert
-        Assert.Single(publishedEvents);
-        Assert.Equal((Guid)talk.Id.Value, publishedEvents[0].AggregateId);
+        await eventBus
+            .Received(1)
+            .Publish(
+                Arg.Is<IEnumerable<StoredEvent>>(events =>
+                    events.Count() == 1
+                    && events.First().AggregateId == (Guid)talk.Id.Value
+                    && events.First().EventType == "TalkSubmittedEvent"
+                )
+            );
     }
 
     [Fact]
     public async Task Save_ClearsUncommittedEventsAfterSaving()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var repo = new TalkRepository(eventStore, eventBus);
         var talk = CreateValidTalk();
 
@@ -101,66 +112,114 @@ public class TalkRepositoryTests
     public async Task GetById_ExistingTalk_RebuildsTalkFromEvents()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var speakerId = new SpeakerId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+
+        // Create mock events to rebuild the talk
+        var submittedEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkId.Value,
+            "TalkSubmittedEvent",
+            $$"""{"AggregateId":"{{talkId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Title":"Test Title","Abstract":"Test Abstract","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{conferenceId.Value}}"}""",
+            DateTimeOffset.UtcNow,
+            0
+        );
+        var titleEditedEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkId.Value,
+            "TalkTitleEditedEvent",
+            $$"""{"AggregateId":"{{talkId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Title":"Updated Title"}""",
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        eventStore
+            .GetEvents(talkId.Value)
+            .Returns(new List<StoredEvent> { submittedEvent, titleEditedEvent });
+
         var repo = new TalkRepository(eventStore, eventBus);
 
-        var original = CreateValidTalk();
-        original.EditTitle(new TalkTitle("Updated Title"));
-        await repo.Save(original);
-
         // Act
-        var loaded = await repo.GetById(original.Id);
+        var loaded = await repo.GetById(talkId);
 
         // Assert
-        Assert.Equal(original.Id, loaded.Id);
+        Assert.Equal(talkId, loaded.Id);
         Assert.Equal(new TalkTitle("Updated Title"), loaded.Title);
-        Assert.Equal(original.ConferenceId, loaded.ConferenceId);
+        Assert.Equal(conferenceId, loaded.ConferenceId);
     }
 
     [Fact]
     public async Task GetById_UnknownTalk_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
+        var talkId = new TalkId(GuidV7.NewGuid());
+
+        eventStore.GetEvents(talkId.Value).Returns(new List<StoredEvent>());
+
         var repo = new TalkRepository(eventStore, eventBus);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            repo.GetById(new TalkId(GuidV7.NewGuid()))
-        );
+        await Assert.ThrowsAsync<InvalidOperationException>(() => repo.GetById(talkId));
     }
 
     [Fact]
     public async Task GetTalks_FiltersTalksByConferenceId()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var repo = new TalkRepository(eventStore, eventBus);
 
         var targetConferenceId = new ConferenceId(GuidV7.NewGuid());
-        var talkA = CreateValidTalk(targetConferenceId);
-        var talkB = CreateValidTalk();
+        var talkAId = new TalkId(GuidV7.NewGuid());
+        var talkBId = new TalkId(GuidV7.NewGuid());
+        var speakerId = new SpeakerId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var otherConferenceId = new ConferenceId(GuidV7.NewGuid());
 
-        await repo.Save(talkA);
-        await repo.Save(talkB);
+        // Create mock events
+        var talkAEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkAId.Value,
+            "TalkSubmittedEvent",
+            $$"""{"AggregateId":"{{talkAId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Title":"Talk A","Abstract":"Abstract A","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{targetConferenceId.Value}}"}""",
+            DateTimeOffset.UtcNow,
+            0
+        );
+        var talkBEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkBId.Value,
+            "TalkSubmittedEvent",
+            $$"""{"AggregateId":"{{talkBId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Title":"Talk B","Abstract":"Abstract B","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{otherConferenceId.Value}}"}""",
+            DateTimeOffset.UtcNow,
+            0
+        );
+
+        eventStore.GetAllEvents().Returns(new List<StoredEvent> { talkAEvent, talkBEvent });
 
         // Act
         var result = await repo.GetTalks(targetConferenceId);
 
         // Assert
         var single = Assert.Single(result);
-        Assert.Equal(talkA.Id, single.Id);
+        Assert.Equal(talkAId, single.Id);
     }
 
     [Fact]
     public async Task GetTalks_NoMatchingTalks_ReturnsEmptyList()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
+
+        eventStore.GetAllEvents().Returns(new List<StoredEvent>());
+
         var repo = new TalkRepository(eventStore, eventBus);
 
         // Act

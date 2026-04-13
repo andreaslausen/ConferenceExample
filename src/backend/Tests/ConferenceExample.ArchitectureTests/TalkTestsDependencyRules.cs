@@ -41,7 +41,8 @@ public class TalkTestsDependencyRules : ArchitectureTest
             "System",
             "Xunit",
             "Reqnroll",
-            "Microsoft"
+            "Microsoft",
+            "NSubstitute"
         );
     }
 }

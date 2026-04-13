@@ -26,8 +26,8 @@ public class ConferenceRepositoryTests
     public async Task Save_NewConference_AppendsSerializedEventsToEventStore()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var repo = new ConferenceRepository(eventStore, eventBus);
         var conference = CreateValidConference();
 
@@ -35,38 +35,49 @@ public class ConferenceRepositoryTests
         await repo.Save(conference);
 
         // Assert
-        var stored = await eventStore.GetEvents(conference.Id.Value);
-        Assert.Single(stored);
-        Assert.Equal((Guid)conference.Id.Value, stored[0].AggregateId);
-        Assert.Equal("ConferenceCreatedEvent", stored[0].EventType);
+        await eventStore
+            .Received(1)
+            .AppendEvents(
+                conference.Id.Value,
+                Arg.Is<IEnumerable<StoredEvent>>(events =>
+                    events.Count() == 1
+                    && events.First().AggregateId == (Guid)conference.Id.Value
+                    && events.First().EventType == "ConferenceCreatedEvent"
+                ),
+                Arg.Any<long>()
+            );
     }
 
     [Fact]
     public async Task Save_NewConference_PublishesEventsToEventBus()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var repo = new ConferenceRepository(eventStore, eventBus);
         var conference = CreateValidConference();
-
-        var publishedEvents = new List<StoredEvent>();
-        eventBus.Subscribe("ConferenceCreatedEvent", e => publishedEvents.Add(e));
 
         // Act
         await repo.Save(conference);
 
         // Assert
-        Assert.Single(publishedEvents);
-        Assert.Equal((Guid)conference.Id.Value, publishedEvents[0].AggregateId);
+        await eventBus
+            .Received(1)
+            .Publish(
+                Arg.Is<IEnumerable<StoredEvent>>(events =>
+                    events.Count() == 1
+                    && events.First().AggregateId == (Guid)conference.Id.Value
+                    && events.First().EventType == "ConferenceCreatedEvent"
+                )
+            );
     }
 
     [Fact]
     public async Task Save_ClearsUncommittedEventsAfterSaving()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var repo = new ConferenceRepository(eventStore, eventBus);
         var conference = CreateValidConference();
 
@@ -101,19 +112,41 @@ public class ConferenceRepositoryTests
     public async Task GetById_ExistingConference_RebuildsConferenceFromEvents()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+
+        // Create mock events to rebuild the conference
+        var start = DateTimeOffset.UtcNow;
+        var end = start.AddDays(2);
+        var createdEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            conferenceId.Value,
+            "ConferenceCreatedEvent",
+            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Test Conference","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany"}""",
+            DateTimeOffset.UtcNow,
+            0
+        );
+        var renamedEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            conferenceId.Value,
+            "ConferenceRenamedEvent",
+            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Renamed Conference"}""",
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        eventStore
+            .GetEvents(conferenceId.Value)
+            .Returns(new List<StoredEvent> { createdEvent, renamedEvent });
+
         var repo = new ConferenceRepository(eventStore, eventBus);
 
-        var original = CreateValidConference();
-        original.Rename(new Text("Renamed Conference"));
-        await repo.Save(original);
-
         // Act
-        var loaded = await repo.GetById(original.Id);
+        var loaded = await repo.GetById(conferenceId);
 
         // Assert
-        Assert.Equal(original.Id, loaded.Id);
+        Assert.Equal(conferenceId, loaded.Id);
         Assert.Equal(new Text("Renamed Conference"), loaded.Name);
     }
 
@@ -121,29 +154,29 @@ public class ConferenceRepositoryTests
     public async Task GetById_UnknownConference_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+
+        eventStore.GetEvents(conferenceId.Value).Returns(new List<StoredEvent>());
+
         var repo = new ConferenceRepository(eventStore, eventBus);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            repo.GetById(new ConferenceId(GuidV7.NewGuid()))
-        );
+        await Assert.ThrowsAsync<InvalidOperationException>(() => repo.GetById(conferenceId));
     }
 
     [Fact]
     public async Task GetById_UnknownEventType_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
-        var repo = new ConferenceRepository(eventStore, eventBus);
-
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
-        // Manually insert an event with an unknown type
+        // Mock an event with an unknown type
         var unknownEvent = new StoredEvent(
-            Guid.NewGuid(),
+            GuidV7.NewGuid().Value,
             conferenceId.Value,
             "UnknownEventType",
             "{}",
@@ -151,7 +184,9 @@ public class ConferenceRepositoryTests
             0
         );
 
-        await eventStore.AppendEvents(conferenceId.Value, [unknownEvent], -1);
+        eventStore.GetEvents(conferenceId.Value).Returns(new List<StoredEvent> { unknownEvent });
+
+        var repo = new ConferenceRepository(eventStore, eventBus);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -164,15 +199,13 @@ public class ConferenceRepositoryTests
     public async Task GetById_InvalidEventPayload_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = new TestEventStore();
-        var eventBus = new TestEventBus();
-        var repo = new ConferenceRepository(eventStore, eventBus);
-
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = Substitute.For<IEventBus>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Create an event with null JSON (which will deserialize to null)
         var invalidEvent = new StoredEvent(
-            Guid.NewGuid(),
+            GuidV7.NewGuid().Value,
             conferenceId.Value,
             "ConferenceCreatedEvent",
             "null",
@@ -180,7 +213,9 @@ public class ConferenceRepositoryTests
             0
         );
 
-        await eventStore.AppendEvents(conferenceId.Value, [invalidEvent], -1);
+        eventStore.GetEvents(conferenceId.Value).Returns(new List<StoredEvent> { invalidEvent });
+
+        var repo = new ConferenceRepository(eventStore, eventBus);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>

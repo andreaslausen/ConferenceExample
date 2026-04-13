@@ -1,6 +1,5 @@
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnit;
-using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
@@ -38,8 +37,6 @@ public class ClassRules : ArchitectureTest
             .AreNot(typeof(Authentication.SharedKernel.Extensions.GuidExtensions))
             .And()
             .AreNot(typeof(Authentication.SharedKernel.Extensions.StringExtensions))
-            .And()
-            .AreNot(typeof(TestEventStore))
             .Should()
             .NotCallAny(MethodMembers().That().AreDeclaredIn(typeof(Guid)))
             .WithoutRequiringPositiveResults();
