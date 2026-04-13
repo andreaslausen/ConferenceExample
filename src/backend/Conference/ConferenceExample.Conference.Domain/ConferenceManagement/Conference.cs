@@ -1,9 +1,12 @@
-using ConferenceExample.Conference.Domain.Entities;
-using ConferenceExample.Conference.Domain.Events;
-using ConferenceExample.Conference.Domain.ValueObjects;
-using ConferenceExample.Conference.Domain.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.ConferenceManagement.Events;
+using ConferenceExample.Conference.Domain.RoomManagement;
+using ConferenceExample.Conference.Domain.SharedKernel;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.TalkManagement;
+using ConferenceExample.Conference.Domain.TalkManagement.Events;
 
-namespace ConferenceExample.Conference.Domain;
+namespace ConferenceExample.Conference.Domain.ConferenceManagement;
 
 public class Conference : AggregateRoot
 {

@@ -1,4 +1,4 @@
-namespace ConferenceExample.Conference.Domain;
+namespace ConferenceExample.Conference.Domain.SharedKernel;
 
 public abstract class AggregateRoot
 {

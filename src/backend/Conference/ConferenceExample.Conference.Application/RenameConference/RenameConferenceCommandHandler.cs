@@ -1,6 +1,6 @@
-using ConferenceExample.Conference.Domain.Repositories;
-using ConferenceExample.Conference.Domain.ValueObjects;
-using ConferenceExample.Conference.Domain.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Application.RenameConference;
 

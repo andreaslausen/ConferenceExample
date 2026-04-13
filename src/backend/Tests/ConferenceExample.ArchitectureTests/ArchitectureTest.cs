@@ -1,7 +1,7 @@
 ﻿using ArchUnitNET.Domain;
 using ArchUnitNET.Loader;
 using ConferenceExample.API;
-using ConferenceExample.Conference.Domain.Entities;
+using ConferenceExample.Conference.Domain.RoomManagement;
 using Assembly = System.Reflection.Assembly;
 
 namespace ConferenceExample.ArchitectureTests;

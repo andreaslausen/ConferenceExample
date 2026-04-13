@@ -1,16 +1,17 @@
-using ConferenceExample.Conference.Domain;
-using ConferenceExample.Conference.Domain.ValueObjects;
-using ConferenceExample.Conference.Domain.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.EventStore;
 using NSubstitute;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 namespace ConferenceExample.Conference.Persistence.UnitTests;
 
 public class ConferenceRepositoryTests
 {
-    private static Domain.Conference CreateValidConference(ConferenceId? id = null)
+    private static ConferenceAggregate CreateValidConference(ConferenceId? id = null)
     {
-        return Domain.Conference.Create(
+        return ConferenceAggregate.Create(
             id ?? new ConferenceId(GuidV7.NewGuid()),
             new Text("Test Conference"),
             new Time(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(2)),

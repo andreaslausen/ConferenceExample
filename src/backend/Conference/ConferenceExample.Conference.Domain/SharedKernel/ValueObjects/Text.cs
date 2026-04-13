@@ -1,4 +1,4 @@
-namespace ConferenceExample.Conference.Domain.ValueObjects;
+namespace ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 
 public record Text
 {

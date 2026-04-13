@@ -1,10 +1,11 @@
 using System.Text.Json;
-using ConferenceExample.Conference.Domain;
-using ConferenceExample.Conference.Domain.Events;
-using ConferenceExample.Conference.Domain.Repositories;
-using ConferenceExample.Conference.Domain.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.ConferenceManagement.Events;
+using ConferenceExample.Conference.Domain.SharedKernel;
+using ConferenceExample.Conference.Domain.TalkManagement.Events;
 using ConferenceExample.EventStore;
-using GuidV7 = ConferenceExample.Conference.Domain.ValueObjects.Ids.GuidV7;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
+using GuidV7 = ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids.GuidV7;
 
 namespace ConferenceExample.Conference.Persistence;
 
@@ -22,7 +23,7 @@ public class ConferenceRepository(IEventStore eventStore, IEventBus eventBus)
         [nameof(TalkAssignedToRoomEvent)] = typeof(TalkAssignedToRoomEvent),
     };
 
-    public async Task<Domain.Conference> GetById(ConferenceId id)
+    public async Task<ConferenceAggregate> GetById(ConferenceId id)
     {
         var storedEvents = await eventStore.GetEvents(id.Value);
 
@@ -32,10 +33,10 @@ public class ConferenceRepository(IEventStore eventStore, IEventBus eventBus)
         }
 
         var domainEvents = storedEvents.Select(Deserialize).ToList();
-        return Domain.Conference.LoadFromHistory(domainEvents);
+        return ConferenceAggregate.LoadFromHistory(domainEvents);
     }
 
-    public async Task Save(Domain.Conference conference)
+    public async Task Save(ConferenceAggregate conference)
     {
         var uncommittedEvents = conference.GetUncommittedEvents();
 

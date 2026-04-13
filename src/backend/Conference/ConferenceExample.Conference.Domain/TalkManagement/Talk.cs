@@ -1,7 +1,7 @@
-using ConferenceExample.Conference.Domain.ValueObjects;
-using ConferenceExample.Conference.Domain.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.RoomManagement;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 
-namespace ConferenceExample.Conference.Domain.Entities;
+namespace ConferenceExample.Conference.Domain.TalkManagement;
 
 public class Talk
 {

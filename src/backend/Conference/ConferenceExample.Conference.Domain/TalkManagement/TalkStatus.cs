@@ -1,4 +1,4 @@
-namespace ConferenceExample.Conference.Domain;
+namespace ConferenceExample.Conference.Domain.TalkManagement;
 
 public enum TalkStatus
 {

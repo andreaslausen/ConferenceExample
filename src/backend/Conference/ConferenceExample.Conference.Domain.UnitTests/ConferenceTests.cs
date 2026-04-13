@@ -1,9 +1,14 @@
 namespace ConferenceExample.Conference.Domain.UnitTests;
 
-using ConferenceExample.Conference.Domain.Events;
-using ConferenceExample.Conference.Domain.ValueObjects;
-using ConferenceExample.Conference.Domain.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.ConferenceManagement.Events;
+using ConferenceExample.Conference.Domain.RoomManagement;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.TalkManagement;
+using ConferenceExample.Conference.Domain.TalkManagement.Events;
 using Xunit;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 public class ConferenceTests
 {
@@ -148,7 +153,7 @@ public class ConferenceTests
         var talkId = new TalkId(GuidV7.NewGuid());
         conference.SubmitTalk(talkId);
         conference.AcceptTalk(talkId);
-        var room = new Entities.Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
+        var room = new Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
 
         // Act
         conference.AssignTalkToRoom(talkId, room);
@@ -224,7 +229,7 @@ public class ConferenceTests
         conference.SubmitTalk(talkId);
         conference.AcceptTalk(talkId);
         conference.ClearUncommittedEvents();
-        var room = new Entities.Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
+        var room = new Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
 
         // Act
         conference.AssignTalkToRoom(talkId, room);
@@ -247,7 +252,7 @@ public class ConferenceTests
         var events = conference.GetUncommittedEvents().ToList();
 
         // Act
-        var replayedConference = Domain.Conference.LoadFromHistory(events);
+        var replayedConference = ConferenceAggregate.LoadFromHistory(events);
 
         // Assert
         Assert.Equal(conference.Id, replayedConference.Id);
@@ -260,7 +265,7 @@ public class ConferenceTests
         Assert.Equal(3, replayedConference.Version);
     }
 
-    private static Domain.Conference CreateValidConference()
+    private static ConferenceAggregate CreateValidConference()
     {
         var id = new ConferenceId(GuidV7.NewGuid());
         var name = new Text("Test Conference");
@@ -270,6 +275,6 @@ public class ConferenceTests
             new Address("123 Main St", "Springfield", "IL", "62701", "US")
         );
 
-        return Domain.Conference.Create(id, name, time, location);
+        return ConferenceAggregate.Create(id, name, time, location);
     }
 }

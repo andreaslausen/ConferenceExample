@@ -1,6 +1,7 @@
-using ConferenceExample.Conference.Domain.Repositories;
-using ConferenceExample.Conference.Domain.ValueObjects;
-using ConferenceExample.Conference.Domain.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 namespace ConferenceExample.Conference.Application.CreateConference;
 
@@ -9,7 +10,7 @@ public class CreateConferenceCommandHandler(IConferenceRepository conferenceRepo
 {
     public async Task<ConferenceCreatedDto> Handle(CreateConferenceCommand command)
     {
-        var conference = Domain.Conference.Create(
+        var conference = ConferenceAggregate.Create(
             new ConferenceId(GuidV7.NewGuid()),
             new Text(command.Name),
             new Time(command.Start, command.End),
