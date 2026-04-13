@@ -1,5 +1,7 @@
 using ConferenceExample.Conference.Application;
-using ConferenceExample.Conference.Application.Dtos;
+using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.RenameConference;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConferenceExample.API.Controllers;

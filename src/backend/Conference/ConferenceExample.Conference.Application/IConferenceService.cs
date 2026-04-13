@@ -1,4 +1,6 @@
-using ConferenceExample.Conference.Application.Dtos;
+using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.RenameConference;
 
 namespace ConferenceExample.Conference.Application;
 

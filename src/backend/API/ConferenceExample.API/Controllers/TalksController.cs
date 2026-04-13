@@ -1,5 +1,5 @@
 using ConferenceExample.Talk.Application;
-using ConferenceExample.Talk.Application.Dtos;
+using ConferenceExample.Talk.Application.SubmitTalk;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConferenceExample.API.Controllers;

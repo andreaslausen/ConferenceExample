@@ -1,6 +1,6 @@
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
-using ConferenceExample.Talk.Application.Commands;
+using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.Repositories;
 using ConferenceExample.Talk.Persistence;
 using Microsoft.Extensions.DependencyInjection;

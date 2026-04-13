@@ -1,13 +1,14 @@
 using System.Text.Json;
 using ConferenceExample.Conference.Application;
-using ConferenceExample.Conference.Application.Commands;
-using ConferenceExample.Conference.Application.Queries;
+using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Domain.Repositories;
 using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
-using ConferenceExample.Talk.Application.Commands;
+using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.Repositories;
 using ConferenceExample.Talk.Persistence;
 

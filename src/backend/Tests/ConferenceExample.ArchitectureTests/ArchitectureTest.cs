@@ -10,7 +10,7 @@ public abstract class ArchitectureTest
 {
     // Conference
     protected static Assembly ConferenceApplication =>
-        typeof(Conference.Application.CreateConferenceDto).Assembly;
+        typeof(Conference.Application.CreateConference.CreateConferenceDto).Assembly;
     protected static Assembly ConferenceDomain => typeof(Room).Assembly;
     protected static Assembly ConferencePersistence =>
         typeof(Conference.Persistence.ConferenceRepository).Assembly;

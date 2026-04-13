@@ -1,5 +1,4 @@
-using ConferenceExample.Talk.Application.Commands;
-using ConferenceExample.Talk.Application.Dtos;
+using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.ValueObjects;
 using ConferenceExample.Talk.Domain.ValueObjects.Ids;
 using NSubstitute;

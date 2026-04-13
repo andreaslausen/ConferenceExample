@@ -1,5 +1,5 @@
 using ConferenceExample.Talk.Application;
-using ConferenceExample.Talk.Application.Dtos;
+using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain;
 using ConferenceExample.Talk.Domain.Repositories;
 using ConferenceExample.Talk.Domain.ValueObjects;

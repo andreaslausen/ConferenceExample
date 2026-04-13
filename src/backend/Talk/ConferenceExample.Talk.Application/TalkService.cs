@@ -1,5 +1,4 @@
-using ConferenceExample.Talk.Application.Commands;
-using ConferenceExample.Talk.Application.Dtos;
+using ConferenceExample.Talk.Application.SubmitTalk;
 
 namespace ConferenceExample.Talk.Application;
 
