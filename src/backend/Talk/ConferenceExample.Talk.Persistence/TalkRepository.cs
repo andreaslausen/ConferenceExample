@@ -1,10 +1,9 @@
 using System.Text.Json;
 using ConferenceExample.EventStore;
-using ConferenceExample.Talk.Domain;
-using ConferenceExample.Talk.Domain.Events;
-using ConferenceExample.Talk.Domain.Repositories;
-using ConferenceExample.Talk.Domain.ValueObjects;
-using ConferenceExample.Talk.Domain.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SharedKernel;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.TalkManagement;
+using ConferenceExample.Talk.Domain.TalkManagement.Events;
 
 namespace ConferenceExample.Talk.Persistence;
 
@@ -19,7 +18,7 @@ public class TalkRepository(IEventStore eventStore, IEventBus eventBus) : ITalkR
         [nameof(TalkTagRemovedEvent)] = typeof(TalkTagRemovedEvent),
     };
 
-    public async Task<Domain.Entities.Talk> GetById(TalkId id)
+    public async Task<Domain.TalkManagement.Talk> GetById(TalkId id)
     {
         var storedEvents = await eventStore.GetEvents(id.Value);
 
@@ -29,10 +28,10 @@ public class TalkRepository(IEventStore eventStore, IEventBus eventBus) : ITalkR
         }
 
         var domainEvents = storedEvents.Select(Deserialize).ToList();
-        return Domain.Entities.Talk.LoadFromHistory(domainEvents);
+        return Domain.TalkManagement.Talk.LoadFromHistory(domainEvents);
     }
 
-    public async Task<IReadOnlyList<Domain.Entities.Talk>> GetTalks(ConferenceId conferenceId)
+    public async Task<IReadOnlyList<Domain.TalkManagement.Talk>> GetTalks(ConferenceId conferenceId)
     {
         var allEvents = await eventStore.GetAllEvents();
 
@@ -40,12 +39,12 @@ public class TalkRepository(IEventStore eventStore, IEventBus eventBus) : ITalkR
             .Where(e => EventTypeMap.ContainsKey(e.EventType))
             .GroupBy(e => e.AggregateId);
 
-        var talks = new List<Domain.Entities.Talk>();
+        var talks = new List<Domain.TalkManagement.Talk>();
 
         foreach (var group in talkEvents)
         {
             var domainEvents = group.OrderBy(e => e.Version).Select(Deserialize).ToList();
-            var talk = Domain.Entities.Talk.LoadFromHistory(domainEvents);
+            var talk = Domain.TalkManagement.Talk.LoadFromHistory(domainEvents);
 
             if (talk.ConferenceId == conferenceId)
             {
@@ -56,7 +55,7 @@ public class TalkRepository(IEventStore eventStore, IEventBus eventBus) : ITalkR
         return talks;
     }
 
-    public async Task Save(Domain.Entities.Talk talk)
+    public async Task Save(Domain.TalkManagement.Talk talk)
     {
         var uncommittedEvents = talk.GetUncommittedEvents();
 

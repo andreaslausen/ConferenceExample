@@ -1,8 +1,8 @@
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnit;
 using ConferenceExample.EventStore;
-using ConferenceExample.Talk.Domain.Extensions;
-using ConferenceExample.Talk.Domain.ValueObjects;
+using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace ConferenceExample.ArchitectureTests;

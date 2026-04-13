@@ -1,12 +1,10 @@
 using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Application.SubmitTalk;
-using ConferenceExample.Talk.Domain;
-using ConferenceExample.Talk.Domain.Repositories;
-using ConferenceExample.Talk.Domain.ValueObjects;
-using ConferenceExample.Talk.Domain.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.TalkManagement;
 using Reqnroll;
 using Xunit;
-using TalkEntity = ConferenceExample.Talk.Domain.Entities.Talk;
+using TalkEntity = ConferenceExample.Talk.Domain.TalkManagement.Talk;
 
 namespace ConferenceExample.Talk.AcceptanceTests.StepDefinitions;
 

@@ -1,6 +1,6 @@
 namespace ConferenceExample.Talk.Domain.UnitTests;
 
-using ConferenceExample.Talk.Domain.ValueObjects;
+using ConferenceExample.Talk.Domain.TalkManagement;
 
 public class TalkTagTests
 {

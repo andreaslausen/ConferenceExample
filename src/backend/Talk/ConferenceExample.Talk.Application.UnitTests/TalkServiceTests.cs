@@ -1,6 +1,5 @@
 using ConferenceExample.Talk.Application.SubmitTalk;
-using ConferenceExample.Talk.Domain.ValueObjects;
-using ConferenceExample.Talk.Domain.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using NSubstitute;
 
 namespace ConferenceExample.Talk.Application.UnitTests;

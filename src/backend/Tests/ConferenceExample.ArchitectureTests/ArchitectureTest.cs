@@ -24,7 +24,7 @@ public abstract class ArchitectureTest
 
     // Talk
     protected static Assembly TalkApplication => typeof(Talk.Application.TalkService).Assembly;
-    protected static Assembly TalkDomain => typeof(Talk.Domain.ValueObjects.Abstract).Assembly;
+    protected static Assembly TalkDomain => typeof(Talk.Domain.TalkManagement.Abstract).Assembly;
     protected static Assembly TalkPersistence => typeof(Talk.Persistence.TalkRepository).Assembly;
 
     protected static readonly Assembly[] TalkAssemblies =

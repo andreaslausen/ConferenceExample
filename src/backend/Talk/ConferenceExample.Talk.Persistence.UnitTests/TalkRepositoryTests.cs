@@ -1,8 +1,10 @@
 using ConferenceExample.EventStore;
-using ConferenceExample.Talk.Domain.ValueObjects;
-using ConferenceExample.Talk.Domain.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SpeakerManagement;
+using ConferenceExample.Talk.Domain.TalkManagement;
+using ConferenceExample.Talk.Domain.TalkTypeManagement;
 using NSubstitute;
-using TalkEntity = ConferenceExample.Talk.Domain.Entities.Talk;
+using TalkEntity = ConferenceExample.Talk.Domain.TalkManagement.Talk;
 
 namespace ConferenceExample.Talk.Persistence.UnitTests;
 

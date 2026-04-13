@@ -1,9 +1,12 @@
 namespace ConferenceExample.Talk.Domain.UnitTests;
 
-using ConferenceExample.Talk.Domain.Events;
-using ConferenceExample.Talk.Domain.ValueObjects;
-using ConferenceExample.Talk.Domain.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SpeakerManagement;
+using ConferenceExample.Talk.Domain.TalkManagement;
+using ConferenceExample.Talk.Domain.TalkManagement.Events;
+using ConferenceExample.Talk.Domain.TalkTypeManagement;
 using Xunit;
+using TalkAggregate = ConferenceExample.Talk.Domain.TalkManagement.Talk;
 
 public class TalkTests
 {
@@ -20,7 +23,7 @@ public class TalkTests
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Act
-        var talk = Entities.Talk.Submit(
+        var talk = TalkAggregate.Submit(
             id,
             title,
             speakerId,
@@ -54,7 +57,7 @@ public class TalkTests
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            Entities.Talk.Submit(id, title, speakerId, null!, talkTypeId, @abstract, conferenceId)
+            TalkAggregate.Submit(id, title, speakerId, null!, talkTypeId, @abstract, conferenceId)
         );
     }
 
@@ -196,7 +199,7 @@ public class TalkTests
         var events = talk.GetUncommittedEvents().ToList();
 
         // Act
-        var replayedTalk = Entities.Talk.LoadFromHistory(events);
+        var replayedTalk = TalkAggregate.LoadFromHistory(events);
 
         // Assert
         Assert.Equal(talk.Id, replayedTalk.Id);
@@ -206,7 +209,7 @@ public class TalkTests
         Assert.Equal(1, replayedTalk.Version);
     }
 
-    private static Entities.Talk CreateValidTalk()
+    private static TalkAggregate CreateValidTalk()
     {
         var id = new TalkId(GuidV7.NewGuid());
         var title = new TalkTitle("Test Title");
@@ -216,7 +219,7 @@ public class TalkTests
         var @abstract = new Abstract("Test Abstract");
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
-        return Entities.Talk.Submit(
+        return TalkAggregate.Submit(
             id,
             title,
             speakerId,

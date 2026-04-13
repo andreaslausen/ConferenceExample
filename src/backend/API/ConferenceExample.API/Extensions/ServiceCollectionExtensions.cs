@@ -10,7 +10,7 @@ using ConferenceExample.Conference.Persistence;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Application.SubmitTalk;
-using ConferenceExample.Talk.Domain.Repositories;
+using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence;
 
 namespace ConferenceExample.API.Extensions;
@@ -55,7 +55,9 @@ public static class ServiceCollectionExtensions
                 var conference = conferenceRepo
                     .GetById(new ConferenceId(new GuidV7(payload.ConferenceId)))
                     .Result;
-                conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
+                conference.SubmitTalk(
+                    new Conference.Domain.TalkManagement.TalkId(new GuidV7(storedEvent.AggregateId))
+                );
                 conferenceRepo.Save(conference).Wait();
             }
         );
