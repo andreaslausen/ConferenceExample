@@ -169,4 +169,114 @@ public class TalkRepositoryTests
         // Assert
         Assert.Empty(result);
     }
+
+    [Fact]
+    public async Task GetById_UnknownEventType_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = new InMemoryEventBus();
+        var repo = new TalkRepository(eventStore, eventBus);
+
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var invalidEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkId.Value,
+            "UnknownEventType",
+            "{}",
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        eventStore.GetEvents(talkId.Value).Returns([invalidEvent]);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            repo.GetById(talkId)
+        );
+        Assert.Contains("Unknown event type: UnknownEventType", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetById_InvalidPayload_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = new InMemoryEventBus();
+        var repo = new TalkRepository(eventStore, eventBus);
+
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var eventWithInvalidPayload = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkId.Value,
+            "TalkSubmittedEvent",
+            "null",
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        eventStore.GetEvents(talkId.Value).Returns([eventWithInvalidPayload]);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            repo.GetById(talkId)
+        );
+        Assert.Contains("Failed to deserialize event: TalkSubmittedEvent", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetTalks_UnknownEventType_IgnoresUnknownEvents()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = new InMemoryEventBus();
+        var repo = new TalkRepository(eventStore, eventBus);
+
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var invalidEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkId.Value,
+            "UnknownEventType",
+            "{}",
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        eventStore.GetAllEvents().Returns([invalidEvent]);
+
+        // Act
+        var result = await repo.GetTalks(conferenceId);
+
+        // Assert
+        Assert.Empty(result); // Unknown events are filtered out, so no talks are returned
+    }
+
+    [Fact]
+    public async Task GetTalks_InvalidPayload_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var eventBus = new InMemoryEventBus();
+        var repo = new TalkRepository(eventStore, eventBus);
+
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+        var eventWithInvalidPayload = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkId.Value,
+            "TalkSubmittedEvent",
+            "null",
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        eventStore.GetAllEvents().Returns([eventWithInvalidPayload]);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            repo.GetTalks(conferenceId)
+        );
+        Assert.Contains("Failed to deserialize event: TalkSubmittedEvent", exception.Message);
+    }
 }

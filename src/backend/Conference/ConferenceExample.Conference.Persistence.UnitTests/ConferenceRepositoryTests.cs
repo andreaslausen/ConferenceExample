@@ -130,4 +130,62 @@ public class ConferenceRepositoryTests
             repo.GetById(new ConferenceId(GuidV7.NewGuid()))
         );
     }
+
+    [Fact]
+    public async Task GetById_UnknownEventType_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var eventStore = new InMemoryEventStore();
+        var eventBus = new InMemoryEventBus();
+        var repo = new ConferenceRepository(eventStore, eventBus);
+
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+
+        // Manually insert an event with an unknown type
+        var unknownEvent = new StoredEvent(
+            Guid.NewGuid(),
+            conferenceId.Value,
+            "UnknownEventType",
+            "{}",
+            DateTimeOffset.UtcNow,
+            0
+        );
+
+        await eventStore.AppendEvents(conferenceId.Value, [unknownEvent], -1);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            repo.GetById(conferenceId)
+        );
+        Assert.Contains("Unknown event type: UnknownEventType", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetById_InvalidEventPayload_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var eventStore = new InMemoryEventStore();
+        var eventBus = new InMemoryEventBus();
+        var repo = new ConferenceRepository(eventStore, eventBus);
+
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+
+        // Create an event with null JSON (which will deserialize to null)
+        var invalidEvent = new StoredEvent(
+            Guid.NewGuid(),
+            conferenceId.Value,
+            "ConferenceCreatedEvent",
+            "null",
+            DateTimeOffset.UtcNow,
+            0
+        );
+
+        await eventStore.AppendEvents(conferenceId.Value, [invalidEvent], -1);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            repo.GetById(conferenceId)
+        );
+        Assert.Contains("Failed to deserialize event: ConferenceCreatedEvent", exception.Message);
+    }
 }

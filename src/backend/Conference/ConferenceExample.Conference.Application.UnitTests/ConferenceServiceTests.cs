@@ -2,6 +2,7 @@ using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
 using ConferenceExample.Conference.Application.RenameConference;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace ConferenceExample.Conference.Application.UnitTests;
 
@@ -28,6 +29,29 @@ public class ConferenceServiceTests
     }
 
     [Fact]
+    public async Task CreateConference_HandlerThrowsException_PropagatesException()
+    {
+        // Arrange
+        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
+        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var service = new ConferenceService(
+            createCommandHandler,
+            renameCommandHandler,
+            queryHandler
+        );
+
+        createCommandHandler
+            .Handle(Arg.Any<CreateConferenceCommand>())
+            .Throws(new InvalidOperationException("Repository error"));
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.CreateConference(CreateDto())
+        );
+    }
+
+    [Fact]
     public async Task RenameConference_ValidDto_CallsCommandHandler()
     {
         // Arrange
@@ -48,6 +72,90 @@ public class ConferenceServiceTests
 
         // Assert
         await renameCommandHandler.Received(1).Handle(Arg.Any<RenameConferenceCommand>());
+    }
+
+    [Fact]
+    public async Task RenameConference_HandlerThrowsException_PropagatesException()
+    {
+        // Arrange
+        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
+        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var service = new ConferenceService(
+            createCommandHandler,
+            renameCommandHandler,
+            queryHandler
+        );
+
+        renameCommandHandler
+            .Handle(Arg.Any<RenameConferenceCommand>())
+            .Throws(new InvalidOperationException("Conference not found"));
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.RenameConference(Guid.NewGuid(), new RenameConferenceDto { Name = "New Name" })
+        );
+    }
+
+    [Fact]
+    public async Task GetSessions_ValidConferenceId_CallsQueryHandler()
+    {
+        // Arrange
+        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
+        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var service = new ConferenceService(
+            createCommandHandler,
+            renameCommandHandler,
+            queryHandler
+        );
+
+        var conferenceId = Guid.NewGuid();
+        var expectedSessions = new List<GetConferenceSessionDto>
+        {
+            new(
+                Guid.NewGuid(),
+                "Accepted",
+                DateTimeOffset.UtcNow,
+                DateTimeOffset.UtcNow.AddHours(1),
+                Guid.NewGuid(),
+                "Room A"
+            ),
+        };
+
+        queryHandler.Handle(Arg.Any<GetConferenceSessionsQuery>()).Returns(expectedSessions);
+
+        // Act
+        var result = await service.GetSessions(conferenceId);
+
+        // Assert
+        await queryHandler
+            .Received(1)
+            .Handle(Arg.Is<GetConferenceSessionsQuery>(q => q.ConferenceId == conferenceId));
+        Assert.Equal(expectedSessions, result);
+    }
+
+    [Fact]
+    public async Task GetSessions_QueryHandlerThrowsException_PropagatesException()
+    {
+        // Arrange
+        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
+        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var service = new ConferenceService(
+            createCommandHandler,
+            renameCommandHandler,
+            queryHandler
+        );
+
+        queryHandler
+            .Handle(Arg.Any<GetConferenceSessionsQuery>())
+            .Throws(new InvalidOperationException("Conference not found"));
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.GetSessions(Guid.NewGuid())
+        );
     }
 
     private static CreateConferenceDto CreateDto() =>
