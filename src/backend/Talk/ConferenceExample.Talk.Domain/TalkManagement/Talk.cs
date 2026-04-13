@@ -2,7 +2,6 @@ using ConferenceExample.Talk.Domain.SharedKernel;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement.Events;
-using ConferenceExample.Talk.Domain.TalkTypeManagement;
 
 namespace ConferenceExample.Talk.Domain.TalkManagement;
 

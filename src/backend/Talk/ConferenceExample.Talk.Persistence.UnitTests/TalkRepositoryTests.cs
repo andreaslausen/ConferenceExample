@@ -2,7 +2,6 @@ using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
-using ConferenceExample.Talk.Domain.TalkTypeManagement;
 using NSubstitute;
 using TalkEntity = ConferenceExample.Talk.Domain.TalkManagement.Talk;
 

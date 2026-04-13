@@ -53,7 +53,11 @@ public static class ServiceCollectionExtensions
                 var conferenceRepo =
                     scope.ServiceProvider.GetRequiredService<IConferenceRepository>();
                 var conference = conferenceRepo
-                    .GetById(new ConferenceId(new GuidV7(payload.ConferenceId)))
+                    .GetById(
+                        new Conference.Domain.ConferenceManagement.ConferenceId(
+                            new GuidV7(payload.ConferenceId)
+                        )
+                    )
                     .Result;
                 conference.SubmitTalk(
                     new Conference.Domain.TalkManagement.TalkId(new GuidV7(storedEvent.AggregateId))
