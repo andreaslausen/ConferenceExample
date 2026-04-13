@@ -103,11 +103,18 @@ public abstract class ArchitectureTest
 
     protected static readonly Assembly[] EventStoreTestAssemblies = [EventStoreUnitTests];
 
+    // Authentication Test Assemblies
+    protected static Assembly AuthenticationUnitTests =>
+        typeof(ConferenceExample.Authentication.UnitTests.AuthenticationServiceTests).Assembly;
+
+    protected static readonly Assembly[] AuthenticationTestAssemblies = [AuthenticationUnitTests];
+
     protected static readonly Assembly[] AllTestAssemblies =
     [
         .. ConferenceTestAssemblies,
         .. TalkTestAssemblies,
         .. EventStoreTestAssemblies,
+        .. AuthenticationTestAssemblies,
     ];
 
     // Separate architecture for test assembly dependency checks.
