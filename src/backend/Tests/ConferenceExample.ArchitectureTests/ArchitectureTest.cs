@@ -99,7 +99,7 @@ public abstract class ArchitectureTest
 
     // EventStore Test Assemblies
     protected static Assembly EventStoreUnitTests =>
-        typeof(EventStore.UnitTests.InMemoryEventBusTests).Assembly;
+        typeof(EventStore.UnitTests.TestEventBusTests).Assembly;
 
     protected static readonly Assembly[] EventStoreTestAssemblies = [EventStoreUnitTests];
 

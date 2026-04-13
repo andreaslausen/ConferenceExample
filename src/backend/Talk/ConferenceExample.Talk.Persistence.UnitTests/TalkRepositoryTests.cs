@@ -26,8 +26,8 @@ public class TalkRepositoryTests
     public async Task Save_NewTalk_AppendsSerializedEventsToEventStore()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
         var talk = CreateValidTalk();
 
@@ -45,8 +45,8 @@ public class TalkRepositoryTests
     public async Task Save_NewTalk_PublishesEventsToEventBus()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
         var talk = CreateValidTalk();
 
@@ -65,8 +65,8 @@ public class TalkRepositoryTests
     public async Task Save_ClearsUncommittedEventsAfterSaving()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
         var talk = CreateValidTalk();
 
@@ -101,8 +101,8 @@ public class TalkRepositoryTests
     public async Task GetById_ExistingTalk_RebuildsTalkFromEvents()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
 
         var original = CreateValidTalk();
@@ -122,8 +122,8 @@ public class TalkRepositoryTests
     public async Task GetById_UnknownTalk_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
 
         // Act & Assert
@@ -136,8 +136,8 @@ public class TalkRepositoryTests
     public async Task GetTalks_FiltersTalksByConferenceId()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
 
         var targetConferenceId = new ConferenceId(GuidV7.NewGuid());
@@ -159,8 +159,8 @@ public class TalkRepositoryTests
     public async Task GetTalks_NoMatchingTalks_ReturnsEmptyList()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
 
         // Act
@@ -175,7 +175,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new InMemoryEventBus();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
 
         var talkId = new TalkId(GuidV7.NewGuid());
@@ -202,7 +202,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new InMemoryEventBus();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
 
         var talkId = new TalkId(GuidV7.NewGuid());
@@ -229,7 +229,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new InMemoryEventBus();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
 
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
@@ -257,7 +257,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new InMemoryEventBus();
+        var eventBus = new TestEventBus();
         var repo = new TalkRepository(eventStore, eventBus);
 
         var talkId = new TalkId(GuidV7.NewGuid());

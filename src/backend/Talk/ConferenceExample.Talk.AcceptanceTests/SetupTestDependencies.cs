@@ -14,8 +14,8 @@ public class SetupTestDependencies
     public static IServiceCollection CreateServices()
     {
         var services = new ServiceCollection();
-        services.AddSingleton<IEventStore, InMemoryEventStore>();
-        services.AddSingleton<IEventBus, InMemoryEventBus>();
+        services.AddSingleton<IEventStore, TestEventStore>();
+        services.AddSingleton<IEventBus, TestEventBus>();
         services.AddScoped<ITalkRepository, TalkRepository>();
         services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
         services.AddScoped<ITalkService, TalkService>();

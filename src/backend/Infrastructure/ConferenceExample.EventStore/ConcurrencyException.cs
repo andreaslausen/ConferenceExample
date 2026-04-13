@@ -1,3 +1,10 @@
 namespace ConferenceExample.EventStore;
 
-public class ConcurrencyException(string message) : Exception(message);
+public class ConcurrencyException : Exception
+{
+    public ConcurrencyException(string message)
+        : base(message) { }
+
+    public ConcurrencyException(string message, Exception innerException)
+        : base(message, innerException) { }
+}

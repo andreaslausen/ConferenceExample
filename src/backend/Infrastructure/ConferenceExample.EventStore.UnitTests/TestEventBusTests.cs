@@ -1,6 +1,6 @@
 namespace ConferenceExample.EventStore.UnitTests;
 
-public class InMemoryEventBusTests
+public class TestEventBusTests
 {
     private static StoredEvent MakeEvent(string eventType) =>
         new(Guid.NewGuid(), Guid.NewGuid(), eventType, "{}", DateTimeOffset.UtcNow, 0);
@@ -9,7 +9,7 @@ public class InMemoryEventBusTests
     public async Task Publish_SubscribedHandler_ReceivesEvent()
     {
         // Arrange
-        var bus = new InMemoryEventBus();
+        var bus = new TestEventBus();
         StoredEvent? received = null;
         bus.Subscribe("OrderPlaced", e => received = e);
         var storedEvent = MakeEvent("OrderPlaced");
@@ -26,7 +26,7 @@ public class InMemoryEventBusTests
     public async Task Publish_NoSubscribers_DoesNotThrow()
     {
         // Arrange
-        var bus = new InMemoryEventBus();
+        var bus = new TestEventBus();
         var storedEvent = MakeEvent("UnknownEvent");
 
         // Act & Assert
@@ -38,7 +38,7 @@ public class InMemoryEventBusTests
     public async Task Publish_MultipleSubscribers_AllReceiveEvent()
     {
         // Arrange
-        var bus = new InMemoryEventBus();
+        var bus = new TestEventBus();
         var callCount = 0;
         bus.Subscribe("SomethingHappened", _ => callCount++);
         bus.Subscribe("SomethingHappened", _ => callCount++);
@@ -54,7 +54,7 @@ public class InMemoryEventBusTests
     public async Task Publish_DifferentEventTypes_OnlyMatchingSubscribersReceive()
     {
         // Arrange
-        var bus = new InMemoryEventBus();
+        var bus = new TestEventBus();
         var received = new List<StoredEvent>();
         bus.Subscribe("EventA", e => received.Add(e));
 

@@ -38,3 +38,39 @@ This will:
 - Copy the generated images into the `docs/images/` directory
 
 The output can be previewed by opening `docs/index.html` in a browser. Committing changes to `docs/` will update the GitHub Pages site.
+
+## Event Store Persistence
+
+The system uses **Event Sourcing** with **MongoDB** as the persistence layer:
+
+### MongoDB Event Store
+
+MongoDB provides production-ready persistence with:
+- **Optimistic Concurrency Control** via MongoDB transactions
+- **Change Streams** for real-time event notifications
+- **Horizontal Scaling** support for millions of events
+- **BSON Storage** for efficient event serialization
+
+**Quick Start:**
+```bash
+# Start MongoDB infrastructure
+./scripts/dev-start.sh
+
+# Run the application
+dotnet run --project src/backend/API/ConferenceExample.API
+```
+
+**Development Scripts:**
+```bash
+./scripts/dev-start.sh   # Start MongoDB and all dev services
+./scripts/dev-stop.sh    # Stop all dev services (keeps data)
+./scripts/dev-reset.sh   # Reset all dev services (deletes all data!)
+```
+
+For detailed documentation, see [scripts/README.md](scripts/README.md).
+
+**Services:**
+- MongoDB: `mongodb://localhost:27017`
+- Mongo Express UI: `http://localhost:8081`
+
+See [MongoDB Setup Guide](docs/mongodb-setup.md) for detailed configuration and production considerations.

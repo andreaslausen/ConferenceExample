@@ -39,7 +39,7 @@ public class ClassRules : ArchitectureTest
             .And()
             .AreNot(typeof(Authentication.SharedKernel.Extensions.StringExtensions))
             .And()
-            .AreNot(typeof(InMemoryEventStore))
+            .AreNot(typeof(TestEventStore))
             .Should()
             .NotCallAny(MethodMembers().That().AreDeclaredIn(typeof(Guid)))
             .WithoutRequiringPositiveResults();

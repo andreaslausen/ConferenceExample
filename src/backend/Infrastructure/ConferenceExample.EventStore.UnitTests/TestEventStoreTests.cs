@@ -1,6 +1,6 @@
 namespace ConferenceExample.EventStore.UnitTests;
 
-public class InMemoryEventStoreTests
+public class TestEventStoreTests
 {
     private static StoredEvent MakeEvent(Guid aggregateId, long version) =>
         new(Guid.NewGuid(), aggregateId, "TestEvent", "{}", DateTimeOffset.UtcNow, version);
@@ -9,7 +9,7 @@ public class InMemoryEventStoreTests
     public async Task AppendEvents_StoresEvents_GetEventsReturnsThem()
     {
         // Arrange
-        var store = new InMemoryEventStore();
+        var store = new TestEventStore();
         var aggregateId = Guid.NewGuid();
         var events = new[] { MakeEvent(aggregateId, 0) };
 
@@ -26,7 +26,7 @@ public class InMemoryEventStoreTests
     public async Task GetEvents_UnknownAggregate_ReturnsEmptyList()
     {
         // Arrange
-        var store = new InMemoryEventStore();
+        var store = new TestEventStore();
 
         // Act
         var result = await store.GetEvents(Guid.NewGuid());
@@ -39,7 +39,7 @@ public class InMemoryEventStoreTests
     public async Task GetEvents_ReturnsEventsOrderedByVersion()
     {
         // Arrange
-        var store = new InMemoryEventStore();
+        var store = new TestEventStore();
         var aggregateId = Guid.NewGuid();
         var first = MakeEvent(aggregateId, 0);
         var second = MakeEvent(aggregateId, 1);
@@ -60,7 +60,7 @@ public class InMemoryEventStoreTests
     public async Task GetAllEvents_ReturnsEventsAcrossMultipleAggregates()
     {
         // Arrange
-        var store = new InMemoryEventStore();
+        var store = new TestEventStore();
         var id1 = Guid.NewGuid();
         var id2 = Guid.NewGuid();
 
@@ -80,7 +80,7 @@ public class InMemoryEventStoreTests
     public async Task AppendEvents_VersionMismatch_ThrowsConcurrencyException()
     {
         // Arrange
-        var store = new InMemoryEventStore();
+        var store = new TestEventStore();
         var aggregateId = Guid.NewGuid();
 
         await store.AppendEvents(
@@ -103,7 +103,7 @@ public class InMemoryEventStoreTests
     public async Task AppendEvents_MultipleAggregates_KeepsEventsSeparate()
     {
         // Arrange
-        var store = new InMemoryEventStore();
+        var store = new TestEventStore();
         var id1 = Guid.NewGuid();
         var id2 = Guid.NewGuid();
 

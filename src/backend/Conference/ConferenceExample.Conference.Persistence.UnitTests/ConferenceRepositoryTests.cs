@@ -26,8 +26,8 @@ public class ConferenceRepositoryTests
     public async Task Save_NewConference_AppendsSerializedEventsToEventStore()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new ConferenceRepository(eventStore, eventBus);
         var conference = CreateValidConference();
 
@@ -45,8 +45,8 @@ public class ConferenceRepositoryTests
     public async Task Save_NewConference_PublishesEventsToEventBus()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new ConferenceRepository(eventStore, eventBus);
         var conference = CreateValidConference();
 
@@ -65,8 +65,8 @@ public class ConferenceRepositoryTests
     public async Task Save_ClearsUncommittedEventsAfterSaving()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new ConferenceRepository(eventStore, eventBus);
         var conference = CreateValidConference();
 
@@ -101,8 +101,8 @@ public class ConferenceRepositoryTests
     public async Task GetById_ExistingConference_RebuildsConferenceFromEvents()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new ConferenceRepository(eventStore, eventBus);
 
         var original = CreateValidConference();
@@ -121,8 +121,8 @@ public class ConferenceRepositoryTests
     public async Task GetById_UnknownConference_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new ConferenceRepository(eventStore, eventBus);
 
         // Act & Assert
@@ -135,8 +135,8 @@ public class ConferenceRepositoryTests
     public async Task GetById_UnknownEventType_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new ConferenceRepository(eventStore, eventBus);
 
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
@@ -164,8 +164,8 @@ public class ConferenceRepositoryTests
     public async Task GetById_InvalidEventPayload_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = new InMemoryEventStore();
-        var eventBus = new InMemoryEventBus();
+        var eventStore = new TestEventStore();
+        var eventBus = new TestEventBus();
         var repo = new ConferenceRepository(eventStore, eventBus);
 
         var conferenceId = new ConferenceId(GuidV7.NewGuid());

@@ -16,15 +16,28 @@ using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 
 namespace ConferenceExample.API.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
-        services.AddSingleton<IEventStore, InMemoryEventStore>();
-        services.AddSingleton<IEventBus, InMemoryEventBus>();
+        // Configure MongoDB Event Store
+        var mongoSettings =
+            configuration.GetSection("EventStore:MongoDB").Get<MongoDbSettings>()
+            ?? new MongoDbSettings(); // Use defaults if not configured
+
+        var mongoClient = new MongoClient(mongoSettings.ConnectionString);
+        var database = mongoClient.GetDatabase(mongoSettings.DatabaseName);
+
+        services.AddSingleton(database);
+        services.AddSingleton<IEventStore, MongoDbEventStore>();
+        services.AddSingleton<IEventBus, MongoDbEventBus>();
 
         services.AddScoped<IConferenceRepository, ConferenceRepository>();
         services.AddScoped<ITalkRepository, TalkRepository>();

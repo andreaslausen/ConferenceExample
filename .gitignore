@@ -400,3 +400,6 @@ FodyWeavers.xsd
 *.iml
 .idea/
 *.DotSettings.user
+
+# MongoDB keyfile (auto-generated)
+scripts/mongo-keyfile

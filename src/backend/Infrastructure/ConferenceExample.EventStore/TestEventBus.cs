@@ -1,9 +1,13 @@
 namespace ConferenceExample.EventStore;
 
-public class InMemoryEventBus : IEventBus
+/// <summary>
+/// Simple in-memory event bus for testing purposes.
+/// This is NOT intended for production use - use MongoDbEventBus instead.
+/// </summary>
+public class TestEventBus : IEventBus
 {
-    private readonly Lock _lock = new();
     private readonly Dictionary<string, List<Action<StoredEvent>>> _subscriptions = [];
+    private readonly Lock _lock = new();
 
     public void Subscribe(string eventType, Action<StoredEvent> handler)
     {
