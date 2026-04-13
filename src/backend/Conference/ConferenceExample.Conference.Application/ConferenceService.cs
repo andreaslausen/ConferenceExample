@@ -33,7 +33,7 @@ public class ConferenceService(
         await renameConferenceCommandHandler.Handle(command);
     }
 
-    public async Task<IReadOnlyList<SessionDto>> GetSessions(Guid conferenceId)
+    public async Task<IReadOnlyList<GetConferenceSessionDto>> GetSessions(Guid conferenceId)
     {
         var query = new GetConferenceSessionsQuery(conferenceId);
         return await getConferenceSessionsQueryHandler.Handle(query);

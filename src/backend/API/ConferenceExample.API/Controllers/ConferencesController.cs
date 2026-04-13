@@ -33,9 +33,9 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpGet("{id:guid}/sessions")]
-    [ProducesResponseType<IReadOnlyList<SessionDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<IReadOnlyList<GetConferenceSessionDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<SessionDto>>> GetSessions(Guid id)
+    public async Task<ActionResult<IReadOnlyList<GetConferenceSessionDto>>> GetSessions(Guid id)
     {
         var sessions = await conferenceService.GetSessions(id);
         return Ok(sessions);

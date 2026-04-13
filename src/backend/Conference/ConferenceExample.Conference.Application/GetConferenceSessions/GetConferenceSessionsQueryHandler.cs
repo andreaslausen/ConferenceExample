@@ -6,14 +6,16 @@ namespace ConferenceExample.Conference.Application.GetConferenceSessions;
 public class GetConferenceSessionsQueryHandler(IConferenceRepository conferenceRepository)
     : IGetConferenceSessionsQueryHandler
 {
-    public async Task<IReadOnlyList<SessionDto>> Handle(GetConferenceSessionsQuery query)
+    public async Task<IReadOnlyList<GetConferenceSessionDto>> Handle(
+        GetConferenceSessionsQuery query
+    )
     {
         var conference = await conferenceRepository.GetById(
             new ConferenceId(new GuidV7(query.ConferenceId))
         );
 
         return conference
-            .Talks.Select(talk => new SessionDto(
+            .Talks.Select(talk => new GetConferenceSessionDto(
                 talk.Id.Value,
                 talk.Status.ToString(),
                 talk.Slot?.Start,
