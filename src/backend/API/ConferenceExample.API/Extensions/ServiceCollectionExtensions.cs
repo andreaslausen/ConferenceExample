@@ -1,4 +1,6 @@
+using System.Text;
 using System.Text.Json;
+using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
@@ -12,6 +14,8 @@ using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ConferenceExample.API.Extensions;
 
@@ -32,6 +36,46 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IConferenceService, ConferenceService>();
         services.AddScoped<ITalkService, TalkService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddAuthenticationServices(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        var jwtSettings =
+            configuration.GetSection("Jwt").Get<JwtSettings>()
+            ?? throw new InvalidOperationException("JWT settings not found in configuration");
+
+        services.AddSingleton(jwtSettings);
+        services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.Secret)
+                    ),
+                };
+            });
+
+        services.AddAuthorization();
 
         return services;
     }

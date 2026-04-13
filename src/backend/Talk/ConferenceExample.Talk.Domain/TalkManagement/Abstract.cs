@@ -6,7 +6,10 @@ public record Abstract
     {
         if (content.Length > 1000)
         {
-            throw new ArgumentException("The abstract must have a maximum of 1000 characters", nameof(content));
+            throw new ArgumentException(
+                "The abstract must have a maximum of 1000 characters",
+                nameof(content)
+            );
         }
         Content = content;
     }

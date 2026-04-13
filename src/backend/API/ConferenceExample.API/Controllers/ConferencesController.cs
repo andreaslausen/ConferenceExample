@@ -2,6 +2,7 @@ using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
 using ConferenceExample.Conference.Application.RenameConference;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConferenceExample.API.Controllers;
@@ -12,8 +13,11 @@ namespace ConferenceExample.API.Controllers;
 public class ConferencesController(IConferenceService conferenceService) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = "Organizer")]
     [ProducesResponseType<ConferenceCreatedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ConferenceCreatedDto>> CreateConference(
         [FromBody] CreateConferenceDto dto
     )
@@ -23,9 +27,12 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPut("{id:guid}/name")]
+    [Authorize(Roles = "Organizer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RenameConference(Guid id, [FromBody] RenameConferenceDto dto)
     {
         await conferenceService.RenameConference(id, dto);

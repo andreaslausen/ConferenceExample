@@ -40,6 +40,12 @@ public abstract class ArchitectureTest
 
     protected static readonly Assembly[] EventStoreAssemblies = [EventStore];
 
+    // Authentication
+    protected static Assembly Authentication =>
+        typeof(ConferenceExample.Authentication.IAuthenticationService).Assembly;
+
+    protected static readonly Assembly[] AuthenticationAssemblies = [Authentication];
+
     // API
     protected static Assembly Api =>
         typeof(ConferenceExample.API.Extensions.ServiceCollectionExtensions).Assembly;
@@ -51,6 +57,7 @@ public abstract class ArchitectureTest
         .. ConferenceAssemblies,
         .. TalkAssemblies,
         .. EventStoreAssemblies,
+        .. AuthenticationAssemblies,
         .. ApiAssemblies,
     ];
 

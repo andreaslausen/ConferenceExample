@@ -6,7 +6,10 @@ public record TalkTitle
     {
         if (title.Length > 100)
         {
-            throw new ArgumentException("The title must have a maximum of 100 characters", nameof(title));
+            throw new ArgumentException(
+                "The title must have a maximum of 100 characters",
+                nameof(title)
+            );
         }
         Title = title;
     }

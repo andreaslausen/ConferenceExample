@@ -3,12 +3,12 @@ namespace ConferenceExample.ArchitectureTests;
 public class ApiDependencyRules : ArchitectureTest
 {
     [Fact]
-    public void ApiControllers_ShouldOnlyDependOn_ApplicationLayer()
+    public void ApiControllers_ShouldOnlyDependOn_ApplicationLayerAndAuthentication()
     {
         Dependencies.Check(
             Architecture,
             "ConferenceExample.API.Controllers",
-            [ConferenceApplication, TalkApplication],
+            [ConferenceApplication, TalkApplication, Authentication],
             "System",
             "Microsoft"
         );

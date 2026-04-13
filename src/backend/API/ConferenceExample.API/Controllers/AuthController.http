@@ -1,0 +1,47 @@
+### Register as Speaker
+POST {{ConferenceExample.API_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "speaker@example.com",
+  "password": "SecurePassword123!",
+  "role": "Speaker"
+}
+
+### Register as Organizer
+POST {{ConferenceExample.API_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "organizer@example.com",
+  "password": "SecurePassword123!",
+  "role": "Organizer"
+}
+
+### Register as Attendee
+POST {{ConferenceExample.API_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "attendee@example.com",
+  "password": "SecurePassword123!",
+  "role": "Attendee"
+}
+
+### Login as Speaker
+POST {{ConferenceExample.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "speaker@example.com",
+  "password": "SecurePassword123!"
+}
+
+### Login as Organizer
+POST {{ConferenceExample.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "organizer@example.com",
+  "password": "SecurePassword123!"
+}

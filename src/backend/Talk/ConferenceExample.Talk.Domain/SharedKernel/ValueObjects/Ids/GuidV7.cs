@@ -29,6 +29,7 @@ public sealed record GuidV7
     }
 
     public static implicit operator Guid(GuidV7 guid) => guid.Value;
+
     public static implicit operator GuidV7(Guid guid) => new(guid);
 
     public override string ToString()

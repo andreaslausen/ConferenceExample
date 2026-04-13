@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -17,6 +16,6 @@
     <ProjectReference Include="..\..\Infrastructure\ConferenceExample.EventStore\ConferenceExample.EventStore.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ConferenceExample.Authentication\ConferenceExample.Authentication.csproj" />
   </ItemGroup>
-
 </Project>

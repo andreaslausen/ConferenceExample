@@ -6,7 +6,10 @@ public record SpeakerBiography
     {
         if (content.Length > 2000)
         {
-            throw new ArgumentException("The biography must have a maximum of 2000 characters", nameof(content));
+            throw new ArgumentException(
+                "The biography must have a maximum of 2000 characters",
+                nameof(content)
+            );
         }
         Content = content;
     }
