@@ -15,7 +15,8 @@ public class TalkDependencyRules : ArchitectureTest
             Architecture,
             "ConferenceExample.Talk.Application",
             [TalkDomain, Authentication],
-            "System"
+            "System",
+            "Microsoft.Extensions"
         );
     }
 

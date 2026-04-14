@@ -2,11 +2,6 @@ using ConferenceExample.Authentication;
 using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
-using ConferenceExample.Talk.Application.EditTalk;
-using ConferenceExample.Talk.Application.GetMyTalks;
-using ConferenceExample.Talk.Application.SubmitTalk;
-using ConferenceExample.Talk.Domain.TalkManagement;
-using ConferenceExample.Talk.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Reqnroll.Microsoft.Extensions.DependencyInjection;
@@ -66,11 +61,7 @@ public class SetupTestDependencies
 
         services.AddSingleton(eventStore);
         services.AddSingleton(currentUserService);
-        services.AddScoped<ITalkRepository, TalkRepository>();
-        services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
-        services.AddScoped<IGetMyTalksQueryHandler, GetMyTalksQueryHandler>();
-        services.AddScoped<IEditTalkCommandHandler, EditTalkCommandHandler>();
-        services.AddScoped<ITalkService, TalkService>();
+        services.AddTalkContext();
         return services;
     }
 }

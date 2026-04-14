@@ -15,7 +15,8 @@ public class ConferenceDependencyRules : ArchitectureTest
             Architecture,
             "ConferenceExample.Conference.Application",
             [ConferenceDomain, Authentication],
-            "System"
+            "System",
+            "Microsoft.Extensions"
         );
     }
 
