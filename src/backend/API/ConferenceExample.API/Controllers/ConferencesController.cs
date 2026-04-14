@@ -42,8 +42,11 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpGet("{id:guid}/sessions")]
+    [Authorize(Roles = "Organizer")]
     [ProducesResponseType<IReadOnlyList<GetConferenceSessionDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IReadOnlyList<GetConferenceSessionDto>>> GetSessions(Guid id)
     {
         var sessions = await conferenceService.GetSessions(id);
