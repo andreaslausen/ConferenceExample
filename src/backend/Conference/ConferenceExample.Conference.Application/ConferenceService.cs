@@ -1,7 +1,10 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.GetAllConferences;
+using ConferenceExample.Conference.Application.GetConferenceById;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
@@ -11,7 +14,10 @@ namespace ConferenceExample.Conference.Application;
 public class ConferenceService(
     ICreateConferenceCommandHandler createConferenceCommandHandler,
     IRenameConferenceCommandHandler renameConferenceCommandHandler,
+    IGetAllConferencesQueryHandler getAllConferencesQueryHandler,
+    IGetConferenceByIdQueryHandler getConferenceByIdQueryHandler,
     IGetConferenceSessionsQueryHandler getConferenceSessionsQueryHandler,
+    IGetConferenceTalksQueryHandler getConferenceTalksQueryHandler,
     IAcceptTalkCommandHandler acceptTalkCommandHandler,
     IRejectTalkCommandHandler rejectTalkCommandHandler,
     IScheduleTalkCommandHandler scheduleTalkCommandHandler,
@@ -41,10 +47,28 @@ public class ConferenceService(
         await renameConferenceCommandHandler.Handle(command);
     }
 
+    public async Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences()
+    {
+        var query = new GetAllConferencesQuery();
+        return await getAllConferencesQueryHandler.Handle(query);
+    }
+
+    public async Task<GetConferenceByIdDto> GetConferenceById(Guid conferenceId)
+    {
+        var query = new GetConferenceByIdQuery(conferenceId);
+        return await getConferenceByIdQueryHandler.Handle(query);
+    }
+
     public async Task<IReadOnlyList<GetConferenceSessionDto>> GetSessions(Guid conferenceId)
     {
         var query = new GetConferenceSessionsQuery(conferenceId);
         return await getConferenceSessionsQueryHandler.Handle(query);
+    }
+
+    public async Task<IReadOnlyList<GetConferenceTalksDto>> GetConferenceTalks(Guid conferenceId)
+    {
+        var query = new GetConferenceTalksQuery(conferenceId);
+        return await getConferenceTalksQueryHandler.Handle(query);
     }
 
     public async Task AcceptTalk(Guid conferenceId, Guid talkId)

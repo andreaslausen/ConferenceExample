@@ -5,7 +5,10 @@ using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Application.AcceptTalk;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.GetAllConferences;
+using ConferenceExample.Conference.Application.GetConferenceById;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
@@ -57,7 +60,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
         services.AddScoped<IEditTalkCommandHandler, EditTalkCommandHandler>();
         services.AddScoped<IGetMyTalksQueryHandler, GetMyTalksQueryHandler>();
+        services.AddScoped<IGetAllConferencesQueryHandler, GetAllConferencesQueryHandler>();
+        services.AddScoped<IGetConferenceByIdQueryHandler, GetConferenceByIdQueryHandler>();
         services.AddScoped<IGetConferenceSessionsQueryHandler, GetConferenceSessionsQueryHandler>();
+        services.AddScoped<IGetConferenceTalksQueryHandler, GetConferenceTalksQueryHandler>();
 
         services.AddScoped<IConferenceService, ConferenceService>();
         services.AddScoped<ITalkService, TalkService>();

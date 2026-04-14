@@ -1,7 +1,10 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.GetAllConferences;
+using ConferenceExample.Conference.Application.GetConferenceById;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
@@ -18,7 +21,10 @@ public class ConferenceServiceTests
         // Arrange
         var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
+        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
         var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
         var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
         var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
@@ -26,7 +32,10 @@ public class ConferenceServiceTests
         var service = new ConferenceService(
             createCommandHandler,
             renameCommandHandler,
+            getAllConferencesQueryHandler,
+            getConferenceByIdQueryHandler,
             queryHandler,
+            getConferenceTalksQueryHandler,
             acceptTalkCommandHandler,
             rejectTalkCommandHandler,
             scheduleTalkCommandHandler,
@@ -46,7 +55,10 @@ public class ConferenceServiceTests
         // Arrange
         var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
+        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
         var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
         var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
         var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
@@ -54,7 +66,10 @@ public class ConferenceServiceTests
         var service = new ConferenceService(
             createCommandHandler,
             renameCommandHandler,
+            getAllConferencesQueryHandler,
+            getConferenceByIdQueryHandler,
             queryHandler,
+            getConferenceTalksQueryHandler,
             acceptTalkCommandHandler,
             rejectTalkCommandHandler,
             scheduleTalkCommandHandler,
@@ -77,7 +92,10 @@ public class ConferenceServiceTests
         // Arrange
         var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
+        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
         var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
         var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
         var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
@@ -85,7 +103,10 @@ public class ConferenceServiceTests
         var service = new ConferenceService(
             createCommandHandler,
             renameCommandHandler,
+            getAllConferencesQueryHandler,
+            getConferenceByIdQueryHandler,
             queryHandler,
+            getConferenceTalksQueryHandler,
             acceptTalkCommandHandler,
             rejectTalkCommandHandler,
             scheduleTalkCommandHandler,
@@ -108,7 +129,10 @@ public class ConferenceServiceTests
         // Arrange
         var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
+        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
         var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
         var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
         var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
@@ -116,7 +140,10 @@ public class ConferenceServiceTests
         var service = new ConferenceService(
             createCommandHandler,
             renameCommandHandler,
+            getAllConferencesQueryHandler,
+            getConferenceByIdQueryHandler,
             queryHandler,
+            getConferenceTalksQueryHandler,
             acceptTalkCommandHandler,
             rejectTalkCommandHandler,
             scheduleTalkCommandHandler,
@@ -139,7 +166,10 @@ public class ConferenceServiceTests
         // Arrange
         var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
+        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
         var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
         var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
         var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
@@ -147,7 +177,10 @@ public class ConferenceServiceTests
         var service = new ConferenceService(
             createCommandHandler,
             renameCommandHandler,
+            getAllConferencesQueryHandler,
+            getConferenceByIdQueryHandler,
             queryHandler,
+            getConferenceTalksQueryHandler,
             acceptTalkCommandHandler,
             rejectTalkCommandHandler,
             scheduleTalkCommandHandler,
@@ -185,7 +218,10 @@ public class ConferenceServiceTests
         // Arrange
         var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
+        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
         var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
         var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
         var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
@@ -193,7 +229,10 @@ public class ConferenceServiceTests
         var service = new ConferenceService(
             createCommandHandler,
             renameCommandHandler,
+            getAllConferencesQueryHandler,
+            getConferenceByIdQueryHandler,
             queryHandler,
+            getConferenceTalksQueryHandler,
             acceptTalkCommandHandler,
             rejectTalkCommandHandler,
             scheduleTalkCommandHandler,

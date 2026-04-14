@@ -35,6 +35,33 @@ public class ConferenceRepository(IEventStore eventStore) : IConferenceRepositor
         return ConferenceAggregate.LoadFromHistory(domainEvents);
     }
 
+    public async Task<IReadOnlyList<ConferenceAggregate>> GetAll()
+    {
+        var allEvents = await eventStore.GetAllEvents();
+
+        // Group events by aggregate ID
+        var eventsByAggregate = allEvents.GroupBy(e => e.AggregateId).ToList();
+
+        var conferences = new List<ConferenceAggregate>();
+
+        foreach (var aggregateEvents in eventsByAggregate)
+        {
+            // Only process events that belong to Conference aggregates (check if first event is ConferenceCreatedEvent)
+            var firstEvent = aggregateEvents.OrderBy(e => e.Version).FirstOrDefault();
+            if (firstEvent?.EventType == nameof(ConferenceCreatedEvent))
+            {
+                var domainEvents = aggregateEvents
+                    .OrderBy(e => e.Version)
+                    .Select(Deserialize)
+                    .ToList();
+
+                conferences.Add(ConferenceAggregate.LoadFromHistory(domainEvents));
+            }
+        }
+
+        return conferences;
+    }
+
     public async Task Save(ConferenceAggregate conference)
     {
         var uncommittedEvents = conference.GetUncommittedEvents();

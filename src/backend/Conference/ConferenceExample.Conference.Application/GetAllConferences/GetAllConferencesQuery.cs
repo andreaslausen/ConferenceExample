@@ -1,0 +1,3 @@
+namespace ConferenceExample.Conference.Application.GetAllConferences;
+
+public record GetAllConferencesQuery;

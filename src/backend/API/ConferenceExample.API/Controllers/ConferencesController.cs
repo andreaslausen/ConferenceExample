@@ -1,7 +1,10 @@
 using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.GetAllConferences;
+using ConferenceExample.Conference.Application.GetConferenceById;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
 using Microsoft.AspNetCore.Authorization;
@@ -14,6 +17,25 @@ namespace ConferenceExample.API.Controllers;
 [Tags("Conferences")]
 public class ConferencesController(IConferenceService conferenceService) : ControllerBase
 {
+    [HttpGet(Name = "GetAllConferences")]
+    [AllowAnonymous]
+    [ProducesResponseType<IReadOnlyList<GetAllConferencesDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<GetAllConferencesDto>>> GetAll()
+    {
+        var conferences = await conferenceService.GetAllConferences();
+        return Ok(conferences);
+    }
+
+    [HttpGet("{id:guid}", Name = "GetConferenceById")]
+    [AllowAnonymous]
+    [ProducesResponseType<GetConferenceByIdDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<GetConferenceByIdDto>> GetById(Guid id)
+    {
+        var conference = await conferenceService.GetConferenceById(id);
+        return Ok(conference);
+    }
+
     [HttpPost(Name = "CreateConference")]
     [Authorize(Roles = "Organizer")]
     [ProducesResponseType<ConferenceCreatedDto>(StatusCodes.Status201Created)]
@@ -51,6 +73,20 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     {
         var sessions = await conferenceService.GetSessions(id);
         return Ok(sessions);
+    }
+
+    [HttpGet("{id:guid}/talks", Name = "GetConferenceTalks")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType<IReadOnlyList<GetConferenceTalksDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IReadOnlyList<GetConferenceTalksDto>>> GetConferenceTalks(
+        Guid id
+    )
+    {
+        var talks = await conferenceService.GetConferenceTalks(id);
+        return Ok(talks);
     }
 
     [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/accept", Name = "AcceptTalk")]
