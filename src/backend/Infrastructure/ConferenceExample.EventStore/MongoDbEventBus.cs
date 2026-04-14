@@ -32,23 +32,6 @@ public class MongoDbEventBus : IEventBus, IDisposable
         EnsureChangeStreamStarted();
     }
 
-    public Task Publish(IEnumerable<StoredEvent> events)
-    {
-        // Events are already persisted to MongoDB via AppendEvents().
-        // The Change Stream will pick them up automatically and notify all subscribers
-        // across all application instances.
-        //
-        // We intentionally do NOT notify subscribers here to avoid duplicate notifications:
-        // - Change Stream ensures ALL instances (including this one) receive the event
-        // - This provides consistent behavior in multi-instance deployments
-        // - Trade-off: Small latency (5-20ms) vs. guaranteed cross-instance delivery
-        //
-        // For single-instance deployments, this adds minimal overhead.
-        // For multi-instance deployments, this is essential for correctness.
-
-        return Task.CompletedTask;
-    }
-
     private void EnsureChangeStreamStarted()
     {
         if (_changeStreamTask != null)

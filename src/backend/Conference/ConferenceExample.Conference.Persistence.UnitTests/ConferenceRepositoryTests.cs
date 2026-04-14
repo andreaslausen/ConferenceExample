@@ -27,8 +27,7 @@ public class ConferenceRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new ConferenceRepository(eventStore, eventBus);
+        var repo = new ConferenceRepository(eventStore);
         var conference = CreateValidConference();
 
         // Act
@@ -49,36 +48,11 @@ public class ConferenceRepositoryTests
     }
 
     [Fact]
-    public async Task Save_NewConference_PublishesEventsToEventBus()
-    {
-        // Arrange
-        var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new ConferenceRepository(eventStore, eventBus);
-        var conference = CreateValidConference();
-
-        // Act
-        await repo.Save(conference);
-
-        // Assert
-        await eventBus
-            .Received(1)
-            .Publish(
-                Arg.Is<IEnumerable<StoredEvent>>(events =>
-                    events.Count() == 1
-                    && events.First().AggregateId == (Guid)conference.Id.Value
-                    && events.First().EventType == "ConferenceCreatedEvent"
-                )
-            );
-    }
-
-    [Fact]
     public async Task Save_ClearsUncommittedEventsAfterSaving()
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new ConferenceRepository(eventStore, eventBus);
+        var repo = new ConferenceRepository(eventStore);
         var conference = CreateValidConference();
 
         // Act
@@ -93,8 +67,7 @@ public class ConferenceRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new ConferenceRepository(eventStore, eventBus);
+        var repo = new ConferenceRepository(eventStore);
 
         var conference = CreateValidConference();
         conference.ClearUncommittedEvents();
@@ -113,7 +86,6 @@ public class ConferenceRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Create mock events to rebuild the conference
@@ -140,7 +112,7 @@ public class ConferenceRepositoryTests
             .GetEvents(conferenceId.Value)
             .Returns(new List<StoredEvent> { createdEvent, renamedEvent });
 
-        var repo = new ConferenceRepository(eventStore, eventBus);
+        var repo = new ConferenceRepository(eventStore);
 
         // Act
         var loaded = await repo.GetById(conferenceId);
@@ -155,12 +127,11 @@ public class ConferenceRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         eventStore.GetEvents(conferenceId.Value).Returns(new List<StoredEvent>());
 
-        var repo = new ConferenceRepository(eventStore, eventBus);
+        var repo = new ConferenceRepository(eventStore);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => repo.GetById(conferenceId));
@@ -171,7 +142,6 @@ public class ConferenceRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Mock an event with an unknown type
@@ -186,7 +156,7 @@ public class ConferenceRepositoryTests
 
         eventStore.GetEvents(conferenceId.Value).Returns(new List<StoredEvent> { unknownEvent });
 
-        var repo = new ConferenceRepository(eventStore, eventBus);
+        var repo = new ConferenceRepository(eventStore);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -200,7 +170,6 @@ public class ConferenceRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Create an event with null JSON (which will deserialize to null)
@@ -215,7 +184,7 @@ public class ConferenceRepositoryTests
 
         eventStore.GetEvents(conferenceId.Value).Returns(new List<StoredEvent> { invalidEvent });
 
-        var repo = new ConferenceRepository(eventStore, eventBus);
+        var repo = new ConferenceRepository(eventStore);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>

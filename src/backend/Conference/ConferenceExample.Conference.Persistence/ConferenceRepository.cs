@@ -9,8 +9,7 @@ using GuidV7 = ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids
 
 namespace ConferenceExample.Conference.Persistence;
 
-public class ConferenceRepository(IEventStore eventStore, IEventBus eventBus)
-    : IConferenceRepository
+public class ConferenceRepository(IEventStore eventStore) : IConferenceRepository
 {
     private static readonly Dictionary<string, Type> EventTypeMap = new()
     {
@@ -64,8 +63,6 @@ public class ConferenceRepository(IEventStore eventStore, IEventBus eventBus)
             storedEvents,
             conference.Version
         );
-
-        await eventBus.Publish(storedEvents);
 
         conference.ClearUncommittedEvents();
     }

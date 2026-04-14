@@ -27,8 +27,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
         var talk = CreateValidTalk();
 
         // Act
@@ -49,36 +48,11 @@ public class TalkRepositoryTests
     }
 
     [Fact]
-    public async Task Save_NewTalk_PublishesEventsToEventBus()
-    {
-        // Arrange
-        var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new TalkRepository(eventStore, eventBus);
-        var talk = CreateValidTalk();
-
-        // Act
-        await repo.Save(talk);
-
-        // Assert
-        await eventBus
-            .Received(1)
-            .Publish(
-                Arg.Is<IEnumerable<StoredEvent>>(events =>
-                    events.Count() == 1
-                    && events.First().AggregateId == (Guid)talk.Id.Value
-                    && events.First().EventType == "TalkSubmittedEvent"
-                )
-            );
-    }
-
-    [Fact]
     public async Task Save_ClearsUncommittedEventsAfterSaving()
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
         var talk = CreateValidTalk();
 
         // Act
@@ -93,8 +67,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         var talk = CreateValidTalk();
         talk.ClearUncommittedEvents();
@@ -113,7 +86,6 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
         var talkId = new TalkId(GuidV7.NewGuid());
         var speakerId = new SpeakerId(GuidV7.NewGuid());
         var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
@@ -141,7 +113,7 @@ public class TalkRepositoryTests
             .GetEvents(talkId.Value)
             .Returns(new List<StoredEvent> { submittedEvent, titleEditedEvent });
 
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         // Act
         var loaded = await repo.GetById(talkId);
@@ -157,12 +129,11 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
         var talkId = new TalkId(GuidV7.NewGuid());
 
         eventStore.GetEvents(talkId.Value).Returns(new List<StoredEvent>());
 
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => repo.GetById(talkId));
@@ -173,8 +144,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         var targetConferenceId = new ConferenceId(GuidV7.NewGuid());
         var talkAId = new TalkId(GuidV7.NewGuid());
@@ -216,11 +186,10 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = Substitute.For<IEventBus>();
 
         eventStore.GetAllEvents().Returns(new List<StoredEvent>());
 
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         // Act
         var result = await repo.GetTalks(new ConferenceId(GuidV7.NewGuid()));
@@ -234,8 +203,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new TestEventBus();
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         var talkId = new TalkId(GuidV7.NewGuid());
         var invalidEvent = new StoredEvent(
@@ -261,8 +229,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new TestEventBus();
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         var talkId = new TalkId(GuidV7.NewGuid());
         var eventWithInvalidPayload = new StoredEvent(
@@ -288,8 +255,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new TestEventBus();
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
         var talkId = new TalkId(GuidV7.NewGuid());
@@ -316,8 +282,7 @@ public class TalkRepositoryTests
     {
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new TestEventBus();
-        var repo = new TalkRepository(eventStore, eventBus);
+        var repo = new TalkRepository(eventStore);
 
         var talkId = new TalkId(GuidV7.NewGuid());
         var conferenceId = new ConferenceId(GuidV7.NewGuid());

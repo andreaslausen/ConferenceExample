@@ -18,7 +18,6 @@ public class SetupTestDependencies
 
         // Use in-memory mock implementations for testing
         var eventStore = Substitute.For<IEventStore>();
-        var eventBus = new TestEventBus();
 
         // Configure eventStore to use in-memory storage
         var storage = new Dictionary<Guid, List<StoredEvent>>();
@@ -58,7 +57,6 @@ public class SetupTestDependencies
             });
 
         services.AddSingleton(eventStore);
-        services.AddSingleton<IEventBus>(eventBus);
         services.AddScoped<ITalkRepository, TalkRepository>();
         services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
         services.AddScoped<ITalkService, TalkService>();

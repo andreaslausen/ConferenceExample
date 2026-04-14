@@ -97,12 +97,6 @@ public abstract class ArchitectureTest
         TalkAcceptanceTests,
     ];
 
-    // EventStore Test Assemblies
-    protected static Assembly EventStoreUnitTests =>
-        typeof(EventStore.UnitTests.TestEventBusTests).Assembly;
-
-    protected static readonly Assembly[] EventStoreTestAssemblies = [EventStoreUnitTests];
-
     // Authentication Test Assemblies
     protected static Assembly AuthenticationUnitTests =>
         typeof(ConferenceExample.Authentication.UnitTests.AuthenticationServiceTests).Assembly;
@@ -113,7 +107,6 @@ public abstract class ArchitectureTest
     [
         .. ConferenceTestAssemblies,
         .. TalkTestAssemblies,
-        .. EventStoreTestAssemblies,
         .. AuthenticationTestAssemblies,
     ];
 

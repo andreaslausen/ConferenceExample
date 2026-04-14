@@ -7,7 +7,7 @@ using ConferenceExample.Talk.Domain.TalkManagement.Events;
 
 namespace ConferenceExample.Talk.Persistence;
 
-public class TalkRepository(IEventStore eventStore, IEventBus eventBus) : ITalkRepository
+public class TalkRepository(IEventStore eventStore) : ITalkRepository
 {
     private static readonly Dictionary<string, Type> EventTypeMap = new()
     {
@@ -79,8 +79,6 @@ public class TalkRepository(IEventStore eventStore, IEventBus eventBus) : ITalkR
             .ToList();
 
         await eventStore.AppendEvents(uncommittedEvents[0].AggregateId, storedEvents, talk.Version);
-
-        await eventBus.Publish(storedEvents);
 
         talk.ClearUncommittedEvents();
     }
