@@ -8,6 +8,5 @@
   <ItemGroup>
     <ProjectReference Include="..\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj" />
     <ProjectReference Include="..\..\Infrastructure\ConferenceExample.Authentication\ConferenceExample.Authentication.csproj" />
-    <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Domain\ConferenceExample.Talk.Domain.csproj" />
   </ItemGroup>
 </Project>

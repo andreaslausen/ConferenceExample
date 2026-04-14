@@ -21,11 +21,11 @@ using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.SubmitTalk;
-using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using TalkRepository = ConferenceExample.Talk.Persistence.TalkRepository;
 
 namespace ConferenceExample.API.Extensions;
 
@@ -48,8 +48,15 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEventStore, MongoDbEventStore>();
         services.AddSingleton<IEventBus, MongoDbEventBus>();
 
+        // Conference BC Repositories
         services.AddScoped<IConferenceRepository, ConferenceRepository>();
-        services.AddScoped<ITalkRepository, TalkRepository>();
+        services.AddScoped<ITalkRepository, Conference.Persistence.TalkRepository>();
+
+        // Talk BC Repositories
+        services.AddScoped<
+            ConferenceExample.Talk.Domain.TalkManagement.ITalkRepository,
+            TalkRepository
+        >();
 
         services.AddScoped<ICreateConferenceCommandHandler, CreateConferenceCommandHandler>();
         services.AddScoped<IRenameConferenceCommandHandler, RenameConferenceCommandHandler>();
