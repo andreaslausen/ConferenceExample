@@ -8,7 +8,7 @@ namespace ConferenceExample.API.Controllers;
 [Tags("Authentication")]
 public class AuthController(IAuthenticationService authenticationService) : ControllerBase
 {
-    [HttpPost("register")]
+    [HttpPost("register", Name = "Register")]
     [ProducesResponseType<RegisterResponseDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponseDto>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
@@ -27,7 +27,7 @@ public class AuthController(IAuthenticationService authenticationService) : Cont
         );
     }
 
-    [HttpPost("login")]
+    [HttpPost("login", Name = "Login")]
     [ProducesResponseType<LoginResponseDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponseDto>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)

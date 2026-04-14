@@ -14,7 +14,7 @@ namespace ConferenceExample.API.Controllers;
 [Tags("Conferences")]
 public class ConferencesController(IConferenceService conferenceService) : ControllerBase
 {
-    [HttpPost]
+    [HttpPost(Name = "CreateConference")]
     [Authorize(Roles = "Organizer")]
     [ProducesResponseType<ConferenceCreatedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -28,7 +28,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         return Created($"/api/conferences/{result.Id}", result);
     }
 
-    [HttpPut("{id:guid}/name")]
+    [HttpPut("{id:guid}/name", Name = "RenameConference")]
     [Authorize(Roles = "Organizer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -41,7 +41,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         return NoContent();
     }
 
-    [HttpGet("{id:guid}/sessions")]
+    [HttpGet("{id:guid}/sessions", Name = "GetSessions")]
     [Authorize(Roles = "Organizer")]
     [ProducesResponseType<IReadOnlyList<GetConferenceSessionDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -53,7 +53,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         return Ok(sessions);
     }
 
-    [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/accept")]
+    [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/accept", Name = "AcceptTalk")]
     [Authorize(Roles = "Organizer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -65,7 +65,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         return NoContent();
     }
 
-    [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/reject")]
+    [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/reject", Name = "RejectTalk")]
     [Authorize(Roles = "Organizer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -77,7 +77,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         return NoContent();
     }
 
-    [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/schedule")]
+    [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/schedule", Name = "ScheduleTalk")]
     [Authorize(Roles = "Organizer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -94,7 +94,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         return NoContent();
     }
 
-    [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/room")]
+    [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/room", Name = "AssignTalkToRoom")]
     [Authorize(Roles = "Organizer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -24,6 +24,9 @@ dotnet csharpier .
 
 # Build architecture documentation (requires Docker)
 ./build-docs.sh
+
+# Generate OpenAPI specification
+./scripts/generate-openapi.sh   # Creates openapi.json in project root
 ```
 
 ## Architecture Overview

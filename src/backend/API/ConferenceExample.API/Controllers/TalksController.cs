@@ -12,7 +12,7 @@ namespace ConferenceExample.API.Controllers;
 [Tags("Talks")]
 public class TalksController(ITalkService talkService) : ControllerBase
 {
-    [HttpPost]
+    [HttpPost(Name = "SubmitTalk")]
     [Authorize(Roles = "Speaker")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -24,7 +24,7 @@ public class TalksController(ITalkService talkService) : ControllerBase
         return Created();
     }
 
-    [HttpGet("my-talks")]
+    [HttpGet("my-talks", Name = "GetMyTalks")]
     [Authorize(Roles = "Speaker")]
     [ProducesResponseType<IReadOnlyList<GetMyTalksDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -35,7 +35,7 @@ public class TalksController(ITalkService talkService) : ControllerBase
         return Ok(talks);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:guid}", Name = "EditTalk")]
     [Authorize(Roles = "Speaker")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
