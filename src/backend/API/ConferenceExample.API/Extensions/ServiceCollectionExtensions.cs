@@ -2,9 +2,13 @@ using System.Text;
 using System.Text.Json;
 using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application;
+using ConferenceExample.Conference.Application.AcceptTalk;
+using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RenameConference;
+using ConferenceExample.Conference.Application.ScheduleTalk;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
@@ -46,6 +50,10 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ICreateConferenceCommandHandler, CreateConferenceCommandHandler>();
         services.AddScoped<IRenameConferenceCommandHandler, RenameConferenceCommandHandler>();
+        services.AddScoped<IAcceptTalkCommandHandler, AcceptTalkCommandHandler>();
+        services.AddScoped<IRejectTalkCommandHandler, RejectTalkCommandHandler>();
+        services.AddScoped<IScheduleTalkCommandHandler, ScheduleTalkCommandHandler>();
+        services.AddScoped<IAssignTalkToRoomCommandHandler, AssignTalkToRoomCommandHandler>();
         services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
         services.AddScoped<IEditTalkCommandHandler, EditTalkCommandHandler>();
         services.AddScoped<IGetMyTalksQueryHandler, GetMyTalksQueryHandler>();
