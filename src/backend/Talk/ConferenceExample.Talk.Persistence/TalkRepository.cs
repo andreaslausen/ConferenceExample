@@ -2,6 +2,7 @@ using System.Text.Json;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Domain.SharedKernel;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Domain.TalkManagement.Events;
 
@@ -47,6 +48,32 @@ public class TalkRepository(IEventStore eventStore) : ITalkRepository
             var talk = Domain.TalkManagement.Talk.LoadFromHistory(domainEvents);
 
             if (talk.ConferenceId == conferenceId)
+            {
+                talks.Add(talk);
+            }
+        }
+
+        return talks;
+    }
+
+    public async Task<IReadOnlyList<Domain.TalkManagement.Talk>> GetTalksBySpeaker(
+        SpeakerId speakerId
+    )
+    {
+        var allEvents = await eventStore.GetAllEvents();
+
+        var talkEvents = allEvents
+            .Where(e => EventTypeMap.ContainsKey(e.EventType))
+            .GroupBy(e => e.AggregateId);
+
+        var talks = new List<Domain.TalkManagement.Talk>();
+
+        foreach (var group in talkEvents)
+        {
+            var domainEvents = group.OrderBy(e => e.Version).Select(Deserialize).ToList();
+            var talk = Domain.TalkManagement.Talk.LoadFromHistory(domainEvents);
+
+            if (talk.SpeakerId == speakerId)
             {
                 talks.Add(talk);
             }

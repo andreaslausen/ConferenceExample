@@ -1,5 +1,9 @@
+using ConferenceExample.Authentication;
+using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
+using ConferenceExample.Talk.Application.EditTalk;
+using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence;
@@ -56,9 +60,16 @@ public class SetupTestDependencies
                 return (IReadOnlyList<StoredEvent>)allEvents;
             });
 
+        // Mock ICurrentUserService to return a fixed test user ID
+        var currentUserService = Substitute.For<ICurrentUserService>();
+        currentUserService.GetCurrentUserId().Returns(new UserId(GuidV7.NewGuid()));
+
         services.AddSingleton(eventStore);
+        services.AddSingleton(currentUserService);
         services.AddScoped<ITalkRepository, TalkRepository>();
         services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
+        services.AddScoped<IGetMyTalksQueryHandler, GetMyTalksQueryHandler>();
+        services.AddScoped<IEditTalkCommandHandler, EditTalkCommandHandler>();
         services.AddScoped<ITalkService, TalkService>();
         return services;
     }

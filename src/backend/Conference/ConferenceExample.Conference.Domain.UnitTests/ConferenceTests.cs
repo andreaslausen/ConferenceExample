@@ -274,7 +274,8 @@ public class ConferenceTests
             new Text("Test Venue"),
             new Address("123 Main St", "Springfield", "IL", "62701", "US")
         );
+        var organizerId = new OrganizerId(GuidV7.NewGuid());
 
-        return ConferenceAggregate.Create(id, name, time, location);
+        return ConferenceAggregate.Create(id, name, time, location, organizerId);
     }
 }

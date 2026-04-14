@@ -16,6 +16,7 @@ public class Conference : AggregateRoot
     public Text Name { get; private set; } = null!;
     public Time ConferenceTime { get; private set; } = null!;
     public Location Location { get; private set; } = null!;
+    public OrganizerId OrganizerId { get; private set; } = null!;
     public IReadOnlyList<Talk> Talks => _talks;
 
     private Conference() { }
@@ -31,7 +32,8 @@ public class Conference : AggregateRoot
         ConferenceId id,
         Text name,
         Time conferenceTime,
-        Location location
+        Location location,
+        OrganizerId organizerId
     )
     {
         var conference = new Conference();
@@ -47,7 +49,8 @@ public class Conference : AggregateRoot
                 location.Address.City,
                 location.Address.State,
                 location.Address.PostalCode,
-                location.Address.Country
+                location.Address.Country,
+                organizerId.Value
             )
         );
         return conference;
@@ -113,6 +116,7 @@ public class Conference : AggregateRoot
                     new Text(e.LocationName),
                     new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
                 );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
                 break;
             case ConferenceRenamedEvent e:
                 Name = new Text(e.Name);

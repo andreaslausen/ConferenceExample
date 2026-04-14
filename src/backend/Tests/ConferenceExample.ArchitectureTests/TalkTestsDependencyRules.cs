@@ -37,7 +37,7 @@ public class TalkTestsDependencyRules : ArchitectureTest
     {
         Dependencies.Check(
             TalkAcceptanceTests,
-            [TalkApplication, TalkDomain, TalkPersistence, EventStore],
+            [TalkApplication, TalkDomain, TalkPersistence, EventStore, Authentication],
             "System",
             "Xunit",
             "Reqnroll",

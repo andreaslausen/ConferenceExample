@@ -13,7 +13,7 @@ public class ConferenceTestsDependencyRules : ArchitectureTest
     {
         Dependencies.Check(
             ConferenceApplicationUnitTests,
-            [ConferenceApplication, ConferenceDomain],
+            [ConferenceApplication, ConferenceDomain, Authentication],
             "System",
             "Xunit",
             "NSubstitute"

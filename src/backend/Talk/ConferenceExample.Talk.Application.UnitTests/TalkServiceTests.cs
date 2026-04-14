@@ -1,3 +1,5 @@
+using ConferenceExample.Talk.Application.EditTalk;
+using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using NSubstitute;
@@ -10,15 +12,21 @@ public class TalkServiceTests
     public async Task SubmitTalk_CallsCommandHandler_MethodCalled()
     {
         // Arrange
-        var commandHandler = Substitute.For<ISubmitTalkCommandHandler>();
-        var service = new TalkService(commandHandler);
+        var submitTalkCommandHandler = Substitute.For<ISubmitTalkCommandHandler>();
+        var getMyTalksQueryHandler = Substitute.For<IGetMyTalksQueryHandler>();
+        var editTalkCommandHandler = Substitute.For<IEditTalkCommandHandler>();
+        var service = new TalkService(
+            submitTalkCommandHandler,
+            getMyTalksQueryHandler,
+            editTalkCommandHandler
+        );
         var dto = CreateSubmitTalkDto();
 
         // Act
         await service.SubmitTalk(dto);
 
         // Assert
-        await commandHandler.Received(1).Handle(Arg.Any<SubmitTalkCommand>());
+        await submitTalkCommandHandler.Received(1).Handle(Arg.Any<SubmitTalkCommand>());
     }
 
     private SubmitTalkDto CreateSubmitTalkDto()
@@ -26,7 +34,6 @@ public class TalkServiceTests
         return new SubmitTalkDto
         {
             Title = "Test Title",
-            SpeakerId = GuidV7.NewGuid(),
             Tags = new List<string> { "tag1", "tag2" },
             TalkTypeId = GuidV7.NewGuid(),
             Abstract = "Test Abstract",

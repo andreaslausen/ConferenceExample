@@ -14,7 +14,7 @@ public class TalkDependencyRules : ArchitectureTest
         Dependencies.Check(
             Architecture,
             "ConferenceExample.Talk.Application",
-            [TalkDomain],
+            [TalkDomain, Authentication],
             "System"
         );
     }

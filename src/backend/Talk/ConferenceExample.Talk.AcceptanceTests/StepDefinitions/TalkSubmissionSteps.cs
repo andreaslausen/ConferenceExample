@@ -29,7 +29,6 @@ public class TalkSubmissionSteps(ITalkService talkService, ITalkRepository talkR
                 Title = title,
                 Abstract = @abstract,
                 ConferenceId = _conferenceId,
-                SpeakerId = Guid.CreateVersion7(),
                 Tags = [],
                 TalkTypeId = Guid.CreateVersion7(),
             }
@@ -53,7 +52,6 @@ public class TalkSubmissionSteps(ITalkService talkService, ITalkRepository talkR
                 Title = title,
                 Abstract = @abstract,
                 ConferenceId = _conferenceId,
-                SpeakerId = Guid.CreateVersion7(),
                 Tags = [tag1, tag2],
                 TalkTypeId = Guid.CreateVersion7(),
             }

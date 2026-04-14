@@ -14,7 +14,7 @@ public class ConferenceDependencyRules : ArchitectureTest
         Dependencies.Check(
             Architecture,
             "ConferenceExample.Conference.Application",
-            [ConferenceDomain],
+            [ConferenceDomain, Authentication],
             "System"
         );
     }

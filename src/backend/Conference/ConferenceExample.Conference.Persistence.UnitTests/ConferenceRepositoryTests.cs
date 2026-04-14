@@ -18,7 +18,8 @@ public class ConferenceRepositoryTests
             new Location(
                 new Text("Venue"),
                 new Address("Main St 1", "Berlin", "BE", "10115", "Germany")
-            )
+            ),
+            new OrganizerId(GuidV7.NewGuid())
         );
     }
 
@@ -87,6 +88,7 @@ public class ConferenceRepositoryTests
         // Arrange
         var eventStore = Substitute.For<IEventStore>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
+        var organizerId = GuidV7.NewGuid();
 
         // Create mock events to rebuild the conference
         var start = DateTimeOffset.UtcNow;
@@ -95,7 +97,7 @@ public class ConferenceRepositoryTests
             GuidV7.NewGuid().Value,
             conferenceId.Value,
             "ConferenceCreatedEvent",
-            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Test Conference","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany"}""",
+            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Test Conference","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}"}""",
             DateTimeOffset.UtcNow,
             0
         );

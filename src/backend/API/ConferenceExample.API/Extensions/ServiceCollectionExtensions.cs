@@ -11,6 +11,8 @@ using ConferenceExample.Conference.Domain.TalkManagement;
 using ConferenceExample.Conference.Persistence;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
+using ConferenceExample.Talk.Application.EditTalk;
+using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence;
@@ -45,6 +47,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICreateConferenceCommandHandler, CreateConferenceCommandHandler>();
         services.AddScoped<IRenameConferenceCommandHandler, RenameConferenceCommandHandler>();
         services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
+        services.AddScoped<IEditTalkCommandHandler, EditTalkCommandHandler>();
+        services.AddScoped<IGetMyTalksQueryHandler, GetMyTalksQueryHandler>();
         services.AddScoped<IGetConferenceSessionsQueryHandler, GetConferenceSessionsQueryHandler>();
 
         services.AddScoped<IConferenceService, ConferenceService>();
@@ -65,6 +69,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(jwtSettings);
         services.AddSingleton<IUserRepository, InMemoryUserRepository>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         services
             .AddAuthentication(options =>

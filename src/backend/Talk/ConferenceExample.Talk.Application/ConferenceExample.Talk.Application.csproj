@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConferenceExample.Talk.Domain\ConferenceExample.Talk.Domain.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ConferenceExample.Authentication\ConferenceExample.Authentication.csproj" />
   </ItemGroup>
 </Project>

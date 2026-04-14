@@ -13,5 +13,6 @@ public record ConferenceCreatedEvent(
     string City,
     string State,
     string PostalCode,
-    string Country
+    string Country,
+    Guid OrganizerId
 ) : IDomainEvent;

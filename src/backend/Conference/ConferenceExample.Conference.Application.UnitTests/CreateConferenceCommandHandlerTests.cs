@@ -1,8 +1,11 @@
+using ConferenceExample.Authentication;
+using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
+using AuthGuidV7 = ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids.GuidV7;
+using ConferenceGuidV7 = ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids.GuidV7;
 
 namespace ConferenceExample.Conference.Application.UnitTests;
 
@@ -13,7 +16,9 @@ public class CreateConferenceCommandHandlerTests
     {
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
-        var handler = new CreateConferenceCommandHandler(repository);
+        var currentUserService = Substitute.For<ICurrentUserService>();
+        currentUserService.GetCurrentUserId().Returns(new UserId(AuthGuidV7.NewGuid()));
+        var handler = new CreateConferenceCommandHandler(repository, currentUserService);
         var command = CreateValidCommand();
 
         // Act
@@ -33,7 +38,9 @@ public class CreateConferenceCommandHandlerTests
     {
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
-        var handler = new CreateConferenceCommandHandler(repository);
+        var currentUserService = Substitute.For<ICurrentUserService>();
+        currentUserService.GetCurrentUserId().Returns(new UserId(AuthGuidV7.NewGuid()));
+        var handler = new CreateConferenceCommandHandler(repository, currentUserService);
         var command = CreateValidCommand();
 
         repository
@@ -49,7 +56,9 @@ public class CreateConferenceCommandHandlerTests
     {
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
-        var handler = new CreateConferenceCommandHandler(repository);
+        var currentUserService = Substitute.For<ICurrentUserService>();
+        currentUserService.GetCurrentUserId().Returns(new UserId(AuthGuidV7.NewGuid()));
+        var handler = new CreateConferenceCommandHandler(repository, currentUserService);
         var command = new CreateConferenceCommand(
             "",
             DateTimeOffset.UtcNow.AddDays(30),
@@ -71,7 +80,9 @@ public class CreateConferenceCommandHandlerTests
     {
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
-        var handler = new CreateConferenceCommandHandler(repository);
+        var currentUserService = Substitute.For<ICurrentUserService>();
+        currentUserService.GetCurrentUserId().Returns(new UserId(AuthGuidV7.NewGuid()));
+        var handler = new CreateConferenceCommandHandler(repository, currentUserService);
         var command = new CreateConferenceCommand(
             "DotNet Conf",
             DateTimeOffset.UtcNow.AddDays(30),
