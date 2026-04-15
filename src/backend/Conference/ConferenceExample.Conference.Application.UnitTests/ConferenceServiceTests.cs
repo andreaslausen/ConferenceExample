@@ -79,7 +79,7 @@ public class ConferenceServiceTests
 
         // Act
         await service.RenameConference(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             new RenameConferenceDto { Name = "New Name" }
         );
 

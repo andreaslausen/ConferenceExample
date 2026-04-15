@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
             ?? throw new InvalidOperationException("JWT settings not found in configuration");
 
         services.AddSingleton(jwtSettings);
-        services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+        services.AddScoped<IUserRepository, MongoDbUserRepository>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -42,7 +42,13 @@ public static class ServiceCollectionExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtSettings.Secret)
                     ),
+                    // Prevent claim type mapping (e.g., 'sub' -> 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier')
+                    NameClaimType = "sub",
+                    RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
                 };
+
+                // Disable default claim mapping to preserve JWT standard claim names
+                options.MapInboundClaims = false;
             });
 
         services.AddAuthorization();

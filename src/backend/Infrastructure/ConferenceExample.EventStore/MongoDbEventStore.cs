@@ -31,16 +31,10 @@ public class MongoDbEventStore : IEventStore
             new CreateIndexOptions { Name = "idx_version" }
         );
 
-        // Unique index to prevent duplicate events
-        var idIndexKeys = Builders<StoredEvent>.IndexKeys.Ascending(e => e.Id);
-        var idIndexModel = new CreateIndexModel<StoredEvent>(
-            idIndexKeys,
-            new CreateIndexOptions { Name = "idx_id", Unique = true }
-        );
+        // Note: MongoDB automatically creates a unique index on _id (which maps to the Id property)
+        // so we don't need to explicitly create one
 
-        _eventsCollection.Indexes.CreateMany(
-            new[] { aggregateIndexModel, versionIndexModel, idIndexModel }
-        );
+        _eventsCollection.Indexes.CreateMany(new[] { aggregateIndexModel, versionIndexModel });
     }
 
     public async Task AppendEvents(
