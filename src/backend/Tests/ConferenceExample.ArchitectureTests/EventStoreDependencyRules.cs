@@ -3,15 +3,8 @@ namespace ConferenceExample.ArchitectureTests;
 public class EventStoreDependencyRules : ArchitectureTest
 {
     [Fact]
-    public void EventStore_ShouldNotDependOn_AnyBoundedContext()
+    public void EventStore_ShouldOnlyDependOn_Itself()
     {
-        Dependencies.Check(
-            Architecture,
-            "ConferenceExample.EventStore",
-            [],
-            "System",
-            "MongoDB",
-            "Microsoft.Extensions"
-        );
+        Dependencies.Check(EventStore, [], "System", "MongoDB", "Microsoft.Extensions");
     }
 }

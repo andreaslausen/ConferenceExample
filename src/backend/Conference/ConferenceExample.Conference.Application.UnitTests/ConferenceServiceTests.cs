@@ -153,6 +153,142 @@ public class ConferenceServiceTests
         );
     }
 
+    [Fact]
+    public async Task ChangeConferenceStatus_ValidDto_CallsCommandHandler()
+    {
+        // Arrange
+        var changeStatusHandler = Substitute.For<IChangeConferenceStatusCommandHandler>();
+        var service = CreateConferenceService(
+            changeConferenceStatusCommandHandler: changeStatusHandler
+        );
+
+        // Act
+        await service.ChangeConferenceStatus(
+            Guid.NewGuid(),
+            new ChangeConferenceStatusDto
+            {
+                Status = Domain.ConferenceManagement.ConferenceStatus.CallForSpeakers,
+            }
+        );
+
+        // Assert
+        await changeStatusHandler.Received(1).Handle(Arg.Any<ChangeConferenceStatusCommand>());
+    }
+
+    [Fact]
+    public async Task GetAllConferences_CallsQueryHandler()
+    {
+        // Arrange
+        var getAllHandler = Substitute.For<IGetAllConferencesQueryHandler>();
+        var service = CreateConferenceService(getAllConferencesQueryHandler: getAllHandler);
+
+        // Act
+        await service.GetAllConferences();
+
+        // Assert
+        await getAllHandler.Received(1).Handle(Arg.Any<GetAllConferencesQuery>());
+    }
+
+    [Fact]
+    public async Task GetConferenceById_ValidId_CallsQueryHandler()
+    {
+        // Arrange
+        var getByIdHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
+        var service = CreateConferenceService(getConferenceByIdQueryHandler: getByIdHandler);
+        var conferenceId = Guid.NewGuid();
+
+        // Act
+        await service.GetConferenceById(conferenceId);
+
+        // Assert
+        await getByIdHandler.Received(1).Handle(Arg.Any<GetConferenceByIdQuery>());
+    }
+
+    [Fact]
+    public async Task GetConferenceTalks_ValidId_CallsQueryHandler()
+    {
+        // Arrange
+        var getTalksHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
+        var service = CreateConferenceService(getConferenceTalksQueryHandler: getTalksHandler);
+        var conferenceId = Guid.NewGuid();
+
+        // Act
+        await service.GetConferenceTalks(conferenceId);
+
+        // Assert
+        await getTalksHandler.Received(1).Handle(Arg.Any<GetConferenceTalksQuery>());
+    }
+
+    [Fact]
+    public async Task AcceptTalk_ValidIds_CallsCommandHandler()
+    {
+        // Arrange
+        var acceptHandler = Substitute.For<IAcceptTalkCommandHandler>();
+        var service = CreateConferenceService(acceptTalkCommandHandler: acceptHandler);
+        var conferenceId = Guid.NewGuid();
+        var talkId = Guid.NewGuid();
+
+        // Act
+        await service.AcceptTalk(conferenceId, talkId);
+
+        // Assert
+        await acceptHandler.Received(1).Handle(Arg.Any<AcceptTalkCommand>());
+    }
+
+    [Fact]
+    public async Task RejectTalk_ValidIds_CallsCommandHandler()
+    {
+        // Arrange
+        var rejectHandler = Substitute.For<IRejectTalkCommandHandler>();
+        var service = CreateConferenceService(rejectTalkCommandHandler: rejectHandler);
+        var conferenceId = Guid.NewGuid();
+        var talkId = Guid.NewGuid();
+
+        // Act
+        await service.RejectTalk(conferenceId, talkId);
+
+        // Assert
+        await rejectHandler.Received(1).Handle(Arg.Any<RejectTalkCommand>());
+    }
+
+    [Fact]
+    public async Task ScheduleTalk_ValidDto_CallsCommandHandler()
+    {
+        // Arrange
+        var scheduleHandler = Substitute.For<IScheduleTalkCommandHandler>();
+        var service = CreateConferenceService(scheduleTalkCommandHandler: scheduleHandler);
+        var conferenceId = Guid.NewGuid();
+        var talkId = Guid.NewGuid();
+        var dto = new ScheduleTalkDto
+        {
+            Start = DateTimeOffset.UtcNow,
+            End = DateTimeOffset.UtcNow.AddHours(1),
+        };
+
+        // Act
+        await service.ScheduleTalk(conferenceId, talkId, dto);
+
+        // Assert
+        await scheduleHandler.Received(1).Handle(Arg.Any<ScheduleTalkCommand>());
+    }
+
+    [Fact]
+    public async Task AssignTalkToRoom_ValidDto_CallsCommandHandler()
+    {
+        // Arrange
+        var assignHandler = Substitute.For<IAssignTalkToRoomCommandHandler>();
+        var service = CreateConferenceService(assignTalkToRoomCommandHandler: assignHandler);
+        var conferenceId = Guid.NewGuid();
+        var talkId = Guid.NewGuid();
+        var dto = new AssignTalkToRoomDto { RoomId = Guid.NewGuid(), RoomName = "Room A" };
+
+        // Act
+        await service.AssignTalkToRoom(conferenceId, talkId, dto);
+
+        // Assert
+        await assignHandler.Received(1).Handle(Arg.Any<AssignTalkToRoomCommand>());
+    }
+
     private static CreateConferenceDto CreateDto() =>
         new()
         {

@@ -13,10 +13,11 @@ public class TalkTestsDependencyRules : ArchitectureTest
     {
         Dependencies.Check(
             TalkApplicationUnitTests,
-            [TalkApplication, TalkDomain],
+            [TalkApplication, TalkDomain, Authentication],
             "System",
             "Xunit",
-            "NSubstitute"
+            "NSubstitute",
+            "Microsoft.Extensions.DependencyInjection"
         );
     }
 

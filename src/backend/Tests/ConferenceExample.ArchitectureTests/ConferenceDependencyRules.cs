@@ -9,11 +9,10 @@ public class ConferenceDependencyRules : ArchitectureTest
     }
 
     [Fact]
-    public void ConferenceApplication_ShouldOnlyDependOnItselfAndDomain()
+    public void ConferenceApplication_ShouldOnlyDependOnItselfAndConferenceDomainAndAuthentication()
     {
         Dependencies.Check(
-            Architecture,
-            "ConferenceExample.Conference.Application",
+            ConferenceApplication,
             [ConferenceDomain, Authentication],
             "System",
             "Microsoft.Extensions"
@@ -21,13 +20,8 @@ public class ConferenceDependencyRules : ArchitectureTest
     }
 
     [Fact]
-    public void ConferencePersistence_ShouldOnlyDependOnItselfAndDomainAndEventStore()
+    public void ConferencePersistence_ShouldOnlyDependOnItselfAndConferenceDomainAndEventStore()
     {
-        Dependencies.Check(
-            Architecture,
-            "ConferenceExample.Conference.Persistence",
-            [ConferenceDomain, EventStore],
-            "System"
-        );
+        Dependencies.Check(ConferencePersistence, [ConferenceDomain, EventStore], "System");
     }
 }

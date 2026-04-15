@@ -25,6 +25,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\ConferenceExample.Authentication\ConferenceExample.Authentication.csproj" />
   </ItemGroup>
 </Project>

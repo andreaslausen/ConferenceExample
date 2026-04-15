@@ -9,19 +9,20 @@ public class ConferenceTestsDependencyRules : ArchitectureTest
     }
 
     [Fact]
-    public void ConferenceApplicationUnitTests_ShouldOnlyDependOn_ConferenceApplicationAndDomain()
+    public void ConferenceApplicationUnitTests_ShouldOnlyDependOn_ConferenceApplicationAndConferenceDomainAndAuthentication()
     {
         Dependencies.Check(
             ConferenceApplicationUnitTests,
             [ConferenceApplication, ConferenceDomain, Authentication],
             "System",
             "Xunit",
-            "NSubstitute"
+            "NSubstitute",
+            "Microsoft.Extensions.DependencyInjection"
         );
     }
 
     [Fact]
-    public void ConferencePersistenceUnitTests_ShouldOnlyDependOn_ConferencePersistenceAndDomainAndEventStore()
+    public void ConferencePersistenceUnitTests_ShouldOnlyDependOn_ConferencePersistenceAndConferenceDomainAndEventStore()
     {
         Dependencies.Check(
             ConferencePersistenceUnitTests,

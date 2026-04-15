@@ -9,11 +9,10 @@ public class TalkDependencyRules : ArchitectureTest
     }
 
     [Fact]
-    public void TalkApplication_ShouldOnlyDependOnItselfAndDomain()
+    public void TalkApplication_ShouldOnlyDependOnItselfAndTalkDomainAndAuthentication()
     {
         Dependencies.Check(
-            Architecture,
-            "ConferenceExample.Talk.Application",
+            TalkApplication,
             [TalkDomain, Authentication],
             "System",
             "Microsoft.Extensions"
@@ -21,13 +20,8 @@ public class TalkDependencyRules : ArchitectureTest
     }
 
     [Fact]
-    public void TalkPersistence_ShouldOnlyDependOnItselfAndDomainAndEventStore()
+    public void TalkPersistence_ShouldOnlyDependOnItselfAndTalkDomainAndEventStore()
     {
-        Dependencies.Check(
-            Architecture,
-            "ConferenceExample.Talk.Persistence",
-            [TalkDomain, EventStore],
-            "System"
-        );
+        Dependencies.Check(TalkPersistence, [TalkDomain, EventStore], "System");
     }
 }

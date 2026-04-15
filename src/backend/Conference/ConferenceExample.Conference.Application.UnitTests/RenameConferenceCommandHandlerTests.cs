@@ -103,6 +103,23 @@ public class RenameConferenceCommandHandlerTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command));
     }
 
+    [Fact]
+    public async Task Handle_UnauthorizedUser_ThrowsUnauthorizedAccessException()
+    {
+        // Arrange
+        var repository = Substitute.For<IConferenceRepository>();
+        var conference = CreateValidConference();
+        var differentUserId = ConferenceGuidV7.NewGuid();
+        var currentUserService = CreateMockCurrentUserService(new OrganizerId(differentUserId));
+        var handler = new RenameConferenceCommandHandler(repository, currentUserService);
+        var command = new RenameConferenceCommand(conference.Id.Value, "Renamed Conference");
+
+        repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => handler.Handle(command));
+    }
+
     private static ConferenceAggregate CreateValidConference()
     {
         var id = new ConferenceId(ConferenceGuidV7.NewGuid());
