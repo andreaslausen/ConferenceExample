@@ -10,6 +10,7 @@ using FluentAssertions;
 
 namespace ConferenceExample.IntegrationTests;
 
+[Collection("IntegrationTests")]
 public class ConferencesControllerTests : IntegrationTestBase
 {
     public ConferencesControllerTests(IntegrationTestWebApplicationFactory factory)
@@ -20,7 +21,7 @@ public class ConferencesControllerTests : IntegrationTestBase
     {
         // Arrange
         var token = await GetAuthenticationToken(
-            "organizer@test.com",
+            GetUniqueEmail("organizer"),
             "password123",
             UserRole.Organizer
         );
@@ -95,7 +96,7 @@ public class ConferencesControllerTests : IntegrationTestBase
     {
         // Arrange
         var token = await GetAuthenticationToken(
-            "organizer@test.com",
+            GetUniqueEmail("organizer"),
             "password123",
             UserRole.Organizer
         );
@@ -132,7 +133,7 @@ public class ConferencesControllerTests : IntegrationTestBase
     {
         // Arrange
         var token = await GetAuthenticationToken(
-            "organizer@test.com",
+            GetUniqueEmail("organizer"),
             "password123",
             UserRole.Organizer
         );
@@ -171,7 +172,7 @@ public class ConferencesControllerTests : IntegrationTestBase
     {
         // Arrange
         var token = await GetAuthenticationToken(
-            "organizer@test.com",
+            GetUniqueEmail("organizer"),
             "password123",
             UserRole.Organizer
         );

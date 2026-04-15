@@ -54,6 +54,15 @@ public abstract class IntegrationTestBase
         scope.Dispose();
     }
 
+    /// <summary>
+    /// Generates a unique email address for test isolation.
+    /// Each test should use unique emails to prevent interference between tests.
+    /// </summary>
+    protected string GetUniqueEmail(string prefix = "test")
+    {
+        return $"{prefix}-{Guid.NewGuid():N}@test.com";
+    }
+
     protected async Task<string> GetAuthenticationToken(
         string email,
         string password,

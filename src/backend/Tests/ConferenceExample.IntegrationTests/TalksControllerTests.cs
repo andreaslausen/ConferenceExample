@@ -10,6 +10,7 @@ using FluentAssertions;
 
 namespace ConferenceExample.IntegrationTests;
 
+[Collection("IntegrationTests")]
 public class TalksControllerTests : IntegrationTestBase
 {
     public TalksControllerTests(IntegrationTestWebApplicationFactory factory)
@@ -21,7 +22,7 @@ public class TalksControllerTests : IntegrationTestBase
         // Arrange
         var conferenceId = await CreateConferenceAsync();
         var token = await GetAuthenticationToken(
-            "speaker@test.com",
+            GetUniqueEmail("speaker"),
             "password123",
             UserRole.Speaker
         );
@@ -69,7 +70,7 @@ public class TalksControllerTests : IntegrationTestBase
     {
         // Arrange
         var token = await GetAuthenticationToken(
-            "speaker@test.com",
+            GetUniqueEmail("speaker"),
             "password123",
             UserRole.Speaker
         );
@@ -91,7 +92,7 @@ public class TalksControllerTests : IntegrationTestBase
         // Arrange
         var conferenceId = await CreateConferenceAsync();
         var token = await GetAuthenticationToken(
-            "speaker@test.com",
+            GetUniqueEmail("speaker"),
             "password123",
             UserRole.Speaker
         );
@@ -126,7 +127,7 @@ public class TalksControllerTests : IntegrationTestBase
         // Arrange
         var conferenceId = await CreateConferenceAsync();
         var token = await GetAuthenticationToken(
-            "speaker@test.com",
+            GetUniqueEmail("speaker"),
             "password123",
             UserRole.Speaker
         );
@@ -169,7 +170,7 @@ public class TalksControllerTests : IntegrationTestBase
         var currentToken = HttpClient.DefaultRequestHeaders.Authorization;
 
         var organizerToken = await GetAuthenticationToken(
-            "organizer-for-talk@test.com",
+            GetUniqueEmail("organizer"),
             "password123",
             UserRole.Organizer
         );
