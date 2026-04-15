@@ -4,6 +4,10 @@ This is an example which I use in some of my conference talks.
 
 ![](logo.png)
 
+## ⚠️ Disclaimer
+
+**This is an example project for demonstration and educational purposes only.** It is **not production-ready** and has **not been reviewed for security concerns**. Do not use this code in production environments without thorough review, testing, and security hardening.
+
 ## Getting Started
 
 After cloning the repository, run the following script once to set up the git hooks and install required tools:
