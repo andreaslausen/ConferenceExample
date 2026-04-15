@@ -25,6 +25,33 @@ Content-Type: application/json
   "name": "DotNet Conf 2026 – Renamed"
 }
 
+### Change Conference Status to CallForSpeakers
+# Replace <conference-id> with the id returned by "Create Conference"
+PUT {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/status
+Content-Type: application/json
+
+{
+  "status": 1
+}
+
+### Change Conference Status to CallForSpeakersClosed
+# Replace <conference-id> with the id returned by "Create Conference"
+PUT {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/status
+Content-Type: application/json
+
+{
+  "status": 2
+}
+
+### Change Conference Status to ProgramPublished
+# Replace <conference-id> with the id returned by "Create Conference"
+PUT {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/status
+Content-Type: application/json
+
+{
+  "status": 3
+}
+
 ### Get Conference Sessions
 # Replace <conference-id> with the id returned by "Create Conference"
 GET {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/sessions

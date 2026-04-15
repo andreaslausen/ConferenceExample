@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
+using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
@@ -14,6 +15,7 @@ namespace ConferenceExample.Conference.Application;
 public class ConferenceService(
     ICreateConferenceCommandHandler createConferenceCommandHandler,
     IRenameConferenceCommandHandler renameConferenceCommandHandler,
+    IChangeConferenceStatusCommandHandler changeConferenceStatusCommandHandler,
     IGetAllConferencesQueryHandler getAllConferencesQueryHandler,
     IGetConferenceByIdQueryHandler getConferenceByIdQueryHandler,
     IGetConferenceSessionsQueryHandler getConferenceSessionsQueryHandler,
@@ -45,6 +47,12 @@ public class ConferenceService(
     {
         var command = new RenameConferenceCommand(id, dto.Name);
         await renameConferenceCommandHandler.Handle(command);
+    }
+
+    public async Task ChangeConferenceStatus(Guid id, ChangeConferenceStatusDto dto)
+    {
+        var command = new ChangeConferenceStatusCommand(id, dto.Status);
+        await changeConferenceStatusCommandHandler.Handle(command);
     }
 
     public async Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences()

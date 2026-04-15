@@ -22,6 +22,7 @@ public class ConferenceTests
         Assert.NotNull(conference.Id);
         Assert.Equal("Test Conference", conference.Name.Value);
         Assert.Equal("Test Venue", conference.Location.Name.Value);
+        Assert.Equal(ConferenceStatus.Draft, conference.Status);
         Assert.Empty(conference.Talks);
     }
 
@@ -64,6 +65,49 @@ public class ConferenceTests
         var events = conference.GetUncommittedEvents();
         Assert.Equal(2, events.Count);
         Assert.IsType<ConferenceRenamedEvent>(events[1]);
+    }
+
+    [Fact]
+    public void ChangeStatus_ValidStatus_UpdatesStatus()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+
+        // Act
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+
+        // Assert
+        Assert.Equal(ConferenceStatus.CallForSpeakers, conference.Status);
+    }
+
+    [Fact]
+    public void ChangeStatus_RaisesConferenceStatusChangedEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+
+        // Act
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+
+        // Assert
+        var events = conference.GetUncommittedEvents();
+        Assert.Equal(2, events.Count);
+        Assert.IsType<ConferenceStatusChangedEvent>(events[1]);
+    }
+
+    [Fact]
+    public void ChangeStatus_MultipleChanges_UpdatesStatusCorrectly()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+
+        // Act
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
+        conference.ChangeStatus(ConferenceStatus.ProgramPublished);
+
+        // Assert
+        Assert.Equal(ConferenceStatus.ProgramPublished, conference.Status);
     }
 
     [Fact]

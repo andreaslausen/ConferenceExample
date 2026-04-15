@@ -17,6 +17,7 @@ public class Conference : AggregateRoot
     public Time ConferenceTime { get; private set; } = null!;
     public Location Location { get; private set; } = null!;
     public OrganizerId OrganizerId { get; private set; } = null!;
+    public ConferenceStatus Status { get; private set; }
     public IReadOnlyList<Talk> Talks => _talks;
 
     private Conference() { }
@@ -59,6 +60,11 @@ public class Conference : AggregateRoot
     public void Rename(Text name)
     {
         RaiseEvent(new ConferenceRenamedEvent(Id.Value, DateTimeOffset.UtcNow, name.Value));
+    }
+
+    public void ChangeStatus(ConferenceStatus newStatus)
+    {
+        RaiseEvent(new ConferenceStatusChangedEvent(Id.Value, DateTimeOffset.UtcNow, newStatus));
     }
 
     public void SubmitTalk(TalkId talkId)
@@ -117,9 +123,13 @@ public class Conference : AggregateRoot
                     new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
                 );
                 OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = ConferenceStatus.Draft;
                 break;
             case ConferenceRenamedEvent e:
                 Name = new Text(e.Name);
+                break;
+            case ConferenceStatusChangedEvent e:
+                Status = e.NewStatus;
                 break;
             case TalkSubmittedToConferenceEvent e:
                 _talks.Add(new Talk(new TalkId(new GuidV7(e.TalkId))));

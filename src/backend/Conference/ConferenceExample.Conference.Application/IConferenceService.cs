@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
+using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
@@ -15,6 +16,7 @@ public interface IConferenceService
 {
     Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto createConferenceDto);
     Task RenameConference(Guid id, RenameConferenceDto dto);
+    Task ChangeConferenceStatus(Guid id, ChangeConferenceStatusDto dto);
     Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences();
     Task<GetConferenceByIdDto> GetConferenceById(Guid conferenceId);
     Task<IReadOnlyList<GetConferenceSessionDto>> GetSessions(Guid conferenceId);

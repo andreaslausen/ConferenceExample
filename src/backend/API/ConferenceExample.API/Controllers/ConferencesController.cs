@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
+using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
@@ -60,6 +61,22 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     public async Task<IActionResult> RenameConference(Guid id, [FromBody] RenameConferenceDto dto)
     {
         await conferenceService.RenameConference(id, dto);
+        return NoContent();
+    }
+
+    [HttpPut("{id:guid}/status", Name = "ChangeConferenceStatus")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> ChangeConferenceStatus(
+        Guid id,
+        [FromBody] ChangeConferenceStatusDto dto
+    )
+    {
+        await conferenceService.ChangeConferenceStatus(id, dto);
         return NoContent();
     }
 

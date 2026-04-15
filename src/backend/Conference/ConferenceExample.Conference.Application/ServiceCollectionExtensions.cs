@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
+using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
@@ -26,6 +27,10 @@ public static class ServiceCollectionExtensions
         // Command Handlers
         services.AddScoped<ICreateConferenceCommandHandler, CreateConferenceCommandHandler>();
         services.AddScoped<IRenameConferenceCommandHandler, RenameConferenceCommandHandler>();
+        services.AddScoped<
+            IChangeConferenceStatusCommandHandler,
+            ChangeConferenceStatusCommandHandler
+        >();
         services.AddScoped<IAcceptTalkCommandHandler, AcceptTalkCommandHandler>();
         services.AddScoped<IRejectTalkCommandHandler, RejectTalkCommandHandler>();
         services.AddScoped<IScheduleTalkCommandHandler, ScheduleTalkCommandHandler>();

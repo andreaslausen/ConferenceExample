@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
+using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
@@ -21,6 +22,8 @@ public class ConferenceServiceTests
         // Arrange
         var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
+        var changeConferenceStatusCommandHandler =
+            Substitute.For<IChangeConferenceStatusCommandHandler>();
         var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
         var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
@@ -32,6 +35,7 @@ public class ConferenceServiceTests
         var service = new ConferenceService(
             createCommandHandler,
             renameCommandHandler,
+            changeConferenceStatusCommandHandler,
             getAllConferencesQueryHandler,
             getConferenceByIdQueryHandler,
             queryHandler,
@@ -54,27 +58,7 @@ public class ConferenceServiceTests
     {
         // Arrange
         var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
-        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
-        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
-        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
-        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
-        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
-        var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
-        var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
-        var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
-        var assignTalkToRoomCommandHandler = Substitute.For<IAssignTalkToRoomCommandHandler>();
-        var service = new ConferenceService(
-            createCommandHandler,
-            renameCommandHandler,
-            getAllConferencesQueryHandler,
-            getConferenceByIdQueryHandler,
-            queryHandler,
-            getConferenceTalksQueryHandler,
-            acceptTalkCommandHandler,
-            rejectTalkCommandHandler,
-            scheduleTalkCommandHandler,
-            assignTalkToRoomCommandHandler
-        );
+        var service = CreateConferenceService(createCommandHandler: createCommandHandler);
 
         createCommandHandler
             .Handle(Arg.Any<CreateConferenceCommand>())
@@ -90,28 +74,8 @@ public class ConferenceServiceTests
     public async Task RenameConference_ValidDto_CallsCommandHandler()
     {
         // Arrange
-        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
-        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
-        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
-        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
-        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
-        var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
-        var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
-        var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
-        var assignTalkToRoomCommandHandler = Substitute.For<IAssignTalkToRoomCommandHandler>();
-        var service = new ConferenceService(
-            createCommandHandler,
-            renameCommandHandler,
-            getAllConferencesQueryHandler,
-            getConferenceByIdQueryHandler,
-            queryHandler,
-            getConferenceTalksQueryHandler,
-            acceptTalkCommandHandler,
-            rejectTalkCommandHandler,
-            scheduleTalkCommandHandler,
-            assignTalkToRoomCommandHandler
-        );
+        var service = CreateConferenceService(renameCommandHandler: renameCommandHandler);
 
         // Act
         await service.RenameConference(
@@ -127,28 +91,8 @@ public class ConferenceServiceTests
     public async Task RenameConference_HandlerThrowsException_PropagatesException()
     {
         // Arrange
-        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
         var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
-        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
-        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
-        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
-        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
-        var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
-        var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
-        var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
-        var assignTalkToRoomCommandHandler = Substitute.For<IAssignTalkToRoomCommandHandler>();
-        var service = new ConferenceService(
-            createCommandHandler,
-            renameCommandHandler,
-            getAllConferencesQueryHandler,
-            getConferenceByIdQueryHandler,
-            queryHandler,
-            getConferenceTalksQueryHandler,
-            acceptTalkCommandHandler,
-            rejectTalkCommandHandler,
-            scheduleTalkCommandHandler,
-            assignTalkToRoomCommandHandler
-        );
+        var service = CreateConferenceService(renameCommandHandler: renameCommandHandler);
 
         renameCommandHandler
             .Handle(Arg.Any<RenameConferenceCommand>())
@@ -164,28 +108,8 @@ public class ConferenceServiceTests
     public async Task GetSessions_ValidConferenceId_CallsQueryHandler()
     {
         // Arrange
-        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
-        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
-        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
-        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
-        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
-        var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
-        var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
-        var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
-        var assignTalkToRoomCommandHandler = Substitute.For<IAssignTalkToRoomCommandHandler>();
-        var service = new ConferenceService(
-            createCommandHandler,
-            renameCommandHandler,
-            getAllConferencesQueryHandler,
-            getConferenceByIdQueryHandler,
-            queryHandler,
-            getConferenceTalksQueryHandler,
-            acceptTalkCommandHandler,
-            rejectTalkCommandHandler,
-            scheduleTalkCommandHandler,
-            assignTalkToRoomCommandHandler
-        );
+        var service = CreateConferenceService(queryHandler: queryHandler);
 
         var conferenceId = Guid.NewGuid();
         var expectedSessions = new List<GetConferenceSessionDto>
@@ -216,28 +140,8 @@ public class ConferenceServiceTests
     public async Task GetSessions_QueryHandlerThrowsException_PropagatesException()
     {
         // Arrange
-        var createCommandHandler = Substitute.For<ICreateConferenceCommandHandler>();
-        var renameCommandHandler = Substitute.For<IRenameConferenceCommandHandler>();
-        var getAllConferencesQueryHandler = Substitute.For<IGetAllConferencesQueryHandler>();
-        var getConferenceByIdQueryHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
-        var getConferenceTalksQueryHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
-        var acceptTalkCommandHandler = Substitute.For<IAcceptTalkCommandHandler>();
-        var rejectTalkCommandHandler = Substitute.For<IRejectTalkCommandHandler>();
-        var scheduleTalkCommandHandler = Substitute.For<IScheduleTalkCommandHandler>();
-        var assignTalkToRoomCommandHandler = Substitute.For<IAssignTalkToRoomCommandHandler>();
-        var service = new ConferenceService(
-            createCommandHandler,
-            renameCommandHandler,
-            getAllConferencesQueryHandler,
-            getConferenceByIdQueryHandler,
-            queryHandler,
-            getConferenceTalksQueryHandler,
-            acceptTalkCommandHandler,
-            rejectTalkCommandHandler,
-            scheduleTalkCommandHandler,
-            assignTalkToRoomCommandHandler
-        );
+        var service = CreateConferenceService(queryHandler: queryHandler);
 
         queryHandler
             .Handle(Arg.Any<GetConferenceSessionsQuery>())
@@ -262,4 +166,34 @@ public class ConferenceServiceTests
             PostalCode = "10115",
             Country = "Germany",
         };
+
+    private static ConferenceService CreateConferenceService(
+        ICreateConferenceCommandHandler? createCommandHandler = null,
+        IRenameConferenceCommandHandler? renameCommandHandler = null,
+        IChangeConferenceStatusCommandHandler? changeConferenceStatusCommandHandler = null,
+        IGetAllConferencesQueryHandler? getAllConferencesQueryHandler = null,
+        IGetConferenceByIdQueryHandler? getConferenceByIdQueryHandler = null,
+        IGetConferenceSessionsQueryHandler? queryHandler = null,
+        IGetConferenceTalksQueryHandler? getConferenceTalksQueryHandler = null,
+        IAcceptTalkCommandHandler? acceptTalkCommandHandler = null,
+        IRejectTalkCommandHandler? rejectTalkCommandHandler = null,
+        IScheduleTalkCommandHandler? scheduleTalkCommandHandler = null,
+        IAssignTalkToRoomCommandHandler? assignTalkToRoomCommandHandler = null
+    )
+    {
+        return new ConferenceService(
+            createCommandHandler ?? Substitute.For<ICreateConferenceCommandHandler>(),
+            renameCommandHandler ?? Substitute.For<IRenameConferenceCommandHandler>(),
+            changeConferenceStatusCommandHandler
+                ?? Substitute.For<IChangeConferenceStatusCommandHandler>(),
+            getAllConferencesQueryHandler ?? Substitute.For<IGetAllConferencesQueryHandler>(),
+            getConferenceByIdQueryHandler ?? Substitute.For<IGetConferenceByIdQueryHandler>(),
+            queryHandler ?? Substitute.For<IGetConferenceSessionsQueryHandler>(),
+            getConferenceTalksQueryHandler ?? Substitute.For<IGetConferenceTalksQueryHandler>(),
+            acceptTalkCommandHandler ?? Substitute.For<IAcceptTalkCommandHandler>(),
+            rejectTalkCommandHandler ?? Substitute.For<IRejectTalkCommandHandler>(),
+            scheduleTalkCommandHandler ?? Substitute.For<IScheduleTalkCommandHandler>(),
+            assignTalkToRoomCommandHandler ?? Substitute.For<IAssignTalkToRoomCommandHandler>()
+        );
+    }
 }
