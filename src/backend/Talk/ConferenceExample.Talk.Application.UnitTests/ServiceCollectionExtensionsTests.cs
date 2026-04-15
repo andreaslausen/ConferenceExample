@@ -2,7 +2,6 @@ using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.TalkManagement;
-using ConferenceExample.Talk.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ConferenceExample.Talk.Application.UnitTests;
@@ -10,100 +9,86 @@ namespace ConferenceExample.Talk.Application.UnitTests;
 public class ServiceCollectionExtensionsTests
 {
     [Fact]
-    public void AddTalkContext_RegistersTalkRepository()
+    public void AddTalkApplication_RegistersSubmitTalkCommandHandler()
     {
         // Arrange
         var services = new ServiceCollection();
 
         // Act
-        services.AddTalkContext();
-        var serviceProvider = services.BuildServiceProvider();
+        services.AddTalkApplication();
 
         // Assert
-        var repository = serviceProvider.GetService<ITalkRepository>();
-        Assert.NotNull(repository);
-        Assert.IsType<TalkRepository>(repository);
-    }
-
-    [Fact]
-    public void AddTalkContext_RegistersSubmitTalkCommandHandler()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-
-        // Act
-        services.AddTalkContext();
-        var serviceProvider = services.BuildServiceProvider();
-
-        // Assert
-        var handler = serviceProvider.GetService<ISubmitTalkCommandHandler>();
-        Assert.NotNull(handler);
-        Assert.IsType<SubmitTalkCommandHandler>(handler);
-    }
-
-    [Fact]
-    public void AddTalkContext_RegistersEditTalkCommandHandler()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-
-        // Act
-        services.AddTalkContext();
-        var serviceProvider = services.BuildServiceProvider();
-
-        // Assert
-        var handler = serviceProvider.GetService<IEditTalkCommandHandler>();
-        Assert.NotNull(handler);
-        Assert.IsType<EditTalkCommandHandler>(handler);
-    }
-
-    [Fact]
-    public void AddTalkContext_RegistersGetMyTalksQueryHandler()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-
-        // Act
-        services.AddTalkContext();
-        var serviceProvider = services.BuildServiceProvider();
-
-        // Assert
-        var handler = serviceProvider.GetService<IGetMyTalksQueryHandler>();
-        Assert.NotNull(handler);
-        Assert.IsType<GetMyTalksQueryHandler>(handler);
-    }
-
-    [Fact]
-    public void AddTalkContext_RegistersTalkService()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-
-        // Act
-        services.AddTalkContext();
-        var serviceProvider = services.BuildServiceProvider();
-
-        // Assert
-        var service = serviceProvider.GetService<ITalkService>();
-        Assert.NotNull(service);
-        Assert.IsType<TalkService>(service);
-    }
-
-    [Fact]
-    public void AddTalkContext_RegistersAllServicesAsScoped()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-
-        // Act
-        services.AddTalkContext();
-
-        // Assert
-        var repositoryDescriptor = services.FirstOrDefault(d =>
-            d.ServiceType == typeof(ITalkRepository)
+        var descriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(ISubmitTalkCommandHandler)
         );
-        Assert.NotNull(repositoryDescriptor);
-        Assert.Equal(ServiceLifetime.Scoped, repositoryDescriptor!.Lifetime);
+        Assert.NotNull(descriptor);
+        Assert.Equal(typeof(SubmitTalkCommandHandler), descriptor!.ImplementationType);
+    }
+
+    [Fact]
+    public void AddTalkApplication_RegistersEditTalkCommandHandler()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddTalkApplication();
+
+        // Assert
+        var descriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(IEditTalkCommandHandler)
+        );
+        Assert.NotNull(descriptor);
+        Assert.Equal(typeof(EditTalkCommandHandler), descriptor!.ImplementationType);
+    }
+
+    [Fact]
+    public void AddTalkApplication_RegistersGetMyTalksQueryHandler()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddTalkApplication();
+
+        // Assert
+        var descriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(IGetMyTalksQueryHandler)
+        );
+        Assert.NotNull(descriptor);
+        Assert.Equal(typeof(GetMyTalksQueryHandler), descriptor!.ImplementationType);
+    }
+
+    [Fact]
+    public void AddTalkApplication_RegistersTalkService()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddTalkApplication();
+
+        // Assert
+        var descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(ITalkService));
+        Assert.NotNull(descriptor);
+        Assert.Equal(typeof(TalkService), descriptor!.ImplementationType);
+    }
+
+    [Fact]
+    public void AddTalkApplication_RegistersAllServicesAsScoped()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddTalkApplication();
+
+        // Assert
+        var commandHandlerDescriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(ISubmitTalkCommandHandler)
+        );
+        Assert.NotNull(commandHandlerDescriptor);
+        Assert.Equal(ServiceLifetime.Scoped, commandHandlerDescriptor!.Lifetime);
 
         var serviceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(ITalkService));
         Assert.NotNull(serviceDescriptor);
@@ -111,13 +96,13 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddTalkContext_ReturnsServiceCollection()
+    public void AddTalkApplication_ReturnsServiceCollection()
     {
         // Arrange
         var services = new ServiceCollection();
 
         // Act
-        var result = services.AddTalkContext();
+        var result = services.AddTalkApplication();
 
         // Assert
         Assert.Same(services, result);

@@ -10,20 +10,14 @@ using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
-using ConferenceExample.Conference.Domain.TalkManagement;
-using ConferenceExample.Conference.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ConferenceExample.Conference.Application;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddConferenceContext(this IServiceCollection services)
+    public static IServiceCollection AddConferenceApplication(this IServiceCollection services)
     {
-        // Repositories
-        services.AddScoped<IConferenceRepository, ConferenceRepository>();
-        services.AddScoped<ITalkRepository, TalkRepository>();
-
         // Command Handlers
         services.AddScoped<ICreateConferenceCommandHandler, CreateConferenceCommandHandler>();
         services.AddScoped<IRenameConferenceCommandHandler, RenameConferenceCommandHandler>();

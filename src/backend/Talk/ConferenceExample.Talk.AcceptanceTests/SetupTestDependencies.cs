@@ -2,6 +2,7 @@ using ConferenceExample.Authentication;
 using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
+using ConferenceExample.Talk.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Reqnroll.Microsoft.Extensions.DependencyInjection;
@@ -61,7 +62,8 @@ public class SetupTestDependencies
 
         services.AddSingleton(eventStore);
         services.AddSingleton(currentUserService);
-        services.AddTalkContext();
+        services.AddTalkPersistence();
+        services.AddTalkApplication();
         return services;
     }
 }
