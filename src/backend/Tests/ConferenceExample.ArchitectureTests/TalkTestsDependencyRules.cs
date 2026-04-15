@@ -29,7 +29,8 @@ public class TalkTestsDependencyRules : ArchitectureTest
             [TalkPersistence, TalkDomain, EventStore],
             "System",
             "Xunit",
-            "NSubstitute"
+            "NSubstitute",
+            "Microsoft.Extensions.DependencyInjection"
         );
     }
 

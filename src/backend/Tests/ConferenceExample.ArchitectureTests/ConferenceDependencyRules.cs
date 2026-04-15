@@ -22,6 +22,11 @@ public class ConferenceDependencyRules : ArchitectureTest
     [Fact]
     public void ConferencePersistence_ShouldOnlyDependOnItselfAndConferenceDomainAndEventStore()
     {
-        Dependencies.Check(ConferencePersistence, [ConferenceDomain, EventStore], "System");
+        Dependencies.Check(
+            ConferencePersistence,
+            [ConferenceDomain, EventStore],
+            "System",
+            "Microsoft.Extensions.DependencyInjection"
+        );
     }
 }

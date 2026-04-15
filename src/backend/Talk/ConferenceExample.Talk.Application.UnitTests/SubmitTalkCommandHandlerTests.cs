@@ -23,9 +23,9 @@ public class SubmitTalkCommandHandlerTests
         var command = new SubmitTalkCommand(
             "Test Title",
             "Test Abstract",
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             new List<string> { "tag1", "tag2" },
-            Guid.NewGuid()
+            Guid.CreateVersion7()
         );
 
         // Act
@@ -50,9 +50,9 @@ public class SubmitTalkCommandHandlerTests
         var command = new SubmitTalkCommand(
             "Test Title",
             "Test Abstract",
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             new List<string> { "tag1" },
-            Guid.NewGuid()
+            Guid.CreateVersion7()
         );
 
         // Act
@@ -78,8 +78,8 @@ public class SubmitTalkCommandHandlerTests
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var handler = new SubmitTalkCommandHandler(talkRepository, currentUserService);
-        var conferenceId = Guid.NewGuid();
-        var talkTypeId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
+        var talkTypeId = Guid.CreateVersion7();
         var command = new SubmitTalkCommand(
             "Test Title",
             "Test Abstract",

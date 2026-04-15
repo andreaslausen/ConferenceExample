@@ -29,7 +29,8 @@ public class ConferenceTestsDependencyRules : ArchitectureTest
             [ConferencePersistence, ConferenceDomain, EventStore],
             "System",
             "Xunit",
-            "NSubstitute"
+            "NSubstitute",
+            "Microsoft.Extensions.DependencyInjection"
         );
     }
 }

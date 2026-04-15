@@ -22,6 +22,11 @@ public class TalkDependencyRules : ArchitectureTest
     [Fact]
     public void TalkPersistence_ShouldOnlyDependOnItselfAndTalkDomainAndEventStore()
     {
-        Dependencies.Check(TalkPersistence, [TalkDomain, EventStore], "System");
+        Dependencies.Check(
+            TalkPersistence,
+            [TalkDomain, EventStore],
+            "System",
+            "Microsoft.Extensions.DependencyInjection"
+        );
     }
 }
