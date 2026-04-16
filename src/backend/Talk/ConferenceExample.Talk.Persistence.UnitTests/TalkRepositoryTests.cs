@@ -303,4 +303,157 @@ public class TalkRepositoryTests
         );
         Assert.Contains("Failed to deserialize event: TalkSubmittedEvent", exception.Message);
     }
+
+    [Fact]
+    public async Task GetTalksBySpeaker_FiltersTalksBySpeakerId()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var repo = new TalkRepository(eventStore);
+
+        var targetSpeakerId = new SpeakerId(GuidV7.NewGuid());
+        var talkAId = new TalkId(GuidV7.NewGuid());
+        var talkBId = new TalkId(GuidV7.NewGuid());
+        var otherSpeakerId = new SpeakerId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+
+        // Create mock events
+        var talkAEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkAId.Value,
+            "TalkSubmittedEvent",
+            $$"""{"AggregateId":"{{talkAId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Title":"Talk A","Abstract":"Abstract A","SpeakerId":"{{targetSpeakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{conferenceId.Value}}","Status":"Submitted"}""",
+            DateTimeOffset.UtcNow,
+            0
+        );
+        var talkBEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkBId.Value,
+            "TalkSubmittedEvent",
+            $$"""{"AggregateId":"{{talkBId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Title":"Talk B","Abstract":"Abstract B","SpeakerId":"{{otherSpeakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{conferenceId.Value}}","Status":"Submitted"}""",
+            DateTimeOffset.UtcNow,
+            0
+        );
+
+        eventStore.GetAllEvents().Returns(new List<StoredEvent> { talkAEvent, talkBEvent });
+
+        // Act
+        var result = await repo.GetTalksBySpeaker(targetSpeakerId);
+
+        // Assert
+        var single = Assert.Single(result);
+        Assert.Equal(talkAId, single.Id);
+    }
+
+    [Fact]
+    public async Task GetTalksBySpeaker_NoMatchingTalks_ReturnsEmptyList()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        eventStore.GetAllEvents().Returns(new List<StoredEvent>());
+
+        var repo = new TalkRepository(eventStore);
+
+        // Act
+        var result = await repo.GetTalksBySpeaker(new SpeakerId(GuidV7.NewGuid()));
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetTalksBySpeaker_MultipleTalksForSameSpeaker_ReturnsAllMatching()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var repo = new TalkRepository(eventStore);
+
+        var speakerId = new SpeakerId(GuidV7.NewGuid());
+        var talkAId = new TalkId(GuidV7.NewGuid());
+        var talkBId = new TalkId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var conferenceId = new ConferenceId(GuidV7.NewGuid());
+
+        var talkAEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkAId.Value,
+            "TalkSubmittedEvent",
+            $$"""{"AggregateId":"{{talkAId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Title":"Talk A","Abstract":"Abstract A","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{conferenceId.Value}}","Status":"Submitted"}""",
+            DateTimeOffset.UtcNow,
+            0
+        );
+        var talkBEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkBId.Value,
+            "TalkSubmittedEvent",
+            $$"""{"AggregateId":"{{talkBId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Title":"Talk B","Abstract":"Abstract B","SpeakerId":"{{speakerId.Value}}","Tags":["csharp"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{conferenceId.Value}}","Status":"Submitted"}""",
+            DateTimeOffset.UtcNow,
+            0
+        );
+
+        eventStore.GetAllEvents().Returns(new List<StoredEvent> { talkAEvent, talkBEvent });
+
+        // Act
+        var result = await repo.GetTalksBySpeaker(speakerId);
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, t => t.Id == talkAId);
+        Assert.Contains(result, t => t.Id == talkBId);
+    }
+
+    [Fact]
+    public async Task GetTalksBySpeaker_UnknownEventType_IgnoresUnknownEvents()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var repo = new TalkRepository(eventStore);
+
+        var speakerId = new SpeakerId(GuidV7.NewGuid());
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var invalidEvent = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkId.Value,
+            "UnknownEventType",
+            "{}",
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        eventStore.GetAllEvents().Returns([invalidEvent]);
+
+        // Act
+        var result = await repo.GetTalksBySpeaker(speakerId);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetTalksBySpeaker_InvalidPayload_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var repo = new TalkRepository(eventStore);
+
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var speakerId = new SpeakerId(GuidV7.NewGuid());
+        var eventWithInvalidPayload = new StoredEvent(
+            GuidV7.NewGuid().Value,
+            talkId.Value,
+            "TalkSubmittedEvent",
+            "null",
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        eventStore.GetAllEvents().Returns([eventWithInvalidPayload]);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            repo.GetTalksBySpeaker(speakerId)
+        );
+        Assert.Contains("Failed to deserialize event: TalkSubmittedEvent", exception.Message);
+    }
 }
