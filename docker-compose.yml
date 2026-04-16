@@ -50,7 +50,8 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://admin:admin123@mongodb:27017/
       ME_CONFIG_BASICAUTH: false
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
 
 volumes:
   mongodb_data:

@@ -1,5 +1,7 @@
+@host = http://localhost:5000
+
 ### Register as Speaker
-POST {{ConferenceExample.API_HostAddress}}/api/auth/register
+POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
@@ -9,7 +11,7 @@ Content-Type: application/json
 }
 
 ### Register as Organizer
-POST {{ConferenceExample.API_HostAddress}}/api/auth/register
+POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
@@ -19,7 +21,7 @@ Content-Type: application/json
 }
 
 ### Register as Attendee
-POST {{ConferenceExample.API_HostAddress}}/api/auth/register
+POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
@@ -29,7 +31,7 @@ Content-Type: application/json
 }
 
 ### Login as Speaker
-POST {{ConferenceExample.API_HostAddress}}/api/auth/login
+POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
@@ -38,7 +40,7 @@ Content-Type: application/json
 }
 
 ### Login as Organizer
-POST {{ConferenceExample.API_HostAddress}}/api/auth/login
+POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
