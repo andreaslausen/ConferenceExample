@@ -1,11 +1,13 @@
-using System.Text.Json;
-using ConferenceExample.Conference.Domain.ConferenceManagement;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
-using ConferenceExample.Conference.Domain.TalkManagement;
+using ConferenceExample.Conference.Persistence.EventSubscriptions;
 using ConferenceExample.EventStore;
+using ConferenceExample.Talk.Persistence.EventSubscriptions;
 
 namespace ConferenceExample.API.Extensions;
 
+/// <summary>
+/// Extension methods for registering event bus subscriptions.
+/// Delegates to bounded context-specific subscription classes for better organization.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
     public static WebApplication AddEventBusSubscriptions(this WebApplication app)
@@ -13,27 +15,15 @@ public static class ServiceCollectionExtensions
         var eventBus = app.Services.GetRequiredService<IEventBus>();
         var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 
-        eventBus.Subscribe(
-            "TalkSubmittedEvent",
-            storedEvent =>
-            {
-                var payload = JsonSerializer.Deserialize<TalkSubmittedPayload>(storedEvent.Payload);
-                if (payload is null)
-                    return;
+        // Register Talk BC subscriptions
+        TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-                using var scope = scopeFactory.CreateScope();
-                var conferenceRepo =
-                    scope.ServiceProvider.GetRequiredService<IConferenceRepository>();
-                var conference = conferenceRepo
-                    .GetById(new ConferenceId(new GuidV7(payload.ConferenceId)))
-                    .Result;
-                conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
-                conferenceRepo.Save(conference).Wait();
-            }
-        );
+        // Register Conference BC subscriptions
+        ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
+
+        // Register cross-BC synchronization subscriptions
+        ConferenceTalkSynchronizationSubscriptions.Subscribe(eventBus, scopeFactory);
 
         return app;
     }
-
-    private record TalkSubmittedPayload(Guid ConferenceId);
 }

@@ -31,7 +31,11 @@ public class MongoDbEventBusTests
         // Arrange
         var eventBus = new MongoDbEventBus(_mockDatabase);
         var handlerCalled = false;
-        Action<StoredEvent> handler = _ => handlerCalled = true;
+        Func<StoredEvent, Task> handler = _ =>
+        {
+            handlerCalled = true;
+            return Task.CompletedTask;
+        };
 
         // Act
         eventBus.Subscribe("TestEvent", handler);
@@ -47,8 +51,16 @@ public class MongoDbEventBusTests
         var eventBus = new MongoDbEventBus(_mockDatabase);
         var handler1Called = false;
         var handler2Called = false;
-        Action<StoredEvent> handler1 = _ => handler1Called = true;
-        Action<StoredEvent> handler2 = _ => handler2Called = true;
+        Func<StoredEvent, Task> handler1 = _ =>
+        {
+            handler1Called = true;
+            return Task.CompletedTask;
+        };
+        Func<StoredEvent, Task> handler2 = _ =>
+        {
+            handler2Called = true;
+            return Task.CompletedTask;
+        };
 
         // Act
         eventBus.Subscribe("TestEvent", handler1);
@@ -66,8 +78,16 @@ public class MongoDbEventBusTests
         var eventBus = new MongoDbEventBus(_mockDatabase);
         var handler1Called = false;
         var handler2Called = false;
-        Action<StoredEvent> handler1 = _ => handler1Called = true;
-        Action<StoredEvent> handler2 = _ => handler2Called = true;
+        Func<StoredEvent, Task> handler1 = _ =>
+        {
+            handler1Called = true;
+            return Task.CompletedTask;
+        };
+        Func<StoredEvent, Task> handler2 = _ =>
+        {
+            handler2Called = true;
+            return Task.CompletedTask;
+        };
 
         // Act
         eventBus.Subscribe("EventType1", handler1);
@@ -83,7 +103,7 @@ public class MongoDbEventBusTests
     {
         // Arrange
         var eventBus = new MongoDbEventBus(_mockDatabase);
-        Action<StoredEvent> handler = _ => { };
+        Func<StoredEvent, Task> handler = _ => Task.CompletedTask;
 
         // Subscribe to start the change stream task
         eventBus.Subscribe("TestEvent", handler);
@@ -124,7 +144,7 @@ public class MongoDbEventBusTests
             tasks.Add(
                 Task.Run(() =>
                 {
-                    Action<StoredEvent> handler = _ => { };
+                    Func<StoredEvent, Task> handler = _ => Task.CompletedTask;
                     eventBus.Subscribe(eventType, handler);
                 })
             );
@@ -140,7 +160,7 @@ public class MongoDbEventBusTests
     {
         // Arrange
         var eventBus = new MongoDbEventBus(_mockDatabase);
-        Action<StoredEvent> handler = _ => { };
+        Func<StoredEvent, Task> handler = _ => Task.CompletedTask;
 
         // Act & Assert - should handle null event type gracefully
         // Note: This tests defensive programming - actual behavior depends on implementation

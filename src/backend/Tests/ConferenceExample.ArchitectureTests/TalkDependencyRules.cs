@@ -26,7 +26,8 @@ public class TalkDependencyRules : ArchitectureTest
             TalkPersistence,
             [TalkDomain, EventStore],
             "System",
-            "Microsoft.Extensions.DependencyInjection"
+            "Microsoft.Extensions.DependencyInjection",
+            "MongoDB"
         );
     }
 }

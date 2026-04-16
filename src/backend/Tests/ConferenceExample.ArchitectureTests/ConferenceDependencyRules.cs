@@ -26,7 +26,8 @@ public class ConferenceDependencyRules : ArchitectureTest
             ConferencePersistence,
             [ConferenceDomain, EventStore],
             "System",
-            "Microsoft.Extensions.DependencyInjection"
+            "Microsoft.Extensions.DependencyInjection",
+            "MongoDB"
         );
     }
 }

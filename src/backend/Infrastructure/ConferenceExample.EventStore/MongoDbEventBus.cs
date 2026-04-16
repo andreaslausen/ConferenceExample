@@ -5,7 +5,7 @@ namespace ConferenceExample.EventStore;
 public class MongoDbEventBus : IEventBus, IDisposable
 {
     private readonly IMongoCollection<StoredEvent> _eventsCollection;
-    private readonly Dictionary<string, List<Action<StoredEvent>>> _subscriptions = [];
+    private readonly Dictionary<string, List<Func<StoredEvent, Task>>> _subscriptions = [];
     private readonly Lock _lock = new();
     private Task? _changeStreamTask;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -15,7 +15,7 @@ public class MongoDbEventBus : IEventBus, IDisposable
         _eventsCollection = database.GetCollection<StoredEvent>("events");
     }
 
-    public void Subscribe(string eventType, Action<StoredEvent> handler)
+    public void Subscribe(string eventType, Func<StoredEvent, Task> handler)
     {
         lock (_lock)
         {
@@ -74,11 +74,11 @@ public class MongoDbEventBus : IEventBus, IDisposable
             );
 
             await cursor.ForEachAsync(
-                change =>
+                async change =>
                 {
                     if (change.FullDocument != null)
                     {
-                        NotifySubscribers(change.FullDocument);
+                        await NotifySubscribersAsync(change.FullDocument);
                     }
                 },
                 cancellationToken
@@ -102,9 +102,9 @@ public class MongoDbEventBus : IEventBus, IDisposable
         }
     }
 
-    private void NotifySubscribers(StoredEvent storedEvent)
+    private async Task NotifySubscribersAsync(StoredEvent storedEvent)
     {
-        List<Action<StoredEvent>> handlers;
+        List<Func<StoredEvent, Task>> handlers;
 
         lock (_lock)
         {
@@ -116,18 +116,23 @@ public class MongoDbEventBus : IEventBus, IDisposable
             handlers = [.. registered];
         }
 
-        foreach (var handler in handlers)
+        // Execute all handlers in parallel
+        var tasks = handlers.Select(handler => ExecuteHandlerAsync(handler, storedEvent));
+        await Task.WhenAll(tasks);
+    }
+
+    private static async Task ExecuteHandlerAsync(
+        Func<StoredEvent, Task> handler,
+        StoredEvent storedEvent
+    )
+    {
+        try
         {
-            try
-            {
-                handler(storedEvent);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(
-                    $"Error in event handler for {storedEvent.EventType}: {ex.Message}"
-                );
-            }
+            await handler(storedEvent);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in event handler for {storedEvent.EventType}: {ex.Message}");
         }
     }
 

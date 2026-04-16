@@ -2,5 +2,5 @@ namespace ConferenceExample.EventStore;
 
 public interface IEventBus
 {
-    void Subscribe(string eventType, Action<StoredEvent> handler);
+    void Subscribe(string eventType, Func<StoredEvent, Task> handler);
 }
