@@ -6,7 +6,7 @@ namespace ConferenceExample.Conference.Persistence.EventHandlers;
 
 /// <summary>
 /// Event handler that synchronizes Talk events from the Talk BC to the Conference BC.
-/// Updates the Conference Talk Read Models when Talk domain events occur in the Talk BC.
+/// Updates the Conference Talk Read Models when Talk domain events occur.
 /// This enables the Conference BC to have denormalized talk data without tight coupling.
 /// </summary>
 public class TalkEventHandler
@@ -18,95 +18,72 @@ public class TalkEventHandler
         _readModelRepository = readModelRepository;
     }
 
-    public async Task HandleTalkSubmitted(StoredEvent storedEvent)
+    /// <summary>
+    /// Handles any Talk domain event from the Talk BC (submitted, edited, tag added/removed).
+    /// All domain events now contain the complete aggregate state, so we can use a single handler.
+    /// </summary>
+    public async Task HandleTalkDomainEvent(StoredEvent storedEvent)
     {
-        var payload = JsonSerializer.Deserialize<TalkSubmittedPayload>(storedEvent.Payload);
-        if (payload is null)
+        // All Talk domain events have the same structure with complete aggregate state
+        var domainEvent = JsonSerializer.Deserialize<TalkDomainEventPayload>(storedEvent.Payload);
+        if (domainEvent is null)
             return;
 
-        var readModel = new ConferenceTalkReadModel
+        // Check if read model already exists
+        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+
+        if (existingReadModel is null)
         {
-            Id = storedEvent.AggregateId.ToString(),
-            ConferenceId = payload.ConferenceId.ToString(),
-            Title = payload.Title,
-            Abstract = payload.Abstract,
-            SpeakerId = payload.SpeakerId.ToString(),
-            TalkTypeId = payload.TalkTypeId.ToString(),
-            Tags = payload.Tags,
-            Status = "Submitted",
-            SubmittedAt = storedEvent.OccurredAt,
-            LastModifiedAt = storedEvent.OccurredAt,
-        };
+            // Create new read model with complete state from domain event
+            var newReadModel = new ConferenceTalkReadModel
+            {
+                Id = domainEvent.AggregateId.ToString(),
+                ConferenceId = domainEvent.ConferenceId.ToString(),
+                Title = domainEvent.Title,
+                Abstract = domainEvent.Abstract,
+                SpeakerId = domainEvent.SpeakerId.ToString(),
+                TalkTypeId = domainEvent.TalkTypeId.ToString(),
+                Tags = domainEvent.Tags,
+                Status = domainEvent.Status,
+                SubmittedAt = domainEvent.OccurredAt,
+                LastModifiedAt = domainEvent.OccurredAt,
+                Version = domainEvent.Version,
+            };
 
-        await _readModelRepository.Save(readModel);
-    }
-
-    public async Task HandleTalkTitleEdited(StoredEvent storedEvent)
-    {
-        var payload = JsonSerializer.Deserialize<TalkTitleEditedPayload>(storedEvent.Payload);
-        if (payload is null)
-            return;
-
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-        if (readModel is null)
-            return;
-
-        readModel.Title = payload.Title;
-        readModel.LastModifiedAt = storedEvent.OccurredAt;
-
-        await _readModelRepository.Update(readModel);
-    }
-
-    public async Task HandleTalkAbstractEdited(StoredEvent storedEvent)
-    {
-        var payload = JsonSerializer.Deserialize<TalkAbstractEditedPayload>(storedEvent.Payload);
-        if (payload is null)
-            return;
-
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-        if (readModel is null)
-            return;
-
-        readModel.Abstract = payload.Abstract;
-        readModel.LastModifiedAt = storedEvent.OccurredAt;
-
-        await _readModelRepository.Update(readModel);
-    }
-
-    public async Task HandleTalkTagAdded(StoredEvent storedEvent)
-    {
-        var payload = JsonSerializer.Deserialize<TalkTagPayload>(storedEvent.Payload);
-        if (payload is null)
-            return;
-
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-        if (readModel is null)
-            return;
-
-        if (!readModel.Tags.Contains(payload.Tag))
+            await _readModelRepository.Save(newReadModel);
+        }
+        else
         {
-            readModel.Tags.Add(payload.Tag);
-            readModel.LastModifiedAt = storedEvent.OccurredAt;
-            await _readModelRepository.Update(readModel);
+            // Update existing read model with complete state from domain event
+            // Preserve Conference BC specific fields (SlotStart, SlotEnd, RoomId, RoomName)
+            existingReadModel.ConferenceId = domainEvent.ConferenceId.ToString();
+            existingReadModel.Title = domainEvent.Title;
+            existingReadModel.Abstract = domainEvent.Abstract;
+            existingReadModel.SpeakerId = domainEvent.SpeakerId.ToString();
+            existingReadModel.TalkTypeId = domainEvent.TalkTypeId.ToString();
+            existingReadModel.Tags = domainEvent.Tags;
+            existingReadModel.Status = domainEvent.Status;
+            existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
+            existingReadModel.Version = domainEvent.Version;
+
+            // Repository uses optimistic locking - will only update if version is newer
+            await _readModelRepository.Update(existingReadModel);
         }
     }
 
-    public async Task HandleTalkTagRemoved(StoredEvent storedEvent)
-    {
-        var payload = JsonSerializer.Deserialize<TalkTagPayload>(storedEvent.Payload);
-        if (payload is null)
-            return;
-
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-        if (readModel is null)
-            return;
-
-        if (readModel.Tags.Remove(payload.Tag))
-        {
-            readModel.LastModifiedAt = storedEvent.OccurredAt;
-            await _readModelRepository.Update(readModel);
-        }
-    }
+    // DTO for deserializing any Talk domain event (all have the same structure now)
+    private record TalkDomainEventPayload(
+        Guid AggregateId,
+        DateTimeOffset OccurredAt,
+        long Version,
+        string Title,
+        string Abstract,
+        Guid SpeakerId,
+        List<string> Tags,
+        Guid TalkTypeId,
+        Guid ConferenceId,
+        string Status
+    );
 
     public async Task HandleTalkAccepted(StoredEvent storedEvent)
     {
@@ -173,22 +150,6 @@ public class TalkEventHandler
 
         await _readModelRepository.Update(readModel);
     }
-
-    // Event payload DTOs (from Talk BC)
-    private record TalkSubmittedPayload(
-        string Title,
-        string Abstract,
-        Guid SpeakerId,
-        List<string> Tags,
-        Guid TalkTypeId,
-        Guid ConferenceId
-    );
-
-    private record TalkTitleEditedPayload(string Title);
-
-    private record TalkAbstractEditedPayload(string Abstract);
-
-    private record TalkTagPayload(string Tag);
 
     // Event payload DTOs (from Conference BC)
     private record TalkStatusPayload(Guid TalkId);

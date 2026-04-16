@@ -18,11 +18,8 @@ public static class ServiceCollectionExtensions
         // Register Talk BC subscriptions
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Register Conference BC subscriptions
+        // Register Conference BC subscriptions (includes cross-BC synchronization)
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
-
-        // Register cross-BC synchronization subscriptions
-        ConferenceTalkSynchronizationSubscriptions.Subscribe(eventBus, scopeFactory);
 
         return app;
     }

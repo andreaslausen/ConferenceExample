@@ -97,7 +97,7 @@ public class ConferenceRepositoryTests
             GuidV7.NewGuid().Value,
             conferenceId.Value,
             "ConferenceCreatedEvent",
-            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Test Conference","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}"}""",
+            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Name":"Test Conference","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}","Status":"Draft"}""",
             DateTimeOffset.UtcNow,
             0
         );
@@ -105,7 +105,7 @@ public class ConferenceRepositoryTests
             GuidV7.NewGuid().Value,
             conferenceId.Value,
             "ConferenceRenamedEvent",
-            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Renamed Conference"}""",
+            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":1,"Name":"Renamed Conference","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}","Status":"Draft"}""",
             DateTimeOffset.UtcNow,
             1
         );
@@ -214,7 +214,7 @@ public class ConferenceRepositoryTests
             GuidV7.NewGuid().Value,
             conferenceId1.Value,
             "ConferenceCreatedEvent",
-            $$"""{"AggregateId":"{{conferenceId1.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Conference 1","Start":"{{start1:O}}","End":"{{end1:O}}","LocationName":"Venue 1","Street":"Street 1","City":"City 1","State":"State 1","PostalCode":"12345","Country":"Country 1","OrganizerId":"{{organizerId1.Value}}"}""",
+            $$"""{"AggregateId":"{{conferenceId1.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Name":"Conference 1","Start":"{{start1:O}}","End":"{{end1:O}}","LocationName":"Venue 1","Street":"Street 1","City":"City 1","State":"State 1","PostalCode":"12345","Country":"Country 1","OrganizerId":"{{organizerId1.Value}}","Status":"Draft"}""",
             DateTimeOffset.UtcNow,
             0
         );
@@ -223,7 +223,7 @@ public class ConferenceRepositoryTests
             GuidV7.NewGuid().Value,
             conferenceId2.Value,
             "ConferenceCreatedEvent",
-            $$"""{"AggregateId":"{{conferenceId2.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Conference 2","Start":"{{start2:O}}","End":"{{end2:O}}","LocationName":"Venue 2","Street":"Street 2","City":"City 2","State":"State 2","PostalCode":"67890","Country":"Country 2","OrganizerId":"{{organizerId2.Value}}"}""",
+            $$"""{"AggregateId":"{{conferenceId2.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Name":"Conference 2","Start":"{{start2:O}}","End":"{{end2:O}}","LocationName":"Venue 2","Street":"Street 2","City":"City 2","State":"State 2","PostalCode":"67890","Country":"Country 2","OrganizerId":"{{organizerId2.Value}}","Status":"Draft"}""",
             DateTimeOffset.UtcNow,
             0
         );
@@ -273,7 +273,7 @@ public class ConferenceRepositoryTests
             GuidV7.NewGuid().Value,
             conferenceId.Value,
             "ConferenceCreatedEvent",
-            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Test Conference","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}"}""",
+            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Name":"Test Conference","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}","Status":"Draft"}""",
             DateTimeOffset.UtcNow,
             0
         );
@@ -317,7 +317,7 @@ public class ConferenceRepositoryTests
             GuidV7.NewGuid().Value,
             conferenceId.Value,
             "ConferenceCreatedEvent",
-            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Original Name","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}"}""",
+            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Name":"Original Name","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}","Status":"Draft"}""",
             DateTimeOffset.UtcNow,
             0
         );
@@ -326,7 +326,7 @@ public class ConferenceRepositoryTests
             GuidV7.NewGuid().Value,
             conferenceId.Value,
             "ConferenceRenamedEvent",
-            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Name":"Updated Name"}""",
+            $$"""{"AggregateId":"{{conferenceId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":1,"Name":"Updated Name","Start":"{{start:O}}","End":"{{end:O}}","LocationName":"Venue","Street":"Main St 1","City":"Berlin","State":"BE","PostalCode":"10115","Country":"Germany","OrganizerId":"{{organizerId.Value}}","Status":"Draft"}""",
             DateTimeOffset.UtcNow,
             1
         );

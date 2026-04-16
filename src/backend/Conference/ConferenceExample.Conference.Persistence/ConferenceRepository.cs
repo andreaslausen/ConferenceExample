@@ -91,6 +91,9 @@ public class ConferenceRepository(IEventStore eventStore) : IConferenceRepositor
             conference.Version
         );
 
+        // Domain events are published automatically by the EventStore
+        // No need to publish separate integration events
+
         conference.ClearUncommittedEvents();
     }
 

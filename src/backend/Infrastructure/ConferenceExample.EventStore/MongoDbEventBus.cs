@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MongoDB.Driver;
 
 namespace ConferenceExample.EventStore;
@@ -116,7 +117,7 @@ public class MongoDbEventBus : IEventBus, IDisposable
             handlers = [.. registered];
         }
 
-        // Execute all handlers in parallel
+        // Execute all handlers in parallel (safe with fat events + optimistic locking)
         var tasks = handlers.Select(handler => ExecuteHandlerAsync(handler, storedEvent));
         await Task.WhenAll(tasks);
     }

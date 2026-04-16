@@ -96,7 +96,7 @@ public class TalkRepositoryTests
             GuidV7.NewGuid().Value,
             talkId.Value,
             "TalkSubmittedEvent",
-            $$"""{"AggregateId":"{{talkId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Title":"Test Title","Abstract":"Test Abstract","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{conferenceId.Value}}"}""",
+            $$"""{"AggregateId":"{{talkId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Title":"Test Title","Abstract":"Test Abstract","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{conferenceId.Value}}","Status":"Submitted"}""",
             DateTimeOffset.UtcNow,
             0
         );
@@ -104,7 +104,7 @@ public class TalkRepositoryTests
             GuidV7.NewGuid().Value,
             talkId.Value,
             "TalkTitleEditedEvent",
-            $$"""{"AggregateId":"{{talkId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Title":"Updated Title"}""",
+            $$"""{"AggregateId":"{{talkId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":1,"Title":"Updated Title","Abstract":"Test Abstract","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{conferenceId.Value}}","Status":"Submitted"}""",
             DateTimeOffset.UtcNow,
             1
         );
@@ -158,7 +158,7 @@ public class TalkRepositoryTests
             GuidV7.NewGuid().Value,
             talkAId.Value,
             "TalkSubmittedEvent",
-            $$"""{"AggregateId":"{{talkAId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Title":"Talk A","Abstract":"Abstract A","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{targetConferenceId.Value}}"}""",
+            $$"""{"AggregateId":"{{talkAId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Title":"Talk A","Abstract":"Abstract A","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{targetConferenceId.Value}}","Status":"Submitted"}""",
             DateTimeOffset.UtcNow,
             0
         );
@@ -166,7 +166,7 @@ public class TalkRepositoryTests
             GuidV7.NewGuid().Value,
             talkBId.Value,
             "TalkSubmittedEvent",
-            $$"""{"AggregateId":"{{talkBId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Title":"Talk B","Abstract":"Abstract B","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{otherConferenceId.Value}}"}""",
+            $$"""{"AggregateId":"{{talkBId.Value}}","OccurredAt":"{{DateTimeOffset.UtcNow:O}}","Version":0,"Title":"Talk B","Abstract":"Abstract B","SpeakerId":"{{speakerId.Value}}","Tags":["dotnet"],"TalkTypeId":"{{talkTypeId.Value}}","ConferenceId":"{{otherConferenceId.Value}}","Status":"Submitted"}""",
             DateTimeOffset.UtcNow,
             0
         );

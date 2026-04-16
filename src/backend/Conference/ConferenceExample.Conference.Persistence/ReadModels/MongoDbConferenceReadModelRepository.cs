@@ -36,8 +36,16 @@ public class MongoDbConferenceReadModelRepository : IConferenceReadModelReposito
 
     public async Task Update(ConferenceReadModel conferenceReadModel)
     {
-        var filter = Builders<ConferenceReadModel>.Filter.Eq(c => c.Id, conferenceReadModel.Id);
-        await _collection.ReplaceOneAsync(filter, conferenceReadModel);
+        // Optimistic locking: Only update if the event version is newer than the current read model version
+        var filter = Builders<ConferenceReadModel>.Filter.And(
+            Builders<ConferenceReadModel>.Filter.Eq(c => c.Id, conferenceReadModel.Id),
+            Builders<ConferenceReadModel>.Filter.Lt(c => c.Version, conferenceReadModel.Version)
+        );
+
+        _ = await _collection.ReplaceOneAsync(filter, conferenceReadModel);
+
+        // If ModifiedCount is 0, the read model already has a newer or equal version
+        // This is expected with out-of-order events and can be safely ignored
     }
 
     public async Task Delete(Guid conferenceId)

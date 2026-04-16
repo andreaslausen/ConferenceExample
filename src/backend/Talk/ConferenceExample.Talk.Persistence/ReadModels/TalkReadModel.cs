@@ -45,4 +45,7 @@ public class TalkReadModel
 
     [BsonElement("lastModifiedAt")]
     public DateTimeOffset LastModifiedAt { get; set; }
+
+    [BsonElement("version")]
+    public long Version { get; set; } = -1;
 }

@@ -107,6 +107,9 @@ public class TalkRepository(IEventStore eventStore) : ITalkRepository
 
         await eventStore.AppendEvents(uncommittedEvents[0].AggregateId, storedEvents, talk.Version);
 
+        // Domain events are published automatically by the EventStore
+        // No need to publish separate integration events
+
         talk.ClearUncommittedEvents();
     }
 
