@@ -106,18 +106,70 @@ public class Conference : AggregateRoot
     public void SubmitTalk(TalkId talkId)
     {
         RaiseEvent(
-            new TalkSubmittedToConferenceEvent(Id.Value, DateTimeOffset.UtcNow, talkId.Value)
+            new TalkSubmittedToConferenceEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
+                talkId.Value
+            )
         );
     }
 
     public void AcceptTalk(TalkId talkId)
     {
-        RaiseEvent(new TalkAcceptedEvent(Id.Value, DateTimeOffset.UtcNow, talkId.Value));
+        RaiseEvent(
+            new TalkAcceptedEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
+                talkId.Value
+            )
+        );
     }
 
     public void RejectTalk(TalkId talkId)
     {
-        RaiseEvent(new TalkRejectedEvent(Id.Value, DateTimeOffset.UtcNow, talkId.Value));
+        RaiseEvent(
+            new TalkRejectedEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
+                talkId.Value
+            )
+        );
     }
 
     public void ScheduleTalk(TalkId talkId, Time slot)
@@ -126,6 +178,18 @@ public class Conference : AggregateRoot
             new TalkScheduledEvent(
                 Id.Value,
                 DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
                 talkId.Value,
                 slot.Start,
                 slot.End
@@ -139,6 +203,18 @@ public class Conference : AggregateRoot
             new TalkAssignedToRoomEvent(
                 Id.Value,
                 DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
                 talkId.Value,
                 room.Id.Value,
                 room.Name.Value
@@ -182,18 +258,68 @@ public class Conference : AggregateRoot
                 Status = Enum.Parse<ConferenceStatus>(e.Status);
                 break;
             case TalkSubmittedToConferenceEvent e:
+                // Reconstruct full Conference state from fat event
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                // Apply event-specific change
                 _talks.Add(new Talk(new TalkId(new GuidV7(e.TalkId))));
                 break;
             case TalkAcceptedEvent e:
+                // Reconstruct full Conference state from fat event
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                // Apply event-specific change
                 FindTalk(e.TalkId).Accept();
                 break;
             case TalkRejectedEvent e:
+                // Reconstruct full Conference state from fat event
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                // Apply event-specific change
                 FindTalk(e.TalkId).Reject();
                 break;
             case TalkScheduledEvent e:
-                FindTalk(e.TalkId).Schedule(new Time(e.Start, e.End));
+                // Reconstruct full Conference state from fat event
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.ConferenceStart, e.ConferenceEnd);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                // Apply event-specific change
+                FindTalk(e.TalkId).Schedule(new Time(e.TalkStart, e.TalkEnd));
                 break;
             case TalkAssignedToRoomEvent e:
+                // Reconstruct full Conference state from fat event
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                // Apply event-specific change
                 FindTalk(e.TalkId)
                     .AssignRoom(new RoomId(new GuidV7(e.RoomId)), new Text(e.RoomName));
                 break;

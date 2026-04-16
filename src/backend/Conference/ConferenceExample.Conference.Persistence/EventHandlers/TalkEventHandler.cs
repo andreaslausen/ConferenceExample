@@ -87,7 +87,8 @@ public class TalkEventHandler
 
     public async Task HandleTalkAccepted(StoredEvent storedEvent)
     {
-        var payload = JsonSerializer.Deserialize<TalkStatusPayload>(storedEvent.Payload);
+        // Fat event contains full Conference state - we only care about TalkId for this handler
+        var payload = JsonSerializer.Deserialize<TalkAcceptedPayload>(storedEvent.Payload);
         if (payload is null)
             return;
 
@@ -103,7 +104,8 @@ public class TalkEventHandler
 
     public async Task HandleTalkRejected(StoredEvent storedEvent)
     {
-        var payload = JsonSerializer.Deserialize<TalkStatusPayload>(storedEvent.Payload);
+        // Fat event contains full Conference state - we only care about TalkId for this handler
+        var payload = JsonSerializer.Deserialize<TalkRejectedPayload>(storedEvent.Payload);
         if (payload is null)
             return;
 
@@ -119,6 +121,7 @@ public class TalkEventHandler
 
     public async Task HandleTalkScheduled(StoredEvent storedEvent)
     {
+        // Fat event contains full Conference state - extract TalkStart/TalkEnd for scheduling
         var payload = JsonSerializer.Deserialize<TalkScheduledPayload>(storedEvent.Payload);
         if (payload is null)
             return;
@@ -127,8 +130,8 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
-        readModel.SlotStart = payload.Start;
-        readModel.SlotEnd = payload.End;
+        readModel.SlotStart = payload.TalkStart;
+        readModel.SlotEnd = payload.TalkEnd;
         readModel.LastModifiedAt = storedEvent.OccurredAt;
 
         await _readModelRepository.Update(readModel);
@@ -136,6 +139,7 @@ public class TalkEventHandler
 
     public async Task HandleTalkAssignedToRoom(StoredEvent storedEvent)
     {
+        // Fat event contains full Conference state - extract Room info
         var payload = JsonSerializer.Deserialize<TalkAssignedToRoomPayload>(storedEvent.Payload);
         if (payload is null)
             return;
@@ -151,10 +155,80 @@ public class TalkEventHandler
         await _readModelRepository.Update(readModel);
     }
 
-    // Event payload DTOs (from Conference BC)
-    private record TalkStatusPayload(Guid TalkId);
+    // Event payload DTOs (from Conference BC) - Fat events with full Conference state
+    private record TalkAcceptedPayload(
+        Guid AggregateId,
+        DateTimeOffset OccurredAt,
+        long Version,
+        string Name,
+        DateTimeOffset Start,
+        DateTimeOffset End,
+        string LocationName,
+        string Street,
+        string City,
+        string State,
+        string PostalCode,
+        string Country,
+        Guid OrganizerId,
+        string Status,
+        Guid TalkId
+    );
 
-    private record TalkScheduledPayload(Guid TalkId, DateTimeOffset Start, DateTimeOffset End);
+    private record TalkRejectedPayload(
+        Guid AggregateId,
+        DateTimeOffset OccurredAt,
+        long Version,
+        string Name,
+        DateTimeOffset Start,
+        DateTimeOffset End,
+        string LocationName,
+        string Street,
+        string City,
+        string State,
+        string PostalCode,
+        string Country,
+        Guid OrganizerId,
+        string Status,
+        Guid TalkId
+    );
 
-    private record TalkAssignedToRoomPayload(Guid TalkId, Guid RoomId, string RoomName);
+    private record TalkScheduledPayload(
+        Guid AggregateId,
+        DateTimeOffset OccurredAt,
+        long Version,
+        string Name,
+        DateTimeOffset ConferenceStart,
+        DateTimeOffset ConferenceEnd,
+        string LocationName,
+        string Street,
+        string City,
+        string State,
+        string PostalCode,
+        string Country,
+        Guid OrganizerId,
+        string Status,
+        Guid TalkId,
+        DateTimeOffset TalkStart,
+        DateTimeOffset TalkEnd
+    );
+
+    private record TalkAssignedToRoomPayload(
+        Guid AggregateId,
+        DateTimeOffset OccurredAt,
+        long Version,
+        string Name,
+        DateTimeOffset Start,
+        DateTimeOffset End,
+        string LocationName,
+        string Street,
+        string City,
+        string State,
+        string PostalCode,
+        string Country,
+        Guid OrganizerId,
+        string Status,
+        Guid TalkId,
+        Guid RoomId,
+        string RoomName
+    );
 }
