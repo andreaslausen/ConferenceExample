@@ -15,11 +15,14 @@ public class ConferenceRepository(IEventStore eventStore) : IConferenceRepositor
     {
         [nameof(ConferenceCreatedEvent)] = typeof(ConferenceCreatedEvent),
         [nameof(ConferenceRenamedEvent)] = typeof(ConferenceRenamedEvent),
+        [nameof(ConferenceStatusChangedEvent)] = typeof(ConferenceStatusChangedEvent),
         [nameof(TalkSubmittedToConferenceEvent)] = typeof(TalkSubmittedToConferenceEvent),
         [nameof(TalkAcceptedEvent)] = typeof(TalkAcceptedEvent),
         [nameof(TalkRejectedEvent)] = typeof(TalkRejectedEvent),
         [nameof(TalkScheduledEvent)] = typeof(TalkScheduledEvent),
         [nameof(TalkAssignedToRoomEvent)] = typeof(TalkAssignedToRoomEvent),
+        [nameof(TalkTypeDefinedEvent)] = typeof(TalkTypeDefinedEvent),
+        [nameof(TalkTypeRemovedEvent)] = typeof(TalkTypeRemovedEvent),
     };
 
     public async Task<ConferenceAggregate> GetById(ConferenceId id)

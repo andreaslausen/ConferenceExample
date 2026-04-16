@@ -50,6 +50,9 @@ public class ConferenceReadModel
     [BsonRepresentation(BsonType.String)]
     public string Status { get; set; } = "Draft";
 
+    [BsonElement("talkTypes")]
+    public List<TalkTypeReadModel> TalkTypes { get; set; } = new();
+
     [BsonElement("createdAt")]
     public DateTimeOffset CreatedAt { get; set; }
 
@@ -58,4 +61,17 @@ public class ConferenceReadModel
 
     [BsonElement("version")]
     public long Version { get; set; } = -1;
+
+    /// <summary>
+    /// Nested class representing a TalkType in the Conference read model.
+    /// </summary>
+    public class TalkTypeReadModel
+    {
+        [BsonElement("id")]
+        [BsonRepresentation(BsonType.String)]
+        public string Id { get; set; } = string.Empty;
+
+        [BsonElement("name")]
+        public string Name { get; set; } = string.Empty;
+    }
 }

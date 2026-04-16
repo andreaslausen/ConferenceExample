@@ -75,8 +75,7 @@ public class MongoDbEventStore : IEventStore
                     );
 
                     return Task.CompletedTask;
-                },
-                cancellationToken: CancellationToken.None
+                }
             );
         }
         catch (MongoWriteException ex)

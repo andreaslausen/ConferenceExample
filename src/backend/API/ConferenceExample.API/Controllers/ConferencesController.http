@@ -56,3 +56,33 @@ Content-Type: application/json
 ### Get Conference Sessions
 # Replace <conference-id> with the id returned by "Create Conference"
 GET {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/sessions
+
+### Get Conference Talk Types
+# Replace <conference-id> with the id returned by "Create Conference"
+GET {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/talk-types
+
+### Define Talk Type
+# Replace <conference-id> with the id returned by "Create Conference"
+POST {{host}}/api/conferences/019d9696-7aca-7757-883e-51e5e4e62f42/talk-types
+Content-Type: application/json
+Authorization: Bearer <YOUR_ORGANIZER_JWT_TOKEN>
+
+{
+  "name": "Workshop"
+}
+
+### Define Another Talk Type
+# Replace <conference-id> with the id returned by "Create Conference"
+POST {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/talk-types
+Content-Type: application/json
+Authorization: Bearer <YOUR_ORGANIZER_JWT_TOKEN>
+
+{
+  "name": "Keynote"
+}
+
+### Remove Talk Type
+# Replace <conference-id> and <talk-type-id> with the respective IDs
+# The talk-type-id is returned when you define a talk type
+DELETE {{host}}/api/conferences/019d72f9-5921-7747-8b80-ca80ebea76f3/talk-types/019d72f9-5921-7747-8b80-ca80ebea76f4
+Authorization: Bearer <YOUR_ORGANIZER_JWT_TOKEN>

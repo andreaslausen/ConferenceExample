@@ -35,6 +35,27 @@ public static class ConferenceEventSubscriptions
             );
         }
 
+        // Subscribe to TalkType events
+        eventBus.Subscribe(
+            "TalkTypeDefinedEvent",
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
+                await handler.HandleTalkTypeDefined(storedEvent);
+            }
+        );
+
+        eventBus.Subscribe(
+            "TalkTypeRemovedEvent",
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
+                await handler.HandleTalkTypeRemoved(storedEvent);
+            }
+        );
+
         // Subscribe to Talk domain events (for cross-BC synchronization)
         var talkDomainEvents = new[]
         {

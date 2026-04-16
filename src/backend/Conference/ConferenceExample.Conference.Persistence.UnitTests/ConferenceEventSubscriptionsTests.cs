@@ -85,7 +85,26 @@ public class ConferenceEventSubscriptionsTests
     }
 
     [Fact]
-    public void Subscribe_RegistersExactlyTwelveEventTypes()
+    public void Subscribe_RegistersAllTalkTypeEvents()
+    {
+        // Arrange
+        var eventBus = Substitute.For<IEventBus>();
+        var scopeFactory = Substitute.For<IServiceScopeFactory>();
+
+        var expectedEventTypes = new[] { "TalkTypeDefinedEvent", "TalkTypeRemovedEvent" };
+
+        // Act
+        ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
+
+        // Assert
+        foreach (var eventType in expectedEventTypes)
+        {
+            eventBus.Received(1).Subscribe(eventType, Arg.Any<Func<StoredEvent, Task>>());
+        }
+    }
+
+    [Fact]
+    public void Subscribe_RegistersExactlyFourteenEventTypes()
     {
         // Arrange
         var eventBus = Substitute.For<IEventBus>();
@@ -94,8 +113,8 @@ public class ConferenceEventSubscriptionsTests
         // Act
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - should register exactly 12 event types (3 conference + 5 talk + 4 conference-specific)
-        eventBus.Received(12).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        // Assert - should register exactly 14 event types (3 conference + 5 talk + 4 conference-specific + 2 talktype)
+        eventBus.Received(14).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 
     [Fact]
@@ -374,6 +393,6 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         // Assert - each call should register handlers
-        eventBus.Received(24).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        eventBus.Received(28).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 }

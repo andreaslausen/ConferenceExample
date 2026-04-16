@@ -5,11 +5,12 @@
 # 1. Register as a Speaker (see AuthController.http)
 # 2. Login to get a fresh JWT token
 # 3. Create a Conference (see ConferencesController.http) and use its returned ID
-# 4. Generate a fresh UUIDv7 for talkTypeId (can be any valid UUIDv7)
+# 4. Define Talk Types for the conference (see ConferencesController.http)
+# 5. Use the Talk Type ID returned when defining a talk type
 #
 # Replace <YOUR_SPEAKER_JWT_TOKEN> with the token from login
 # Replace <CONFERENCE_ID> with the ID returned when creating a conference
-# Replace <TALK_TYPE_ID> with a fresh UUIDv7 (generate at https://www.uuidgenerator.net/version7 or use any valid one)
+# Replace <TALK_TYPE_ID> with the ID returned when defining a talk type
 POST {{host}}/api/talks
 Content-Type: application/json
 Authorization: Bearer <YOUR_SPEAKER_JWT_TOKEN>
