@@ -3,6 +3,14 @@
 
 set -e
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get the repository root (parent of scripts directory)
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Change to repository root
+cd "$REPO_ROOT"
+
 echo "🚀 Starting development infrastructure..."
 echo ""
 
