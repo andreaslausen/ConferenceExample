@@ -1,6 +1,6 @@
 // MongoDB initialization script for ConferenceExample Event Store
 
-db = db.getSiblingDB('conference_events');
+db = db.getSiblingDB('conference_example');
 
 // Create the events collection
 db.createCollection('events');

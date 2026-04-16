@@ -29,8 +29,8 @@ public class IntegrationTestWebApplicationFactory : WebApplicationFactory<Progra
                 config.AddInMemoryCollection(
                     new Dictionary<string, string?>
                     {
-                        ["EventStore:MongoDB:ConnectionString"] = MongoConnectionString,
-                        ["EventStore:MongoDB:DatabaseName"] = "conference_events_test",
+                        ["Database:MongoDB:ConnectionString"] = MongoConnectionString,
+                        ["Database:MongoDB:DatabaseName"] = "conference_example_test",
                         ["Jwt:Secret"] = "TestSecretKeyMinimum32CharactersLongForHS256Algorithm",
                         ["Jwt:Issuer"] = "ConferenceExample.Tests",
                         ["Jwt:Audience"] = "ConferenceExample.IntegrationTests",

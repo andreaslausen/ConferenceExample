@@ -33,10 +33,10 @@ The application uses `appsettings.Development.json` by default in Development en
 
 ```json
 {
-  "EventStore": {
+  "Database": {
     "MongoDB": {
       "ConnectionString": "mongodb://admin:admin123@localhost:27017",
-      "DatabaseName": "conference_events"
+      "DatabaseName": "conference_example"
     }
   }
 }
@@ -44,7 +44,7 @@ The application uses `appsettings.Development.json` by default in Development en
 
 **Configuration Options:**
 - `ConnectionString`: MongoDB connection string with authentication
-- `DatabaseName`: Name of the database for event storage
+- `DatabaseName`: Name of the database for event storage and read models
 
 ### 3. Run the Application
 
@@ -130,7 +130,7 @@ var aggregate = Conference.LoadFromHistory(events);
 ## Web UI
 
 Access Mongo Express at `http://localhost:8081` to:
-- Browse the `conference_events` database
+- Browse the `conference_example` database
 - View events in the `events` collection
 - Debug event payloads
 - Monitor Change Streams
@@ -149,10 +149,10 @@ MongoDB handles millions of events easily:
 
 ```bash
 # Dump database
-docker exec conference-mongodb mongodump --db conference_events --out /dump
+docker exec conference-mongodb mongodump --db conference_example --out /dump
 
 # Restore database
-docker exec conference-mongodb mongorestore --db conference_events /dump/conference_events
+docker exec conference-mongodb mongorestore --db conference_example /dump/conference_example
 ```
 
 ### Replica Set

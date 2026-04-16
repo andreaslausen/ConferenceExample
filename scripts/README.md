@@ -87,7 +87,7 @@ This will delete:
 ### MongoDB
 - **Port:** 27017
 - **Connection String:** `mongodb://admin:admin123@localhost:27017`
-- **Database:** `conference_events`
+- **Database:** `conference_example`
 - **Configuration:** Replica Set (required for Change Streams)
 
 ### Mongo Express (Web UI)

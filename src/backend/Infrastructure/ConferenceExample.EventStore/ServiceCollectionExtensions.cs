@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
     {
         // Configure MongoDB Event Store
         var mongoSettings =
-            configuration.GetSection("EventStore:MongoDB").Get<MongoDbSettings>()
+            configuration.GetSection("Database:MongoDB").Get<MongoDbSettings>()
             ?? new MongoDbSettings(); // Use defaults if not configured
 
         var mongoClient = new MongoClient(mongoSettings.ConnectionString);
