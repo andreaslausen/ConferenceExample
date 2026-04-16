@@ -7,7 +7,7 @@ Content-Type: application/json
 {
   "email": "speaker@example.com",
   "password": "SecurePassword123!",
-  "role": "Speaker"
+  "role": 0
 }
 
 ### Register as Organizer
@@ -17,7 +17,7 @@ Content-Type: application/json
 {
   "email": "organizer@example.com",
   "password": "SecurePassword123!",
-  "role": "Organizer"
+  "role": 1
 }
 
 ### Register as Attendee
@@ -27,7 +27,7 @@ Content-Type: application/json
 {
   "email": "attendee@example.com",
   "password": "SecurePassword123!",
-  "role": "Attendee"
+  "role": 2
 }
 
 ### Login as Speaker
