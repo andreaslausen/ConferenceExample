@@ -2,10 +2,12 @@ using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
+using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
 using Microsoft.AspNetCore.Authorization;
@@ -161,6 +163,46 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     )
     {
         await conferenceService.AssignTalkToRoom(conferenceId, talkId, dto);
+        return NoContent();
+    }
+
+    [HttpGet("{id:guid}/talk-types", Name = "GetConferenceTalkTypes")]
+    [AllowAnonymous]
+    [ProducesResponseType<IReadOnlyList<GetConferenceTalkTypesDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<
+        ActionResult<IReadOnlyList<GetConferenceTalkTypesDto>>
+    > GetConferenceTalkTypes(Guid id)
+    {
+        var talkTypes = await conferenceService.GetConferenceTalkTypes(id);
+        return Ok(talkTypes);
+    }
+
+    [HttpPost("{id:guid}/talk-types", Name = "DefineTalkType")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType<TalkTypeDefinedDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<TalkTypeDefinedDto>> DefineTalkType(
+        Guid id,
+        [FromBody] DefineTalkTypeDto dto
+    )
+    {
+        var result = await conferenceService.DefineTalkType(id, dto);
+        return Created($"/api/conferences/{id}/talk-types/{result.TalkTypeId}", result);
+    }
+
+    [HttpDelete("{conferenceId:guid}/talk-types/{talkTypeId:guid}", Name = "RemoveTalkType")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> RemoveTalkType(Guid conferenceId, Guid talkTypeId)
+    {
+        await conferenceService.RemoveTalkType(conferenceId, talkTypeId);
         return NoContent();
     }
 }

@@ -2,11 +2,14 @@ using ConferenceExample.Conference.Application.AcceptTalk;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
+using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
 using ConferenceExample.Conference.Application.GetConferenceSessions;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
+using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RejectTalk;
+using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
 
@@ -23,7 +26,10 @@ public class ConferenceService(
     IAcceptTalkCommandHandler acceptTalkCommandHandler,
     IRejectTalkCommandHandler rejectTalkCommandHandler,
     IScheduleTalkCommandHandler scheduleTalkCommandHandler,
-    IAssignTalkToRoomCommandHandler assignTalkToRoomCommandHandler
+    IAssignTalkToRoomCommandHandler assignTalkToRoomCommandHandler,
+    IDefineTalkTypeCommandHandler defineTalkTypeCommandHandler,
+    IRemoveTalkTypeCommandHandler removeTalkTypeCommandHandler,
+    IGetConferenceTalkTypesQueryHandler getConferenceTalkTypesQueryHandler
 ) : IConferenceService
 {
     public async Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto dto)
@@ -101,5 +107,25 @@ public class ConferenceService(
     {
         var command = new AssignTalkToRoomCommand(conferenceId, talkId, dto.RoomId, dto.RoomName);
         await assignTalkToRoomCommandHandler.Handle(command);
+    }
+
+    public async Task<TalkTypeDefinedDto> DefineTalkType(Guid conferenceId, DefineTalkTypeDto dto)
+    {
+        var command = new DefineTalkTypeCommand(conferenceId, dto.Name);
+        return await defineTalkTypeCommandHandler.Handle(command);
+    }
+
+    public async Task RemoveTalkType(Guid conferenceId, Guid talkTypeId)
+    {
+        var command = new RemoveTalkTypeCommand(conferenceId, talkTypeId);
+        await removeTalkTypeCommandHandler.Handle(command);
+    }
+
+    public async Task<IReadOnlyList<GetConferenceTalkTypesDto>> GetConferenceTalkTypes(
+        Guid conferenceId
+    )
+    {
+        var query = new GetConferenceTalkTypesQuery(conferenceId);
+        return await getConferenceTalkTypesQueryHandler.Handle(query);
     }
 }

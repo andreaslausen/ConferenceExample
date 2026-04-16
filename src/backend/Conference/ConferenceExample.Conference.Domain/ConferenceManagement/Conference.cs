@@ -11,6 +11,7 @@ namespace ConferenceExample.Conference.Domain.ConferenceManagement;
 public class Conference : AggregateRoot
 {
     private readonly List<Talk> _talks = [];
+    private readonly List<TalkType> _talkTypes = [];
 
     public ConferenceId Id { get; private set; } = null!;
     public Text Name { get; private set; } = null!;
@@ -19,6 +20,7 @@ public class Conference : AggregateRoot
     public OrganizerId OrganizerId { get; private set; } = null!;
     public ConferenceStatus Status { get; private set; }
     public IReadOnlyList<Talk> Talks => _talks;
+    public IReadOnlyList<TalkType> TalkTypes => _talkTypes;
 
     private Conference() { }
 
@@ -222,6 +224,73 @@ public class Conference : AggregateRoot
         );
     }
 
+    public void DefineTalkType(TalkTypeId talkTypeId, Text name)
+    {
+        // Check if talk type with same name already exists
+        if (
+            _talkTypes.Any(tt =>
+                tt.Name.Value.Equals(name.Value, StringComparison.OrdinalIgnoreCase)
+            )
+        )
+        {
+            throw new InvalidOperationException(
+                $"A talk type with the name '{name.Value}' already exists for this conference."
+            );
+        }
+
+        RaiseEvent(
+            new TalkTypeDefinedEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
+                talkTypeId.Value,
+                name.Value
+            )
+        );
+    }
+
+    public void RemoveTalkType(TalkTypeId talkTypeId)
+    {
+        // Check if talk type exists
+        if (!_talkTypes.Any(tt => tt.Id == talkTypeId))
+        {
+            throw new InvalidOperationException(
+                $"Talk type with id '{talkTypeId.Value}' does not exist for this conference."
+            );
+        }
+
+        RaiseEvent(
+            new TalkTypeRemovedEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
+                talkTypeId.Value
+            )
+        );
+    }
+
     protected override void ApplyEvent(IDomainEvent @event)
     {
         switch (@event)
@@ -323,8 +392,40 @@ public class Conference : AggregateRoot
                 FindTalk(e.TalkId)
                     .AssignRoom(new RoomId(new GuidV7(e.RoomId)), new Text(e.RoomName));
                 break;
+            case TalkTypeDefinedEvent e:
+                // Reconstruct full Conference state from fat event
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                // Apply event-specific change
+                _talkTypes.Add(
+                    new TalkType(new TalkTypeId(new GuidV7(e.TalkTypeId)), new Text(e.TalkTypeName))
+                );
+                break;
+            case TalkTypeRemovedEvent e:
+                // Reconstruct full Conference state from fat event
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                // Apply event-specific change
+                var talkTypeToRemove = FindTalkType(e.TalkTypeId);
+                _talkTypes.Remove(talkTypeToRemove);
+                break;
         }
     }
 
     private Talk FindTalk(Guid talkId) => _talks.First(s => s.Id.Value == (GuidV7)talkId);
+
+    private TalkType FindTalkType(Guid talkTypeId) =>
+        _talkTypes.First(tt => tt.Id.Value == (GuidV7)talkTypeId);
 }

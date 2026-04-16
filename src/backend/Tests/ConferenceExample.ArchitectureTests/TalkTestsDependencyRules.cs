@@ -30,7 +30,8 @@ public class TalkTestsDependencyRules : ArchitectureTest
             "System",
             "Xunit",
             "NSubstitute",
-            "Microsoft.Extensions.DependencyInjection"
+            "Microsoft.Extensions.DependencyInjection",
+            "MongoDB"
         );
     }
 

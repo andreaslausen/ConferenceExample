@@ -309,6 +309,133 @@ public class ConferenceTests
         Assert.Equal(3, replayedConference.Version);
     }
 
+    [Fact]
+    public void DefineTalkType_ValidParameters_AddsTalkType()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var name = new Text("Workshop");
+
+        // Act
+        conference.DefineTalkType(talkTypeId, name);
+
+        // Assert
+        var talkType = Assert.Single(conference.TalkTypes);
+        Assert.Equal(talkTypeId, talkType.Id);
+        Assert.Equal(name, talkType.Name);
+    }
+
+    [Fact]
+    public void DefineTalkType_RaisesTalkTypeDefinedEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var name = new Text("Workshop");
+
+        // Act
+        conference.DefineTalkType(talkTypeId, name);
+
+        // Assert
+        var events = conference.GetUncommittedEvents();
+        Assert.Equal(2, events.Count);
+        Assert.IsType<TalkTypeDefinedEvent>(events[1]);
+    }
+
+    [Fact]
+    public void DefineTalkType_DuplicateName_ThrowsException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var name = new Text("Workshop");
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), name);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), name)
+        );
+        Assert.Contains("already exists", exception.Message);
+    }
+
+    [Fact]
+    public void DefineTalkType_DuplicateNameDifferentCase_ThrowsException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Workshop"));
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("WORKSHOP"))
+        );
+        Assert.Contains("already exists", exception.Message);
+    }
+
+    [Fact]
+    public void RemoveTalkType_ExistingTalkType_RemovesTalkType()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"));
+
+        // Act
+        conference.RemoveTalkType(talkTypeId);
+
+        // Assert
+        Assert.Empty(conference.TalkTypes);
+    }
+
+    [Fact]
+    public void RemoveTalkType_RaisesTalkTypeRemovedEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"));
+
+        // Act
+        conference.RemoveTalkType(talkTypeId);
+
+        // Assert
+        var events = conference.GetUncommittedEvents();
+        Assert.Equal(3, events.Count);
+        Assert.IsType<TalkTypeRemovedEvent>(events[2]);
+    }
+
+    [Fact]
+    public void RemoveTalkType_NonExistingTalkType_ThrowsException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.RemoveTalkType(talkTypeId)
+        );
+        Assert.Contains("does not exist", exception.Message);
+    }
+
+    [Fact]
+    public void LoadFromHistory_WithTalkTypeEvents_ReconstructsCorrectly()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"));
+        var events = conference.GetUncommittedEvents();
+
+        // Act
+        var replayedConference = ConferenceAggregate.LoadFromHistory(events);
+
+        // Assert
+        var talkType = Assert.Single(replayedConference.TalkTypes);
+        Assert.Equal(talkTypeId, talkType.Id);
+        Assert.Equal(new Text("Workshop"), talkType.Name);
+    }
+
     private static ConferenceAggregate CreateValidConference()
     {
         var id = new ConferenceId(GuidV7.NewGuid());
