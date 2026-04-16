@@ -1,6 +1,15 @@
-@host = http://localhost:5185
+@host = http://localhost:5000
 
 ### Submit Talk
+# IMPORTANT: Before submitting a talk, you need to:
+# 1. Register as a Speaker (see AuthController.http)
+# 2. Login to get a fresh JWT token
+# 3. Create a Conference (see ConferencesController.http) and use its returned ID
+# 4. Generate a fresh UUIDv7 for talkTypeId (can be any valid UUIDv7)
+#
+# Replace <YOUR_SPEAKER_JWT_TOKEN> with the token from login
+# Replace <CONFERENCE_ID> with the ID returned when creating a conference
+# Replace <TALK_TYPE_ID> with a fresh UUIDv7 (generate at https://www.uuidgenerator.net/version7 or use any valid one)
 POST {{host}}/api/talks
 Content-Type: application/json
 Authorization: Bearer <YOUR_SPEAKER_JWT_TOKEN>
@@ -8,7 +17,7 @@ Authorization: Bearer <YOUR_SPEAKER_JWT_TOKEN>
 {
   "title": "Clean Architecture in Practice",
   "abstract": "A deep dive into applying Clean Architecture principles in a real-world .NET application.",
-  "conferenceId": "00000000-0000-0000-0000-000000000001",
-  "talkTypeId": "00000000-0000-0000-0000-000000000003",
+  "conferenceId": "<CONFERENCE_ID>",
+  "talkTypeId": "<TALK_TYPE_ID>",
   "tags": ["dotnet", "architecture", "ddd"]
 }

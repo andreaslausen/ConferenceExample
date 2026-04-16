@@ -1,8 +1,9 @@
-@host = http://localhost:5185
+@host = http://localhost:5000
 
 ### Create Conference
 POST {{host}}/api/conferences
 Content-Type: application/json
+Authorization: Bearer <YOUR_ORGANIZER_JWT_TOKEN>
 
 {
   "name": "DotNet Conf 2026",
