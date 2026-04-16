@@ -19,6 +19,10 @@ dotnet restore
 dotnet test
 dotnet test --filter "FullyQualifiedName~Talk"   # Run a single test class or namespace
 
+# Run mutation tests (requires 100% mutation score)
+./scripts/run-mutation-tests.sh                  # Run mutation tests for all unit test projects
+cd src/backend/Conference/ConferenceExample.Conference.Domain.UnitTests && dotnet stryker --config-file ../../../../stryker-config.json  # Run for a single project
+
 # Format code
 dotnet csharpier .
 
