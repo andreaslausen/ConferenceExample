@@ -7,11 +7,30 @@ namespace ConferenceExample.Talk.Application.SubmitTalk;
 
 public class SubmitTalkCommandHandler(
     ITalkRepository talkRepository,
-    ICurrentUserService currentUserService
+    ICurrentUserService currentUserService,
+    IConferenceInfoRepository conferenceInfoRepository
 ) : ISubmitTalkCommandHandler
 {
     public async Task Handle(SubmitTalkCommand command)
     {
+        // Validate that the conference exists and is in CallForSpeakers status
+        var conferenceId = new ConferenceId(new GuidV7(command.ConferenceId));
+        var conferenceInfo = await conferenceInfoRepository.GetById(conferenceId);
+
+        if (conferenceInfo is null)
+        {
+            throw new InvalidOperationException(
+                $"Conference with id {command.ConferenceId} does not exist."
+            );
+        }
+
+        if (conferenceInfo.Status != "CallForSpeakers")
+        {
+            throw new InvalidOperationException(
+                $"Talks can only be submitted when the conference is in CallForSpeakers status. Current status: {conferenceInfo.Status}"
+            );
+        }
+
         // Get the current authenticated user's ID
         // This ensures that a speaker can only submit talks for themselves
         var currentUserId = currentUserService.GetCurrentUserId();

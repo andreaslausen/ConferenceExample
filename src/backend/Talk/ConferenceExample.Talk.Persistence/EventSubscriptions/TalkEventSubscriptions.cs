@@ -35,5 +35,34 @@ public static class TalkEventSubscriptions
                 }
             );
         }
+
+        // Subscribe to Conference domain events to track conference status
+        var conferenceDomainEvents = new[]
+        {
+            "ConferenceCreatedEvent",
+            "ConferenceRenamedEvent",
+            "ConferenceStatusChangedEvent",
+            "TalkSubmittedToConferenceEvent",
+            "TalkAcceptedEvent",
+            "TalkRejectedEvent",
+            "TalkScheduledEvent",
+            "TalkAssignedToRoomEvent",
+            "TalkTypeDefinedEvent",
+            "TalkTypeRemovedEvent",
+        };
+
+        foreach (var eventType in conferenceDomainEvents)
+        {
+            eventBus.Subscribe(
+                eventType,
+                async storedEvent =>
+                {
+                    using var scope = scopeFactory.CreateScope();
+                    var handler =
+                        scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
+                    await handler.HandleConferenceDomainEvent(storedEvent);
+                }
+            );
+        }
     }
 }

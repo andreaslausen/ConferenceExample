@@ -16,15 +16,31 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
+        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var handler = new SubmitTalkCommandHandler(talkRepository, currentUserService);
+        var conferenceId = Guid.CreateVersion7();
+        conferenceInfoRepository
+            .GetById(Arg.Any<ConferenceId>())
+            .Returns(
+                new ConferenceInfo(
+                    new ConferenceId(new GuidV7(conferenceId)),
+                    "Test Conference",
+                    "CallForSpeakers"
+                )
+            );
+
+        var handler = new SubmitTalkCommandHandler(
+            talkRepository,
+            currentUserService,
+            conferenceInfoRepository
+        );
         var command = new SubmitTalkCommand(
             "Test Title",
             "Test Abstract",
-            Guid.CreateVersion7(),
-            new List<string> { "tag1", "tag2" },
+            conferenceId,
+            ["tag1", "tag2"],
             Guid.CreateVersion7()
         );
 
@@ -43,15 +59,31 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
+        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var handler = new SubmitTalkCommandHandler(talkRepository, currentUserService);
+        var conferenceId = Guid.CreateVersion7();
+        conferenceInfoRepository
+            .GetById(Arg.Any<ConferenceId>())
+            .Returns(
+                new ConferenceInfo(
+                    new ConferenceId(new GuidV7(conferenceId)),
+                    "Test Conference",
+                    "CallForSpeakers"
+                )
+            );
+
+        var handler = new SubmitTalkCommandHandler(
+            talkRepository,
+            currentUserService,
+            conferenceInfoRepository
+        );
         var command = new SubmitTalkCommand(
             "Test Title",
             "Test Abstract",
-            Guid.CreateVersion7(),
-            new List<string> { "tag1" },
+            conferenceId,
+            ["tag1"],
             Guid.CreateVersion7()
         );
 
@@ -74,17 +106,32 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
+        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var handler = new SubmitTalkCommandHandler(talkRepository, currentUserService);
         var conferenceId = Guid.CreateVersion7();
+        conferenceInfoRepository
+            .GetById(Arg.Any<ConferenceId>())
+            .Returns(
+                new ConferenceInfo(
+                    new ConferenceId(new GuidV7(conferenceId)),
+                    "Test Conference",
+                    "CallForSpeakers"
+                )
+            );
+
+        var handler = new SubmitTalkCommandHandler(
+            talkRepository,
+            currentUserService,
+            conferenceInfoRepository
+        );
         var talkTypeId = Guid.CreateVersion7();
         var command = new SubmitTalkCommand(
             "Test Title",
             "Test Abstract",
             conferenceId,
-            new List<string> { "tag1", "tag2" },
+            ["tag1", "tag2"],
             talkTypeId
         );
 
@@ -103,5 +150,120 @@ public class SubmitTalkCommandHandlerTests
                     && t.Tags.Count == 2
                 )
             );
+    }
+
+    [Fact]
+    public async Task Handle_ConferenceDoesNotExist_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var talkRepository = Substitute.For<ITalkRepository>();
+        var currentUserService = Substitute.For<ICurrentUserService>();
+        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var userId = new UserId(AuthGuidV7.NewGuid());
+        currentUserService.GetCurrentUserId().Returns(userId);
+
+        var conferenceId = Guid.CreateVersion7();
+        conferenceInfoRepository.GetById(Arg.Any<ConferenceId>()).Returns((ConferenceInfo?)null);
+
+        var handler = new SubmitTalkCommandHandler(
+            talkRepository,
+            currentUserService,
+            conferenceInfoRepository
+        );
+        var command = new SubmitTalkCommand(
+            "Test Title",
+            "Test Abstract",
+            conferenceId,
+            ["tag1"],
+            Guid.CreateVersion7()
+        );
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await handler.Handle(command)
+        );
+        Assert.Contains("does not exist", exception.Message);
+    }
+
+    [Fact]
+    public async Task Handle_ConferenceStatusIsNotCallForSpeakers_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var talkRepository = Substitute.For<ITalkRepository>();
+        var currentUserService = Substitute.For<ICurrentUserService>();
+        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var userId = new UserId(AuthGuidV7.NewGuid());
+        currentUserService.GetCurrentUserId().Returns(userId);
+
+        var conferenceId = Guid.CreateVersion7();
+        conferenceInfoRepository
+            .GetById(Arg.Any<ConferenceId>())
+            .Returns(
+                new ConferenceInfo(
+                    new ConferenceId(new GuidV7(conferenceId)),
+                    "Test Conference",
+                    "Draft"
+                )
+            );
+
+        var handler = new SubmitTalkCommandHandler(
+            talkRepository,
+            currentUserService,
+            conferenceInfoRepository
+        );
+        var command = new SubmitTalkCommand(
+            "Test Title",
+            "Test Abstract",
+            conferenceId,
+            ["tag1"],
+            Guid.CreateVersion7()
+        );
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await handler.Handle(command)
+        );
+        Assert.Contains("CallForSpeakers", exception.Message);
+    }
+
+    [Fact]
+    public async Task Handle_ConferenceStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var talkRepository = Substitute.For<ITalkRepository>();
+        var currentUserService = Substitute.For<ICurrentUserService>();
+        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var userId = new UserId(AuthGuidV7.NewGuid());
+        currentUserService.GetCurrentUserId().Returns(userId);
+
+        var conferenceId = Guid.CreateVersion7();
+        conferenceInfoRepository
+            .GetById(Arg.Any<ConferenceId>())
+            .Returns(
+                new ConferenceInfo(
+                    new ConferenceId(new GuidV7(conferenceId)),
+                    "Test Conference",
+                    "CallForSpeakersClosed"
+                )
+            );
+
+        var handler = new SubmitTalkCommandHandler(
+            talkRepository,
+            currentUserService,
+            conferenceInfoRepository
+        );
+        var command = new SubmitTalkCommand(
+            "Test Title",
+            "Test Abstract",
+            conferenceId,
+            ["tag1"],
+            Guid.CreateVersion7()
+        );
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await handler.Handle(command)
+        );
+        Assert.Contains("CallForSpeakers", exception.Message);
     }
 }
