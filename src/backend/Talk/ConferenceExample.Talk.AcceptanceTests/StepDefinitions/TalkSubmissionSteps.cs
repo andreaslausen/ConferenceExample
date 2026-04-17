@@ -1,3 +1,4 @@
+using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
@@ -9,15 +10,48 @@ using TalkEntity = ConferenceExample.Talk.Domain.TalkManagement.Talk;
 namespace ConferenceExample.Talk.AcceptanceTests.StepDefinitions;
 
 [Binding]
-public class TalkSubmissionSteps(ITalkService talkService, ITalkRepository talkRepository)
+public class TalkSubmissionSteps(
+    ITalkService talkService,
+    ITalkRepository talkRepository,
+    IEventStore eventStore
+)
 {
     private Guid _conferenceId;
     private IReadOnlyList<TalkEntity> _talks = [];
 
     [Given("a conference exists")]
-    public void GivenAConferenceExists()
+    public async Task GivenAConferenceExists()
     {
         _conferenceId = Guid.CreateVersion7();
+
+        // Create a mock Conference event in the EventStore so the ConferenceRepository can load it
+        var conferenceCreatedEvent = new StoredEvent(
+            Guid.CreateVersion7(),
+            _conferenceId,
+            "ConferenceCreatedEvent",
+            $$"""
+            {
+                "AggregateId": "{{_conferenceId}}",
+                "OccurredAt": "{{DateTimeOffset.UtcNow:O}}",
+                "Version": 0,
+                "Name": "Test Conference",
+                "Start": "{{DateTimeOffset.UtcNow.AddMonths(1):O}}",
+                "End": "{{DateTimeOffset.UtcNow.AddMonths(1).AddDays(2):O}}",
+                "LocationName": "Test Location",
+                "Street": "123 Test St",
+                "City": "Test City",
+                "State": "Test State",
+                "PostalCode": "12345",
+                "Country": "Test Country",
+                "OrganizerId": "{{Guid.CreateVersion7()}}",
+                "Status": "CallForSpeakers"
+            }
+            """,
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        await eventStore.AppendEvents(_conferenceId, [conferenceCreatedEvent], 0);
     }
 
     [When("a speaker submits a talk titled {string} with abstract {string}")]
