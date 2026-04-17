@@ -194,6 +194,18 @@ public class TalksControllerTests : IntegrationTestBase
                 response
             );
 
+        // Change status to CallForSpeakers so talks can be submitted
+        var changeStatusDto =
+            new Conference.Application.ChangeConferenceStatus.ChangeConferenceStatusDto
+            {
+                Status = Conference.Domain.ConferenceManagement.ConferenceStatus.CallForSpeakers,
+            };
+        var statusResponse = await PutAsync(
+            $"/api/conferences/{result!.Id}/status",
+            changeStatusDto
+        );
+        statusResponse.EnsureSuccessStatusCode(); // Ensure status change succeeded
+
         // Restore previous token if any
         HttpClient.DefaultRequestHeaders.Authorization = currentToken;
 

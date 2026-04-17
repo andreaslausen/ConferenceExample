@@ -8,26 +8,20 @@ namespace ConferenceExample.Talk.Application.SubmitTalk;
 public class SubmitTalkCommandHandler(
     ITalkRepository talkRepository,
     ICurrentUserService currentUserService,
-    IConferenceInfoRepository conferenceInfoRepository
+    IConferenceRepository conferenceRepository
 ) : ISubmitTalkCommandHandler
 {
     public async Task Handle(SubmitTalkCommand command)
     {
         // Validate that the conference exists and is in CallForSpeakers status
+        // Load conference state from EventStore (Single Source of Truth)
         var conferenceId = new ConferenceId(new GuidV7(command.ConferenceId));
-        var conferenceInfo = await conferenceInfoRepository.GetById(conferenceId);
+        var conference = await conferenceRepository.GetById(conferenceId);
 
-        if (conferenceInfo is null)
+        if (!conference.CanAcceptTalkSubmissions())
         {
             throw new InvalidOperationException(
-                $"Conference with id {command.ConferenceId} does not exist."
-            );
-        }
-
-        if (conferenceInfo.Status != "CallForSpeakers")
-        {
-            throw new InvalidOperationException(
-                $"Talks can only be submitted when the conference is in CallForSpeakers status. Current status: {conferenceInfo.Status}"
+                $"Talks can only be submitted when the conference is in CallForSpeakers status. Current status: {conference.Status}"
             );
         }
 

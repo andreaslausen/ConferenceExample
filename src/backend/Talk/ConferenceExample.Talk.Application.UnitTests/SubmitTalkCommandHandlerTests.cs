@@ -16,25 +16,21 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
-        conferenceInfoRepository
-            .GetById(Arg.Any<ConferenceId>())
-            .Returns(
-                new ConferenceInfo(
-                    new ConferenceId(new GuidV7(conferenceId)),
-                    "Test Conference",
-                    "CallForSpeakers"
-                )
-            );
+        var conference = Domain.TalkManagement.Conference.FromEvents(
+            new ConferenceId(new GuidV7(conferenceId)),
+            "CallForSpeakers"
+        );
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceInfoRepository
+            conferenceRepository
         );
         var command = new SubmitTalkCommand(
             "Test Title",
@@ -59,25 +55,21 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
-        conferenceInfoRepository
-            .GetById(Arg.Any<ConferenceId>())
-            .Returns(
-                new ConferenceInfo(
-                    new ConferenceId(new GuidV7(conferenceId)),
-                    "Test Conference",
-                    "CallForSpeakers"
-                )
-            );
+        var conference = Domain.TalkManagement.Conference.FromEvents(
+            new ConferenceId(new GuidV7(conferenceId)),
+            "CallForSpeakers"
+        );
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceInfoRepository
+            conferenceRepository
         );
         var command = new SubmitTalkCommand(
             "Test Title",
@@ -106,25 +98,21 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
-        conferenceInfoRepository
-            .GetById(Arg.Any<ConferenceId>())
-            .Returns(
-                new ConferenceInfo(
-                    new ConferenceId(new GuidV7(conferenceId)),
-                    "Test Conference",
-                    "CallForSpeakers"
-                )
-            );
+        var conference = Domain.TalkManagement.Conference.FromEvents(
+            new ConferenceId(new GuidV7(conferenceId)),
+            "CallForSpeakers"
+        );
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceInfoRepository
+            conferenceRepository
         );
         var talkTypeId = Guid.CreateVersion7();
         var command = new SubmitTalkCommand(
@@ -158,17 +146,23 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
-        conferenceInfoRepository.GetById(Arg.Any<ConferenceId>()).Returns((ConferenceInfo?)null);
+        conferenceRepository
+            .GetById(Arg.Any<ConferenceId>())
+            .Returns(
+                Task.FromException<Domain.TalkManagement.Conference>(
+                    new InvalidOperationException("Conference with id does not exist.")
+                )
+            );
 
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceInfoRepository
+            conferenceRepository
         );
         var command = new SubmitTalkCommand(
             "Test Title",
@@ -191,25 +185,21 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
-        conferenceInfoRepository
-            .GetById(Arg.Any<ConferenceId>())
-            .Returns(
-                new ConferenceInfo(
-                    new ConferenceId(new GuidV7(conferenceId)),
-                    "Test Conference",
-                    "Draft"
-                )
-            );
+        var conference = Domain.TalkManagement.Conference.FromEvents(
+            new ConferenceId(new GuidV7(conferenceId)),
+            "Draft"
+        );
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceInfoRepository
+            conferenceRepository
         );
         var command = new SubmitTalkCommand(
             "Test Title",
@@ -232,25 +222,21 @@ public class SubmitTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var conferenceInfoRepository = Substitute.For<IConferenceInfoRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
-        conferenceInfoRepository
-            .GetById(Arg.Any<ConferenceId>())
-            .Returns(
-                new ConferenceInfo(
-                    new ConferenceId(new GuidV7(conferenceId)),
-                    "Test Conference",
-                    "CallForSpeakersClosed"
-                )
-            );
+        var conference = Domain.TalkManagement.Conference.FromEvents(
+            new ConferenceId(new GuidV7(conferenceId)),
+            "CallForSpeakersClosed"
+        );
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceInfoRepository
+            conferenceRepository
         );
         var command = new SubmitTalkCommand(
             "Test Title",

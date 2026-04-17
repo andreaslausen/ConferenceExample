@@ -9,23 +9,15 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddTalkPersistence(this IServiceCollection services)
     {
-        // Repositories (Event Store based)
+        // Repositories (Event Store based) - Single Source of Truth for Commands
         services.AddScoped<ITalkRepository, TalkRepository>();
+        services.AddScoped<IConferenceRepository, ConferenceRepository>();
 
-        // Read Model Repositories (MongoDB based)
+        // Read Model Repositories (MongoDB based) - for optimized Queries only
         services.AddScoped<ITalkReadModelRepository, MongoDbTalkReadModelRepository>();
 
-        // Conference Info Repository - registered as both domain interface and concrete implementation
-        // The domain interface (IConferenceInfoRepository) is used by application layer
-        // The concrete implementation is used by event handlers that need access to internal methods
-        services.AddScoped<MongoDbConferenceReadModelRepository>();
-        services.AddScoped<IConferenceInfoRepository>(sp =>
-            sp.GetRequiredService<MongoDbConferenceReadModelRepository>()
-        );
-
-        // Event Handlers
+        // Event Handlers - update Read Models when events occur
         services.AddScoped<TalkEventHandler>();
-        services.AddScoped<ConferenceEventHandler>();
 
         return services;
     }
