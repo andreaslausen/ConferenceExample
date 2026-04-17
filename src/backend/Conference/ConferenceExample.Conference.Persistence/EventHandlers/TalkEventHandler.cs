@@ -21,6 +21,7 @@ public class TalkEventHandler
     /// <summary>
     /// Handles any Talk domain event from the Talk BC (submitted, edited, tag added/removed).
     /// All domain events now contain the complete aggregate state, so we can use a single handler.
+    /// Ensures idempotency by checking event version against read model version.
     /// </summary>
     public async Task HandleTalkDomainEvent(StoredEvent storedEvent)
     {
@@ -54,6 +55,12 @@ public class TalkEventHandler
         }
         else
         {
+            // Check for idempotency - skip if event version is not newer than read model version
+            if (domainEvent.Version <= existingReadModel.Version)
+            {
+                return; // Event already processed or out of order, skip to prevent duplicates
+            }
+
             // Update existing read model with complete state from domain event
             // Preserve Conference BC specific fields (SlotStart, SlotEnd, RoomId, RoomName)
             existingReadModel.ConferenceId = domainEvent.ConferenceId.ToString();
@@ -96,8 +103,15 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
+        // Check for idempotency - skip if event version is not newer than read model version
+        if (payload.Version <= readModel.Version)
+        {
+            return; // Event already processed or out of order, skip to prevent duplicates
+        }
+
         readModel.Status = "Accepted";
         readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = payload.Version;
 
         await _readModelRepository.Update(readModel);
     }
@@ -113,8 +127,15 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
+        // Check for idempotency - skip if event version is not newer than read model version
+        if (payload.Version <= readModel.Version)
+        {
+            return; // Event already processed or out of order, skip to prevent duplicates
+        }
+
         readModel.Status = "Rejected";
         readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = payload.Version;
 
         await _readModelRepository.Update(readModel);
     }
@@ -130,9 +151,16 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
+        // Check for idempotency - skip if event version is not newer than read model version
+        if (payload.Version <= readModel.Version)
+        {
+            return; // Event already processed or out of order, skip to prevent duplicates
+        }
+
         readModel.SlotStart = payload.TalkStart;
         readModel.SlotEnd = payload.TalkEnd;
         readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = payload.Version;
 
         await _readModelRepository.Update(readModel);
     }
@@ -148,9 +176,16 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
+        // Check for idempotency - skip if event version is not newer than read model version
+        if (payload.Version <= readModel.Version)
+        {
+            return; // Event already processed or out of order, skip to prevent duplicates
+        }
+
         readModel.RoomId = payload.RoomId.ToString();
         readModel.RoomName = payload.RoomName;
         readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = payload.Version;
 
         await _readModelRepository.Update(readModel);
     }

@@ -21,6 +21,7 @@ public class TalkEventHandler
     /// <summary>
     /// Handles any Talk domain event (submitted, edited, tag added/removed).
     /// All domain events now contain the complete aggregate state, so we can use a single handler.
+    /// Ensures idempotency by checking event version against read model version.
     /// </summary>
     public async Task HandleTalkDomainEvent(StoredEvent storedEvent)
     {
@@ -54,6 +55,12 @@ public class TalkEventHandler
         }
         else
         {
+            // Check for idempotency - skip if event version is not newer than read model version
+            if (domainEvent.Version <= existingReadModel.Version)
+            {
+                return; // Event already processed or out of order, skip to prevent duplicates
+            }
+
             // Update existing read model with complete state from domain event
             existingReadModel.Title = domainEvent.Title;
             existingReadModel.Abstract = domainEvent.Abstract;

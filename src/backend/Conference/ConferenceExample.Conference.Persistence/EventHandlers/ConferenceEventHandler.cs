@@ -21,6 +21,7 @@ public class ConferenceEventHandler
     /// <summary>
     /// Handles any Conference domain event (created, renamed, status changed).
     /// All domain events now contain the complete aggregate state, so we can use a single handler.
+    /// Ensures idempotency by checking event version against read model version.
     /// </summary>
     public async Task HandleConferenceDomainEvent(StoredEvent storedEvent)
     {
@@ -60,6 +61,12 @@ public class ConferenceEventHandler
         }
         else
         {
+            // Check for idempotency - skip if event version is not newer than read model version
+            if (domainEvent.Version <= existingReadModel.Version)
+            {
+                return; // Event already processed or out of order, skip to prevent duplicates
+            }
+
             // Update existing read model with complete state from domain event
             existingReadModel.Name = domainEvent.Name;
             existingReadModel.Start = domainEvent.Start;
@@ -82,6 +89,7 @@ public class ConferenceEventHandler
 
     /// <summary>
     /// Handles TalkTypeDefinedEvent - adds a new TalkType to the Conference read model.
+    /// Ensures idempotency by checking event version against read model version.
     /// </summary>
     public async Task HandleTalkTypeDefined(StoredEvent storedEvent)
     {
@@ -124,6 +132,12 @@ public class ConferenceEventHandler
         }
         else
         {
+            // Check for idempotency - skip if event version is not newer than read model version
+            if (domainEvent.Version <= existingReadModel.Version)
+            {
+                return; // Event already processed or out of order, skip to prevent duplicates
+            }
+
             // Update existing read model with complete state and add the new TalkType
             existingReadModel.Name = domainEvent.Name;
             existingReadModel.Start = domainEvent.Start;
@@ -158,6 +172,7 @@ public class ConferenceEventHandler
 
     /// <summary>
     /// Handles TalkTypeRemovedEvent - removes a TalkType from the Conference read model.
+    /// Ensures idempotency by checking event version against read model version.
     /// </summary>
     public async Task HandleTalkTypeRemoved(StoredEvent storedEvent)
     {
@@ -168,6 +183,12 @@ public class ConferenceEventHandler
         var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
         if (existingReadModel is null)
             return;
+
+        // Check for idempotency - skip if event version is not newer than read model version
+        if (domainEvent.Version <= existingReadModel.Version)
+        {
+            return; // Event already processed or out of order, skip to prevent duplicates
+        }
 
         // Update existing read model with complete state and remove the TalkType
         existingReadModel.Name = domainEvent.Name;
