@@ -6,7 +6,6 @@ using ConferenceExample.IntegrationTests.Infrastructure;
 using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.SubmitTalk;
-using FluentAssertions;
 
 namespace ConferenceExample.IntegrationTests;
 
@@ -42,7 +41,7 @@ public class TalksControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/talks", submitDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
     [Fact]
@@ -62,7 +61,7 @@ public class TalksControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/talks", submitDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Fact]
@@ -80,10 +79,10 @@ public class TalksControllerTests : IntegrationTestBase
         var response = await HttpClient.GetAsync("/api/talks/my-talks");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<List<GetMyTalksDto>>();
-        result.Should().NotBeNull();
-        result.Should().BeEmpty();
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
     [Fact]
@@ -112,13 +111,13 @@ public class TalksControllerTests : IntegrationTestBase
         var response = await HttpClient.GetAsync("/api/talks/my-talks");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<List<GetMyTalksDto>>();
-        result.Should().NotBeNull();
-        result.Should().HaveCount(1);
-        result![0].Title.Should().Be("My Test Talk");
-        result[0].Abstract.Should().Be("Test Abstract for my talk");
-        result[0].Tags.Should().BeEquivalentTo(new[] { "test", "integration" });
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal("My Test Talk", result![0].Title);
+        Assert.Equal("Test Abstract for my talk", result[0].Abstract);
+        Assert.Equal(new[] { "test", "integration" }, result[0].Tags);
     }
 
     [Fact]
@@ -159,7 +158,7 @@ public class TalksControllerTests : IntegrationTestBase
         var response = await PutAsync($"/api/talks/{talkId}", editDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         // Verify the talk was updated
     }

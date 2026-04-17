@@ -62,6 +62,19 @@ API  ──►  Application  ──►  Domain
 - `*.AcceptanceTests` — end-to-end acceptance tests per bounded context
 - `*.Tests` — unit tests per domain/application layer
 
+#### Testing Tools
+
+**Unit Tests:**
+- **xUnit** — assertion framework (use `Assert.Equal`, `Assert.NotNull`, etc.)
+- **NSubstitute** — mocking framework
+
+**Integration Tests:**
+- **xUnit** — assertion framework
+- **NSubstitute** — mocking framework
+- **Testcontainers** — for containerized dependencies
+
+**Important:** Do NOT use FluentAssertions. Use xUnit's standard `Assert` methods instead.
+
 ## Code Style
 
 - CSharpier is the formatter; it runs automatically on staged `.cs` files via the pre-commit hook.

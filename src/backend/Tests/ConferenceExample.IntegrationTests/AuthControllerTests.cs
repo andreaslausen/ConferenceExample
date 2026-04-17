@@ -3,7 +3,6 @@ using System.Net;
 using System.Security.Claims;
 using ConferenceExample.Authentication;
 using ConferenceExample.IntegrationTests.Infrastructure;
-using FluentAssertions;
 
 namespace ConferenceExample.IntegrationTests;
 
@@ -33,17 +32,18 @@ public class AuthControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/auth/register", registerDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await DeserializeResponse<RegisterResponseDto>(response);
-        result.Should().NotBeNull();
-        result!.Token.Should().NotBeNullOrEmpty();
+        Assert.NotNull(result);
+        Assert.NotEmpty(result!.Token);
 
         // Verify token contains correct claims
         var token = new JwtSecurityTokenHandler().ReadJwtToken(result.Token);
-        token
-            .Claims.Should()
-            .Contain(c => c.Type == JwtRegisteredClaimNames.Email && c.Value == email);
-        token.Claims.Should().Contain(c => c.Type == ClaimTypes.Role && c.Value == role.ToString());
+        Assert.Contains(
+            token.Claims,
+            c => c.Type == JwtRegisteredClaimNames.Email && c.Value == email
+        );
+        Assert.Contains(token.Claims, c => c.Type == ClaimTypes.Role && c.Value == role.ToString());
     }
 
     [Fact]
@@ -66,9 +66,9 @@ public class AuthControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/auth/register", registerDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var errorContent = await response.Content.ReadAsStringAsync();
-        errorContent.Should().Contain("User already exists");
+        Assert.Contains("User already exists", errorContent);
     }
 
     [Fact]
@@ -91,16 +91,17 @@ public class AuthControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/auth/login", loginDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await DeserializeResponse<LoginResponseDto>(response);
-        result.Should().NotBeNull();
-        result!.Token.Should().NotBeNullOrEmpty();
+        Assert.NotNull(result);
+        Assert.NotEmpty(result!.Token);
 
         // Verify token contains correct claims
         var token = new JwtSecurityTokenHandler().ReadJwtToken(result.Token);
-        token
-            .Claims.Should()
-            .Contain(c => c.Type == JwtRegisteredClaimNames.Email && c.Value == email);
+        Assert.Contains(
+            token.Claims,
+            c => c.Type == JwtRegisteredClaimNames.Email && c.Value == email
+        );
     }
 
     [Fact]
@@ -113,9 +114,9 @@ public class AuthControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/auth/login", loginDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var errorContent = await response.Content.ReadAsStringAsync();
-        errorContent.Should().Contain("Invalid credentials");
+        Assert.Contains("Invalid credentials", errorContent);
     }
 
     [Fact]
@@ -138,9 +139,9 @@ public class AuthControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/auth/login", loginDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var errorContent = await response.Content.ReadAsStringAsync();
-        errorContent.Should().Contain("Invalid credentials");
+        Assert.Contains("Invalid credentials", errorContent);
     }
 
     [Fact]
@@ -156,7 +157,7 @@ public class AuthControllerTests : IntegrationTestBase
         var response = await HttpClient.GetAsync("/api/talks/my-talks");
 
         // Assert - Should succeed (200 OK with empty list) rather than 401 Unauthorized
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -166,7 +167,7 @@ public class AuthControllerTests : IntegrationTestBase
         var response = await HttpClient.GetAsync("/api/talks/my-talks");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     private record RegisterResponseDto(string Token);

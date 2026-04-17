@@ -6,7 +6,6 @@ using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.IntegrationTests.Infrastructure;
-using FluentAssertions;
 
 namespace ConferenceExample.IntegrationTests;
 
@@ -44,14 +43,14 @@ public class ConferencesControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/conferences", createDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var result = await DeserializeResponse<ConferenceCreatedDto>(response);
-        result.Should().NotBeNull();
-        result!.Id.Should().NotBeEmpty();
-        result.Name.Should().Be("DotNet Conf 2026");
-        result.Start.Should().Be(createDto.Start);
-        result.End.Should().Be(createDto.End);
-        result.LocationName.Should().Be("Berlin Congress Center");
+        Assert.NotNull(result);
+        Assert.NotEqual(Guid.Empty, result!.Id);
+        Assert.Equal("DotNet Conf 2026", result.Name);
+        Assert.Equal(createDto.Start, result.Start);
+        Assert.Equal(createDto.End, result.End);
+        Assert.Equal("Berlin Congress Center", result.LocationName);
     }
 
     [Fact]
@@ -75,7 +74,7 @@ public class ConferencesControllerTests : IntegrationTestBase
         var response = await PostAsync("/api/conferences", createDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Fact]
@@ -85,10 +84,10 @@ public class ConferencesControllerTests : IntegrationTestBase
         var response = await HttpClient.GetAsync("/api/conferences");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<List<GetAllConferencesDto>>();
-        result.Should().NotBeNull();
-        result.Should().BeEmpty();
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
     [Fact]
@@ -120,12 +119,12 @@ public class ConferencesControllerTests : IntegrationTestBase
         var response = await HttpClient.GetAsync("/api/conferences");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<List<GetAllConferencesDto>>();
-        result.Should().NotBeNull();
-        result.Should().HaveCount(1);
-        result![0].Name.Should().Be("Test Conference");
-        result[0].City.Should().Be("Munich");
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal("Test Conference", result![0].Name);
+        Assert.Equal("Munich", result[0].City);
     }
 
     [Fact]
@@ -158,13 +157,13 @@ public class ConferencesControllerTests : IntegrationTestBase
         var response = await HttpClient.GetAsync($"/api/conferences/{createdConference!.Id}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<GetConferenceByIdDto>();
-        result.Should().NotBeNull();
-        result!.Name.Should().Be("Specific Conference");
-        result.LocationName.Should().Be("Hamburg Convention Center");
-        result.Street.Should().Be("Messeplatz 1");
-        result.City.Should().Be("Hamburg");
+        Assert.NotNull(result);
+        Assert.Equal("Specific Conference", result!.Name);
+        Assert.Equal("Hamburg Convention Center", result.LocationName);
+        Assert.Equal("Messeplatz 1", result.Street);
+        Assert.Equal("Hamburg", result.City);
     }
 
     [Fact]
@@ -199,13 +198,13 @@ public class ConferencesControllerTests : IntegrationTestBase
         var response = await PutAsync($"/api/conferences/{createdConference!.Id}/name", renameDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         // Verify the name was updated
         var getResponse = await HttpClient.GetAsync($"/api/conferences/{createdConference.Id}");
         var updatedConference = await getResponse.Content.ReadFromJsonAsync<GetConferenceByIdDto>();
-        updatedConference.Should().NotBeNull();
-        updatedConference!.Name.Should().Be("Updated Name");
+        Assert.NotNull(updatedConference);
+        Assert.Equal("Updated Name", updatedConference!.Name);
     }
 
     [Fact]
@@ -219,6 +218,6 @@ public class ConferencesControllerTests : IntegrationTestBase
         var response = await PutAsync($"/api/conferences/{conferenceId}/name", renameDto);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }
