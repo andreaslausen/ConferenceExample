@@ -62,51 +62,68 @@ a|
 * *Negative / trade-offs:* Higher initial complexity compared to a classic CRUD approach; eventual consistency between the write and read sides must be consciously accounted for; event schema evolution requires care (upcasting).
 |===
 
+=== ADR-3: Frontend Technology — Blazor Server with MudBlazor
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Accepted
+
+| Context
+| The system requires a user interface for conference organizers, speakers, and attendees. A frontend technology must be chosen that fits well with the .NET backend ecosystem, is understandable without dedicated frontend expertise, and results in a polished, usable application. The primary goal is to demonstrate that the backend powers a real, working application — not to illustrate frontend architecture patterns or the integration between a JavaScript framework and a .NET backend.
+
+| Decision
+| Use *Blazor Server* as the frontend framework, combined with *MudBlazor* as the component library. The Blazor application runs as part of the existing ASP.NET Core host and calls application services directly — without an additional HTTP API layer.
+
+| Rationale
+a|
+* *Developer experience* — Blazor Server allows the entire application to be written in C#. No context switch to JavaScript, TypeScript, or a separate build toolchain (npm, Webpack, Vite). Any .NET developer can read and understand the frontend code immediately.
+* *Alignment with quality goal "Understandability"* — the primary quality goal of this project is that the code is immediately graspable by an audience encountering it for the first time. A single language and a single ecosystem reduces cognitive overhead significantly.
+* *MudBlazor* — the most widely used Blazor component library (10,000+ GitHub stars). Based on Material Design principles, it provides a polished, consistent look and feel out of the box without requiring custom CSS. Actively maintained with full .NET 10 support.
+* *Operational simplicity* — Blazor Server requires no separate deployment unit. The frontend is served by the existing ASP.NET Core application; no additional hosting infrastructure is needed.
+* *Direct service access* — Blazor Server components can call application services in-process. There is no need to expose or consume additional REST endpoints solely for the frontend, keeping the codebase simpler.
+* *React rejected* — React is the most widely adopted JavaScript library for building UIs and has a large ecosystem. However, it requires TypeScript or JavaScript, a separate build toolchain (npm, Vite or Webpack), and familiarity with concepts such as JSX, hooks, and component state management. For an audience of .NET developers, this creates a significant context switch. Additionally, a REST or GraphQL API would be required to connect the frontend to the backend, adding an extra layer with no demonstration value for this project.
+* *Angular rejected* — Angular is a full-featured, opinionated framework with strong typing via TypeScript and a structured approach to dependency injection, routing, and forms. While its architectural style is closer to .NET in spirit, it introduces considerable boilerplate and a steep learning curve for developers unfamiliar with the Angular ecosystem. The same objections regarding a separate build toolchain and a required HTTP API layer apply as for React.
+* *Vue.js rejected* — Vue.js offers a gentler learning curve than React or Angular and is well-regarded for its approachability. However, it still requires JavaScript or TypeScript and a separate frontend build pipeline, and the same API integration overhead applies. It offers no meaningful advantage over React or Angular for this specific context.
+* *Blazor WebAssembly rejected* — WASM requires a separate deployment and introduces a noticeable initial load time. The direct in-process service access of Blazor Server is preferable for a demo context.
+
+| Consequences
+a|
+* *Positive:* Single language and ecosystem throughout the entire stack; no npm or JavaScript build toolchain; polished UI with minimal effort via MudBlazor; no extra HTTP endpoints needed for the frontend.
+* *Negative / trade-offs:* Blazor Server requires a persistent SignalR connection per user session, which limits independent scaling of the frontend. This trade-off is acceptable for a demonstration project. Real-time collaborative editing scenarios are not supported without additional effort.
+|===
+
+=== ADR-4: Frontend Boundary — Single Shared Application
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Accepted
+
+| Context
+| The system has multiple bounded contexts (Conference, Talk, and others planned). A decision is needed on whether the frontend should mirror those boundaries — one frontend application per bounded context — or whether a single shared application should serve all user-facing functionality.
+
+| Decision
+| Use a *single shared Blazor Server application* that consumes services from all bounded contexts. There is no frontend decomposition along bounded context lines.
+
+| Rationale
+a|
+* *Demonstration scope* — the bounded context boundaries in this project are an architectural concern of the backend (domain isolation, independent deployment units, separate schemas). Replicating those boundaries in the frontend via micro frontends would add complexity without adding demonstration value.
+* *Micro frontend trade-offs* — micro frontend architectures introduce significant complexity: independent deployment pipelines per frontend, a shell/composition layer, shared dependency management, and cross-fragment navigation. These challenges are worth demonstrating only when frontend autonomy is itself the topic being illustrated.
+* *Operational simplicity* — a single Blazor application is straightforward to run, deploy, and debug. This keeps the focus of the project on the backend architecture patterns it is designed to demonstrate.
+* *User experience* — a shared application provides a unified navigation experience without requiring a composition strategy to stitch fragments together.
+
+| Consequences
+a|
+* *Positive:* Simple deployment, unified user experience, no composition layer required, easy local development.
+* *Negative / trade-offs:* The frontend introduces a coupling point across bounded contexts at the UI layer. If bounded context autonomy were a hard requirement (e.g. independent frontend deployment per context), this decision would need to be revisited. For the current scope and goals of this project, that trade-off is explicitly accepted.
+|===
+
 == Open Decisions
-
-=== OD-1: Frontend Technology
-
-[cols="1,3",options="header"]
-|===
-| Attribute | Value
-
-| Status
-| Open
-
-| Question
-| Which frontend technology should be used for the user interface?
-
-| Options Considered
-a|
-* React
-* Angular
-* Blazor (WebAssembly or Server)
-* Vue.js
-
-| Decision Criteria
-| Developer experience, alignment with the .NET backend ecosystem, suitability as a demonstration technology for talks and workshops.
-|===
-
-=== OD-2: Frontend Boundary — Shared vs. Per Bounded Context
-
-[cols="1,3",options="header"]
-|===
-| Attribute | Value
-
-| Status
-| Open
-
-| Question
-| Should there be a single shared frontend application, or a separate frontend application per bounded context?
-
-| Options Considered
-a|
-* *Shared frontend* — one application consumes APIs from all bounded contexts. Simpler deployment, but introduces coupling between bounded contexts at the UI layer.
-* *Frontend per bounded context* — each bounded context owns its own frontend. Stronger isolation and autonomy per context, but requires a composition strategy (e.g. micro frontends) to present a unified user experience.
-
-| Decision Criteria
-| Degree of desired autonomy between bounded contexts, operational complexity, and value as a demonstration of DDD and Clean Architecture principles.
-|===
 
 === OD-3: Event Store Persistence Technology
 
