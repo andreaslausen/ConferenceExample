@@ -7,7 +7,7 @@ using ConferenceExample.Talk.Domain.SpeakerManagement;
 public class SpeakerTests
 {
     [Fact]
-    public void Constructor_ValidParameters_SetsProperties()
+    public void Create_ValidParameters_SetsProperties()
     {
         // Arrange
         var id = new SpeakerId(GuidV7.NewGuid());
@@ -17,7 +17,7 @@ public class SpeakerTests
         );
 
         // Act
-        var speaker = new Speaker(id, name, biography);
+        var speaker = Speaker.Create(id, name, biography);
 
         // Assert
         Assert.Equal(id, speaker.Id);
@@ -26,7 +26,7 @@ public class SpeakerTests
     }
 
     [Fact]
-    public void Constructor_ValidMinimalBiography_SetsProperties()
+    public void Create_ValidMinimalBiography_SetsProperties()
     {
         // Arrange
         var id = new SpeakerId(GuidV7.NewGuid());
@@ -34,9 +34,25 @@ public class SpeakerTests
         var biography = new SpeakerBiography("");
 
         // Act
-        var speaker = new Speaker(id, name, biography);
+        var speaker = Speaker.Create(id, name, biography);
 
         // Assert
         Assert.Equal("", speaker.Biography.Content);
+    }
+
+    [Fact]
+    public void UpdateProfile_ChangesNameAndBiography()
+    {
+        // Arrange
+        var id = new SpeakerId(GuidV7.NewGuid());
+        var speaker = Speaker.Create(id, new Name("John", "Doe"), new SpeakerBiography("Old bio"));
+
+        // Act
+        speaker.UpdateProfile(new Name("Jane", "Smith"), new SpeakerBiography("New bio"));
+
+        // Assert
+        Assert.Equal("Jane", speaker.Name.FirstName);
+        Assert.Equal("Smith", speaker.Name.LastName);
+        Assert.Equal("New bio", speaker.Biography.Content);
     }
 }

@@ -35,7 +35,30 @@ public class TalkEventSubscriptionsTests
     }
 
     [Fact]
-    public void Subscribe_RegistersExactlyFiveEventTypes()
+    public void Subscribe_RegistersAllSpeakerDomainEvents()
+    {
+        // Arrange
+        var eventBus = Substitute.For<IEventBus>();
+        var scopeFactory = Substitute.For<IServiceScopeFactory>();
+
+        var expectedEventTypes = new[]
+        {
+            "SpeakerProfileCreatedEvent",
+            "SpeakerProfileUpdatedEvent",
+        };
+
+        // Act
+        TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
+
+        // Assert
+        foreach (var eventType in expectedEventTypes)
+        {
+            eventBus.Received(1).Subscribe(eventType, Arg.Any<Func<StoredEvent, Task>>());
+        }
+    }
+
+    [Fact]
+    public void Subscribe_RegistersExactlySevenEventTypes()
     {
         // Arrange
         var eventBus = Substitute.For<IEventBus>();
@@ -44,8 +67,8 @@ public class TalkEventSubscriptionsTests
         // Act
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - should register exactly 5 event types
-        eventBus.Received(5).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        // Assert - 5 talk events + 2 speaker events
+        eventBus.Received(7).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 
     [Fact]
@@ -103,7 +126,7 @@ public class TalkEventSubscriptionsTests
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - each call should register handlers
-        eventBus.Received(10).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        // Assert - each call should register handlers (7 events × 2 calls = 14)
+        eventBus.Received(14).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 }
