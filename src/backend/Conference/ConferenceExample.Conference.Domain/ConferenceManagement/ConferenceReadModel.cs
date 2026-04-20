@@ -8,5 +8,6 @@ public record ConferenceReadModel(
     string City,
     string State,
     string PostalCode,
-    string Country
+    string Country,
+    string Status
 );

@@ -16,7 +16,8 @@ public class GetAllConferencesQueryHandlerTests
             city,
             city,
             "10115",
-            country
+            country,
+            "Draft"
         );
 
     [Fact]

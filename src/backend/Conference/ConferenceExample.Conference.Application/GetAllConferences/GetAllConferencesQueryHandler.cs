@@ -19,7 +19,8 @@ public class GetAllConferencesQueryHandler(
                 c.City,
                 c.State,
                 c.PostalCode,
-                c.Country
+                c.Country,
+                c.Status
             ))
             .ToList();
     }

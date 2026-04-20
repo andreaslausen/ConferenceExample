@@ -11,5 +11,6 @@ public record GetConferenceByIdDto(
     string State,
     string PostalCode,
     string Country,
-    Guid OrganizerId
+    Guid OrganizerId,
+    string Status
 );

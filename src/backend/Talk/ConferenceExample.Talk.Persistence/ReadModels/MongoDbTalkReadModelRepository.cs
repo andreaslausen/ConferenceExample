@@ -50,6 +50,24 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
         return await _collection.Find(filter).ToListAsync();
     }
 
+    async Task<TalkReadModel?> ITalkReadModelRepository.GetById(TalkId talkId)
+    {
+        var filter = Builders<TalkDocument>.Filter.Eq(t => t.Id, talkId.Value.Value.ToString());
+        var document = await _collection.Find(filter).FirstOrDefaultAsync();
+
+        if (document is null)
+            return null;
+
+        return new TalkReadModel(
+            document.Id.ToGuid(),
+            document.Title,
+            document.Abstract,
+            document.ConferenceId.ToGuid(),
+            document.Status,
+            document.Tags
+        );
+    }
+
     async Task<IReadOnlyList<TalkReadModel>> ITalkReadModelRepository.GetBySpeakerId(
         SpeakerId speakerId
     )

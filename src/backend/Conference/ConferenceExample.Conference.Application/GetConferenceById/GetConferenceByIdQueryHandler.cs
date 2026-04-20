@@ -23,7 +23,8 @@ public class GetConferenceByIdQueryHandler(IConferenceRepository conferenceRepos
             conference.Location.Address.State,
             conference.Location.Address.PostalCode,
             conference.Location.Address.Country,
-            conference.OrganizerId.Value.Value
+            conference.OrganizerId.Value.Value,
+            conference.Status.ToString()
         );
     }
 }

@@ -3,6 +3,7 @@ using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetMyProfile;
 using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.GetSpeakerById;
+using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Application.UpdateSpeakerProfile;
 using ConferenceExample.Talk.Domain.TalkManagement;
@@ -20,6 +21,7 @@ public static class ServiceCollectionExtensions
 
         // Talk Query Handlers
         services.AddScoped<IGetMyTalksQueryHandler, GetMyTalksQueryHandler>();
+        services.AddScoped<IGetTalkByIdQueryHandler, GetTalkByIdQueryHandler>();
 
         // Speaker Command Handlers
         services.AddScoped<

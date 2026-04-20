@@ -1,5 +1,6 @@
 using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetMyTalks;
+using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using NSubstitute;
@@ -14,10 +15,12 @@ public class TalkServiceTests
         // Arrange
         var submitTalkCommandHandler = Substitute.For<ISubmitTalkCommandHandler>();
         var getMyTalksQueryHandler = Substitute.For<IGetMyTalksQueryHandler>();
+        var getTalkByIdQueryHandler = Substitute.For<IGetTalkByIdQueryHandler>();
         var editTalkCommandHandler = Substitute.For<IEditTalkCommandHandler>();
         var service = new TalkService(
             submitTalkCommandHandler,
             getMyTalksQueryHandler,
+            getTalkByIdQueryHandler,
             editTalkCommandHandler
         );
         var dto = CreateSubmitTalkDto();
@@ -35,10 +38,12 @@ public class TalkServiceTests
         // Arrange
         var submitTalkCommandHandler = Substitute.For<ISubmitTalkCommandHandler>();
         var getMyTalksQueryHandler = Substitute.For<IGetMyTalksQueryHandler>();
+        var getTalkByIdQueryHandler = Substitute.For<IGetTalkByIdQueryHandler>();
         var editTalkCommandHandler = Substitute.For<IEditTalkCommandHandler>();
         var service = new TalkService(
             submitTalkCommandHandler,
             getMyTalksQueryHandler,
+            getTalkByIdQueryHandler,
             editTalkCommandHandler
         );
         var expectedTalks = new List<GetMyTalksDto>
@@ -68,10 +73,12 @@ public class TalkServiceTests
         // Arrange
         var submitTalkCommandHandler = Substitute.For<ISubmitTalkCommandHandler>();
         var getMyTalksQueryHandler = Substitute.For<IGetMyTalksQueryHandler>();
+        var getTalkByIdQueryHandler = Substitute.For<IGetTalkByIdQueryHandler>();
         var editTalkCommandHandler = Substitute.For<IEditTalkCommandHandler>();
         var service = new TalkService(
             submitTalkCommandHandler,
             getMyTalksQueryHandler,
+            getTalkByIdQueryHandler,
             editTalkCommandHandler
         );
         var talkId = Guid.NewGuid();

@@ -41,7 +41,8 @@ public class MongoDbConferenceReadModelRepository
                 d.City,
                 d.State,
                 d.PostalCode,
-                d.Country
+                d.Country,
+                d.Status
             ))
             .ToList();
     }

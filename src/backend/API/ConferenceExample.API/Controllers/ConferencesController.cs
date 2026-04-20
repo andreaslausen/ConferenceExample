@@ -22,11 +22,15 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
 {
     [HttpGet(Name = "GetAllConferences")]
     [AllowAnonymous]
-    [ProducesResponseType<IReadOnlyList<GetAllConferencesDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<GetAllConferencesDto>>> GetAll()
+    [ProducesResponseType<PagedResult<GetAllConferencesDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<GetAllConferencesDto>>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20
+    )
     {
         var conferences = await conferenceService.GetAllConferences();
-        return Ok(conferences);
+        var items = conferences.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return Ok(new PagedResult<GetAllConferencesDto>(items, conferences.Count, page, pageSize));
     }
 
     [HttpGet("{id:guid}", Name = "GetConferenceById")]
@@ -98,16 +102,19 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
 
     [HttpGet("{id:guid}/talks", Name = "GetConferenceTalks")]
     [Authorize(Roles = "Organizer")]
-    [ProducesResponseType<IReadOnlyList<GetConferenceTalksDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<GetConferenceTalksDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<IReadOnlyList<GetConferenceTalksDto>>> GetConferenceTalks(
-        Guid id
+    public async Task<ActionResult<PagedResult<GetConferenceTalksDto>>> GetConferenceTalks(
+        Guid id,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20
     )
     {
         var talks = await conferenceService.GetConferenceTalks(id);
-        return Ok(talks);
+        var items = talks.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return Ok(new PagedResult<GetConferenceTalksDto>(items, talks.Count, page, pageSize));
     }
 
     [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/accept", Name = "AcceptTalk")]
