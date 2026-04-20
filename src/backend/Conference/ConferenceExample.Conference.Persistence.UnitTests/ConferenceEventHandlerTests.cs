@@ -12,7 +12,7 @@ public class ConferenceEventHandlerTests
     public async Task HandleConferenceDomainEvent_NewConference_CreatesReadModel()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceReadModelRepository>();
+        var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.NewGuid();
@@ -46,7 +46,7 @@ public class ConferenceEventHandlerTests
             1
         );
 
-        repository.GetById(aggregateId).Returns((ConferenceReadModel?)null);
+        repository.GetById(aggregateId).Returns((ConferenceDocument?)null);
 
         // Act
         await handler.HandleConferenceDomainEvent(storedEvent);
@@ -55,7 +55,7 @@ public class ConferenceEventHandlerTests
         await repository
             .Received(1)
             .Save(
-                Arg.Is<ConferenceReadModel>(rm =>
+                Arg.Is<ConferenceDocument>(rm =>
                     rm.Id == aggregateId.ToString()
                     && rm.Name == "Test Conference"
                     && rm.Status == "Draft"
@@ -68,14 +68,14 @@ public class ConferenceEventHandlerTests
     public async Task HandleConferenceDomainEvent_ExistingConference_UpdatesReadModel()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceReadModelRepository>();
+        var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
         var organizerId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceReadModel
+        var existingReadModel = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
             Name = "Old Name",
@@ -118,7 +118,7 @@ public class ConferenceEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<ConferenceReadModel>(rm =>
+                Arg.Is<ConferenceDocument>(rm =>
                     rm.Id == aggregateId.ToString()
                     && rm.Name == "New Name"
                     && rm.Status == "Published"
@@ -131,7 +131,7 @@ public class ConferenceEventHandlerTests
     public async Task HandleConferenceDomainEvent_InvalidPayload_ThrowsException()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceReadModelRepository>();
+        var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var storedEvent = new StoredEvent(
@@ -154,13 +154,13 @@ public class ConferenceEventHandlerTests
     public async Task HandleConferenceDomainEvent_DuplicateEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceReadModelRepository>();
+        var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.NewGuid();
         var organizerId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceReadModel
+        var existingReadModel = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
             Name = "Existing Name",
@@ -201,7 +201,7 @@ public class ConferenceEventHandlerTests
         await handler.HandleConferenceDomainEvent(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceDocument>());
         Assert.Equal("Existing Name", existingReadModel.Name); // Name unchanged
     }
 
@@ -209,13 +209,13 @@ public class ConferenceEventHandlerTests
     public async Task HandleConferenceDomainEvent_OutOfOrderEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceReadModelRepository>();
+        var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.NewGuid();
         var organizerId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceReadModel
+        var existingReadModel = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
             Name = "Current Name",
@@ -256,7 +256,7 @@ public class ConferenceEventHandlerTests
         await handler.HandleConferenceDomainEvent(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceDocument>());
         Assert.Equal("Current Name", existingReadModel.Name); // Name unchanged
         Assert.Equal(3, existingReadModel.Version); // Version unchanged
     }
@@ -265,18 +265,18 @@ public class ConferenceEventHandlerTests
     public async Task HandleTalkTypeDefined_DuplicateEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceReadModelRepository>();
+        var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.NewGuid();
         var talkTypeId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceReadModel
+        var existingReadModel = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
             Name = "Conference",
             Version = 2, // Already at version 2
-            TalkTypes = new List<ConferenceReadModel.TalkTypeReadModel>
+            TalkTypes = new List<ConferenceDocument.TalkTypeDocument>
             {
                 new() { Id = talkTypeId.ToString(), Name = "Keynote" },
             },
@@ -317,7 +317,7 @@ public class ConferenceEventHandlerTests
         await handler.HandleTalkTypeDefined(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceDocument>());
         Assert.Single(existingReadModel.TalkTypes); // TalkTypes unchanged
     }
 
@@ -325,18 +325,18 @@ public class ConferenceEventHandlerTests
     public async Task HandleTalkTypeRemoved_OutOfOrderEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceReadModelRepository>();
+        var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.NewGuid();
         var talkTypeId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceReadModel
+        var existingReadModel = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
             Name = "Conference",
             Version = 3, // Already at version 3
-            TalkTypes = new List<ConferenceReadModel.TalkTypeReadModel>
+            TalkTypes = new List<ConferenceDocument.TalkTypeDocument>
             {
                 new() { Id = talkTypeId.ToString(), Name = "Workshop" },
             },
@@ -376,7 +376,7 @@ public class ConferenceEventHandlerTests
         await handler.HandleTalkTypeRemoved(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceDocument>());
         Assert.Single(existingReadModel.TalkTypes); // TalkTypes unchanged
         Assert.Equal(3, existingReadModel.Version); // Version unchanged
     }

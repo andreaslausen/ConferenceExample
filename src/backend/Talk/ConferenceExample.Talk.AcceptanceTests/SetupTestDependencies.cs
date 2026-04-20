@@ -2,7 +2,10 @@ using ConferenceExample.Authentication;
 using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
+using ConferenceExample.Talk.Domain.SpeakerManagement;
+using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence;
+using ConferenceExample.Talk.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Reqnroll.Microsoft.Extensions.DependencyInjection;
@@ -48,14 +51,6 @@ public class SetupTestDependencies
                     : new List<StoredEvent>();
             });
 
-        eventStore
-            .GetAllEvents()
-            .Returns(callInfo =>
-            {
-                var allEvents = storage.Values.SelectMany(e => e).OrderBy(e => e.Version).ToList();
-                return (IReadOnlyList<StoredEvent>)allEvents;
-            });
-
         // Mock ICurrentUserService to return a fixed test user ID
         var currentUserService = Substitute.For<ICurrentUserService>();
         currentUserService.GetCurrentUserId().Returns(new UserId(GuidV7.NewGuid()));
@@ -63,6 +58,13 @@ public class SetupTestDependencies
         services.AddSingleton(eventStore);
         services.AddSingleton(currentUserService);
         services.AddTalkPersistence();
+
+        // Override MongoDB-dependent read model repos with no-op mocks (no IMongoDatabase in acceptance tests)
+        services.AddScoped<ITalkDocumentRepository>(_ => Substitute.For<ITalkDocumentRepository>());
+        services.AddScoped<ITalkReadModelRepository>(_ =>
+            Substitute.For<ITalkReadModelRepository>()
+        );
+
         services.AddTalkApplication();
         return services;
     }

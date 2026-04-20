@@ -6,23 +6,20 @@ namespace ConferenceExample.EventStore.UnitTests;
 public class MongoDbEventBusTests
 {
     private readonly IMongoDatabase _mockDatabase;
-    private readonly IMongoCollection<StoredEvent> _mockCollection;
 
     public MongoDbEventBusTests()
     {
         _mockDatabase = Substitute.For<IMongoDatabase>();
-        _mockCollection = Substitute.For<IMongoCollection<StoredEvent>>();
-        _mockDatabase.GetCollection<StoredEvent>("events").Returns(_mockCollection);
     }
 
     [Fact]
-    public void Constructor_CreatesCollection()
+    public void Constructor_CanBeInstantiated()
     {
         // Act
-        _ = new MongoDbEventBus(_mockDatabase);
+        var bus = new MongoDbEventBus(_mockDatabase);
 
         // Assert
-        _mockDatabase.Received(1).GetCollection<StoredEvent>("events");
+        Assert.NotNull(bus);
     }
 
     [Fact]

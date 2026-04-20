@@ -7,14 +7,14 @@ namespace ConferenceExample.Conference.Persistence.UnitTests;
 public class MongoDbConferenceReadModelRepositoryTests
 {
     private readonly IMongoDatabase _mockDatabase;
-    private readonly IMongoCollection<ConferenceReadModel> _mockCollection;
+    private readonly IMongoCollection<ConferenceDocument> _mockCollection;
 
     public MongoDbConferenceReadModelRepositoryTests()
     {
         _mockDatabase = Substitute.For<IMongoDatabase>();
-        _mockCollection = Substitute.For<IMongoCollection<ConferenceReadModel>>();
+        _mockCollection = Substitute.For<IMongoCollection<ConferenceDocument>>();
         _mockDatabase
-            .GetCollection<ConferenceReadModel>("conference_readmodels")
+            .GetCollection<ConferenceDocument>("conference_readmodels")
             .Returns(_mockCollection);
     }
 
@@ -25,15 +25,15 @@ public class MongoDbConferenceReadModelRepositoryTests
         _ = new MongoDbConferenceReadModelRepository(_mockDatabase);
 
         // Assert
-        _mockDatabase.Received(1).GetCollection<ConferenceReadModel>("conference_readmodels");
+        _mockDatabase.Received(1).GetCollection<ConferenceDocument>("conference_readmodels");
     }
 
     [Fact]
-    public async Task GetById_ExistingConference_ReturnsConferenceReadModel()
+    public async Task GetById_ExistingConference_ReturnsConferenceDocument()
     {
         // Arrange
         var conferenceId = Guid.NewGuid();
-        var expectedConference = new ConferenceReadModel
+        var expectedConference = new ConferenceDocument
         {
             Id = conferenceId.ToString(),
             Name = "Test Conference",
@@ -50,14 +50,14 @@ public class MongoDbConferenceReadModelRepositoryTests
             Version = 1,
         };
 
-        var mockCursor = Substitute.For<IAsyncCursor<ConferenceReadModel>>();
+        var mockCursor = Substitute.For<IAsyncCursor<ConferenceDocument>>();
         mockCursor.MoveNextAsync(Arg.Any<CancellationToken>()).Returns(true, false);
         mockCursor.Current.Returns(new[] { expectedConference });
 
         _mockCollection
             .FindAsync(
-                Arg.Any<FilterDefinition<ConferenceReadModel>>(),
-                Arg.Any<FindOptions<ConferenceReadModel, ConferenceReadModel>>(),
+                Arg.Any<FilterDefinition<ConferenceDocument>>(),
+                Arg.Any<FindOptions<ConferenceDocument, ConferenceDocument>>(),
                 Arg.Any<CancellationToken>()
             )
             .Returns(mockCursor);
@@ -79,14 +79,14 @@ public class MongoDbConferenceReadModelRepositoryTests
         // Arrange
         var conferenceId = Guid.NewGuid();
 
-        var mockCursor = Substitute.For<IAsyncCursor<ConferenceReadModel>>();
+        var mockCursor = Substitute.For<IAsyncCursor<ConferenceDocument>>();
         mockCursor.MoveNextAsync(Arg.Any<CancellationToken>()).Returns(true, false);
-        mockCursor.Current.Returns(Array.Empty<ConferenceReadModel>());
+        mockCursor.Current.Returns(Array.Empty<ConferenceDocument>());
 
         _mockCollection
             .FindAsync(
-                Arg.Any<FilterDefinition<ConferenceReadModel>>(),
-                Arg.Any<FindOptions<ConferenceReadModel, ConferenceReadModel>>(),
+                Arg.Any<FilterDefinition<ConferenceDocument>>(),
+                Arg.Any<FindOptions<ConferenceDocument, ConferenceDocument>>(),
                 Arg.Any<CancellationToken>()
             )
             .Returns(mockCursor);
@@ -104,7 +104,7 @@ public class MongoDbConferenceReadModelRepositoryTests
     public async Task GetAll_ExistingConferences_ReturnsConferenceList()
     {
         // Arrange
-        var expectedConferences = new List<ConferenceReadModel>
+        var expectedConferences = new List<ConferenceDocument>
         {
             new()
             {
@@ -122,14 +122,14 @@ public class MongoDbConferenceReadModelRepositoryTests
             },
         };
 
-        var mockCursor = Substitute.For<IAsyncCursor<ConferenceReadModel>>();
+        var mockCursor = Substitute.For<IAsyncCursor<ConferenceDocument>>();
         mockCursor.MoveNextAsync(Arg.Any<CancellationToken>()).Returns(true, false);
         mockCursor.Current.Returns(expectedConferences);
 
         _mockCollection
             .FindAsync(
-                Arg.Any<FilterDefinition<ConferenceReadModel>>(),
-                Arg.Any<FindOptions<ConferenceReadModel, ConferenceReadModel>>(),
+                Arg.Any<FilterDefinition<ConferenceDocument>>(),
+                Arg.Any<FindOptions<ConferenceDocument, ConferenceDocument>>(),
                 Arg.Any<CancellationToken>()
             )
             .Returns(mockCursor);
@@ -149,14 +149,14 @@ public class MongoDbConferenceReadModelRepositoryTests
     public async Task GetAll_NoConferences_ReturnsEmptyList()
     {
         // Arrange
-        var mockCursor = Substitute.For<IAsyncCursor<ConferenceReadModel>>();
+        var mockCursor = Substitute.For<IAsyncCursor<ConferenceDocument>>();
         mockCursor.MoveNextAsync(Arg.Any<CancellationToken>()).Returns(true, false);
-        mockCursor.Current.Returns(Array.Empty<ConferenceReadModel>());
+        mockCursor.Current.Returns(Array.Empty<ConferenceDocument>());
 
         _mockCollection
             .FindAsync(
-                Arg.Any<FilterDefinition<ConferenceReadModel>>(),
-                Arg.Any<FindOptions<ConferenceReadModel, ConferenceReadModel>>(),
+                Arg.Any<FilterDefinition<ConferenceDocument>>(),
+                Arg.Any<FindOptions<ConferenceDocument, ConferenceDocument>>(),
                 Arg.Any<CancellationToken>()
             )
             .Returns(mockCursor);
@@ -171,10 +171,10 @@ public class MongoDbConferenceReadModelRepositoryTests
     }
 
     [Fact]
-    public async Task Save_NewConferenceReadModel_InsertsIntoCollection()
+    public async Task Save_NewConferenceDocument_InsertsIntoCollection()
     {
         // Arrange
-        var conferenceReadModel = new ConferenceReadModel
+        var conferenceReadModel = new ConferenceDocument
         {
             Id = Guid.NewGuid().ToString(),
             Name = "New Conference",
@@ -207,10 +207,10 @@ public class MongoDbConferenceReadModelRepositoryTests
     }
 
     [Fact]
-    public async Task Update_ExistingConferenceReadModel_ReplacesInCollection()
+    public async Task Update_ExistingConferenceDocument_ReplacesInCollection()
     {
         // Arrange
-        var conferenceReadModel = new ConferenceReadModel
+        var conferenceReadModel = new ConferenceDocument
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Updated Conference",
@@ -236,7 +236,7 @@ public class MongoDbConferenceReadModelRepositoryTests
         await _mockCollection
             .Received(1)
             .ReplaceOneAsync(
-                Arg.Any<FilterDefinition<ConferenceReadModel>>(),
+                Arg.Any<FilterDefinition<ConferenceDocument>>(),
                 conferenceReadModel,
                 Arg.Any<ReplaceOptions>(),
                 Arg.Any<CancellationToken>()
@@ -258,7 +258,7 @@ public class MongoDbConferenceReadModelRepositoryTests
         await _mockCollection
             .Received(1)
             .DeleteOneAsync(
-                Arg.Any<FilterDefinition<ConferenceReadModel>>(),
+                Arg.Any<FilterDefinition<ConferenceDocument>>(),
                 Arg.Any<CancellationToken>()
             );
     }

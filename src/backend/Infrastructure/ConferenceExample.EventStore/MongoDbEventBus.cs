@@ -1,11 +1,12 @@
-using System.Text.Json;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace ConferenceExample.EventStore;
 
 public class MongoDbEventBus : IEventBus, IDisposable
 {
-    private readonly IMongoCollection<StoredEvent> _eventsCollection;
+    private readonly IMongoDatabase _database;
     private readonly Dictionary<string, List<Func<StoredEvent, Task>>> _subscriptions = [];
     private readonly Lock _lock = new();
     private Task? _changeStreamTask;
@@ -13,7 +14,7 @@ public class MongoDbEventBus : IEventBus, IDisposable
 
     public MongoDbEventBus(IMongoDatabase database)
     {
-        _eventsCollection = database.GetCollection<StoredEvent>("events");
+        _database = database;
     }
 
     public void Subscribe(string eventType, Func<StoredEvent, Task> handler)
@@ -54,8 +55,9 @@ public class MongoDbEventBus : IEventBus, IDisposable
 
     private async Task MonitorChangeStream(CancellationToken cancellationToken)
     {
-        // Change Stream pipeline - watch for inserts only
-        var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<StoredEvent>>().Match(
+        // Watch at database level so all event collections (conference_events, talk_events, etc.)
+        // are covered by a single change stream — no per-collection wiring needed.
+        var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>().Match(
             change => change.OperationType == ChangeStreamOperationType.Insert
         );
 
@@ -68,18 +70,17 @@ public class MongoDbEventBus : IEventBus, IDisposable
         {
             // Note: Change Streams require MongoDB to be running as a replica set
             // For local development, this might not be available
-            using var cursor = await _eventsCollection.WatchAsync(
-                pipeline,
-                options,
-                cancellationToken
-            );
+            using var cursor = await _database.WatchAsync(pipeline, options, cancellationToken);
 
             await cursor.ForEachAsync(
                 async change =>
                 {
                     if (change.FullDocument != null)
                     {
-                        await NotifySubscribersAsync(change.FullDocument);
+                        var storedEvent = BsonSerializer.Deserialize<StoredEvent>(
+                            change.FullDocument
+                        );
+                        await NotifySubscribersAsync(storedEvent);
                     }
                 },
                 cancellationToken

@@ -10,7 +10,7 @@ public class TalkService(
     IEditTalkCommandHandler editTalkCommandHandler
 ) : ITalkService
 {
-    public async Task SubmitTalk(SubmitTalkDto submitTalkDto)
+    public async Task<Guid> SubmitTalk(SubmitTalkDto submitTalkDto)
     {
         var command = new SubmitTalkCommand(
             submitTalkDto.Title,
@@ -20,7 +20,7 @@ public class TalkService(
             submitTalkDto.TalkTypeId
         );
 
-        await submitTalkCommandHandler.Handle(command);
+        return await submitTalkCommandHandler.Handle(command);
     }
 
     public async Task<IReadOnlyList<GetMyTalksDto>> GetMyTalks()

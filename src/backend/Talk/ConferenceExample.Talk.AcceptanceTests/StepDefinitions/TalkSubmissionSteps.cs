@@ -17,14 +17,13 @@ public class TalkSubmissionSteps(
 )
 {
     private Guid _conferenceId;
-    private IReadOnlyList<TalkEntity> _talks = [];
+    private TalkEntity? _submittedTalk;
 
     [Given("a conference exists")]
     public async Task GivenAConferenceExists()
     {
         _conferenceId = Guid.CreateVersion7();
 
-        // Create a mock Conference event in the EventStore so the ConferenceRepository can load it
         var conferenceCreatedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             _conferenceId,
@@ -57,7 +56,7 @@ public class TalkSubmissionSteps(
     [When("a speaker submits a talk titled {string} with abstract {string}")]
     public async Task WhenASpeakerSubmitsATalk(string title, string @abstract)
     {
-        await talkService.SubmitTalk(
+        var talkId = await talkService.SubmitTalk(
             new SubmitTalkDto
             {
                 Title = title,
@@ -67,7 +66,7 @@ public class TalkSubmissionSteps(
                 TalkTypeId = Guid.CreateVersion7(),
             }
         );
-        _talks = await talkRepository.GetTalks(new ConferenceId(_conferenceId));
+        _submittedTalk = await talkRepository.GetById(new TalkId(new GuidV7(talkId)));
     }
 
     [When(
@@ -80,7 +79,7 @@ public class TalkSubmissionSteps(
         string tag2
     )
     {
-        await talkService.SubmitTalk(
+        var talkId = await talkService.SubmitTalk(
             new SubmitTalkDto
             {
                 Title = title,
@@ -90,19 +89,20 @@ public class TalkSubmissionSteps(
                 TalkTypeId = Guid.CreateVersion7(),
             }
         );
-        _talks = await talkRepository.GetTalks(new ConferenceId(_conferenceId));
+        _submittedTalk = await talkRepository.GetById(new TalkId(new GuidV7(talkId)));
     }
 
     [Then("the talk is stored with status Submitted")]
     public void ThenTheTalkIsStoredWithStatusSubmitted()
     {
-        Assert.Single(_talks);
-        Assert.Equal(TalkStatus.Submitted, _talks[0].Status);
+        Assert.NotNull(_submittedTalk);
+        Assert.Equal(TalkStatus.Submitted, _submittedTalk.Status);
     }
 
     [Then("the talk has the tag {string}")]
     public void ThenTheTalkHasTheTag(string expectedTag)
     {
-        Assert.Contains(_talks[0].Tags, t => t.Tag == expectedTag);
+        Assert.NotNull(_submittedTalk);
+        Assert.Contains(_submittedTalk.Tags, t => t.Tag == expectedTag);
     }
 }

@@ -16,4 +16,6 @@ public static class StringExtensions
 
         return guid.IsGuidV7();
     }
+
+    public static Guid ToGuid(this string s) => Guid.Parse(s);
 }

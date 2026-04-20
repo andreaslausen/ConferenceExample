@@ -11,9 +11,9 @@ namespace ConferenceExample.Conference.Persistence.EventHandlers;
 /// </summary>
 public class ConferenceEventHandler
 {
-    private readonly IConferenceReadModelRepository _readModelRepository;
+    private readonly IConferenceDocumentRepository _readModelRepository;
 
-    public ConferenceEventHandler(IConferenceReadModelRepository readModelRepository)
+    public ConferenceEventHandler(IConferenceDocumentRepository readModelRepository)
     {
         _readModelRepository = readModelRepository;
     }
@@ -38,7 +38,7 @@ public class ConferenceEventHandler
         if (existingReadModel is null)
         {
             // Create new read model with complete state from domain event
-            var newReadModel = new ConferenceReadModel
+            var newReadModel = new ConferenceDocument
             {
                 Id = domainEvent.AggregateId.ToString(),
                 Name = domainEvent.Name,
@@ -101,7 +101,7 @@ public class ConferenceEventHandler
         if (existingReadModel is null)
         {
             // Create new read model with the TalkType included
-            var newReadModel = new ConferenceReadModel
+            var newReadModel = new ConferenceDocument
             {
                 Id = domainEvent.AggregateId.ToString(),
                 Name = domainEvent.Name,
@@ -117,7 +117,7 @@ public class ConferenceEventHandler
                 Status = domainEvent.Status,
                 TalkTypes =
                 [
-                    new ConferenceReadModel.TalkTypeReadModel
+                    new ConferenceDocument.TalkTypeDocument
                     {
                         Id = domainEvent.TalkTypeId.ToString(),
                         Name = domainEvent.TalkTypeName,
@@ -158,7 +158,7 @@ public class ConferenceEventHandler
             if (existingReadModel.TalkTypes.All(tt => tt.Id != talkTypeId))
             {
                 existingReadModel.TalkTypes.Add(
-                    new ConferenceReadModel.TalkTypeReadModel
+                    new ConferenceDocument.TalkTypeDocument
                     {
                         Id = talkTypeId,
                         Name = domainEvent.TalkTypeName,

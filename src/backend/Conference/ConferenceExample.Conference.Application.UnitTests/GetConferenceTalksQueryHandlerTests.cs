@@ -20,32 +20,31 @@ public class GetConferenceTalksQueryHandlerTests
     {
         // Arrange
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<IConferenceTalkReadModelRepository>();
         var conference = CreateValidConference();
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
-        var talkId = ConferenceGuidV7.NewGuid();
-        var speakerId = ConferenceGuidV7.NewGuid();
-        var talkTypeId = ConferenceGuidV7.NewGuid();
-        var talks = new List<Talk>
+
+        var talkId = Guid.NewGuid();
+        var speakerId = Guid.NewGuid();
+        var talkTypeId = Guid.NewGuid();
+        var talks = new List<ConferenceTalkReadModel>
         {
-            new Talk(
-                new TalkId(talkId),
-                new Text("Introduction to DDD"),
-                new Text("Learn about Domain-Driven Design"),
+            new(
+                talkId,
+                "Introduction to DDD",
+                "Learn about Domain-Driven Design",
                 speakerId,
-                talkTypeId,
+                "Submitted",
                 new List<string> { "DDD", "Architecture" },
-                TalkStatus.Submitted,
-                null,
-                null
+                talkTypeId
             ),
         };
 
         conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
-        talkRepository.GetTalksByConferenceId(Arg.Any<ConferenceId>()).Returns(talks);
+        talkSummaryRepository.GetByConferenceId(Arg.Any<ConferenceId>()).Returns(talks);
 
         var handler = new GetConferenceTalksQueryHandler(
-            talkRepository,
+            talkSummaryRepository,
             conferenceRepository,
             currentUserService
         );
@@ -57,10 +56,10 @@ public class GetConferenceTalksQueryHandlerTests
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal((Guid)talkId, result[0].Id);
+        Assert.Equal(talkId, result[0].Id);
         Assert.Equal("Introduction to DDD", result[0].Title);
         Assert.Equal("Learn about Domain-Driven Design", result[0].Abstract);
-        Assert.Equal((Guid)speakerId, result[0].SpeakerId);
+        Assert.Equal(speakerId, result[0].SpeakerId);
         Assert.Equal("Submitted", result[0].Status);
         Assert.Equal(2, result[0].Tags.Count);
         Assert.Contains("DDD", result[0].Tags);
@@ -72,15 +71,17 @@ public class GetConferenceTalksQueryHandlerTests
     {
         // Arrange
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<IConferenceTalkReadModelRepository>();
         var conference = CreateValidConference();
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
 
         conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
-        talkRepository.GetTalksByConferenceId(Arg.Any<ConferenceId>()).Returns(new List<Talk>());
+        talkSummaryRepository
+            .GetByConferenceId(Arg.Any<ConferenceId>())
+            .Returns(new List<ConferenceTalkReadModel>());
 
         var handler = new GetConferenceTalksQueryHandler(
-            talkRepository,
+            talkSummaryRepository,
             conferenceRepository,
             currentUserService
         );
@@ -99,10 +100,10 @@ public class GetConferenceTalksQueryHandlerTests
     {
         // Arrange
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<IConferenceTalkReadModelRepository>();
         var currentUserService = CreateMockCurrentUserService();
         var handler = new GetConferenceTalksQueryHandler(
-            talkRepository,
+            talkSummaryRepository,
             conferenceRepository,
             currentUserService
         );
@@ -121,14 +122,14 @@ public class GetConferenceTalksQueryHandlerTests
     {
         // Arrange
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<IConferenceTalkReadModelRepository>();
         var currentUserService = CreateMockCurrentUserService();
         var handler = new GetConferenceTalksQueryHandler(
-            talkRepository,
+            talkSummaryRepository,
             conferenceRepository,
             currentUserService
         );
-        var invalidGuid = Guid.NewGuid(); // Not a GuidV7
+        var invalidGuid = Guid.NewGuid();
         var query = new GetConferenceTalksQuery(invalidGuid);
 
         // Act & Assert
@@ -140,7 +141,7 @@ public class GetConferenceTalksQueryHandlerTests
     {
         // Arrange
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<IConferenceTalkReadModelRepository>();
         var conference = CreateValidConference();
         var differentUserId = ConferenceGuidV7.NewGuid();
         var currentUserService = CreateMockCurrentUserService(new OrganizerId(differentUserId));
@@ -148,7 +149,7 @@ public class GetConferenceTalksQueryHandlerTests
         conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var handler = new GetConferenceTalksQueryHandler(
-            talkRepository,
+            talkSummaryRepository,
             conferenceRepository,
             currentUserService
         );
@@ -163,17 +164,17 @@ public class GetConferenceTalksQueryHandlerTests
     {
         // Arrange
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<IConferenceTalkReadModelRepository>();
         var conference = CreateValidConference();
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
 
         conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
-        talkRepository
-            .GetTalksByConferenceId(Arg.Any<ConferenceId>())
+        talkSummaryRepository
+            .GetByConferenceId(Arg.Any<ConferenceId>())
             .Throws(new InvalidOperationException("Database error"));
 
         var handler = new GetConferenceTalksQueryHandler(
-            talkRepository,
+            talkSummaryRepository,
             conferenceRepository,
             currentUserService
         );

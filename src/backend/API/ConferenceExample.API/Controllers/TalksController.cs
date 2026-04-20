@@ -20,8 +20,8 @@ public class TalksController(ITalkService talkService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> SubmitTalk([FromBody] SubmitTalkDto dto)
     {
-        await talkService.SubmitTalk(dto);
-        return Created();
+        var talkId = await talkService.SubmitTalk(dto);
+        return Created($"/api/talks/{talkId}", null);
     }
 
     [HttpGet("my-talks", Name = "GetMyTalks")]

@@ -5,40 +5,38 @@ using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using NSubstitute;
 using AuthGuidV7 = ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids.GuidV7;
-using TalkEntity = ConferenceExample.Talk.Domain.TalkManagement.Talk;
 
 namespace ConferenceExample.Talk.Application.UnitTests;
 
 public class GetMyTalksQueryHandlerTests
 {
-    private static TalkEntity CreateTalk(SpeakerId speakerId, string title)
-    {
-        return TalkEntity.Submit(
-            new TalkId(GuidV7.NewGuid()),
-            new TalkTitle(title),
-            speakerId,
-            new List<TalkTag> { new("tag1"), new("tag2") },
-            new TalkTypeId(GuidV7.NewGuid()),
-            new Abstract("Test Abstract"),
-            new ConferenceId(GuidV7.NewGuid())
+    private static TalkReadModel CreateSummary(Guid speakerId, string title) =>
+        new(
+            Guid.NewGuid(),
+            title,
+            "Test Abstract",
+            Guid.NewGuid(),
+            "Submitted",
+            new List<string> { "tag1", "tag2" }
         );
-    }
 
     [Fact]
     public async Task Handle_ReturnsTalksForCurrentSpeaker()
     {
         // Arrange
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<ITalkReadModelRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
-        var talk1 = CreateTalk(speakerId, "Talk 1");
-        var talk2 = CreateTalk(speakerId, "Talk 2");
-        talkRepository.GetTalksBySpeaker(speakerId).Returns(new List<TalkEntity> { talk1, talk2 });
+        var summary1 = CreateSummary(speakerId.Value.Value, "Talk 1") with { Title = "Talk 1" };
+        var summary2 = CreateSummary(speakerId.Value.Value, "Talk 2") with { Title = "Talk 2" };
+        talkSummaryRepository
+            .GetBySpeakerId(speakerId)
+            .Returns(new List<TalkReadModel> { summary1, summary2 });
 
-        var handler = new GetMyTalksQueryHandler(talkRepository, currentUserService);
+        var handler = new GetMyTalksQueryHandler(talkSummaryRepository, currentUserService);
         var query = new GetMyTalksQuery();
 
         // Act
@@ -54,15 +52,15 @@ public class GetMyTalksQueryHandlerTests
     public async Task Handle_ReturnsEmptyListWhenNoTalks()
     {
         // Arrange
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<ITalkReadModelRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
-        talkRepository.GetTalksBySpeaker(speakerId).Returns(new List<TalkEntity>());
+        talkSummaryRepository.GetBySpeakerId(speakerId).Returns(new List<TalkReadModel>());
 
-        var handler = new GetMyTalksQueryHandler(talkRepository, currentUserService);
+        var handler = new GetMyTalksQueryHandler(talkSummaryRepository, currentUserService);
         var query = new GetMyTalksQuery();
 
         // Act
@@ -76,16 +74,27 @@ public class GetMyTalksQueryHandlerTests
     public async Task Handle_MapsPropertiesCorrectly()
     {
         // Arrange
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<ITalkReadModelRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
-        var talk = CreateTalk(speakerId, "Test Talk");
-        talkRepository.GetTalksBySpeaker(speakerId).Returns(new List<TalkEntity> { talk });
+        var talkId = Guid.NewGuid();
+        var conferenceId = Guid.NewGuid();
+        var summary = new TalkReadModel(
+            talkId,
+            "Test Talk",
+            "Test Abstract",
+            conferenceId,
+            "Submitted",
+            new List<string> { "tag1", "tag2" }
+        );
+        talkSummaryRepository
+            .GetBySpeakerId(speakerId)
+            .Returns(new List<TalkReadModel> { summary });
 
-        var handler = new GetMyTalksQueryHandler(talkRepository, currentUserService);
+        var handler = new GetMyTalksQueryHandler(talkSummaryRepository, currentUserService);
         var query = new GetMyTalksQuery();
 
         // Act
@@ -93,11 +102,11 @@ public class GetMyTalksQueryHandlerTests
 
         // Assert
         var dto = Assert.Single(result);
-        Assert.Equal(talk.Id.Value.Value, dto.Id);
-        Assert.Equal(talk.Title.Title, dto.Title);
-        Assert.Equal(talk.Abstract.Content, dto.Abstract);
-        Assert.Equal(talk.ConferenceId.Value.Value, dto.ConferenceId);
-        Assert.Equal(talk.Status.ToString(), dto.Status);
+        Assert.Equal(talkId, dto.Id);
+        Assert.Equal("Test Talk", dto.Title);
+        Assert.Equal("Test Abstract", dto.Abstract);
+        Assert.Equal(conferenceId, dto.ConferenceId);
+        Assert.Equal("Submitted", dto.Status);
         Assert.Equal(2, dto.Tags.Count);
         Assert.Contains("tag1", dto.Tags);
         Assert.Contains("tag2", dto.Tags);
@@ -107,21 +116,23 @@ public class GetMyTalksQueryHandlerTests
     public async Task Handle_UsesCorrectCurrentUserId()
     {
         // Arrange
-        var talkRepository = Substitute.For<ITalkRepository>();
+        var talkSummaryRepository = Substitute.For<ITalkReadModelRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var expectedSpeakerId = new SpeakerId(new GuidV7(userId.Value.Value));
-        talkRepository.GetTalksBySpeaker(Arg.Any<SpeakerId>()).Returns(new List<TalkEntity>());
+        talkSummaryRepository
+            .GetBySpeakerId(Arg.Any<SpeakerId>())
+            .Returns(new List<TalkReadModel>());
 
-        var handler = new GetMyTalksQueryHandler(talkRepository, currentUserService);
+        var handler = new GetMyTalksQueryHandler(talkSummaryRepository, currentUserService);
         var query = new GetMyTalksQuery();
 
         // Act
         await handler.Handle(query);
 
         // Assert
-        await talkRepository.Received(1).GetTalksBySpeaker(expectedSpeakerId);
+        await talkSummaryRepository.Received(1).GetBySpeakerId(expectedSpeakerId);
     }
 }

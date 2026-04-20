@@ -10,16 +10,22 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddConferencePersistence(this IServiceCollection services)
     {
-        // Repositories (Event Store based)
+        // Aggregate Repository (Event Store based) - used by command handlers
         services.AddScoped<IConferenceRepository, ConferenceRepository>();
-        services.AddScoped<ITalkRepository, TalkRepository>();
 
-        // Read Model Repositories (MongoDB based)
-        services.AddScoped<IConferenceReadModelRepository, MongoDbConferenceReadModelRepository>();
+        // Read Model Repositories (MongoDB based) - used by query handlers
+        services.AddScoped<IConferenceDocumentRepository, MongoDbConferenceReadModelRepository>();
+        services.AddScoped<IConferenceReadModelRepository>(sp =>
+            (IConferenceReadModelRepository)sp.GetRequiredService<IConferenceDocumentRepository>()
+        );
         services.AddScoped<
-            IConferenceTalkReadModelRepository,
+            IConferenceTalkDocumentRepository,
             MongoDbConferenceTalkReadModelRepository
         >();
+        services.AddScoped<IConferenceTalkReadModelRepository>(sp =>
+            (IConferenceTalkReadModelRepository)
+                sp.GetRequiredService<IConferenceTalkDocumentRepository>()
+        );
 
         // Event Handlers
         services.AddScoped<ConferenceEventHandler>();

@@ -1,19 +1,18 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace ConferenceExample.Talk.Persistence.ReadModels;
+namespace ConferenceExample.Conference.Persistence.ReadModels;
 
-/// <summary>
-/// Read Model for Talk queries in the Talk bounded context.
-/// Denormalized data stored in MongoDB for efficient querying.
-/// Updated via event handlers when Talk domain events occur.
-/// </summary>
-public class TalkReadModel
+public class ConferenceTalkDocument
 {
     [BsonId]
     [BsonRepresentation(BsonType.String)]
     [BsonElement("_id")]
     public string Id { get; set; } = string.Empty;
+
+    [BsonElement("conferenceId")]
+    [BsonRepresentation(BsonType.String)]
+    public string ConferenceId { get; set; } = string.Empty;
 
     [BsonElement("title")]
     public string Title { get; set; } = string.Empty;
@@ -29,16 +28,28 @@ public class TalkReadModel
     [BsonRepresentation(BsonType.String)]
     public string TalkTypeId { get; set; } = string.Empty;
 
-    [BsonElement("conferenceId")]
-    [BsonRepresentation(BsonType.String)]
-    public string ConferenceId { get; set; } = string.Empty;
-
     [BsonElement("tags")]
     public List<string> Tags { get; set; } = new();
 
+    // Conference BC specific fields (managed by Conference aggregate)
     [BsonElement("status")]
     [BsonRepresentation(BsonType.String)]
     public string Status { get; set; } = "Submitted";
+
+    [BsonElement("slotStart")]
+    [BsonRepresentation(BsonType.String)]
+    public DateTimeOffset? SlotStart { get; set; }
+
+    [BsonElement("slotEnd")]
+    [BsonRepresentation(BsonType.String)]
+    public DateTimeOffset? SlotEnd { get; set; }
+
+    [BsonElement("roomId")]
+    [BsonRepresentation(BsonType.String)]
+    public string? RoomId { get; set; }
+
+    [BsonElement("roomName")]
+    public string? RoomName { get; set; }
 
     [BsonElement("submittedAt")]
     public DateTimeOffset SubmittedAt { get; set; }

@@ -1,33 +1,30 @@
+using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
+using ConferenceExample.Talk.Domain.SpeakerManagement;
+using ConferenceExample.Talk.Domain.TalkManagement;
 using MongoDB.Driver;
 
 namespace ConferenceExample.Talk.Persistence.ReadModels;
 
-/// <summary>
-/// MongoDB implementation of Talk Read Model repository.
-/// Stores denormalized talk data in the 'talk_readmodels' collection.
-/// </summary>
-public class MongoDbTalkReadModelRepository : ITalkReadModelRepository
+public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkReadModelRepository
 {
-    private readonly IMongoCollection<TalkReadModel> _collection;
+    private readonly IMongoCollection<TalkDocument> _collection;
 
     public MongoDbTalkReadModelRepository(IMongoDatabase database)
     {
-        _collection = database.GetCollection<TalkReadModel>("talk_readmodels");
+        _collection = database.GetCollection<TalkDocument>("talk_readmodels");
         CreateIndexes();
     }
 
     private void CreateIndexes()
     {
-        // Index for conference queries
-        var conferenceIndexKeys = Builders<TalkReadModel>.IndexKeys.Ascending(t => t.ConferenceId);
-        var conferenceIndexModel = new CreateIndexModel<TalkReadModel>(
+        var conferenceIndexKeys = Builders<TalkDocument>.IndexKeys.Ascending(t => t.ConferenceId);
+        var conferenceIndexModel = new CreateIndexModel<TalkDocument>(
             conferenceIndexKeys,
             new CreateIndexOptions { Name = "idx_conferenceId" }
         );
 
-        // Index for speaker queries
-        var speakerIndexKeys = Builders<TalkReadModel>.IndexKeys.Ascending(t => t.SpeakerId);
-        var speakerIndexModel = new CreateIndexModel<TalkReadModel>(
+        var speakerIndexKeys = Builders<TalkDocument>.IndexKeys.Ascending(t => t.SpeakerId);
+        var speakerIndexModel = new CreateIndexModel<TalkDocument>(
             speakerIndexKeys,
             new CreateIndexOptions { Name = "idx_speakerId" }
         );
@@ -35,51 +32,64 @@ public class MongoDbTalkReadModelRepository : ITalkReadModelRepository
         _collection.Indexes.CreateMany(new[] { conferenceIndexModel, speakerIndexModel });
     }
 
-    public async Task<TalkReadModel?> GetById(Guid talkId)
+    public async Task<TalkDocument?> GetById(Guid talkId)
     {
-        var filter = Builders<TalkReadModel>.Filter.Eq(t => t.Id, talkId.ToString());
+        var filter = Builders<TalkDocument>.Filter.Eq(t => t.Id, talkId.ToString());
         return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<IReadOnlyList<TalkReadModel>> GetByConferenceId(Guid conferenceId)
+    public async Task<IReadOnlyList<TalkDocument>> GetByConferenceId(Guid conferenceId)
     {
-        var filter = Builders<TalkReadModel>.Filter.Eq(
-            t => t.ConferenceId,
-            conferenceId.ToString()
+        var filter = Builders<TalkDocument>.Filter.Eq(t => t.ConferenceId, conferenceId.ToString());
+        return await _collection.Find(filter).ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<TalkDocument>> GetBySpeakerId(Guid speakerId)
+    {
+        var filter = Builders<TalkDocument>.Filter.Eq(t => t.SpeakerId, speakerId.ToString());
+        return await _collection.Find(filter).ToListAsync();
+    }
+
+    async Task<IReadOnlyList<TalkReadModel>> ITalkReadModelRepository.GetBySpeakerId(
+        SpeakerId speakerId
+    )
+    {
+        var filter = Builders<TalkDocument>.Filter.Eq(
+            t => t.SpeakerId,
+            speakerId.Value.Value.ToString()
         );
-        var talks = await _collection.Find(filter).ToListAsync();
-        return talks;
+        var documents = await _collection.Find(filter).ToListAsync();
+
+        return documents
+            .Select(d => new TalkReadModel(
+                d.Id.ToGuid(),
+                d.Title,
+                d.Abstract,
+                d.ConferenceId.ToGuid(),
+                d.Status,
+                d.Tags
+            ))
+            .ToList();
     }
 
-    public async Task<IReadOnlyList<TalkReadModel>> GetBySpeakerId(Guid speakerId)
+    public async Task Save(TalkDocument talkDocument)
     {
-        var filter = Builders<TalkReadModel>.Filter.Eq(t => t.SpeakerId, speakerId.ToString());
-        var talks = await _collection.Find(filter).ToListAsync();
-        return talks;
+        await _collection.InsertOneAsync(talkDocument);
     }
 
-    public async Task Save(TalkReadModel talkReadModel)
+    public async Task Update(TalkDocument talkDocument)
     {
-        await _collection.InsertOneAsync(talkReadModel);
-    }
-
-    public async Task Update(TalkReadModel talkReadModel)
-    {
-        // Optimistic locking: Only update if the event version is newer than the current read model version
-        var filter = Builders<TalkReadModel>.Filter.And(
-            Builders<TalkReadModel>.Filter.Eq(t => t.Id, talkReadModel.Id),
-            Builders<TalkReadModel>.Filter.Lt(t => t.Version, talkReadModel.Version)
+        var filter = Builders<TalkDocument>.Filter.And(
+            Builders<TalkDocument>.Filter.Eq(t => t.Id, talkDocument.Id),
+            Builders<TalkDocument>.Filter.Lt(t => t.Version, talkDocument.Version)
         );
 
-        _ = await _collection.ReplaceOneAsync(filter, talkReadModel);
-
-        // If ModifiedCount is 0, the read model already has a newer or equal version
-        // This is expected with out-of-order events and can be safely ignored
+        _ = await _collection.ReplaceOneAsync(filter, talkDocument);
     }
 
     public async Task Delete(Guid talkId)
     {
-        var filter = Builders<TalkReadModel>.Filter.Eq(t => t.Id, talkId.ToString());
+        var filter = Builders<TalkDocument>.Filter.Eq(t => t.Id, talkId.ToString());
         await _collection.DeleteOneAsync(filter);
     }
 }

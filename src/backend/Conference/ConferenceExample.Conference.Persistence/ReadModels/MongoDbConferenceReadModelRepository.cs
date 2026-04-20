@@ -1,56 +1,69 @@
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel.Extensions;
 using MongoDB.Driver;
 
 namespace ConferenceExample.Conference.Persistence.ReadModels;
 
-/// <summary>
-/// MongoDB implementation of Conference Read Model repository.
-/// Stores denormalized conference data in the 'conference_readmodels' collection.
-/// </summary>
-public class MongoDbConferenceReadModelRepository : IConferenceReadModelRepository
+public class MongoDbConferenceReadModelRepository
+    : IConferenceDocumentRepository,
+        IConferenceReadModelRepository
 {
-    private readonly IMongoCollection<ConferenceReadModel> _collection;
+    private readonly IMongoCollection<ConferenceDocument> _collection;
 
     public MongoDbConferenceReadModelRepository(IMongoDatabase database)
     {
-        _collection = database.GetCollection<ConferenceReadModel>("conference_readmodels");
+        _collection = database.GetCollection<ConferenceDocument>("conference_readmodels");
     }
 
-    public async Task<ConferenceReadModel?> GetById(Guid conferenceId)
+    public async Task<ConferenceDocument?> GetById(Guid conferenceId)
     {
-        var filter = Builders<ConferenceReadModel>.Filter.Eq(c => c.Id, conferenceId.ToString());
+        var filter = Builders<ConferenceDocument>.Filter.Eq(c => c.Id, conferenceId.ToString());
         return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<IReadOnlyList<ConferenceReadModel>> GetAll()
+    public async Task<IReadOnlyList<ConferenceDocument>> GetAll()
     {
-        var conferences = await _collection
-            .Find(FilterDefinition<ConferenceReadModel>.Empty)
+        return await _collection.Find(FilterDefinition<ConferenceDocument>.Empty).ToListAsync();
+    }
+
+    async Task<IReadOnlyList<ConferenceReadModel>> IConferenceReadModelRepository.GetAll()
+    {
+        var documents = await _collection
+            .Find(FilterDefinition<ConferenceDocument>.Empty)
             .ToListAsync();
-        return conferences;
+
+        return documents
+            .Select(d => new ConferenceReadModel(
+                d.Id.ToGuid(),
+                d.Name,
+                d.Start,
+                d.End,
+                d.City,
+                d.State,
+                d.PostalCode,
+                d.Country
+            ))
+            .ToList();
     }
 
-    public async Task Save(ConferenceReadModel conferenceReadModel)
+    public async Task Save(ConferenceDocument conferenceDocument)
     {
-        await _collection.InsertOneAsync(conferenceReadModel);
+        await _collection.InsertOneAsync(conferenceDocument);
     }
 
-    public async Task Update(ConferenceReadModel conferenceReadModel)
+    public async Task Update(ConferenceDocument conferenceDocument)
     {
-        // Optimistic locking: Only update if the event version is newer than the current read model version
-        var filter = Builders<ConferenceReadModel>.Filter.And(
-            Builders<ConferenceReadModel>.Filter.Eq(c => c.Id, conferenceReadModel.Id),
-            Builders<ConferenceReadModel>.Filter.Lt(c => c.Version, conferenceReadModel.Version)
+        var filter = Builders<ConferenceDocument>.Filter.And(
+            Builders<ConferenceDocument>.Filter.Eq(c => c.Id, conferenceDocument.Id),
+            Builders<ConferenceDocument>.Filter.Lt(c => c.Version, conferenceDocument.Version)
         );
 
-        _ = await _collection.ReplaceOneAsync(filter, conferenceReadModel);
-
-        // If ModifiedCount is 0, the read model already has a newer or equal version
-        // This is expected with out-of-order events and can be safely ignored
+        _ = await _collection.ReplaceOneAsync(filter, conferenceDocument);
     }
 
     public async Task Delete(Guid conferenceId)
     {
-        var filter = Builders<ConferenceReadModel>.Filter.Eq(c => c.Id, conferenceId.ToString());
+        var filter = Builders<ConferenceDocument>.Filter.Eq(c => c.Id, conferenceId.ToString());
         await _collection.DeleteOneAsync(filter);
     }
 }

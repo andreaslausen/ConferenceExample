@@ -11,9 +11,9 @@ namespace ConferenceExample.Talk.Persistence.EventHandlers;
 /// </summary>
 public class TalkEventHandler
 {
-    private readonly ITalkReadModelRepository _readModelRepository;
+    private readonly ITalkDocumentRepository _readModelRepository;
 
-    public TalkEventHandler(ITalkReadModelRepository readModelRepository)
+    public TalkEventHandler(ITalkDocumentRepository readModelRepository)
     {
         _readModelRepository = readModelRepository;
     }
@@ -36,7 +36,7 @@ public class TalkEventHandler
         if (existingReadModel is null)
         {
             // Create new read model with complete state from domain event
-            var newReadModel = new TalkReadModel
+            var newReadModel = new TalkDocument
             {
                 Id = domainEvent.AggregateId.ToString(),
                 Title = domainEvent.Title,

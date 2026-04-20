@@ -12,7 +12,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkDomainEvent_NewTalk_CreatesReadModel()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -44,7 +44,7 @@ public class TalkEventHandlerTests
             1
         );
 
-        repository.GetById(talkId).Returns((ConferenceTalkReadModel?)null);
+        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
 
         // Act
         await handler.HandleTalkDomainEvent(storedEvent);
@@ -53,7 +53,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Save(
-                Arg.Is<ConferenceTalkReadModel>(rm =>
+                Arg.Is<ConferenceTalkDocument>(rm =>
                     rm.Id == talkId.ToString()
                     && rm.Title == "Test Talk"
                     && rm.ConferenceId == conferenceId.ToString()
@@ -67,13 +67,13 @@ public class TalkEventHandlerTests
     public async Task HandleTalkAccepted_UpdatesReadModelStatus()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Status = "Submitted",
@@ -117,7 +117,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<ConferenceTalkReadModel>(rm =>
+                Arg.Is<ConferenceTalkDocument>(rm =>
                     rm.Id == talkId.ToString() && rm.Status == "Accepted"
                 )
             );
@@ -127,14 +127,14 @@ public class TalkEventHandlerTests
     public async Task HandleTalkScheduled_UpdatesSlotTimes()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
         var talkStart = DateTimeOffset.UtcNow.AddDays(30);
         var talkEnd = talkStart.AddHours(1);
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Status = "Accepted",
@@ -180,7 +180,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<ConferenceTalkReadModel>(rm =>
+                Arg.Is<ConferenceTalkDocument>(rm =>
                     rm.Id == talkId.ToString() && rm.SlotStart == talkStart && rm.SlotEnd == talkEnd
                 )
             );
@@ -190,13 +190,13 @@ public class TalkEventHandlerTests
     public async Task HandleTalkRejected_UpdatesReadModelStatus()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Status = "Submitted",
@@ -240,7 +240,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<ConferenceTalkReadModel>(rm =>
+                Arg.Is<ConferenceTalkDocument>(rm =>
                     rm.Id == talkId.ToString() && rm.Status == "Rejected"
                 )
             );
@@ -250,7 +250,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkRejected_WithNullPayload_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
@@ -267,14 +267,14 @@ public class TalkEventHandlerTests
 
         // Assert
         await repository.DidNotReceive().GetById(Arg.Any<Guid>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkRejected_WithNonExistingReadModel_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -307,28 +307,28 @@ public class TalkEventHandlerTests
             2
         );
 
-        repository.GetById(talkId).Returns((ConferenceTalkReadModel?)null);
+        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
 
         // Act
         await handler.HandleTalkRejected(storedEvent);
 
         // Assert
         await repository.Received(1).GetById(talkId);
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkAssignedToRoom_UpdatesRoomInformation()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
         var roomId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Status = "Accepted",
@@ -374,7 +374,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<ConferenceTalkReadModel>(rm =>
+                Arg.Is<ConferenceTalkDocument>(rm =>
                     rm.Id == talkId.ToString()
                     && rm.RoomId == roomId.ToString()
                     && rm.RoomName == "Main Hall"
@@ -386,7 +386,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkAssignedToRoom_WithNullPayload_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
@@ -403,14 +403,14 @@ public class TalkEventHandlerTests
 
         // Assert
         await repository.DidNotReceive().GetById(Arg.Any<Guid>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkAssignedToRoom_WithNonExistingReadModel_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -445,21 +445,21 @@ public class TalkEventHandlerTests
             2
         );
 
-        repository.GetById(talkId).Returns((ConferenceTalkReadModel?)null);
+        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
 
         // Act
         await handler.HandleTalkAssignedToRoom(storedEvent);
 
         // Assert
         await repository.Received(1).GetById(talkId);
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkDomainEvent_UpdatesExistingReadModel()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -468,7 +468,7 @@ public class TalkEventHandlerTests
         var talkTypeId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Title = "Old Title",
@@ -508,7 +508,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<ConferenceTalkReadModel>(rm =>
+                Arg.Is<ConferenceTalkDocument>(rm =>
                     rm.Id == talkId.ToString()
                     && rm.Title == "Updated Talk"
                     && rm.Abstract == "Updated Abstract"
@@ -521,7 +521,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkDomainEvent_WithNullPayload_DoesNotCreateOrUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
@@ -537,15 +537,15 @@ public class TalkEventHandlerTests
         await handler.HandleTalkDomainEvent(storedEvent);
 
         // Assert
-        await repository.DidNotReceive().Save(Arg.Any<ConferenceTalkReadModel>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Save(Arg.Any<ConferenceTalkDocument>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkAccepted_WithNullPayload_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
@@ -562,14 +562,14 @@ public class TalkEventHandlerTests
 
         // Assert
         await repository.DidNotReceive().GetById(Arg.Any<Guid>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkAccepted_WithNonExistingReadModel_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -602,21 +602,21 @@ public class TalkEventHandlerTests
             2
         );
 
-        repository.GetById(talkId).Returns((ConferenceTalkReadModel?)null);
+        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
 
         // Act
         await handler.HandleTalkAccepted(storedEvent);
 
         // Assert
         await repository.Received(1).GetById(talkId);
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkScheduled_WithNullPayload_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
@@ -633,14 +633,14 @@ public class TalkEventHandlerTests
 
         // Assert
         await repository.DidNotReceive().GetById(Arg.Any<Guid>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkScheduled_WithNonExistingReadModel_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -677,14 +677,14 @@ public class TalkEventHandlerTests
             2
         );
 
-        repository.GetById(talkId).Returns((ConferenceTalkReadModel?)null);
+        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
 
         // Act
         await handler.HandleTalkScheduled(storedEvent);
 
         // Assert
         await repository.Received(1).GetById(talkId);
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     // Idempotency Tests
@@ -692,7 +692,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkDomainEvent_DuplicateEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -700,7 +700,7 @@ public class TalkEventHandlerTests
         var speakerId = Guid.NewGuid();
         var talkTypeId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             ConferenceId = conferenceId.ToString(),
@@ -737,19 +737,19 @@ public class TalkEventHandlerTests
         await handler.HandleTalkDomainEvent(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkAccepted_DuplicateEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Status = "Accepted",
@@ -790,19 +790,19 @@ public class TalkEventHandlerTests
         await handler.HandleTalkAccepted(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkRejected_OutOfOrderEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Status = "Rejected",
@@ -843,7 +843,7 @@ public class TalkEventHandlerTests
         await handler.HandleTalkRejected(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
         Assert.Equal(3, existingReadModel.Version); // Version unchanged
     }
 
@@ -851,12 +851,12 @@ public class TalkEventHandlerTests
     public async Task HandleTalkScheduled_DuplicateEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             SlotStart = DateTimeOffset.UtcNow.AddDays(30),
@@ -900,20 +900,20 @@ public class TalkEventHandlerTests
         await handler.HandleTalkScheduled(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkAssignedToRoom_OutOfOrderEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<IConferenceTalkReadModelRepository>();
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
         var roomId = Guid.NewGuid();
 
-        var existingReadModel = new ConferenceTalkReadModel
+        var existingReadModel = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             RoomId = roomId.ToString(),
@@ -957,7 +957,7 @@ public class TalkEventHandlerTests
         await handler.HandleTalkAssignedToRoom(storedEvent);
 
         // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
         Assert.Equal("Main Hall", existingReadModel.RoomName); // Room unchanged
         Assert.Equal(3, existingReadModel.Version); // Version unchanged
     }

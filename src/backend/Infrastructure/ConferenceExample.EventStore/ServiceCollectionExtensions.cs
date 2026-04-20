@@ -11,17 +11,16 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration
     )
     {
-        // Configure MongoDB Event Store
         var mongoSettings =
             configuration.GetSection("Database:MongoDB").Get<MongoDbSettings>()
-            ?? new MongoDbSettings(); // Use defaults if not configured
+            ?? new MongoDbSettings();
 
         var mongoClient = new MongoClient(mongoSettings.ConnectionString);
         var database = mongoClient.GetDatabase(mongoSettings.DatabaseName);
 
         services.AddSingleton(database);
-        services.AddSingleton<IEventStore, MongoDbEventStore>();
         services.AddSingleton<IEventBus, MongoDbEventBus>();
+        services.AddSingleton<IEventStore, MongoDbEventStore>();
 
         return services;
     }

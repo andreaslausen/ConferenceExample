@@ -126,7 +126,7 @@ public class ConferenceEventSubscriptionsTests
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var handler = Substitute.For<ConferenceEventHandler>(
-            Substitute.For<IConferenceReadModelRepository>()
+            Substitute.For<IConferenceDocumentRepository>()
         );
 
         scopeFactory.CreateScope().Returns(scope);
@@ -170,7 +170,7 @@ public class ConferenceEventSubscriptionsTests
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<IConferenceTalkReadModelRepository>()
+            Substitute.For<IConferenceTalkDocumentRepository>()
         );
 
         scopeFactory.CreateScope().Returns(scope);
@@ -214,7 +214,7 @@ public class ConferenceEventSubscriptionsTests
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<IConferenceTalkReadModelRepository>()
+            Substitute.For<IConferenceTalkDocumentRepository>()
         );
 
         scopeFactory.CreateScope().Returns(scope);
@@ -258,7 +258,7 @@ public class ConferenceEventSubscriptionsTests
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<IConferenceTalkReadModelRepository>()
+            Substitute.For<IConferenceTalkDocumentRepository>()
         );
 
         scopeFactory.CreateScope().Returns(scope);
@@ -302,7 +302,7 @@ public class ConferenceEventSubscriptionsTests
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<IConferenceTalkReadModelRepository>()
+            Substitute.For<IConferenceTalkDocumentRepository>()
         );
 
         scopeFactory.CreateScope().Returns(scope);
@@ -346,7 +346,7 @@ public class ConferenceEventSubscriptionsTests
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<IConferenceTalkReadModelRepository>()
+            Substitute.For<IConferenceTalkDocumentRepository>()
         );
 
         scopeFactory.CreateScope().Returns(scope);

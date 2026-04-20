@@ -9,12 +9,15 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddTalkPersistence(this IServiceCollection services)
     {
-        // Repositories (Event Store based) - Single Source of Truth for Commands
+        // Aggregate Repositories (Event Store based) - used by command handlers
         services.AddScoped<ITalkRepository, TalkRepository>();
         services.AddScoped<IConferenceRepository, ConferenceRepository>();
 
-        // Read Model Repositories (MongoDB based) - for optimized Queries only
-        services.AddScoped<ITalkReadModelRepository, MongoDbTalkReadModelRepository>();
+        // Read Model Repositories (MongoDB based) - used by query handlers
+        services.AddScoped<ITalkDocumentRepository, MongoDbTalkReadModelRepository>();
+        services.AddScoped<ITalkReadModelRepository>(sp =>
+            (ITalkReadModelRepository)sp.GetRequiredService<ITalkDocumentRepository>()
+        );
 
         // Event Handlers - update Read Models when events occur
         services.AddScoped<TalkEventHandler>();

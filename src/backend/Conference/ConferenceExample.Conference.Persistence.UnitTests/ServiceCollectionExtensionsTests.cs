@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.TalkManagement;
+using ConferenceExample.Conference.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ConferenceExample.Conference.Persistence.UnitTests;
@@ -24,7 +25,7 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddConferencePersistence_RegistersTalkRepository()
+    public void AddConferencePersistence_RegistersConferenceReadModelRepository()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -33,9 +34,26 @@ public class ServiceCollectionExtensionsTests
         services.AddConferencePersistence();
 
         // Assert
-        var descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(ITalkRepository));
+        var descriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(IConferenceReadModelRepository)
+        );
         Assert.NotNull(descriptor);
-        Assert.Equal(typeof(TalkRepository), descriptor!.ImplementationType);
+    }
+
+    [Fact]
+    public void AddConferencePersistence_RegistersConferenceTalkReadModelRepository()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddConferencePersistence();
+
+        // Assert
+        var descriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(IConferenceTalkReadModelRepository)
+        );
+        Assert.NotNull(descriptor);
     }
 
     [Fact]
@@ -54,11 +72,11 @@ public class ServiceCollectionExtensionsTests
         Assert.NotNull(conferenceRepositoryDescriptor);
         Assert.Equal(ServiceLifetime.Scoped, conferenceRepositoryDescriptor!.Lifetime);
 
-        var talkRepositoryDescriptor = services.FirstOrDefault(d =>
-            d.ServiceType == typeof(ITalkRepository)
+        var readModelRepositoryDescriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(IConferenceReadModelRepository)
         );
-        Assert.NotNull(talkRepositoryDescriptor);
-        Assert.Equal(ServiceLifetime.Scoped, talkRepositoryDescriptor!.Lifetime);
+        Assert.NotNull(readModelRepositoryDescriptor);
+        Assert.Equal(ServiceLifetime.Scoped, readModelRepositoryDescriptor!.Lifetime);
     }
 
     [Fact]

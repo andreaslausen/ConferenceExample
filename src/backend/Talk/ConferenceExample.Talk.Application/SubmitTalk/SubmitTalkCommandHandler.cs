@@ -11,10 +11,8 @@ public class SubmitTalkCommandHandler(
     IConferenceRepository conferenceRepository
 ) : ISubmitTalkCommandHandler
 {
-    public async Task Handle(SubmitTalkCommand command)
+    public async Task<Guid> Handle(SubmitTalkCommand command)
     {
-        // Validate that the conference exists and is in CallForSpeakers status
-        // Load conference state from EventStore (Single Source of Truth)
         var conferenceId = new ConferenceId(new GuidV7(command.ConferenceId));
         var conference = await conferenceRepository.GetById(conferenceId);
 
@@ -25,15 +23,12 @@ public class SubmitTalkCommandHandler(
             );
         }
 
-        // Get the current authenticated user's ID
-        // This ensures that a speaker can only submit talks for themselves
         var currentUserId = currentUserService.GetCurrentUserId();
-
-        // Convert Authentication.GuidV7 to Talk.Domain.GuidV7
         var speakerId = new SpeakerId(new GuidV7(currentUserId.Value.Value));
 
+        var talkId = new TalkId(GuidV7.NewGuid());
         var talk = Domain.TalkManagement.Talk.Submit(
-            new TalkId(GuidV7.NewGuid()),
+            talkId,
             new TalkTitle(command.Title),
             speakerId,
             command.Tags.Select(t => new TalkTag(t)),
@@ -43,5 +38,7 @@ public class SubmitTalkCommandHandler(
         );
 
         await talkRepository.Save(talk);
+
+        return talkId.Value.Value;
     }
 }

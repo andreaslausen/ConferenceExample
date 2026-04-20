@@ -12,7 +12,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkDomainEvent_NewTalk_CreatesReadModel()
     {
         // Arrange
-        var repository = Substitute.For<ITalkReadModelRepository>();
+        var repository = Substitute.For<ITalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -44,7 +44,7 @@ public class TalkEventHandlerTests
             1
         );
 
-        repository.GetById(talkId).Returns((TalkReadModel?)null);
+        repository.GetById(talkId).Returns((TalkDocument?)null);
 
         // Act
         await handler.HandleTalkDomainEvent(storedEvent);
@@ -53,7 +53,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Save(
-                Arg.Is<TalkReadModel>(rm =>
+                Arg.Is<TalkDocument>(rm =>
                     rm.Id == talkId.ToString()
                     && rm.Title == "Test Talk"
                     && rm.Abstract == "Test Abstract"
@@ -69,7 +69,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkDomainEvent_ExistingTalk_UpdatesReadModel()
     {
         // Arrange
-        var repository = Substitute.For<ITalkReadModelRepository>();
+        var repository = Substitute.For<ITalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -78,7 +78,7 @@ public class TalkEventHandlerTests
         var conferenceId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
 
-        var existingReadModel = new TalkReadModel
+        var existingReadModel = new TalkDocument
         {
             Id = talkId.ToString(),
             Title = "Old Title",
@@ -119,7 +119,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<TalkReadModel>(rm =>
+                Arg.Is<TalkDocument>(rm =>
                     rm.Id == talkId.ToString()
                     && rm.Title == "Updated Talk"
                     && rm.Abstract == "Updated Abstract"
@@ -132,7 +132,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkDomainEvent_InvalidPayload_ThrowsException()
     {
         // Arrange
-        var repository = Substitute.For<ITalkReadModelRepository>();
+        var repository = Substitute.For<ITalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
@@ -154,7 +154,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkDomainEvent_DuplicateEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<ITalkReadModelRepository>();
+        var repository = Substitute.For<ITalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -163,7 +163,7 @@ public class TalkEventHandlerTests
         var conferenceId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
 
-        var existingReadModel = new TalkReadModel
+        var existingReadModel = new TalkDocument
         {
             Id = talkId.ToString(),
             Title = "Existing Title",
@@ -202,14 +202,14 @@ public class TalkEventHandlerTests
         await handler.HandleTalkDomainEvent(storedEvent);
 
         // Assert
-        await repository.DidNotReceive().Update(Arg.Any<TalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<TalkDocument>());
     }
 
     [Fact]
     public async Task HandleTalkDomainEvent_OutOfOrderEvent_DoesNotUpdate()
     {
         // Arrange
-        var repository = Substitute.For<ITalkReadModelRepository>();
+        var repository = Substitute.For<ITalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -218,7 +218,7 @@ public class TalkEventHandlerTests
         var conferenceId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
 
-        var existingReadModel = new TalkReadModel
+        var existingReadModel = new TalkDocument
         {
             Id = talkId.ToString(),
             Title = "Current Title",
@@ -257,7 +257,7 @@ public class TalkEventHandlerTests
         await handler.HandleTalkDomainEvent(storedEvent);
 
         // Assert
-        await repository.DidNotReceive().Update(Arg.Any<TalkReadModel>());
+        await repository.DidNotReceive().Update(Arg.Any<TalkDocument>());
         // Verify read model was not modified
         Assert.Equal("Current Title", existingReadModel.Title);
         Assert.Equal(3, existingReadModel.Version);
@@ -267,7 +267,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkDomainEvent_NewerVersion_UpdatesReadModel()
     {
         // Arrange
-        var repository = Substitute.For<ITalkReadModelRepository>();
+        var repository = Substitute.For<ITalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
         var talkId = Guid.NewGuid();
@@ -276,7 +276,7 @@ public class TalkEventHandlerTests
         var conferenceId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
 
-        var existingReadModel = new TalkReadModel
+        var existingReadModel = new TalkDocument
         {
             Id = talkId.ToString(),
             Title = "Old Title",
@@ -318,7 +318,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<TalkReadModel>(rm =>
+                Arg.Is<TalkDocument>(rm =>
                     rm.Id == talkId.ToString()
                     && rm.Title == "New Title"
                     && rm.Abstract == "New Abstract"

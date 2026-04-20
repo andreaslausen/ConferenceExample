@@ -57,7 +57,7 @@ public class TalkEventSubscriptionsTests
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<ReadModels.ITalkReadModelRepository>()
+            Substitute.For<ReadModels.ITalkDocumentRepository>()
         );
 
         scopeFactory.CreateScope().Returns(scope);

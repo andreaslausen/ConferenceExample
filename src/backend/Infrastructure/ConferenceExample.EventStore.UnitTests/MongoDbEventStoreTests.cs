@@ -15,7 +15,7 @@ public class MongoDbEventStoreTests
         _mockCollection = Substitute.For<IMongoCollection<StoredEvent>>();
         _mockIndexManager = Substitute.For<IMongoIndexManager<StoredEvent>>();
 
-        _mockDatabase.GetCollection<StoredEvent>("events").Returns(_mockCollection);
+        _mockDatabase.GetCollection<StoredEvent>(Arg.Any<string>()).Returns(_mockCollection);
         _mockCollection.Indexes.Returns(_mockIndexManager);
         _mockCollection.Database.Returns(_mockDatabase);
     }
@@ -83,7 +83,7 @@ public class MongoDbEventStoreTests
         await store.AppendEvents(aggregateId, emptyEvents, -1);
 
         // Assert - should not interact with collection when list is empty
-        Assert.True(true); // Test passes if no exception is thrown
+        Assert.True(true);
     }
 
     [Fact]

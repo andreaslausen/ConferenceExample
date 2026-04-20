@@ -3,12 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ConferenceExample.Conference.Persistence.ReadModels;
 
-/// <summary>
-/// Read Model for Conference queries in the Conference bounded context.
-/// Denormalized data stored in MongoDB for efficient querying.
-/// Updated via event handlers when Conference domain events occur.
-/// </summary>
-public class ConferenceReadModel
+public class ConferenceDocument
 {
     [BsonId]
     [BsonRepresentation(BsonType.String)]
@@ -51,7 +46,7 @@ public class ConferenceReadModel
     public string Status { get; set; } = "Draft";
 
     [BsonElement("talkTypes")]
-    public List<TalkTypeReadModel> TalkTypes { get; set; } = new();
+    public List<TalkTypeDocument> TalkTypes { get; set; } = new();
 
     [BsonElement("createdAt")]
     public DateTimeOffset CreatedAt { get; set; }
@@ -65,7 +60,7 @@ public class ConferenceReadModel
     /// <summary>
     /// Nested class representing a TalkType in the Conference read model.
     /// </summary>
-    public class TalkTypeReadModel
+    public class TalkTypeDocument
     {
         [BsonElement("id")]
         [BsonRepresentation(BsonType.String)]
