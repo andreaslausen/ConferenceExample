@@ -113,7 +113,10 @@ public abstract class IntegrationTestBase
             Encoding.UTF8,
             "application/json"
         );
-        return await HttpClient.PostAsync(url, content);
+        var response = await HttpClient.PostAsync(url, content);
+        // Allow the change stream event handlers to update read models before assertions
+        await Task.Delay(100);
+        return response;
     }
 
     protected async Task<HttpResponseMessage> PutAsync<T>(string url, T data)
@@ -126,7 +129,10 @@ public abstract class IntegrationTestBase
             Encoding.UTF8,
             "application/json"
         );
-        return await HttpClient.PutAsync(url, content);
+        var response = await HttpClient.PutAsync(url, content);
+        // Allow the change stream event handlers to update read models before assertions
+        await Task.Delay(100);
+        return response;
     }
 
     protected async Task<TResponse?> DeserializeResponse<TResponse>(HttpResponseMessage response)

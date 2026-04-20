@@ -1,16 +1,17 @@
+using Microsoft.Extensions.Hosting;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace ConferenceExample.EventStore;
 
-public class MongoDbEventBus : IEventBus, IDisposable
+public class MongoDbEventBus : IEventBus, IHostedService, IDisposable
 {
     private readonly IMongoDatabase _database;
     private readonly Dictionary<string, List<Func<StoredEvent, Task>>> _subscriptions = [];
     private readonly Lock _lock = new();
-    private Task? _changeStreamTask;
-    private CancellationTokenSource? _cancellationTokenSource;
+    private CancellationTokenSource? _cts;
+    private Task? _processingTask;
 
     public MongoDbEventBus(IMongoDatabase database)
     {
@@ -29,36 +30,16 @@ public class MongoDbEventBus : IEventBus, IDisposable
 
             handlers.Add(handler);
         }
-
-        // Start change stream monitoring if not already started
-        EnsureChangeStreamStarted();
     }
 
-    private void EnsureChangeStreamStarted()
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_changeStreamTask != null)
-        {
-            return;
-        }
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-        lock (_lock)
-        {
-            if (_changeStreamTask != null)
-            {
-                return;
-            }
-
-            _cancellationTokenSource = new CancellationTokenSource();
-            _changeStreamTask = Task.Run(() => MonitorChangeStream(_cancellationTokenSource.Token));
-        }
-    }
-
-    private async Task MonitorChangeStream(CancellationToken cancellationToken)
-    {
-        // Watch at database level so all event collections (conference_events, talk_events, etc.)
-        // are covered by a single change stream — no per-collection wiring needed.
         var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>().Match(
-            change => change.OperationType == ChangeStreamOperationType.Insert
+            change =>
+                change.OperationType == ChangeStreamOperationType.Insert
+                && change.CollectionNamespace.CollectionName == "events"
         );
 
         var options = new ChangeStreamOptions
@@ -68,36 +49,61 @@ public class MongoDbEventBus : IEventBus, IDisposable
 
         try
         {
-            // Note: Change Streams require MongoDB to be running as a replica set
-            // For local development, this might not be available
-            using var cursor = await _database.WatchAsync(pipeline, options, cancellationToken);
+            // Watch at database level — survives individual collection drops (e.g. between tests)
+            var cursor = await _database.WatchAsync(pipeline, options, cancellationToken);
+            _processingTask = Task.Run(() => ProcessEventsAsync(cursor, _cts.Token), _cts.Token);
+        }
+        catch (MongoCommandException ex) when (ex.CodeName == "NotImplemented")
+        {
+            // Change Streams require a replica set — not available in standalone MongoDB
+            Console.WriteLine(
+                "MongoDB Change Streams not available (requires replica set). Event handlers will not run."
+            );
+        }
+    }
 
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        _cts?.Cancel();
+        if (_processingTask != null)
+        {
+            try
+            {
+                await _processingTask.WaitAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) { }
+        }
+    }
+
+    private async Task ProcessEventsAsync(
+        IAsyncCursor<ChangeStreamDocument<BsonDocument>> cursor,
+        CancellationToken cancellationToken
+    )
+    {
+        try
+        {
             await cursor.ForEachAsync(
                 async change =>
                 {
-                    if (change.FullDocument != null)
+                    if (change.FullDocument == null)
+                        return;
+
+                    try
                     {
                         var storedEvent = BsonSerializer.Deserialize<StoredEvent>(
                             change.FullDocument
                         );
                         await NotifySubscribersAsync(storedEvent);
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error processing change stream event: {ex.Message}");
+                    }
                 },
                 cancellationToken
             );
         }
-        catch (MongoCommandException ex) when (ex.CodeName == "NotImplemented")
-        {
-            // Change Streams not supported (standalone MongoDB)
-            // Fall back to polling or just use immediate notification from Publish
-            Console.WriteLine(
-                "MongoDB Change Streams not available (requires replica set). Using immediate notification only."
-            );
-        }
-        catch (OperationCanceledException)
-        {
-            // Expected when disposing
-        }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in MongoDB Change Stream: {ex.Message}");
@@ -118,7 +124,6 @@ public class MongoDbEventBus : IEventBus, IDisposable
             handlers = [.. registered];
         }
 
-        // Execute all handlers in parallel (safe with fat events + optimistic locking)
         var tasks = handlers.Select(handler => ExecuteHandlerAsync(handler, storedEvent));
         await Task.WhenAll(tasks);
     }
@@ -140,9 +145,9 @@ public class MongoDbEventBus : IEventBus, IDisposable
 
     public void Dispose()
     {
-        _cancellationTokenSource?.Cancel();
-        _changeStreamTask?.Wait(TimeSpan.FromSeconds(5));
-        _cancellationTokenSource?.Dispose();
+        _cts?.Cancel();
+        _processingTask?.Wait(TimeSpan.FromSeconds(5));
+        _cts?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

@@ -19,7 +19,9 @@ public static class ServiceCollectionExtensions
         var database = mongoClient.GetDatabase(mongoSettings.DatabaseName);
 
         services.AddSingleton(database);
-        services.AddSingleton<IEventBus, MongoDbEventBus>();
+        services.AddSingleton<MongoDbEventBus>();
+        services.AddSingleton<IEventBus>(sp => sp.GetRequiredService<MongoDbEventBus>());
+        services.AddHostedService(sp => sp.GetRequiredService<MongoDbEventBus>());
         services.AddSingleton<IEventStore, MongoDbEventStore>();
 
         return services;
