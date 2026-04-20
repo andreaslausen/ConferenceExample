@@ -4,7 +4,7 @@ using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
-using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RenameConference;
@@ -42,7 +42,7 @@ public class ServiceCollectionExtensionsTests
         Assert.Contains(services, sd => sd.ServiceType == typeof(IGetConferenceByIdQueryHandler));
         Assert.Contains(
             services,
-            sd => sd.ServiceType == typeof(IGetConferenceSessionsQueryHandler)
+            sd => sd.ServiceType == typeof(IGetConferenceScheduleQueryHandler)
         );
         Assert.Contains(services, sd => sd.ServiceType == typeof(IGetConferenceTalksQueryHandler));
 

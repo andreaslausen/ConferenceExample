@@ -5,7 +5,7 @@ using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
-using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RejectTalk;
@@ -21,7 +21,7 @@ public interface IConferenceService
     Task ChangeConferenceStatus(Guid id, ChangeConferenceStatusDto dto);
     Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences();
     Task<GetConferenceByIdDto> GetConferenceById(Guid conferenceId);
-    Task<IReadOnlyList<GetConferenceSessionDto>> GetSessions(Guid conferenceId);
+    Task<IReadOnlyList<GetConferenceScheduleDto>> GetConferenceSchedule(Guid conferenceId);
     Task<IReadOnlyList<GetConferenceTalksDto>> GetConferenceTalks(Guid conferenceId);
     Task AcceptTalk(Guid conferenceId, Guid talkId);
     Task RejectTalk(Guid conferenceId, Guid talkId);

@@ -1,6 +1,6 @@
-namespace ConferenceExample.Conference.Application.GetConferenceSessions;
+namespace ConferenceExample.Conference.Application.GetConferenceSchedule;
 
-public record GetConferenceSessionDto(
+public record GetConferenceScheduleDto(
     Guid Id,
     string Status,
     DateTimeOffset? SlotStart,

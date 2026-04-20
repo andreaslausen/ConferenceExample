@@ -3,7 +3,7 @@ using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
-using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
@@ -74,7 +74,7 @@ public class DtoTests
     }
 
     [Fact]
-    public void GetConferenceSessionDto_AllProperties_AreAccessible()
+    public void GetConferenceScheduleDto_AllProperties_AreAccessible()
     {
         // Arrange
         var id = Guid.NewGuid();
@@ -85,7 +85,7 @@ public class DtoTests
         var roomName = "Room A";
 
         // Act
-        var dto = new GetConferenceSessionDto(id, status, slotStart, slotEnd, roomId, roomName);
+        var dto = new GetConferenceScheduleDto(id, status, slotStart, slotEnd, roomId, roomName);
 
         // Assert
         Assert.Equal(id, dto.Id);
@@ -97,7 +97,7 @@ public class DtoTests
     }
 
     [Fact]
-    public void GetConferenceSessionDto_WithDeconstruction_WorksCorrectly()
+    public void GetConferenceScheduleDto_WithDeconstruction_WorksCorrectly()
     {
         // Arrange
         var id = Guid.NewGuid();
@@ -106,7 +106,7 @@ public class DtoTests
         var slotEnd = slotStart.AddHours(1);
         var roomId = Guid.NewGuid();
         var roomName = "Room A";
-        var dto = new GetConferenceSessionDto(id, status, slotStart, slotEnd, roomId, roomName);
+        var dto = new GetConferenceScheduleDto(id, status, slotStart, slotEnd, roomId, roomName);
 
         // Act
         var (dId, dStatus, dSlotStart, dSlotEnd, dRoomId, dRoomName) = dto;

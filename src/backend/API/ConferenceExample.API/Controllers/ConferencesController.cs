@@ -5,7 +5,7 @@ using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
-using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RenameConference;
@@ -82,16 +82,18 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         return NoContent();
     }
 
-    [HttpGet("{id:guid}/sessions", Name = "GetSessions")]
+    [HttpGet("{id:guid}/schedule", Name = "GetConferenceSchedule")]
     [Authorize(Roles = "Organizer")]
-    [ProducesResponseType<IReadOnlyList<GetConferenceSessionDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<IReadOnlyList<GetConferenceScheduleDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<IReadOnlyList<GetConferenceSessionDto>>> GetSessions(Guid id)
+    public async Task<ActionResult<IReadOnlyList<GetConferenceScheduleDto>>> GetConferenceSchedule(
+        Guid id
+    )
     {
-        var sessions = await conferenceService.GetSessions(id);
-        return Ok(sessions);
+        var schedule = await conferenceService.GetConferenceSchedule(id);
+        return Ok(schedule);
     }
 
     [HttpGet("{id:guid}/talks", Name = "GetConferenceTalks")]

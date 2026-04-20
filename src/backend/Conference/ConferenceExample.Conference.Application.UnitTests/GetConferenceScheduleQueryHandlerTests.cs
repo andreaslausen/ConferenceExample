@@ -1,5 +1,5 @@
 using ConferenceExample.Authentication;
-using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
@@ -10,10 +10,10 @@ using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManage
 
 namespace ConferenceExample.Conference.Application.UnitTests;
 
-public class GetConferenceSessionsQueryHandlerTests
+public class GetConferenceScheduleQueryHandlerTests
 {
     [Fact]
-    public async Task Handle_ValidQuery_ReturnsSessions()
+    public async Task Handle_ValidQuery_ReturnsSchedule()
     {
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
@@ -28,8 +28,8 @@ public class GetConferenceSessionsQueryHandlerTests
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
-        var handler = new GetConferenceSessionsQueryHandler(repository, currentUserService);
-        var query = new GetConferenceSessionsQuery(conference.Id.Value);
+        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var query = new GetConferenceScheduleQuery(conference.Id.Value);
 
         // Act
         var result = await handler.Handle(query);
@@ -56,8 +56,8 @@ public class GetConferenceSessionsQueryHandlerTests
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
-        var handler = new GetConferenceSessionsQueryHandler(repository, currentUserService);
-        var query = new GetConferenceSessionsQuery(conference.Id.Value);
+        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var query = new GetConferenceScheduleQuery(conference.Id.Value);
 
         // Act
         var result = await handler.Handle(query);
@@ -73,8 +73,8 @@ public class GetConferenceSessionsQueryHandlerTests
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var handler = new GetConferenceSessionsQueryHandler(repository, currentUserService);
-        var query = new GetConferenceSessionsQuery(GuidV7.NewGuid());
+        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var query = new GetConferenceScheduleQuery(GuidV7.NewGuid());
 
         repository
             .GetById(Arg.Any<ConferenceId>())
@@ -90,9 +90,9 @@ public class GetConferenceSessionsQueryHandlerTests
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var handler = new GetConferenceSessionsQueryHandler(repository, currentUserService);
+        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
         var invalidGuid = Guid.NewGuid(); // Not a GuidV7
-        var query = new GetConferenceSessionsQuery(invalidGuid);
+        var query = new GetConferenceScheduleQuery(invalidGuid);
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(query));
@@ -104,8 +104,8 @@ public class GetConferenceSessionsQueryHandlerTests
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var handler = new GetConferenceSessionsQueryHandler(repository, currentUserService);
-        var query = new GetConferenceSessionsQuery(GuidV7.NewGuid());
+        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var query = new GetConferenceScheduleQuery(GuidV7.NewGuid());
 
         repository
             .GetById(Arg.Any<ConferenceId>())
@@ -131,8 +131,8 @@ public class GetConferenceSessionsQueryHandlerTests
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
-        var handler = new GetConferenceSessionsQueryHandler(repository, currentUserService);
-        var query = new GetConferenceSessionsQuery(conference.Id.Value);
+        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var query = new GetConferenceScheduleQuery(conference.Id.Value);
 
         // Act & Assert
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => handler.Handle(query));

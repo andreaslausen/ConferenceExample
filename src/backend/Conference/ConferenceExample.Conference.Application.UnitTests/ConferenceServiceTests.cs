@@ -5,7 +5,7 @@ using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
-using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RejectTalk;
@@ -85,14 +85,14 @@ public class ConferenceServiceTests
     }
 
     [Fact]
-    public async Task GetSessions_ValidConferenceId_CallsQueryHandler()
+    public async Task GetConferenceSchedule_ValidConferenceId_CallsQueryHandler()
     {
         // Arrange
-        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var queryHandler = Substitute.For<IGetConferenceScheduleQueryHandler>();
         var service = CreateConferenceService(queryHandler: queryHandler);
 
         var conferenceId = Guid.NewGuid();
-        var expectedSessions = new List<GetConferenceSessionDto>
+        var expectedSessions = new List<GetConferenceScheduleDto>
         {
             new(
                 Guid.NewGuid(),
@@ -104,32 +104,32 @@ public class ConferenceServiceTests
             ),
         };
 
-        queryHandler.Handle(Arg.Any<GetConferenceSessionsQuery>()).Returns(expectedSessions);
+        queryHandler.Handle(Arg.Any<GetConferenceScheduleQuery>()).Returns(expectedSessions);
 
         // Act
-        var result = await service.GetSessions(conferenceId);
+        var result = await service.GetConferenceSchedule(conferenceId);
 
         // Assert
         await queryHandler
             .Received(1)
-            .Handle(Arg.Is<GetConferenceSessionsQuery>(q => q.ConferenceId == conferenceId));
+            .Handle(Arg.Is<GetConferenceScheduleQuery>(q => q.ConferenceId == conferenceId));
         Assert.Equal(expectedSessions, result);
     }
 
     [Fact]
-    public async Task GetSessions_QueryHandlerThrowsException_PropagatesException()
+    public async Task GetConferenceSchedule_QueryHandlerThrowsException_PropagatesException()
     {
         // Arrange
-        var queryHandler = Substitute.For<IGetConferenceSessionsQueryHandler>();
+        var queryHandler = Substitute.For<IGetConferenceScheduleQueryHandler>();
         var service = CreateConferenceService(queryHandler: queryHandler);
 
         queryHandler
-            .Handle(Arg.Any<GetConferenceSessionsQuery>())
+            .Handle(Arg.Any<GetConferenceScheduleQuery>())
             .Throws(new InvalidOperationException("Conference not found"));
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            service.GetSessions(Guid.NewGuid())
+            service.GetConferenceSchedule(Guid.NewGuid())
         );
     }
 
@@ -289,7 +289,7 @@ public class ConferenceServiceTests
         IChangeConferenceStatusCommandHandler? changeConferenceStatusCommandHandler = null,
         IGetAllConferencesQueryHandler? getAllConferencesQueryHandler = null,
         IGetConferenceByIdQueryHandler? getConferenceByIdQueryHandler = null,
-        IGetConferenceSessionsQueryHandler? queryHandler = null,
+        IGetConferenceScheduleQueryHandler? queryHandler = null,
         IGetConferenceTalksQueryHandler? getConferenceTalksQueryHandler = null,
         IAcceptTalkCommandHandler? acceptTalkCommandHandler = null,
         IRejectTalkCommandHandler? rejectTalkCommandHandler = null,
@@ -307,7 +307,7 @@ public class ConferenceServiceTests
                 ?? Substitute.For<IChangeConferenceStatusCommandHandler>(),
             getAllConferencesQueryHandler ?? Substitute.For<IGetAllConferencesQueryHandler>(),
             getConferenceByIdQueryHandler ?? Substitute.For<IGetConferenceByIdQueryHandler>(),
-            queryHandler ?? Substitute.For<IGetConferenceSessionsQueryHandler>(),
+            queryHandler ?? Substitute.For<IGetConferenceScheduleQueryHandler>(),
             getConferenceTalksQueryHandler ?? Substitute.For<IGetConferenceTalksQueryHandler>(),
             acceptTalkCommandHandler ?? Substitute.For<IAcceptTalkCommandHandler>(),
             rejectTalkCommandHandler ?? Substitute.For<IRejectTalkCommandHandler>(),

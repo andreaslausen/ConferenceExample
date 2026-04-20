@@ -5,7 +5,7 @@ using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
-using ConferenceExample.Conference.Application.GetConferenceSessions;
+using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RejectTalk;
@@ -21,7 +21,7 @@ public class ConferenceService(
     IChangeConferenceStatusCommandHandler changeConferenceStatusCommandHandler,
     IGetAllConferencesQueryHandler getAllConferencesQueryHandler,
     IGetConferenceByIdQueryHandler getConferenceByIdQueryHandler,
-    IGetConferenceSessionsQueryHandler getConferenceSessionsQueryHandler,
+    IGetConferenceScheduleQueryHandler getConferenceScheduleQueryHandler,
     IGetConferenceTalksQueryHandler getConferenceTalksQueryHandler,
     IAcceptTalkCommandHandler acceptTalkCommandHandler,
     IRejectTalkCommandHandler rejectTalkCommandHandler,
@@ -73,10 +73,12 @@ public class ConferenceService(
         return await getConferenceByIdQueryHandler.Handle(query);
     }
 
-    public async Task<IReadOnlyList<GetConferenceSessionDto>> GetSessions(Guid conferenceId)
+    public async Task<IReadOnlyList<GetConferenceScheduleDto>> GetConferenceSchedule(
+        Guid conferenceId
+    )
     {
-        var query = new GetConferenceSessionsQuery(conferenceId);
-        return await getConferenceSessionsQueryHandler.Handle(query);
+        var query = new GetConferenceScheduleQuery(conferenceId);
+        return await getConferenceScheduleQueryHandler.Handle(query);
     }
 
     public async Task<IReadOnlyList<GetConferenceTalksDto>> GetConferenceTalks(Guid conferenceId)
