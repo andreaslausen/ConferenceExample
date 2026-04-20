@@ -166,6 +166,22 @@ public class ConferenceRepositoryTests
     }
 
     [Fact]
+    public async Task Save_WhenEventStoreThrowsConcurrencyException_PropagatesException()
+    {
+        // Arrange
+        var eventStore = Substitute.For<IEventStore>();
+        var repo = new ConferenceRepository(eventStore);
+        var conference = CreateValidConference();
+
+        eventStore
+            .AppendEvents(Arg.Any<Guid>(), Arg.Any<IEnumerable<StoredEvent>>(), Arg.Any<long>())
+            .Returns(Task.FromException(new ConcurrencyException("Version conflict")));
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ConcurrencyException>(() => repo.Save(conference));
+    }
+
+    [Fact]
     public async Task GetById_InvalidEventPayload_ThrowsInvalidOperationException()
     {
         // Arrange
