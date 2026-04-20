@@ -43,6 +43,9 @@ public class TalkEventHandler
                 Title = domainEvent.Title,
                 Abstract = domainEvent.Abstract,
                 SpeakerId = domainEvent.SpeakerId.ToString(),
+                SpeakerFirstName = domainEvent.SpeakerFirstName,
+                SpeakerLastName = domainEvent.SpeakerLastName,
+                SpeakerBiography = domainEvent.SpeakerBiography,
                 TalkTypeId = domainEvent.TalkTypeId.ToString(),
                 Tags = domainEvent.Tags,
                 Status = domainEvent.Status,
@@ -67,6 +70,9 @@ public class TalkEventHandler
             existingReadModel.Title = domainEvent.Title;
             existingReadModel.Abstract = domainEvent.Abstract;
             existingReadModel.SpeakerId = domainEvent.SpeakerId.ToString();
+            existingReadModel.SpeakerFirstName = domainEvent.SpeakerFirstName;
+            existingReadModel.SpeakerLastName = domainEvent.SpeakerLastName;
+            existingReadModel.SpeakerBiography = domainEvent.SpeakerBiography;
             existingReadModel.TalkTypeId = domainEvent.TalkTypeId.ToString();
             existingReadModel.Tags = domainEvent.Tags;
             existingReadModel.Status = domainEvent.Status;
@@ -86,6 +92,9 @@ public class TalkEventHandler
         string Title,
         string Abstract,
         Guid SpeakerId,
+        string SpeakerFirstName,
+        string SpeakerLastName,
+        string SpeakerBiography,
         List<string> Tags,
         Guid TalkTypeId,
         Guid ConferenceId,

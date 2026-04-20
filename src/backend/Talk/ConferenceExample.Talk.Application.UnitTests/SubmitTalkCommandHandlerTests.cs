@@ -2,6 +2,7 @@ using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
+using ConferenceExample.Talk.Domain.SpeakerManagement.Events;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using NSubstitute;
 using AuthGuidV7 = ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids.GuidV7;
@@ -17,8 +18,24 @@ public class SubmitTalkCommandHandlerTests
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
+        var speakerRepository = Substitute.For<ISpeakerRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
+        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speaker = Speaker.LoadFromHistory(
+            new[]
+            {
+                new SpeakerProfileCreatedEvent(
+                    speakerId.Value.Value,
+                    DateTimeOffset.UtcNow,
+                    0,
+                    "Jane",
+                    "Doe",
+                    "Speaker bio"
+                ),
+            }
+        );
+        speakerRepository.GetSpeaker(Arg.Any<SpeakerId>()).Returns(speaker);
 
         var conferenceId = Guid.CreateVersion7();
         var conference = Domain.TalkManagement.Conference.FromEvents(
@@ -30,7 +47,8 @@ public class SubmitTalkCommandHandlerTests
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceRepository
+            conferenceRepository,
+            speakerRepository
         );
         var command = new SubmitTalkCommand(
             "Test Title",
@@ -56,8 +74,24 @@ public class SubmitTalkCommandHandlerTests
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
+        var speakerRepository = Substitute.For<ISpeakerRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
+        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speaker = Speaker.LoadFromHistory(
+            new[]
+            {
+                new SpeakerProfileCreatedEvent(
+                    speakerId.Value.Value,
+                    DateTimeOffset.UtcNow,
+                    0,
+                    "Jane",
+                    "Doe",
+                    "Speaker bio"
+                ),
+            }
+        );
+        speakerRepository.GetSpeaker(Arg.Any<SpeakerId>()).Returns(speaker);
 
         var conferenceId = Guid.CreateVersion7();
         var conference = Domain.TalkManagement.Conference.FromEvents(
@@ -69,7 +103,8 @@ public class SubmitTalkCommandHandlerTests
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceRepository
+            conferenceRepository,
+            speakerRepository
         );
         var command = new SubmitTalkCommand(
             "Test Title",
@@ -99,8 +134,24 @@ public class SubmitTalkCommandHandlerTests
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
+        var speakerRepository = Substitute.For<ISpeakerRepository>();
         var userId = new UserId(AuthGuidV7.NewGuid());
         currentUserService.GetCurrentUserId().Returns(userId);
+        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speaker = Speaker.LoadFromHistory(
+            new[]
+            {
+                new SpeakerProfileCreatedEvent(
+                    speakerId.Value.Value,
+                    DateTimeOffset.UtcNow,
+                    0,
+                    "Jane",
+                    "Doe",
+                    "Speaker bio"
+                ),
+            }
+        );
+        speakerRepository.GetSpeaker(Arg.Any<SpeakerId>()).Returns(speaker);
 
         var conferenceId = Guid.CreateVersion7();
         var conference = Domain.TalkManagement.Conference.FromEvents(
@@ -112,7 +163,8 @@ public class SubmitTalkCommandHandlerTests
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceRepository
+            conferenceRepository,
+            speakerRepository
         );
         var talkTypeId = Guid.CreateVersion7();
         var command = new SubmitTalkCommand(
@@ -162,7 +214,8 @@ public class SubmitTalkCommandHandlerTests
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceRepository
+            conferenceRepository,
+            Substitute.For<ISpeakerRepository>()
         );
         var command = new SubmitTalkCommand(
             "Test Title",
@@ -199,7 +252,8 @@ public class SubmitTalkCommandHandlerTests
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceRepository
+            conferenceRepository,
+            Substitute.For<ISpeakerRepository>()
         );
         var command = new SubmitTalkCommand(
             "Test Title",
@@ -236,7 +290,8 @@ public class SubmitTalkCommandHandlerTests
         var handler = new SubmitTalkCommandHandler(
             talkRepository,
             currentUserService,
-            conferenceRepository
+            conferenceRepository,
+            Substitute.For<ISpeakerRepository>()
         );
         var command = new SubmitTalkCommand(
             "Test Title",

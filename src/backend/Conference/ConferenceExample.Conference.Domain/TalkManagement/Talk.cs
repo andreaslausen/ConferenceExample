@@ -21,6 +21,9 @@ public class Talk
     public Text? Title { get; private set; }
     public Text? Abstract { get; private set; }
     public GuidV7? SpeakerId { get; private set; }
+    public string SpeakerFirstName { get; private set; } = string.Empty;
+    public string SpeakerLastName { get; private set; } = string.Empty;
+    public string SpeakerBiography { get; private set; } = string.Empty;
     public GuidV7? TalkTypeId { get; private set; }
     public IReadOnlyList<string> Tags { get; private set; } = new List<string>();
 
@@ -36,6 +39,9 @@ public class Talk
         Text? title,
         Text? @abstract,
         GuidV7? speakerId,
+        string speakerFirstName,
+        string speakerLastName,
+        string speakerBiography,
         GuidV7? talkTypeId,
         IReadOnlyList<string> tags,
         TalkStatus status,
@@ -47,6 +53,9 @@ public class Talk
         Title = title;
         Abstract = @abstract;
         SpeakerId = speakerId;
+        SpeakerFirstName = speakerFirstName;
+        SpeakerLastName = speakerLastName;
+        SpeakerBiography = speakerBiography;
         TalkTypeId = talkTypeId;
         Tags = tags;
         Status = status;

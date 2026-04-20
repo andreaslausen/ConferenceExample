@@ -26,6 +26,9 @@ public class TalkTests
             id,
             title,
             speakerId,
+            "Jane",
+            "Doe",
+            "Speaker bio",
             tags,
             talkTypeId,
             @abstract,
@@ -36,6 +39,9 @@ public class TalkTests
         Assert.Equal(id, talk.Id);
         Assert.Equal(title, talk.Title);
         Assert.Equal(speakerId, talk.SpeakerId);
+        Assert.Equal("Jane", talk.SpeakerFirstName);
+        Assert.Equal("Doe", talk.SpeakerLastName);
+        Assert.Equal("Speaker bio", talk.SpeakerBiography);
         Assert.Equal(talkTypeId, talk.TalkTypeId);
         Assert.Equal(@abstract, talk.Abstract);
         Assert.Equal(conferenceId, talk.ConferenceId);
@@ -56,7 +62,18 @@ public class TalkTests
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            TalkAggregate.Submit(id, title, speakerId, null!, talkTypeId, @abstract, conferenceId)
+            TalkAggregate.Submit(
+                id,
+                title,
+                speakerId,
+                "Jane",
+                "Doe",
+                "bio",
+                null!,
+                talkTypeId,
+                @abstract,
+                conferenceId
+            )
         );
     }
 
@@ -222,6 +239,9 @@ public class TalkTests
             id,
             title,
             speakerId,
+            "Jane",
+            "Doe",
+            "Speaker bio",
             tags,
             talkTypeId,
             @abstract,

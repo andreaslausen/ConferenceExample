@@ -61,6 +61,9 @@ public class MongoDbConferenceTalkReadModelRepository
                 d.Title,
                 d.Abstract,
                 d.SpeakerId.ToGuid(),
+                d.SpeakerFirstName,
+                d.SpeakerLastName,
+                d.SpeakerBiography,
                 d.Status,
                 d.Tags,
                 d.TalkTypeId.ToGuid()

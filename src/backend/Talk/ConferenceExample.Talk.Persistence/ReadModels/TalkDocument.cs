@@ -20,6 +20,15 @@ public class TalkDocument
     [BsonRepresentation(BsonType.String)]
     public string SpeakerId { get; set; } = string.Empty;
 
+    [BsonElement("speakerFirstName")]
+    public string SpeakerFirstName { get; set; } = string.Empty;
+
+    [BsonElement("speakerLastName")]
+    public string SpeakerLastName { get; set; } = string.Empty;
+
+    [BsonElement("speakerBiography")]
+    public string SpeakerBiography { get; set; } = string.Empty;
+
     [BsonElement("talkTypeId")]
     [BsonRepresentation(BsonType.String)]
     public string TalkTypeId { get; set; } = string.Empty;

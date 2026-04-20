@@ -5,6 +5,9 @@ public record ConferenceTalkReadModel(
     string Title,
     string Abstract,
     Guid SpeakerId,
+    string SpeakerFirstName,
+    string SpeakerLastName,
+    string SpeakerBiography,
     string Status,
     IReadOnlyList<string> Tags,
     Guid TalkTypeId

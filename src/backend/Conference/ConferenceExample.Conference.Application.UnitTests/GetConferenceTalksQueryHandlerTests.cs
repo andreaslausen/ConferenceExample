@@ -34,6 +34,9 @@ public class GetConferenceTalksQueryHandlerTests
                 "Introduction to DDD",
                 "Learn about Domain-Driven Design",
                 speakerId,
+                "Jane",
+                "Doe",
+                "Speaker bio",
                 "Submitted",
                 new List<string> { "DDD", "Architecture" },
                 talkTypeId

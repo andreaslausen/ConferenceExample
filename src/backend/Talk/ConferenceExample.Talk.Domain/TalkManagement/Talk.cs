@@ -12,6 +12,9 @@ public class Talk : AggregateRoot
     public TalkId Id { get; private set; } = null!;
     public TalkTitle Title { get; private set; } = null!;
     public SpeakerId SpeakerId { get; private set; } = null!;
+    public string SpeakerFirstName { get; private set; } = string.Empty;
+    public string SpeakerLastName { get; private set; } = string.Empty;
+    public string SpeakerBiography { get; private set; } = string.Empty;
     public TalkStatus Status { get; private set; }
     public TalkTypeId TalkTypeId { get; private set; } = null!;
     public Abstract Abstract { get; private set; } = null!;
@@ -31,6 +34,9 @@ public class Talk : AggregateRoot
         TalkId id,
         TalkTitle title,
         SpeakerId speakerId,
+        string speakerFirstName,
+        string speakerLastName,
+        string speakerBiography,
         IEnumerable<TalkTag> tags,
         TalkTypeId talkTypeId,
         Abstract @abstract,
@@ -45,10 +51,13 @@ public class Talk : AggregateRoot
             new TalkSubmittedEvent(
                 id.Value,
                 DateTimeOffset.UtcNow,
-                0, // Version starts at 0
+                0,
                 title.Title,
                 @abstract.Content,
                 speakerId.Value,
+                speakerFirstName,
+                speakerLastName,
+                speakerBiography,
                 tagList,
                 talkTypeId.Value,
                 conferenceId.Value,
@@ -68,6 +77,9 @@ public class Talk : AggregateRoot
                 title.Title,
                 Abstract.Content,
                 SpeakerId.Value,
+                SpeakerFirstName,
+                SpeakerLastName,
+                SpeakerBiography,
                 Tags.Select(t => t.Tag).ToList(),
                 TalkTypeId.Value,
                 ConferenceId.Value,
@@ -86,6 +98,9 @@ public class Talk : AggregateRoot
                 Title.Title,
                 @abstract.Content,
                 SpeakerId.Value,
+                SpeakerFirstName,
+                SpeakerLastName,
+                SpeakerBiography,
                 Tags.Select(t => t.Tag).ToList(),
                 TalkTypeId.Value,
                 ConferenceId.Value,
@@ -107,6 +122,9 @@ public class Talk : AggregateRoot
                 Title.Title,
                 Abstract.Content,
                 SpeakerId.Value,
+                SpeakerFirstName,
+                SpeakerLastName,
+                SpeakerBiography,
                 updatedTags,
                 TalkTypeId.Value,
                 ConferenceId.Value,
@@ -127,6 +145,9 @@ public class Talk : AggregateRoot
                 Title.Title,
                 Abstract.Content,
                 SpeakerId.Value,
+                SpeakerFirstName,
+                SpeakerLastName,
+                SpeakerBiography,
                 updatedTags,
                 TalkTypeId.Value,
                 ConferenceId.Value,
@@ -143,6 +164,9 @@ public class Talk : AggregateRoot
                 Id = new TalkId(new GuidV7(e.AggregateId));
                 Title = new TalkTitle(e.Title);
                 SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
+                SpeakerFirstName = e.SpeakerFirstName;
+                SpeakerLastName = e.SpeakerLastName;
+                SpeakerBiography = e.SpeakerBiography;
                 TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
                 Abstract = new Abstract(e.Abstract);
                 ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
@@ -153,6 +177,9 @@ public class Talk : AggregateRoot
             case TalkTitleEditedEvent e:
                 Title = new TalkTitle(e.Title);
                 SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
+                SpeakerFirstName = e.SpeakerFirstName;
+                SpeakerLastName = e.SpeakerLastName;
+                SpeakerBiography = e.SpeakerBiography;
                 TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
                 Abstract = new Abstract(e.Abstract);
                 ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
@@ -163,6 +190,9 @@ public class Talk : AggregateRoot
             case TalkAbstractEditedEvent e:
                 Title = new TalkTitle(e.Title);
                 SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
+                SpeakerFirstName = e.SpeakerFirstName;
+                SpeakerLastName = e.SpeakerLastName;
+                SpeakerBiography = e.SpeakerBiography;
                 TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
                 Abstract = new Abstract(e.Abstract);
                 ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
@@ -173,6 +203,9 @@ public class Talk : AggregateRoot
             case TalkTagAddedEvent e:
                 Title = new TalkTitle(e.Title);
                 SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
+                SpeakerFirstName = e.SpeakerFirstName;
+                SpeakerLastName = e.SpeakerLastName;
+                SpeakerBiography = e.SpeakerBiography;
                 TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
                 Abstract = new Abstract(e.Abstract);
                 ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
@@ -183,6 +216,9 @@ public class Talk : AggregateRoot
             case TalkTagRemovedEvent e:
                 Title = new TalkTitle(e.Title);
                 SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
+                SpeakerFirstName = e.SpeakerFirstName;
+                SpeakerLastName = e.SpeakerLastName;
+                SpeakerBiography = e.SpeakerBiography;
                 TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
                 Abstract = new Abstract(e.Abstract);
                 ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));

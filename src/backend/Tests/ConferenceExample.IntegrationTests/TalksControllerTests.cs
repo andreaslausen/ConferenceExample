@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.IntegrationTests.Infrastructure;
+using ConferenceExample.Talk.Application.CreateSpeakerProfile;
 using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.SubmitTalk;
@@ -26,6 +27,7 @@ public class TalksControllerTests : IntegrationTestBase
             UserRole.Speaker
         );
         SetAuthenticationToken(token);
+        await CreateSpeakerProfileAsync();
 
         var submitDto = new SubmitTalkDto
         {
@@ -96,6 +98,7 @@ public class TalksControllerTests : IntegrationTestBase
             UserRole.Speaker
         );
         SetAuthenticationToken(token);
+        await CreateSpeakerProfileAsync();
 
         var submitDto = new SubmitTalkDto
         {
@@ -131,6 +134,7 @@ public class TalksControllerTests : IntegrationTestBase
             UserRole.Speaker
         );
         SetAuthenticationToken(token);
+        await CreateSpeakerProfileAsync();
 
         // Create a talk first
         var submitDto = new SubmitTalkDto
@@ -161,6 +165,18 @@ public class TalksControllerTests : IntegrationTestBase
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         // Verify the talk was updated
+    }
+
+    private async Task CreateSpeakerProfileAsync()
+    {
+        var dto = new CreateSpeakerProfileDto
+        {
+            FirstName = "Jane",
+            LastName = "Doe",
+            Biography = "A passionate software developer.",
+        };
+        var response = await PostAsync("/api/speakers/profile", dto);
+        response.EnsureSuccessStatusCode();
     }
 
     private async Task<Guid> CreateConferenceAsync()
