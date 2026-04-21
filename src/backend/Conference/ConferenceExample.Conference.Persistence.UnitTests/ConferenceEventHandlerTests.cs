@@ -262,6 +262,167 @@ public class ConferenceEventHandlerTests
     }
 
     [Fact]
+    public async Task HandleRoomAdded_UpdatesAllConferenceFields()
+    {
+        // Arrange
+        var repository = Substitute.For<IConferenceDocumentRepository>();
+        var handler = new ConferenceEventHandler(repository);
+
+        var aggregateId = Guid.NewGuid();
+        var occurredAt = DateTimeOffset.UtcNow;
+        var organizerId = Guid.NewGuid();
+
+        var existingReadModel = new ConferenceDocument
+        {
+            Id = aggregateId.ToString(),
+            Name = "Old Name",
+            Start = occurredAt,
+            End = occurredAt,
+            LocationName = "Old Location",
+            Street = "Old Street",
+            City = "Old City",
+            State = "Old State",
+            PostalCode = "00000",
+            Country = "Old Country",
+            OrganizerId = Guid.NewGuid().ToString(),
+            Status = "Draft",
+            Version = 1,
+        };
+
+        var payload = new
+        {
+            AggregateId = aggregateId,
+            OccurredAt = occurredAt,
+            Version = 2L,
+            Name = "New Name",
+            Start = occurredAt.AddDays(30),
+            End = occurredAt.AddDays(32),
+            LocationName = "Convention Center",
+            Street = "123 Main St",
+            City = "Springfield",
+            State = "IL",
+            PostalCode = "62701",
+            Country = "USA",
+            OrganizerId = organizerId,
+            Status = "Published",
+            RoomId = Guid.NewGuid(),
+            RoomName = "Main Hall",
+        };
+
+        var storedEvent = new StoredEvent(
+            Guid.NewGuid(),
+            aggregateId,
+            "RoomAddedEvent",
+            JsonSerializer.Serialize(payload),
+            occurredAt,
+            2
+        );
+
+        repository.GetById(aggregateId).Returns(existingReadModel);
+
+        // Act
+        await handler.HandleRoomAdded(storedEvent);
+
+        // Assert
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceDocument>(rm =>
+                    rm.Name == "New Name"
+                    && rm.LocationName == "Convention Center"
+                    && rm.Street == "123 Main St"
+                    && rm.City == "Springfield"
+                    && rm.State == "IL"
+                    && rm.PostalCode == "62701"
+                    && rm.Country == "USA"
+                    && rm.OrganizerId == organizerId.ToString()
+                    && rm.Status == "Published"
+                    && rm.Version == 2
+                )
+            );
+    }
+
+    [Fact]
+    public async Task HandleRoomRemoved_UpdatesAllConferenceFields()
+    {
+        // Arrange
+        var repository = Substitute.For<IConferenceDocumentRepository>();
+        var handler = new ConferenceEventHandler(repository);
+
+        var aggregateId = Guid.NewGuid();
+        var occurredAt = DateTimeOffset.UtcNow;
+        var organizerId = Guid.NewGuid();
+
+        var existingReadModel = new ConferenceDocument
+        {
+            Id = aggregateId.ToString(),
+            Name = "Old Name",
+            Start = occurredAt,
+            End = occurredAt,
+            LocationName = "Old Location",
+            Street = "Old Street",
+            City = "Old City",
+            State = "Old State",
+            PostalCode = "00000",
+            Country = "Old Country",
+            OrganizerId = Guid.NewGuid().ToString(),
+            Status = "Draft",
+            Version = 1,
+        };
+
+        var payload = new
+        {
+            AggregateId = aggregateId,
+            OccurredAt = occurredAt,
+            Version = 2L,
+            Name = "New Name",
+            Start = occurredAt.AddDays(30),
+            End = occurredAt.AddDays(32),
+            LocationName = "Convention Center",
+            Street = "123 Main St",
+            City = "Springfield",
+            State = "IL",
+            PostalCode = "62701",
+            Country = "USA",
+            OrganizerId = organizerId,
+            Status = "Published",
+            RoomId = Guid.NewGuid(),
+        };
+
+        var storedEvent = new StoredEvent(
+            Guid.NewGuid(),
+            aggregateId,
+            "RoomRemovedEvent",
+            JsonSerializer.Serialize(payload),
+            occurredAt,
+            2
+        );
+
+        repository.GetById(aggregateId).Returns(existingReadModel);
+
+        // Act
+        await handler.HandleRoomRemoved(storedEvent);
+
+        // Assert
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceDocument>(rm =>
+                    rm.Name == "New Name"
+                    && rm.LocationName == "Convention Center"
+                    && rm.Street == "123 Main St"
+                    && rm.City == "Springfield"
+                    && rm.State == "IL"
+                    && rm.PostalCode == "62701"
+                    && rm.Country == "USA"
+                    && rm.OrganizerId == organizerId.ToString()
+                    && rm.Status == "Published"
+                    && rm.Version == 2
+                )
+            );
+    }
+
+    [Fact]
     public async Task HandleTalkTypeDefined_DuplicateEvent_DoesNotUpdate()
     {
         // Arrange

@@ -113,8 +113,8 @@ public class ConferenceEventSubscriptionsTests
         // Act
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - should register exactly 14 event types (3 conference + 5 talk + 4 conference-specific + 2 talktype)
-        eventBus.Received(14).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        // Assert - should register exactly 16 event types (3 conference + 5 talk + 4 conference-specific + 2 talktype + 2 room)
+        eventBus.Received(16).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 
     [Fact]
@@ -393,6 +393,6 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         // Assert - each call should register handlers
-        eventBus.Received(28).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        eventBus.Received(32).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 }

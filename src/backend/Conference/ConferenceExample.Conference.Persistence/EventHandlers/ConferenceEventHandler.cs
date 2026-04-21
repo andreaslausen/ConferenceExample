@@ -101,6 +101,16 @@ public class ConferenceEventHandler
             return;
 
         existingReadModel.Name = domainEvent.Name;
+        existingReadModel.Start = domainEvent.Start;
+        existingReadModel.End = domainEvent.End;
+        existingReadModel.LocationName = domainEvent.LocationName;
+        existingReadModel.Street = domainEvent.Street;
+        existingReadModel.City = domainEvent.City;
+        existingReadModel.State = domainEvent.State;
+        existingReadModel.PostalCode = domainEvent.PostalCode;
+        existingReadModel.Country = domainEvent.Country;
+        existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
+        existingReadModel.Status = domainEvent.Status;
         existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
         existingReadModel.Version = domainEvent.Version;
 
@@ -121,6 +131,16 @@ public class ConferenceEventHandler
             return;
 
         existingReadModel.Name = domainEvent.Name;
+        existingReadModel.Start = domainEvent.Start;
+        existingReadModel.End = domainEvent.End;
+        existingReadModel.LocationName = domainEvent.LocationName;
+        existingReadModel.Street = domainEvent.Street;
+        existingReadModel.City = domainEvent.City;
+        existingReadModel.State = domainEvent.State;
+        existingReadModel.PostalCode = domainEvent.PostalCode;
+        existingReadModel.Country = domainEvent.Country;
+        existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
+        existingReadModel.Status = domainEvent.Status;
         existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
         existingReadModel.Version = domainEvent.Version;
 
