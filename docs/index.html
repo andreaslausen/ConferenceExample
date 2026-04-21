@@ -494,7 +494,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel3">
 <li><a href="#_adr_1_modular_monolith_as_deployment_architecture">9.1.1. ADR-1: Modular Monolith as Deployment Architecture</a></li>
 <li><a href="#_adr_2_event_sourcing_and_cqrs">9.1.2. ADR-2: Event Sourcing and CQRS</a></li>
-<li><a href="#_adr_3_frontend_technology_blazor_server_with_mudblazor">9.1.3. ADR-3: Frontend Technology — Blazor Server with MudBlazor</a></li>
+<li><a href="#_adr_3_frontend_technology_react_with_vite_and_typescript">9.1.3. ADR-3: Frontend Technology — React with Vite and TypeScript</a></li>
 <li><a href="#_adr_4_frontend_boundary_single_shared_application">9.1.4. ADR-4: Frontend Boundary — Single Shared Application</a></li>
 </ul>
 </li>
@@ -1178,7 +1178,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </table>
 </div>
 <div class="sect3">
-<h4 id="_adr_3_frontend_technology_blazor_server_with_mudblazor">9.1.3. ADR-3: Frontend Technology — Blazor Server with MudBlazor</h4>
+<h4 id="_adr_3_frontend_technology_react_with_vite_and_typescript">9.1.3. ADR-3: Frontend Technology — React with Vite and TypeScript</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -1197,42 +1197,51 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The system requires a user interface for conference organizers, speakers, and attendees. A frontend technology must be chosen that fits well with the .NET backend ecosystem, is understandable without dedicated frontend expertise, and results in a polished, usable application. The primary goal is to demonstrate that the backend powers a real, working application — not to illustrate frontend architecture patterns or the integration between a JavaScript framework and a .NET backend.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system requires a user interface for conference organizers, speakers, and attendees. A frontend technology must be chosen that supports modern UI patterns (particularly drag-and-drop for schedule management), is widely adopted with strong community support, and integrates well with the REST API exposed by the .NET backend. The frontend should be independently deployable to allow for flexible deployment strategies.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use <strong>Blazor Server</strong> as the frontend framework, combined with <strong>MudBlazor</strong> as the component library. The Blazor application runs as part of the existing ASP.NET Core host and calls application services directly — without an additional HTTP API layer.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use <strong>React with Vite and TypeScript</strong> as the frontend stack. The frontend is a separate single-page application (SPA) that consumes the backend via the REST API. Component styling is done with <strong>Tailwind CSS</strong> and <strong>shadcn/ui</strong>, a modern component library built on Radix UI primitives. Drag-and-drop functionality is implemented using <strong>@dnd-kit</strong>, the current standard library for accessible, performant drag-and-drop in React.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Rationale</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
 <ul>
 <li>
-<p><strong>Developer experience</strong> — Blazor Server allows the entire application to be written in C#. No context switch to JavaScript, TypeScript, or a separate build toolchain (npm, Webpack, Vite). Any .NET developer can read and understand the frontend code immediately.</p>
+<p><strong>React ecosystem</strong> — React is the most widely adopted frontend library (18M+ weekly npm downloads), ensuring strong community support, extensive documentation, mature tooling, and a vast ecosystem of libraries and components.</p>
 </li>
 <li>
-<p><strong>Alignment with quality goal "Understandability"</strong> — the primary quality goal of this project is that the code is immediately graspable by an audience encountering it for the first time. A single language and a single ecosystem reduces cognitive overhead significantly.</p>
+<p><strong>TypeScript</strong> — provides type safety and excellent integration with the OpenAPI-generated API client, reducing runtime errors and improving developer experience through autocomplete and refactoring support.</p>
 </li>
 <li>
-<p><strong>MudBlazor</strong> — the most widely used Blazor component library (10,000+ GitHub stars). Based on Material Design principles, it provides a polished, consistent look and feel out of the box without requiring custom CSS. Actively maintained with full .NET 10 support.</p>
+<p><strong>Vite</strong> — modern build tool offering extremely fast hot module replacement (HMR) and optimized production builds. Simpler configuration than webpack-based alternatives.</p>
 </li>
 <li>
-<p><strong>Operational simplicity</strong> — Blazor Server requires no separate deployment unit. The frontend is served by the existing ASP.NET Core application; no additional hosting infrastructure is needed.</p>
+<p><strong>shadcn/ui</strong> — rapidly growing component library (trendy and widely adopted, used by Vercel, Supabase, and many production applications). Built on Radix UI primitives (accessibility-first, unstyled components) and styled with Tailwind CSS. Components are copied into the codebase rather than installed as dependencies, allowing full customization.</p>
 </li>
 <li>
-<p><strong>Direct service access</strong> — Blazor Server components can call application services in-process. There is no need to expose or consume additional REST endpoints solely for the frontend, keeping the codebase simpler.</p>
+<p><strong>Tailwind CSS</strong> — utility-first CSS framework that has become the industry standard for modern web development. Enables rapid UI development with consistent design tokens.</p>
 </li>
 <li>
-<p><strong>React rejected</strong> — React is the most widely adopted JavaScript library for building UIs and has a large ecosystem. However, it requires TypeScript or JavaScript, a separate build toolchain (npm, Vite or Webpack), and familiarity with concepts such as JSX, hooks, and component state management. For an audience of .NET developers, this creates a significant context switch. Additionally, a REST or GraphQL API would be required to connect the frontend to the backend, adding an extra layer with no demonstration value for this project.</p>
+<p><strong>@dnd-kit</strong> — modern, accessible, and performant drag-and-drop library for React. Ideal for building interactive schedule management UIs where talks can be dragged into time slots and rooms.</p>
 </li>
 <li>
-<p><strong>Angular rejected</strong> — Angular is a full-featured, opinionated framework with strong typing via TypeScript and a structured approach to dependency injection, routing, and forms. While its architectural style is closer to .NET in spirit, it introduces considerable boilerplate and a steep learning curve for developers unfamiliar with the Angular ecosystem. The same objections regarding a separate build toolchain and a required HTTP API layer apply as for React.</p>
+<p><strong>Independent deployment</strong> — the frontend can be deployed separately to static hosting providers (Vercel, Netlify, Cloudflare Pages) or served as static files by the .NET backend. This decoupling enables independent scaling, frontend-specific CI/CD pipelines, and frontend-only updates without backend redeployment.</p>
 </li>
 <li>
-<p><strong>Vue.js rejected</strong> — Vue.js offers a gentler learning curve than React or Angular and is well-regarded for its approachability. However, it still requires JavaScript or TypeScript and a separate frontend build pipeline, and the same API integration overhead applies. It offers no meaningful advantage over React or Angular for this specific context.</p>
+<p><strong>API-first architecture</strong> — the REST API layer is required anyway for public API access and potential future integrations. Using it as the frontend integration layer ensures that the API is well-designed, documented (via OpenAPI), and tested under real load.</p>
 </li>
 <li>
-<p><strong>Blazor WebAssembly rejected</strong> — WASM requires a separate deployment and introduces a noticeable initial load time. The direct in-process service access of Blazor Server is preferable for a demo context.</p>
+<p><strong>Blazor rejected</strong> — Blazor Server requires a persistent SignalR connection per user, limiting independent scaling and introducing state management challenges. Blazor WebAssembly has a larger initial payload and longer startup time. Neither offers the mature drag-and-drop ecosystem available in React. Most importantly, the requirement for drag-and-drop and the desire to use widely adopted, JavaScript-based technologies makes React a better fit for this project&#8217;s evolved goals.</p>
+</li>
+<li>
+<p><strong>Next.js rejected</strong> — while Next.js offers server-side rendering (SSR) and excellent developer experience, it introduces additional complexity (server components, routing conventions, deployment requirements) that is unnecessary for this SPA use case. Vite provides the essential features (fast dev server, optimized builds) without the framework overhead.</p>
+</li>
+<li>
+<p><strong>Vue.js rejected</strong> — while Vue offers a great developer experience and a gentler learning curve, React&#8217;s larger ecosystem and significantly greater adoption make it the safer choice for long-term maintainability and community support. The drag-and-drop ecosystem in particular is more mature in React.</p>
+</li>
+<li>
+<p><strong>Angular rejected</strong> — Angular&#8217;s opinionated structure and steeper learning curve introduce more complexity than necessary. React&#8217;s component-based model and functional programming style align better with modern frontend development practices.</p>
 </li>
 </ul>
 </div></div></td>
@@ -1242,10 +1251,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
 <ul>
 <li>
-<p><strong>Positive:</strong> Single language and ecosystem throughout the entire stack; no npm or JavaScript build toolchain; polished UI with minimal effort via MudBlazor; no extra HTTP endpoints needed for the frontend.</p>
+<p><strong>Positive:</strong> Modern, widely-supported technology stack; excellent drag-and-drop capabilities for schedule management; independent deployment and scaling; type-safe API integration via TypeScript; strong ecosystem and community support; flexible deployment options.</p>
 </li>
 <li>
-<p><strong>Negative / trade-offs:</strong> Blazor Server requires a persistent SignalR connection per user session, which limits independent scaling of the frontend. This trade-off is acceptable for a demonstration project. Real-time collaborative editing scenarios are not supported without additional effort.</p>
+<p><strong>Negative / trade-offs:</strong> Introduces a JavaScript build toolchain (npm, Vite) and a separate frontend codebase; requires maintaining the REST API layer; slightly more complex local development setup (running both backend and frontend); frontend and backend must coordinate on API contracts (mitigated by OpenAPI-generated TypeScript client).</p>
 </li>
 </ul>
 </div></div></td>
@@ -1273,27 +1282,30 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The system has multiple bounded contexts (Conference, Talk, and others planned). A decision is needed on whether the frontend should mirror those boundaries — one frontend application per bounded context — or whether a single shared application should serve all user-facing functionality.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system has multiple bounded contexts (Conference, Talk, and others planned). A decision is needed on whether the frontend should mirror those boundaries — one frontend application per bounded context (micro frontends) — or whether a single shared application should serve all user-facing functionality.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use a <strong>single shared Blazor Server application</strong> that consumes services from all bounded contexts. There is no frontend decomposition along bounded context lines.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use a <strong>single shared React application</strong> that consumes the REST API from all bounded contexts. There is no frontend decomposition along bounded context lines.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Rationale</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
 <ul>
 <li>
-<p><strong>Demonstration scope</strong> — the bounded context boundaries in this project are an architectural concern of the backend (domain isolation, independent deployment units, separate schemas). Replicating those boundaries in the frontend via micro frontends would add complexity without adding demonstration value.</p>
+<p><strong>Demonstration scope</strong> — the bounded context boundaries in this project are an architectural concern of the backend (domain isolation, event stores per context, separate schemas). Replicating those boundaries in the frontend via micro frontends would add complexity without adding demonstration value for the architectural patterns being showcased.</p>
 </li>
 <li>
-<p><strong>Micro frontend trade-offs</strong> — micro frontend architectures introduce significant complexity: independent deployment pipelines per frontend, a shell/composition layer, shared dependency management, and cross-fragment navigation. These challenges are worth demonstrating only when frontend autonomy is itself the topic being illustrated.</p>
+<p><strong>Micro frontend trade-offs</strong> — micro frontend architectures introduce significant complexity: independent deployment pipelines per frontend fragment, a shell/composition layer to stitch fragments together, shared dependency management (duplicate React versions, conflicting CSS), cross-fragment state management, and routing coordination. These challenges are worth demonstrating only when frontend autonomy and independent team deployment are explicit requirements.</p>
 </li>
 <li>
-<p><strong>Operational simplicity</strong> — a single Blazor application is straightforward to run, deploy, and debug. This keeps the focus of the project on the backend architecture patterns it is designed to demonstrate.</p>
+<p><strong>Operational simplicity</strong> — a single React SPA is straightforward to build, deploy, and debug. A unified application bundle simplifies CI/CD, reduces build times, and avoids the overhead of managing multiple frontend projects.</p>
 </li>
 <li>
-<p><strong>User experience</strong> — a shared application provides a unified navigation experience without requiring a composition strategy to stitch fragments together.</p>
+<p><strong>User experience</strong> — a shared application provides a unified navigation experience, consistent styling, and seamless transitions between features from different bounded contexts. No shell application or composition layer is needed.</p>
+</li>
+<li>
+<p><strong>API as integration layer</strong> — the REST API already serves as the integration point between frontend and backend. The frontend consumes well-defined API contracts (documented via OpenAPI) and is decoupled from internal backend module boundaries.</p>
 </li>
 </ul>
 </div></div></td>
@@ -1303,12 +1315,34 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
 <ul>
 <li>
-<p><strong>Positive:</strong> Simple deployment, unified user experience, no composition layer required, easy local development.</p>
+<p><strong>Positive:</strong> Simple deployment, unified user experience, no composition layer required, easy local development, consistent styling and navigation, single build pipeline.</p>
 </li>
 <li>
-<p><strong>Negative / trade-offs:</strong> The frontend introduces a coupling point across bounded contexts at the UI layer. If bounded context autonomy were a hard requirement (e.g. independent frontend deployment per context), this decision would need to be revisited. For the current scope and goals of this project, that trade-off is explicitly accepted.</p>
+<p><strong>Negative / trade-offs:</strong> The frontend introduces a coupling point across bounded contexts at the UI layer. Features from different contexts are delivered as part of a single deployment unit. If bounded context autonomy at the frontend level were a hard requirement (e.g. independent frontend deployment per context by separate teams), this decision would need to be revisited. For the current scope and goals of this project, that trade-off is explicitly accepted.</p>
 </li>
 </ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Future Migration Path</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>If independent frontend deployment per bounded context becomes necessary in the future, React supports several micro frontend architectures:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Module Federation</strong> — each bounded context can be extracted into a separate React application that dynamically shares components and dependencies at runtime. Webpack Module Federation (or <code>@module-federation/enhanced</code> for Vite) enables this without a full rewrite.</p>
+</li>
+<li>
+<p><strong>Monorepo with independent apps</strong> — each context becomes a separate deployable React app within a monorepo structure (using Nx, Turborepo, or pnpm workspaces). Shared code (components, API clients, types) is maintained in internal packages.</p>
+</li>
+<li>
+<p><strong>Single-spa or similar frameworks</strong> — a shell application orchestrates multiple independently deployed React apps, each owning a portion of the route space.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To facilitate future migration, the codebase should be organized by bounded context from the start (e.g. <code>src/features/conference/</code>, <code>src/features/talk/</code>) with clear boundaries between context-specific code and truly shared infrastructure. This structure allows individual contexts to be extracted into separate applications with minimal refactoring if and when deployment independence becomes a requirement.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -1535,7 +1569,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-03-30 12:33:11 UTC
+Last updated 2026-04-07 06:50:23 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
