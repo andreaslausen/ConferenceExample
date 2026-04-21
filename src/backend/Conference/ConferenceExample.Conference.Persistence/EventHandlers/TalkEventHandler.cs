@@ -51,15 +51,17 @@ public class TalkEventHandler
                 Status = domainEvent.Status,
                 SubmittedAt = domainEvent.OccurredAt,
                 LastModifiedAt = domainEvent.OccurredAt,
-                Version = domainEvent.Version,
+                Version = storedEvent.Version,
             };
 
             await _readModelRepository.Save(newReadModel);
         }
         else
         {
-            // Check for idempotency - skip if event version is not newer than read model version
-            if (domainEvent.Version <= existingReadModel.Version)
+            // Use the event store version (storedEvent.Version) for idempotency rather than the
+            // embedded payload version, which can be identical across multiple events raised within
+            // the same command (e.g. EditTalk).
+            if (storedEvent.Version <= existingReadModel.Version)
             {
                 return; // Event already processed or out of order, skip to prevent duplicates
             }
@@ -77,7 +79,7 @@ public class TalkEventHandler
             existingReadModel.Tags = domainEvent.Tags;
             existingReadModel.Status = domainEvent.Status;
             existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-            existingReadModel.Version = domainEvent.Version;
+            existingReadModel.Version = storedEvent.Version;
 
             // Repository uses optimistic locking - will only update if version is newer
             await _readModelRepository.Update(existingReadModel);

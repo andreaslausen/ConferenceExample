@@ -165,6 +165,13 @@ public class TalksControllerTests : IntegrationTestBase
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         // Verify the talk was updated
+        var verifyResponse = await HttpClient.GetAsync("/api/talks/my-talks");
+        var updatedTalks = await verifyResponse.Content.ReadFromJsonAsync<List<GetMyTalksDto>>();
+        Assert.NotNull(updatedTalks);
+        Assert.Single(updatedTalks);
+        Assert.Equal("Updated Title", updatedTalks![0].Title);
+        Assert.Equal("Updated Abstract", updatedTalks[0].Abstract);
+        Assert.Equal(new[] { "updated", "edited" }, updatedTalks[0].Tags);
     }
 
     private async Task CreateSpeakerProfileAsync()
