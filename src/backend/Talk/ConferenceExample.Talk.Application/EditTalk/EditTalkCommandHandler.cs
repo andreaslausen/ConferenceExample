@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
@@ -18,12 +17,12 @@ public class EditTalkCommandHandler(
 
         // Check ownership: Only the speaker who created the talk can edit it
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentSpeakerId = new SpeakerId(new GuidV7(currentUserId.Value.Value));
+        var currentSpeakerId = new SpeakerId(new GuidV7(currentUserId));
 
         if (talk.SpeakerId != currentSpeakerId)
         {
             throw new UnauthorizedAccessException(
-                $"User {currentUserId.Value} is not authorized to edit talk {talk.Id.Value}. Only the speaker who created the talk can edit it."
+                $"User {currentUserId} is not authorized to edit talk {talk.Id.Value}. Only the speaker who created the talk can edit it."
             );
         }
 

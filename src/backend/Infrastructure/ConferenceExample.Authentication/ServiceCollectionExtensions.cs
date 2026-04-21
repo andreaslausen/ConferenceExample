@@ -21,7 +21,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserRepository, MongoDbUserRepository>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddHttpContextAccessor();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<CurrentUserService>();
+        services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<CurrentUserService>());
+        services.AddScoped<Conference.Application.ICurrentUserService>(sp =>
+            sp.GetRequiredService<CurrentUserService>()
+        );
+        services.AddScoped<Talk.Application.ICurrentUserService>(sp =>
+            sp.GetRequiredService<CurrentUserService>()
+        );
 
         services
             .AddAuthentication(options =>

@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
@@ -13,11 +12,8 @@ public class CreateConferenceCommandHandler(
 {
     public async Task<ConferenceCreatedDto> Handle(CreateConferenceCommand command)
     {
-        // Get the current authenticated organizer's ID
         var currentUserId = currentUserService.GetCurrentUserId();
-
-        // Convert Authentication.GuidV7 to Conference.Domain.GuidV7
-        var organizerId = new OrganizerId(new GuidV7(currentUserId.Value.Value));
+        var organizerId = new OrganizerId(new GuidV7(currentUserId));
 
         var conference = ConferenceAggregate.Create(
             new ConferenceId(GuidV7.NewGuid()),

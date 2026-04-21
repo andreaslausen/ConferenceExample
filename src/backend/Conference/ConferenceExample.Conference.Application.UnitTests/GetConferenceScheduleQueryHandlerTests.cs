@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
@@ -24,7 +23,7 @@ public class GetConferenceScheduleQueryHandlerTests
         currentUserService
             .GetCurrentUserId()
             .Returns(
-                new UserId(new Authentication.SharedKernel.ValueObjects.Ids.GuidV7(organizerId))
+                organizerId
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
@@ -77,7 +76,7 @@ public class GetConferenceScheduleQueryHandlerTests
         currentUserService
             .GetCurrentUserId()
             .Returns(
-                new UserId(new Authentication.SharedKernel.ValueObjects.Ids.GuidV7(organizerId))
+                organizerId
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
@@ -184,7 +183,7 @@ public class GetConferenceScheduleQueryHandlerTests
         currentUserService
             .GetCurrentUserId()
             .Returns(
-                new UserId(new Authentication.SharedKernel.ValueObjects.Ids.GuidV7(differentUserId))
+                differentUserId.Value
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 

@@ -17,4 +17,8 @@
     <PackageReference Include="MongoDB.Driver" Version="3.2.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.1" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
+    <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
+  </ItemGroup>
 </Project>

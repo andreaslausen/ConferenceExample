@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.RoomManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
@@ -18,12 +17,12 @@ public class AddRoomCommandHandler(
         );
 
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId.Value.Value));
+        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId));
 
         if (conference.OrganizerId.Value != currentOrganizerId.Value)
         {
             throw new UnauthorizedAccessException(
-                $"User {currentUserId.Value} is not authorized to add rooms to conference {conference.Id.Value}."
+                $"User {currentUserId} is not authorized to add rooms to conference {conference.Id.Value}."
             );
         }
 

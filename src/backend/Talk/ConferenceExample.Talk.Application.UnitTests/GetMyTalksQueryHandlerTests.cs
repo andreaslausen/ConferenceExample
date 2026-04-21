@@ -1,10 +1,8 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using NSubstitute;
-using AuthGuidV7 = ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids.GuidV7;
 
 namespace ConferenceExample.Talk.Application.UnitTests;
 
@@ -28,10 +26,10 @@ public class GetMyTalksQueryHandlerTests
         // Arrange
         var talkSummaryRepository = Substitute.For<ITalkReadModelRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         var summary1 = CreateSummary(speakerId.Value.Value, "Talk 1") with { Title = "Talk 1" };
         var summary2 = CreateSummary(speakerId.Value.Value, "Talk 2") with { Title = "Talk 2" };
         talkSummaryRepository
@@ -56,10 +54,10 @@ public class GetMyTalksQueryHandlerTests
         // Arrange
         var talkSummaryRepository = Substitute.For<ITalkReadModelRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         talkSummaryRepository.GetBySpeakerId(speakerId).Returns(new List<TalkReadModel>());
 
         var handler = new GetMyTalksQueryHandler(talkSummaryRepository, currentUserService);
@@ -78,10 +76,10 @@ public class GetMyTalksQueryHandlerTests
         // Arrange
         var talkSummaryRepository = Substitute.For<ITalkReadModelRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         var talkId = Guid.NewGuid();
         var conferenceId = Guid.NewGuid();
         var summary = new TalkReadModel(
@@ -122,10 +120,10 @@ public class GetMyTalksQueryHandlerTests
         // Arrange
         var talkSummaryRepository = Substitute.For<ITalkReadModelRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var expectedSpeakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var expectedSpeakerId = new SpeakerId(new GuidV7(userId));
         talkSummaryRepository
             .GetBySpeakerId(Arg.Any<SpeakerId>())
             .Returns(new List<TalkReadModel>());

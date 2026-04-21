@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace ConferenceExample.Authentication;
 
-public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
+public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
+    : ICurrentUserService,
+        Conference.Application.ICurrentUserService,
+        Talk.Application.ICurrentUserService
 {
     private const string UserIdClaimType = JwtRegisteredClaimNames.Sub;
     private const string EmailClaimType = JwtRegisteredClaimNames.Email;
@@ -23,6 +26,12 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
 
         return new UserId(GuidV7.Parse(userIdClaim));
     }
+
+    Guid Conference.Application.ICurrentUserService.GetCurrentUserId() =>
+        GetCurrentUserId().Value.Value;
+
+    Guid Talk.Application.ICurrentUserService.GetCurrentUserId() =>
+        GetCurrentUserId().Value.Value;
 
     public UserRole GetCurrentUserRole()
     {

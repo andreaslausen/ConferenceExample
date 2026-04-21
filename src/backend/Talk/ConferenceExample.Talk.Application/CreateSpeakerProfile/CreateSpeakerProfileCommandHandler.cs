@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
@@ -13,7 +12,7 @@ public class CreateSpeakerProfileCommandHandler(
     public async Task Handle(CreateSpeakerProfileCommand command)
     {
         var currentUserId = currentUserService.GetCurrentUserId();
-        var speakerId = new SpeakerId(new GuidV7(currentUserId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(currentUserId));
 
         var speaker = Speaker.Create(
             speakerId,

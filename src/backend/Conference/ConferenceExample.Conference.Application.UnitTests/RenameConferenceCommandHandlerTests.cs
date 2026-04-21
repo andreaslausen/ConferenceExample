@@ -1,11 +1,8 @@
-using ConferenceExample.Authentication;
-using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using AuthGuidV7 = ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids.GuidV7;
 using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 using ConferenceGuidV7 = ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids.GuidV7;
 

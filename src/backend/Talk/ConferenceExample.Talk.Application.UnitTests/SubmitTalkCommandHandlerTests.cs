@@ -1,11 +1,9 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.SpeakerManagement.Events;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using NSubstitute;
-using AuthGuidV7 = ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids.GuidV7;
 
 namespace ConferenceExample.Talk.Application.UnitTests;
 
@@ -19,9 +17,9 @@ public class SubmitTalkCommandHandlerTests
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
         var speakerRepository = Substitute.For<ISpeakerRepository>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         var speaker = Speaker.LoadFromHistory(
             new[]
             {
@@ -75,9 +73,9 @@ public class SubmitTalkCommandHandlerTests
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
         var speakerRepository = Substitute.For<ISpeakerRepository>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         var speaker = Speaker.LoadFromHistory(
             new[]
             {
@@ -122,7 +120,7 @@ public class SubmitTalkCommandHandlerTests
             .Received(1)
             .Save(
                 Arg.Is<Domain.TalkManagement.Talk>(t =>
-                    t.SpeakerId == new SpeakerId(new GuidV7(userId.Value.Value))
+                    t.SpeakerId == new SpeakerId(new GuidV7(userId))
                 )
             );
     }
@@ -135,9 +133,9 @@ public class SubmitTalkCommandHandlerTests
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
         var speakerRepository = Substitute.For<ISpeakerRepository>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         var speaker = Speaker.LoadFromHistory(
             new[]
             {
@@ -199,7 +197,7 @@ public class SubmitTalkCommandHandlerTests
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
@@ -239,7 +237,7 @@ public class SubmitTalkCommandHandlerTests
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
@@ -277,7 +275,7 @@ public class SubmitTalkCommandHandlerTests
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
         var conferenceRepository = Substitute.For<IConferenceRepository>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var conferenceId = Guid.CreateVersion7();
