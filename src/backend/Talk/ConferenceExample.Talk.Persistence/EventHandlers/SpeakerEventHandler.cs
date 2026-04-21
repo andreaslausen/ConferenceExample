@@ -26,21 +26,24 @@ public class SpeakerEventHandler(ISpeakerDocumentRepository readModelRepository)
                 Biography = domainEvent.Biography,
                 CreatedAt = domainEvent.OccurredAt,
                 LastModifiedAt = domainEvent.OccurredAt,
-                Version = domainEvent.Version,
+                Version = storedEvent.Version,
             };
 
             await readModelRepository.Save(newDocument);
         }
         else
         {
-            if (domainEvent.Version <= existingDocument.Version)
+            // Use the event store version (storedEvent.Version) for idempotency rather than the
+            // embedded payload version, which can be identical across multiple events raised within
+            // the same command (e.g. EditTalk).
+            if (storedEvent.Version <= existingDocument.Version)
                 return;
 
             existingDocument.FirstName = domainEvent.FirstName;
             existingDocument.LastName = domainEvent.LastName;
             existingDocument.Biography = domainEvent.Biography;
             existingDocument.LastModifiedAt = domainEvent.OccurredAt;
-            existingDocument.Version = domainEvent.Version;
+            existingDocument.Version = storedEvent.Version;
 
             await readModelRepository.Update(existingDocument);
         }
