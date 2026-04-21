@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using ConferenceExample.API.Controllers;
 using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.IntegrationTests.Infrastructure;
@@ -82,9 +83,9 @@ public class TalksControllerTests : IntegrationTestBase
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadFromJsonAsync<List<GetMyTalksDto>>();
+        var result = await response.Content.ReadFromJsonAsync<PagedResult<GetMyTalksDto>>();
         Assert.NotNull(result);
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
     }
 
     [Fact]
@@ -115,12 +116,12 @@ public class TalksControllerTests : IntegrationTestBase
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadFromJsonAsync<List<GetMyTalksDto>>();
+        var result = await response.Content.ReadFromJsonAsync<PagedResult<GetMyTalksDto>>();
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal("My Test Talk", result![0].Title);
-        Assert.Equal("Test Abstract for my talk", result[0].Abstract);
-        Assert.Equal(new[] { "test", "integration" }, result[0].Tags);
+        Assert.Single(result.Items);
+        Assert.Equal("My Test Talk", result.Items[0].Title);
+        Assert.Equal("Test Abstract for my talk", result.Items[0].Abstract);
+        Assert.Equal(new[] { "test", "integration" }, result.Items[0].Tags);
     }
 
     [Fact]
@@ -149,8 +150,8 @@ public class TalksControllerTests : IntegrationTestBase
 
         // Get the talk ID
         var getResponse = await HttpClient.GetAsync("/api/talks/my-talks");
-        var talks = await getResponse.Content.ReadFromJsonAsync<List<GetMyTalksDto>>();
-        var talkId = talks![0].Id;
+        var talks = await getResponse.Content.ReadFromJsonAsync<PagedResult<GetMyTalksDto>>();
+        var talkId = talks!.Items[0].Id;
 
         var editDto = new EditTalkDto(
             "Updated Title",
@@ -166,12 +167,14 @@ public class TalksControllerTests : IntegrationTestBase
 
         // Verify the talk was updated
         var verifyResponse = await HttpClient.GetAsync("/api/talks/my-talks");
-        var updatedTalks = await verifyResponse.Content.ReadFromJsonAsync<List<GetMyTalksDto>>();
+        var updatedTalks = await verifyResponse.Content.ReadFromJsonAsync<
+            PagedResult<GetMyTalksDto>
+        >();
         Assert.NotNull(updatedTalks);
-        Assert.Single(updatedTalks);
-        Assert.Equal("Updated Title", updatedTalks![0].Title);
-        Assert.Equal("Updated Abstract", updatedTalks[0].Abstract);
-        Assert.Equal(new[] { "updated", "edited" }, updatedTalks[0].Tags);
+        Assert.Single(updatedTalks.Items);
+        Assert.Equal("Updated Title", updatedTalks.Items[0].Title);
+        Assert.Equal("Updated Abstract", updatedTalks.Items[0].Abstract);
+        Assert.Equal(new[] { "updated", "edited" }, updatedTalks.Items[0].Tags);
     }
 
     private async Task CreateSpeakerProfileAsync()
