@@ -1,14 +1,18 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
+using ConferenceExample.Conference.Application.AddRoom;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
+using ConferenceExample.Conference.Application.GetConferenceProgram;
+using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RejectTalk;
+using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
@@ -96,6 +100,7 @@ public class ConferenceServiceTests
         {
             new(
                 Guid.NewGuid(),
+                "Talk Title",
                 "Accepted",
                 DateTimeOffset.UtcNow,
                 DateTimeOffset.UtcNow.AddHours(1),
@@ -260,7 +265,7 @@ public class ConferenceServiceTests
         var service = CreateConferenceService(assignTalkToRoomCommandHandler: assignHandler);
         var conferenceId = Guid.NewGuid();
         var talkId = Guid.NewGuid();
-        var dto = new AssignTalkToRoomDto { RoomId = Guid.NewGuid(), RoomName = "Room A" };
+        var dto = new AssignTalkToRoomDto { RoomId = Guid.NewGuid() };
 
         // Act
         await service.AssignTalkToRoom(conferenceId, talkId, dto);
@@ -316,7 +321,11 @@ public class ConferenceServiceTests
             defineTalkTypeCommandHandler ?? Substitute.For<IDefineTalkTypeCommandHandler>(),
             removeTalkTypeCommandHandler ?? Substitute.For<IRemoveTalkTypeCommandHandler>(),
             getConferenceTalkTypesQueryHandler
-                ?? Substitute.For<IGetConferenceTalkTypesQueryHandler>()
+                ?? Substitute.For<IGetConferenceTalkTypesQueryHandler>(),
+            Substitute.For<IGetConferenceProgramQueryHandler>(),
+            Substitute.For<IAddRoomCommandHandler>(),
+            Substitute.For<IRemoveRoomCommandHandler>(),
+            Substitute.For<IGetConferenceRoomsQueryHandler>()
         );
     }
 }

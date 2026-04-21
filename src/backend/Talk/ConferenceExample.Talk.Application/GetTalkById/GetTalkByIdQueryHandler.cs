@@ -20,7 +20,9 @@ public class GetTalkByIdQueryHandler(ITalkReadModelRepository talkReadModelRepos
             talk.Abstract,
             talk.ConferenceId,
             talk.Status,
-            talk.Tags.ToList()
+            talk.Tags.ToList(),
+            talk.SpeakerId,
+            talk.SpeakerName
         );
     }
 }

@@ -87,6 +87,46 @@ public class ConferenceEventHandler
         }
     }
 
+    public async Task HandleRoomAdded(StoredEvent storedEvent)
+    {
+        var domainEvent = JsonSerializer.Deserialize<RoomAddedPayload>(storedEvent.Payload);
+        if (domainEvent is null)
+            return;
+
+        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        if (existingReadModel is null)
+            return;
+
+        if (domainEvent.Version <= existingReadModel.Version)
+            return;
+
+        existingReadModel.Name = domainEvent.Name;
+        existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
+        existingReadModel.Version = domainEvent.Version;
+
+        await _readModelRepository.Update(existingReadModel);
+    }
+
+    public async Task HandleRoomRemoved(StoredEvent storedEvent)
+    {
+        var domainEvent = JsonSerializer.Deserialize<RoomRemovedPayload>(storedEvent.Payload);
+        if (domainEvent is null)
+            return;
+
+        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        if (existingReadModel is null)
+            return;
+
+        if (domainEvent.Version <= existingReadModel.Version)
+            return;
+
+        existingReadModel.Name = domainEvent.Name;
+        existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
+        existingReadModel.Version = domainEvent.Version;
+
+        await _readModelRepository.Update(existingReadModel);
+    }
+
     /// <summary>
     /// Handles TalkTypeDefinedEvent - adds a new TalkType to the Conference read model.
     /// Ensures idempotency by checking event version against read model version.
@@ -248,6 +288,43 @@ public class ConferenceEventHandler
         string Status,
         Guid TalkTypeId,
         string TalkTypeName
+    );
+
+    private record RoomAddedPayload(
+        Guid AggregateId,
+        DateTimeOffset OccurredAt,
+        long Version,
+        string Name,
+        DateTimeOffset Start,
+        DateTimeOffset End,
+        string LocationName,
+        string Street,
+        string City,
+        string State,
+        string PostalCode,
+        string Country,
+        Guid OrganizerId,
+        string Status,
+        Guid RoomId,
+        string RoomName
+    );
+
+    private record RoomRemovedPayload(
+        Guid AggregateId,
+        DateTimeOffset OccurredAt,
+        long Version,
+        string Name,
+        DateTimeOffset Start,
+        DateTimeOffset End,
+        string LocationName,
+        string Street,
+        string City,
+        string State,
+        string PostalCode,
+        string Country,
+        Guid OrganizerId,
+        string Status,
+        Guid RoomId
     );
 
     // DTO for deserializing TalkTypeRemovedEvent

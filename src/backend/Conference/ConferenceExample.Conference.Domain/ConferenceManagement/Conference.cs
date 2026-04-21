@@ -12,6 +12,7 @@ public class Conference : AggregateRoot
 {
     private readonly List<Talk> _talks = [];
     private readonly List<TalkType> _talkTypes = [];
+    private readonly List<Room> _rooms = [];
 
     public ConferenceId Id { get; private set; } = null!;
     public Text Name { get; private set; } = null!;
@@ -21,6 +22,7 @@ public class Conference : AggregateRoot
     public ConferenceStatus Status { get; private set; }
     public IReadOnlyList<Talk> Talks => _talks;
     public IReadOnlyList<TalkType> TalkTypes => _talkTypes;
+    public IReadOnlyList<Room> Rooms => _rooms;
 
     private Conference() { }
 
@@ -224,6 +226,67 @@ public class Conference : AggregateRoot
         );
     }
 
+    public void AddRoom(RoomId roomId, Text name)
+    {
+        if (_rooms.Any(r => r.Name.Value.Equals(name.Value, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException(
+                $"A room with the name '{name.Value}' already exists for this conference."
+            );
+        }
+
+        RaiseEvent(
+            new RoomAddedEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
+                roomId.Value,
+                name.Value
+            )
+        );
+    }
+
+    public void RemoveRoom(RoomId roomId)
+    {
+        if (!_rooms.Any(r => r.Id == roomId))
+        {
+            throw new InvalidOperationException(
+                $"Room with id '{roomId.Value}' does not exist for this conference."
+            );
+        }
+
+        RaiseEvent(
+            new RoomRemovedEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                Version + 1,
+                Name.Value,
+                ConferenceTime.Start,
+                ConferenceTime.End,
+                Location.Name.Value,
+                Location.Address.Street,
+                Location.Address.City,
+                Location.Address.State,
+                Location.Address.PostalCode,
+                Location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString(),
+                roomId.Value
+            )
+        );
+    }
+
     public void DefineTalkType(TalkTypeId talkTypeId, Text name)
     {
         // Check if talk type with same name already exists
@@ -391,6 +454,29 @@ public class Conference : AggregateRoot
                 // Apply event-specific change
                 FindTalk(e.TalkId)
                     .AssignRoom(new RoomId(new GuidV7(e.RoomId)), new Text(e.RoomName));
+                break;
+            case RoomAddedEvent e:
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                _rooms.Add(new Room(new RoomId(new GuidV7(e.RoomId)), new Text(e.RoomName)));
+                break;
+            case RoomRemovedEvent e:
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                var roomToRemove = _rooms.First(r => r.Id.Value == (GuidV7)e.RoomId);
+                _rooms.Remove(roomToRemove);
                 break;
             case TalkTypeDefinedEvent e:
                 // Reconstruct full Conference state from fat event

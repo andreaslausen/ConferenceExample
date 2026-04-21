@@ -1,10 +1,13 @@
 using ConferenceExample.Conference.Application;
+using ConferenceExample.Conference.Application.AddRoom;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
+using ConferenceExample.Conference.Application.GetConferenceProgram;
+using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
@@ -201,6 +204,57 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     {
         var result = await conferenceService.DefineTalkType(id, dto);
         return Created($"/api/conferences/{id}/talk-types/{result.TalkTypeId}", result);
+    }
+
+    [HttpGet("{id:guid}/program", Name = "GetConferenceProgram")]
+    [AllowAnonymous]
+    [ProducesResponseType<IReadOnlyList<GetConferenceProgramDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<GetConferenceProgramDto>>> GetConferenceProgram(
+        Guid id
+    )
+    {
+        var program = await conferenceService.GetConferenceProgram(id);
+        return Ok(program);
+    }
+
+    [HttpGet("{id:guid}/rooms", Name = "GetConferenceRooms")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType<IReadOnlyList<GetConferenceRoomsDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IReadOnlyList<GetConferenceRoomsDto>>> GetConferenceRooms(
+        Guid id
+    )
+    {
+        var rooms = await conferenceService.GetConferenceRooms(id);
+        return Ok(rooms);
+    }
+
+    [HttpPost("{id:guid}/rooms", Name = "AddRoom")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType<RoomAddedDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<RoomAddedDto>> AddRoom(Guid id, [FromBody] AddRoomDto dto)
+    {
+        var result = await conferenceService.AddRoom(id, dto);
+        return Created($"/api/conferences/{id}/rooms/{result.RoomId}", result);
+    }
+
+    [HttpDelete("{conferenceId:guid}/rooms/{roomId:guid}", Name = "RemoveRoom")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> RemoveRoom(Guid conferenceId, Guid roomId)
+    {
+        await conferenceService.RemoveRoom(conferenceId, roomId);
+        return NoContent();
     }
 
     [HttpDelete("{conferenceId:guid}/talk-types/{talkTypeId:guid}", Name = "RemoveTalkType")]

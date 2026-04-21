@@ -56,6 +56,27 @@ public static class ConferenceEventSubscriptions
             }
         );
 
+        // Subscribe to Room events
+        eventBus.Subscribe(
+            "RoomAddedEvent",
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
+                await handler.HandleRoomAdded(storedEvent);
+            }
+        );
+
+        eventBus.Subscribe(
+            "RoomRemovedEvent",
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
+                await handler.HandleRoomRemoved(storedEvent);
+            }
+        );
+
         // Subscribe to Talk domain events (for cross-BC synchronization)
         var talkDomainEvents = new[]
         {

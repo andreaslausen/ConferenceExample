@@ -64,7 +64,9 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
             document.Abstract,
             document.ConferenceId.ToGuid(),
             document.Status,
-            document.Tags
+            document.Tags,
+            document.SpeakerId.ToGuid(),
+            $"{document.SpeakerFirstName} {document.SpeakerLastName}".Trim()
         );
     }
 
@@ -85,7 +87,9 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
                 d.Abstract,
                 d.ConferenceId.ToGuid(),
                 d.Status,
-                d.Tags
+                d.Tags,
+                d.SpeakerId.ToGuid(),
+                $"{d.SpeakerFirstName} {d.SpeakerLastName}".Trim()
             ))
             .ToList();
     }

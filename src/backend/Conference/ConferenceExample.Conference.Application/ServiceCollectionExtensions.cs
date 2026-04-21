@@ -1,14 +1,18 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
+using ConferenceExample.Conference.Application.AddRoom;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
+using ConferenceExample.Conference.Application.GetConferenceProgram;
+using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RejectTalk;
+using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
@@ -35,6 +39,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDefineTalkTypeCommandHandler, DefineTalkTypeCommandHandler>();
         services.AddScoped<IRemoveTalkTypeCommandHandler, RemoveTalkTypeCommandHandler>();
 
+        services.AddScoped<IAddRoomCommandHandler, AddRoomCommandHandler>();
+        services.AddScoped<IRemoveRoomCommandHandler, RemoveRoomCommandHandler>();
+
         // Query Handlers
         services.AddScoped<IGetAllConferencesQueryHandler, GetAllConferencesQueryHandler>();
         services.AddScoped<IGetConferenceByIdQueryHandler, GetConferenceByIdQueryHandler>();
@@ -44,6 +51,8 @@ public static class ServiceCollectionExtensions
             IGetConferenceTalkTypesQueryHandler,
             GetConferenceTalkTypesQueryHandler
         >();
+        services.AddScoped<IGetConferenceProgramQueryHandler, GetConferenceProgramQueryHandler>();
+        services.AddScoped<IGetConferenceRoomsQueryHandler, GetConferenceRoomsQueryHandler>();
 
         // Services
         services.AddScoped<IConferenceService, ConferenceService>();

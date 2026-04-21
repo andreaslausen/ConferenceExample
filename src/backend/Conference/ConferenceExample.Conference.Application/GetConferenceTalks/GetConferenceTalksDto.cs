@@ -5,6 +5,7 @@ public record GetConferenceTalksDto(
     string Title,
     string Abstract,
     Guid SpeakerId,
+    string SpeakerName,
     string Status,
     IReadOnlyList<string> Tags,
     Guid TalkTypeId

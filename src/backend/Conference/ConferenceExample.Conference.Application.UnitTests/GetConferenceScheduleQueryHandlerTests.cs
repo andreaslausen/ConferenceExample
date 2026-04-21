@@ -28,7 +28,32 @@ public class GetConferenceScheduleQueryHandlerTests
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
-        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var talkReadModels = new List<ConferenceTalkReadModel>
+        {
+            new(
+                Guid.NewGuid(),
+                "Test Talk",
+                "Abstract",
+                Guid.NewGuid(),
+                "Jane",
+                "Doe",
+                "Bio",
+                "Submitted",
+                new List<string>(),
+                Guid.NewGuid(),
+                null,
+                null,
+                null,
+                null
+            ),
+        };
+        var talkReadModelRepository = Substitute.For<IConferenceTalkReadModelRepository>();
+        talkReadModelRepository.GetByConferenceId(Arg.Any<ConferenceId>()).Returns(talkReadModels);
+        var handler = new GetConferenceScheduleQueryHandler(
+            repository,
+            talkReadModelRepository,
+            currentUserService
+        );
         var query = new GetConferenceScheduleQuery(conference.Id.Value);
 
         // Act
@@ -56,7 +81,15 @@ public class GetConferenceScheduleQueryHandlerTests
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
-        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var talkReadModelRepository = Substitute.For<IConferenceTalkReadModelRepository>();
+        talkReadModelRepository
+            .GetByConferenceId(Arg.Any<ConferenceId>())
+            .Returns(new List<ConferenceTalkReadModel>());
+        var handler = new GetConferenceScheduleQueryHandler(
+            repository,
+            talkReadModelRepository,
+            currentUserService
+        );
         var query = new GetConferenceScheduleQuery(conference.Id.Value);
 
         // Act
@@ -73,7 +106,15 @@ public class GetConferenceScheduleQueryHandlerTests
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var talkReadModelRepository = Substitute.For<IConferenceTalkReadModelRepository>();
+        talkReadModelRepository
+            .GetByConferenceId(Arg.Any<ConferenceId>())
+            .Returns(new List<ConferenceTalkReadModel>());
+        var handler = new GetConferenceScheduleQueryHandler(
+            repository,
+            talkReadModelRepository,
+            currentUserService
+        );
         var query = new GetConferenceScheduleQuery(GuidV7.NewGuid());
 
         repository
@@ -90,7 +131,15 @@ public class GetConferenceScheduleQueryHandlerTests
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var talkReadModelRepository = Substitute.For<IConferenceTalkReadModelRepository>();
+        talkReadModelRepository
+            .GetByConferenceId(Arg.Any<ConferenceId>())
+            .Returns(new List<ConferenceTalkReadModel>());
+        var handler = new GetConferenceScheduleQueryHandler(
+            repository,
+            talkReadModelRepository,
+            currentUserService
+        );
         var invalidGuid = Guid.NewGuid(); // Not a GuidV7
         var query = new GetConferenceScheduleQuery(invalidGuid);
 
@@ -104,7 +153,15 @@ public class GetConferenceScheduleQueryHandlerTests
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var talkReadModelRepository = Substitute.For<IConferenceTalkReadModelRepository>();
+        talkReadModelRepository
+            .GetByConferenceId(Arg.Any<ConferenceId>())
+            .Returns(new List<ConferenceTalkReadModel>());
+        var handler = new GetConferenceScheduleQueryHandler(
+            repository,
+            talkReadModelRepository,
+            currentUserService
+        );
         var query = new GetConferenceScheduleQuery(GuidV7.NewGuid());
 
         repository
@@ -131,7 +188,15 @@ public class GetConferenceScheduleQueryHandlerTests
             );
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
-        var handler = new GetConferenceScheduleQueryHandler(repository, currentUserService);
+        var talkReadModelRepository = Substitute.For<IConferenceTalkReadModelRepository>();
+        talkReadModelRepository
+            .GetByConferenceId(Arg.Any<ConferenceId>())
+            .Returns(new List<ConferenceTalkReadModel>());
+        var handler = new GetConferenceScheduleQueryHandler(
+            repository,
+            talkReadModelRepository,
+            currentUserService
+        );
         var query = new GetConferenceScheduleQuery(conference.Id.Value);
 
         // Act & Assert

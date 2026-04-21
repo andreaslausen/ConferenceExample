@@ -17,11 +17,10 @@ public class DtoTests
     public void AssignTalkToRoomDto_CanBeCreated()
     {
         // Arrange & Act
-        var dto = new AssignTalkToRoomDto { RoomId = Guid.NewGuid(), RoomName = "Room A" };
+        var dto = new AssignTalkToRoomDto { RoomId = Guid.NewGuid() };
 
         // Assert
         Assert.NotEqual(Guid.Empty, dto.RoomId);
-        Assert.Equal("Room A", dto.RoomName);
     }
 
     [Fact]
@@ -85,7 +84,15 @@ public class DtoTests
         var roomName = "Room A";
 
         // Act
-        var dto = new GetConferenceScheduleDto(id, status, slotStart, slotEnd, roomId, roomName);
+        var dto = new GetConferenceScheduleDto(
+            id,
+            "Talk Title",
+            status,
+            slotStart,
+            slotEnd,
+            roomId,
+            roomName
+        );
 
         // Assert
         Assert.Equal(id, dto.Id);
@@ -106,10 +113,18 @@ public class DtoTests
         var slotEnd = slotStart.AddHours(1);
         var roomId = Guid.NewGuid();
         var roomName = "Room A";
-        var dto = new GetConferenceScheduleDto(id, status, slotStart, slotEnd, roomId, roomName);
+        var dto = new GetConferenceScheduleDto(
+            id,
+            "Talk Title",
+            status,
+            slotStart,
+            slotEnd,
+            roomId,
+            roomName
+        );
 
         // Act
-        var (dId, dStatus, dSlotStart, dSlotEnd, dRoomId, dRoomName) = dto;
+        var (dId, dTitle, dStatus, dSlotStart, dSlotEnd, dRoomId, dRoomName) = dto;
 
         // Assert
         Assert.Equal(id, dId);
@@ -138,6 +153,7 @@ public class DtoTests
             title,
             abstractText,
             speakerId,
+            "Jane Doe",
             status,
             tags,
             talkTypeId

@@ -17,6 +17,23 @@ builder.Services.AddConferenceApplication();
 builder.Services.AddTalkPersistence();
 builder.Services.AddTalkApplication();
 
+builder.Services.AddCors(options =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        options.AddDefaultPolicy(policy =>
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+        );
+    }
+    else
+    {
+        var frontendUrl = builder.Configuration["Frontend:Url"] ?? "https://localhost:5173";
+        options.AddDefaultPolicy(policy =>
+            policy.WithOrigins(frontendUrl).AllowAnyMethod().AllowAnyHeader()
+        );
+    }
+});
+
 var app = builder.Build();
 app.AddEventBusSubscriptions();
 
@@ -26,6 +43,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,11 +1,13 @@
 using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.TalkManagement;
 
 namespace ConferenceExample.Conference.Application.GetConferenceSchedule;
 
 public class GetConferenceScheduleQueryHandler(
     IConferenceRepository conferenceRepository,
+    IConferenceTalkReadModelRepository talkReadModelRepository,
     ICurrentUserService currentUserService
 ) : IGetConferenceScheduleQueryHandler
 {
@@ -13,9 +15,8 @@ public class GetConferenceScheduleQueryHandler(
         GetConferenceScheduleQuery query
     )
     {
-        var conference = await conferenceRepository.GetById(
-            new ConferenceId(new GuidV7(query.ConferenceId))
-        );
+        var conferenceId = new ConferenceId(new GuidV7(query.ConferenceId));
+        var conference = await conferenceRepository.GetById(conferenceId);
 
         var currentUserId = currentUserService.GetCurrentUserId();
         var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId.Value.Value));
@@ -27,14 +28,17 @@ public class GetConferenceScheduleQueryHandler(
             );
         }
 
-        return conference
-            .Talks.Select(talk => new GetConferenceScheduleDto(
-                talk.Id.Value,
-                talk.Status.ToString(),
-                talk.Slot?.Start,
-                talk.Slot?.End,
-                talk.Room?.Id.Value.Value,
-                talk.Room?.Name.Value
+        var talks = await talkReadModelRepository.GetByConferenceId(conferenceId);
+
+        return talks
+            .Select(talk => new GetConferenceScheduleDto(
+                talk.Id,
+                talk.Title,
+                talk.Status,
+                talk.SlotStart,
+                talk.SlotEnd,
+                talk.RoomId,
+                talk.RoomName
             ))
             .ToList();
     }

@@ -34,6 +34,7 @@ public class GetConferenceTalksQueryHandler(
                 talk.Title,
                 talk.Abstract,
                 talk.SpeakerId,
+                $"{talk.SpeakerFirstName} {talk.SpeakerLastName}".Trim(),
                 talk.Status,
                 talk.Tags.ToList(),
                 talk.TalkTypeId

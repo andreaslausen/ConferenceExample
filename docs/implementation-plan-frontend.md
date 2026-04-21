@@ -54,39 +54,39 @@ Ziel: Das Backend liefert alle Daten, die das Frontend benötigt. Ohne diese Än
 
 #### 1a — CORS & Infrastruktur
 
-- [ ] **M1-1** CORS-Middleware in `Program.cs` konfigurieren: in Development alle Origins erlauben, in Production die Frontend-URL als erlaubten Origin eintragen
+- [x] **M1-1** CORS-Middleware in `Program.cs` konfigurieren: in Development alle Origins erlauben, in Production die Frontend-URL als erlaubten Origin eintragen
   > Begründung: Das Frontend läuft als eigenständige SPA auf einem anderen Origin als das Backend. Ohne CORS werden alle API-Requests vom Browser blockiert. Vite-Proxy löst das nur für den lokalen Dev-Server, nicht für Production-Deployments.
 
 #### 1b — Öffentlicher Programm-Endpunkt
 
-- [ ] **M1-2** Neuen Endpunkt `GET /api/conferences/:id/program` anlegen mit `[AllowAnonymous]`
+- [x] **M1-2** Neuen Endpunkt `GET /api/conferences/:id/program` anlegen mit `[AllowAnonymous]`
   > Begründung: Der bestehende `GET /api/conferences/:id/schedule` ist auf `[Authorize(Roles = "Organizer")]` eingeschränkt. Attendees können das Konferenzprogramm ohne Login nicht sehen. Ein separater Endpunkt ist sauberer als `[AllowAnonymous]` auf dem Organizer-Endpunkt, da beide ggf. unterschiedliche Projektionen brauchen.
-- [ ] **M1-3** `GetConferenceProgramDto` anlegen mit: `TalkId`, `TalkTitle`, `SpeakerName`, `SlotStart`, `SlotEnd`, `RoomId`, `RoomName`
+- [x] **M1-3** `GetConferenceProgramDto` anlegen mit: `TalkId`, `TalkTitle`, `SpeakerName`, `SlotStart`, `SlotEnd`, `RoomId`, `RoomName`
   > Begründung: `GetConferenceScheduleDto` hat kein `TalkTitle` und keinen `SpeakerName`. Ohne Titel kann der Zeitplan-Grid nicht befüllt werden; ohne Speaker-Namen fehlt eine wichtige Info auf der öffentlichen Programmseite.
 
 #### 1c — DTOs mit fehlenden Feldern ergänzen
 
-- [ ] **M1-4** `GetConferenceScheduleDto` (Organizer-Schedule) um `TalkTitle` ergänzen
+- [x] **M1-4** `GetConferenceScheduleDto` (Organizer-Schedule) um `TalkTitle` ergänzen
   > Begründung: Der Zeitplan-Editor zeigt Talks in den Grid-Zellen an — ohne Titel ist die Zelle leer.
-- [ ] **M1-5** `GetTalkByIdDto` um `SpeakerId` und `SpeakerName` ergänzen
+- [x] **M1-5** `GetTalkByIdDto` um `SpeakerId` und `SpeakerName` ergänzen
   > Begründung: Die öffentliche Talk-Detailseite soll den Vortragenden anzeigen. Aktuell fehlen beide Felder im DTO, sodass das Frontend keinen Speaker-Bezug herstellen kann.
-- [ ] **M1-6** `GetConferenceTalksDto` (Organizer-Proposals) um `SpeakerName` ergänzen
+- [x] **M1-6** `GetConferenceTalksDto` (Organizer-Proposals) um `SpeakerName` ergänzen
   > Begründung: Die Proposals-Liste zeigt Talks inkl. Einreicher. Aktuell ist nur `SpeakerId` vorhanden, was N separate `GET /api/speakers/:id`-Aufrufe pro Zeile erzwingen würde.
 
 #### 1d — Raum-Verwaltung
 
-- [ ] **M1-7** Endpunkt `POST /api/conferences/:id/rooms` anlegen (Body: `{ name: string }`) mit `[Authorize(Roles = "Organizer")]`
+- [x] **M1-7** Endpunkt `POST /api/conferences/:id/rooms` anlegen (Body: `{ name: string }`) mit `[Authorize(Roles = "Organizer")]`
   > Begründung: Räume werden aktuell implizit über `AssignTalkToRoom` erstellt (Name + neue GUID). Der Zeitplan-Editor braucht aber vorab definierte Räume als feste Spalten im Grid. Ohne explizite Raumverwaltung gibt es nichts anzuzeigen, bevor der erste Talk eingeplant wird.
-- [ ] **M1-8** Endpunkt `GET /api/conferences/:id/rooms` anlegen mit `[Authorize(Roles = "Organizer")]`
+- [x] **M1-8** Endpunkt `GET /api/conferences/:id/rooms` anlegen mit `[Authorize(Roles = "Organizer")]`
   > Begründung: Der Zeitplan-Editor (M7) rendert Räume als Spalten. Diese Spalten müssen aus dem Backend geladen werden.
-- [ ] **M1-9** Endpunkt `DELETE /api/conferences/:id/rooms/:roomId` anlegen mit `[Authorize(Roles = "Organizer")]`
+- [x] **M1-9** Endpunkt `DELETE /api/conferences/:id/rooms/:roomId` anlegen mit `[Authorize(Roles = "Organizer")]`
   > Begründung: Räume sollen auch wieder entfernt werden können (analog zu Talk-Types). Vollständige CRUD-Symmetrie verhindert Daten-Leichen im System.
-- [ ] **M1-10** `AssignTalkToRoomDto` so anpassen, dass nur noch `RoomId` übergeben wird (kein `RoomName` mehr)
+- [x] **M1-10** `AssignTalkToRoomDto` so anpassen, dass nur noch `RoomId` übergeben wird (kein `RoomName` mehr)
   > Begründung: Sobald Räume explizit verwaltet werden, ist das Mitschicken des Namens beim Zuweisen redundant und fehleranfällig (Name könnte vom gespeicherten Raumnamen abweichen). Der Name wird stattdessen aus dem Raum-Endpunkt gelesen.
 
 #### 1e — OpenAPI-Spec aktualisieren
 
-- [ ] **M1-11** `./scripts/generate-openapi.sh` ausführen und `openapi.json` committen, nachdem alle obigen Änderungen implementiert sind
+- [x] **M1-11** `./scripts/generate-openapi.sh` ausführen und `openapi.json` committen, nachdem alle obigen Änderungen implementiert sind
   > Begründung: Der TypeScript-API-Client im Frontend wird aus der OpenAPI-Spec generiert. Eine veraltete Spec würde veraltete Typen erzeugen.
 
 ---

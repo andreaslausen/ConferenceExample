@@ -39,7 +39,11 @@ public class GetConferenceTalksQueryHandlerTests
                 "Speaker bio",
                 "Submitted",
                 new List<string> { "DDD", "Architecture" },
-                talkTypeId
+                talkTypeId,
+                null,
+                null,
+                null,
+                null
             ),
         };
 

@@ -29,7 +29,12 @@ public class AssignTalkToRoomCommandHandler(
             );
         }
 
-        var room = new Room(new RoomId(new GuidV7(command.RoomId)), new Text(command.RoomName));
+        var roomId = new RoomId(new GuidV7(command.RoomId));
+        var room =
+            conference.Rooms.FirstOrDefault(r => r.Id == roomId)
+            ?? throw new InvalidOperationException(
+                $"Room '{command.RoomId}' does not exist in conference '{command.ConferenceId}'."
+            );
 
         conference.AssignTalkToRoom(new TalkId(new GuidV7(command.TalkId)), room);
         await conferenceRepository.Save(conference);

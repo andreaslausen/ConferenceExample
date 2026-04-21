@@ -17,7 +17,9 @@ public class GetMyTalksQueryHandlerTests
             "Test Abstract",
             Guid.NewGuid(),
             "Submitted",
-            new List<string> { "tag1", "tag2" }
+            new List<string> { "tag1", "tag2" },
+            speakerId,
+            "Jane Doe"
         );
 
     [Fact]
@@ -88,7 +90,9 @@ public class GetMyTalksQueryHandlerTests
             "Test Abstract",
             conferenceId,
             "Submitted",
-            new List<string> { "tag1", "tag2" }
+            new List<string> { "tag1", "tag2" },
+            speakerId.Value.Value,
+            "Jane Doe"
         );
         talkSummaryRepository
             .GetBySpeakerId(speakerId)

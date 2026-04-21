@@ -10,5 +10,9 @@ public record ConferenceTalkReadModel(
     string SpeakerBiography,
     string Status,
     IReadOnlyList<string> Tags,
-    Guid TalkTypeId
+    Guid TalkTypeId,
+    DateTimeOffset? SlotStart,
+    DateTimeOffset? SlotEnd,
+    Guid? RoomId,
+    string? RoomName
 );

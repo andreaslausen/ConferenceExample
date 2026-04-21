@@ -1,14 +1,18 @@
 using ConferenceExample.Conference.Application.AcceptTalk;
+using ConferenceExample.Conference.Application.AddRoom;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Application.GetAllConferences;
 using ConferenceExample.Conference.Application.GetConferenceById;
+using ConferenceExample.Conference.Application.GetConferenceProgram;
+using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RejectTalk;
+using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
@@ -29,7 +33,11 @@ public class ConferenceService(
     IAssignTalkToRoomCommandHandler assignTalkToRoomCommandHandler,
     IDefineTalkTypeCommandHandler defineTalkTypeCommandHandler,
     IRemoveTalkTypeCommandHandler removeTalkTypeCommandHandler,
-    IGetConferenceTalkTypesQueryHandler getConferenceTalkTypesQueryHandler
+    IGetConferenceTalkTypesQueryHandler getConferenceTalkTypesQueryHandler,
+    IGetConferenceProgramQueryHandler getConferenceProgramQueryHandler,
+    IAddRoomCommandHandler addRoomCommandHandler,
+    IRemoveRoomCommandHandler removeRoomCommandHandler,
+    IGetConferenceRoomsQueryHandler getConferenceRoomsQueryHandler
 ) : IConferenceService
 {
     public async Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto dto)
@@ -107,7 +115,7 @@ public class ConferenceService(
 
     public async Task AssignTalkToRoom(Guid conferenceId, Guid talkId, AssignTalkToRoomDto dto)
     {
-        var command = new AssignTalkToRoomCommand(conferenceId, talkId, dto.RoomId, dto.RoomName);
+        var command = new AssignTalkToRoomCommand(conferenceId, talkId, dto.RoomId);
         await assignTalkToRoomCommandHandler.Handle(command);
     }
 
@@ -129,5 +137,31 @@ public class ConferenceService(
     {
         var query = new GetConferenceTalkTypesQuery(conferenceId);
         return await getConferenceTalkTypesQueryHandler.Handle(query);
+    }
+
+    public async Task<IReadOnlyList<GetConferenceProgramDto>> GetConferenceProgram(
+        Guid conferenceId
+    )
+    {
+        var query = new GetConferenceProgramQuery(conferenceId);
+        return await getConferenceProgramQueryHandler.Handle(query);
+    }
+
+    public async Task<RoomAddedDto> AddRoom(Guid conferenceId, AddRoomDto dto)
+    {
+        var command = new AddRoomCommand(conferenceId, dto.Name);
+        return await addRoomCommandHandler.Handle(command);
+    }
+
+    public async Task RemoveRoom(Guid conferenceId, Guid roomId)
+    {
+        var command = new RemoveRoomCommand(conferenceId, roomId);
+        await removeRoomCommandHandler.Handle(command);
+    }
+
+    public async Task<IReadOnlyList<GetConferenceRoomsDto>> GetConferenceRooms(Guid conferenceId)
+    {
+        var query = new GetConferenceRoomsQuery(conferenceId);
+        return await getConferenceRoomsQueryHandler.Handle(query);
     }
 }

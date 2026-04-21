@@ -66,7 +66,11 @@ public class MongoDbConferenceTalkReadModelRepository
                 d.SpeakerBiography,
                 d.Status,
                 d.Tags,
-                d.TalkTypeId.ToGuid()
+                d.TalkTypeId.ToGuid(),
+                d.SlotStart,
+                d.SlotEnd,
+                d.RoomId != null ? (Guid?)d.RoomId.ToGuid() : null,
+                d.RoomName
             ))
             .ToList();
     }

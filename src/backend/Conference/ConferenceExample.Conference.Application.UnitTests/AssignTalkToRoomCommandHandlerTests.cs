@@ -2,6 +2,7 @@ using ConferenceExample.Authentication;
 using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.RoomManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
@@ -20,13 +21,12 @@ public class AssignTalkToRoomCommandHandlerTests
     {
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
-        var conference = CreateConferenceWithTalk();
+        var conference = CreateConferenceWithTalkAndRoom();
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
         var handler = new AssignTalkToRoomCommandHandler(repository, currentUserService);
         var talkId = conference.Talks[0].Id.Value;
-        var roomId = ConferenceGuidV7.NewGuid();
-        var roomName = "Room A";
-        var command = new AssignTalkToRoomCommand(conference.Id.Value, talkId, roomId, roomName);
+        var roomId = conference.Rooms[0].Id.Value;
+        var command = new AssignTalkToRoomCommand(conference.Id.Value, talkId, roomId);
 
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
@@ -43,9 +43,7 @@ public class AssignTalkToRoomCommandHandlerTests
             .Received(1)
             .Save(
                 Arg.Is<ConferenceAggregate>(c =>
-                    c.Talks[0].Room != null
-                    && c.Talks[0].Room!.Id.Value == (ConferenceGuidV7)roomId
-                    && c.Talks[0].Room!.Name.Value == roomName
+                    c.Talks[0].Room != null && c.Talks[0].Room!.Id.Value == (ConferenceGuidV7)roomId
                 )
             );
     }
@@ -60,8 +58,7 @@ public class AssignTalkToRoomCommandHandlerTests
         var command = new AssignTalkToRoomCommand(
             ConferenceGuidV7.NewGuid(),
             ConferenceGuidV7.NewGuid(),
-            ConferenceGuidV7.NewGuid(),
-            "Room A"
+            ConferenceGuidV7.NewGuid()
         );
 
         repository
@@ -83,8 +80,7 @@ public class AssignTalkToRoomCommandHandlerTests
         var command = new AssignTalkToRoomCommand(
             invalidGuid,
             ConferenceGuidV7.NewGuid(),
-            ConferenceGuidV7.NewGuid(),
-            "Room A"
+            ConferenceGuidV7.NewGuid()
         );
 
         // Act & Assert
@@ -104,8 +100,7 @@ public class AssignTalkToRoomCommandHandlerTests
         var command = new AssignTalkToRoomCommand(
             conference.Id.Value,
             talkId,
-            ConferenceGuidV7.NewGuid(),
-            "Room A"
+            ConferenceGuidV7.NewGuid()
         );
 
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
@@ -119,16 +114,12 @@ public class AssignTalkToRoomCommandHandlerTests
     {
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
-        var conference = CreateConferenceWithTalk();
+        var conference = CreateConferenceWithTalkAndRoom();
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
         var handler = new AssignTalkToRoomCommandHandler(repository, currentUserService);
         var talkId = conference.Talks[0].Id.Value;
-        var command = new AssignTalkToRoomCommand(
-            conference.Id.Value,
-            talkId,
-            ConferenceGuidV7.NewGuid(),
-            "Room A"
-        );
+        var roomId = conference.Rooms[0].Id.Value;
+        var command = new AssignTalkToRoomCommand(conference.Id.Value, talkId, roomId);
 
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
         repository
@@ -171,6 +162,15 @@ public class AssignTalkToRoomCommandHandlerTests
         var conference = CreateValidConference();
         var talkId = new TalkId(ConferenceGuidV7.NewGuid());
         conference.SubmitTalk(talkId);
+        return conference;
+    }
+
+    private static ConferenceAggregate CreateConferenceWithTalkAndRoom()
+    {
+        var conference = CreateValidConference();
+        var talkId = new TalkId(ConferenceGuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+        conference.AddRoom(new RoomId(ConferenceGuidV7.NewGuid()), new Text("Room A"));
         return conference;
     }
 }
