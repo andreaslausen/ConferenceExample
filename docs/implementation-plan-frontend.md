@@ -127,15 +127,15 @@ Ziel: Benutzer können sich registrieren und einloggen; Authentifizierungsstatus
 
 #### Aufgaben
 
-- [ ] **M3-1** `AuthContext` mit `user`, `token`, `login()`, `logout()`, `register()` implementieren
-- [ ] **M3-2** JWT-Token im `localStorage` persistieren und beim App-Start wiederherstellen
-- [ ] **M3-3** Axios-Interceptor den Token aus dem Context lesen lassen
-- [ ] **M3-4** `ProtectedRoute`-Wrapper: leitet nicht authentifizierte Nutzer auf `/login` um
-- [ ] **M3-5** `RoleGuard`-Wrapper: leitet Nutzer ohne passende Rolle auf 403-Seite um
-- [ ] **M3-6** Login-Screen mit E-Mail/Passwort-Formular und shadcn/ui `Form`-Komponenten
-- [ ] **M3-7** Registrierungs-Screen mit Rollenwahl (`Speaker` / `Organizer`) als Radio-Group
-- [ ] **M3-8** Fehlerbehandlung für ungültige Credentials (API-Fehler in Formularen anzeigen)
-- [ ] **M3-9** Globaler Header mit Login/Logout-Button und rollenbasierter Navigation
+- [x] **M3-1** `AuthContext` mit `user`, `token`, `login()`, `logout()`, `register()` implementieren
+- [x] **M3-2** JWT-Token im `localStorage` persistieren und beim App-Start wiederherstellen
+- [x] **M3-3** Axios-Interceptor den Token aus dem Context lesen lassen
+- [x] **M3-4** `ProtectedRoute`-Wrapper: leitet nicht authentifizierte Nutzer auf `/login` um
+- [x] **M3-5** `RoleGuard`-Wrapper: leitet Nutzer ohne passende Rolle auf 403-Seite um
+- [x] **M3-6** Login-Screen mit E-Mail/Passwort-Formular und shadcn/ui `Form`-Komponenten
+- [x] **M3-7** Registrierungs-Screen mit Rollenwahl (`Speaker` / `Organizer`) als Radio-Group
+- [x] **M3-8** Fehlerbehandlung für ungültige Credentials (API-Fehler in Formularen anzeigen)
+- [x] **M3-9** Globaler Header mit Login/Logout-Button und rollenbasierter Navigation
 
 ---
 

@@ -406,3 +406,6 @@ FodyWeavers.xsd
 
 # MongoDB keyfile (auto-generated)
 scripts/mongo-keyfile
+
+# Playwright MCP - temporary browser screenshots and snapshots
+.playwright-mcp/

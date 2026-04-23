@@ -22,6 +22,49 @@ This will:
 
 The pre-commit hook automatically formats all staged C# files with CSharpier before each commit. **The hook must be active** to ensure consistent code formatting across the team. Commits that skip the hook may introduce formatting inconsistencies.
 
+## Frontend
+
+The frontend is a React + TypeScript application located in [src/frontend/](src/frontend/), built with Vite and styled with Tailwind CSS v4 and shadcn/ui components.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v20 or later recommended, e.g. via [nvm](https://github.com/nvm-sh/nvm))
+
+### Setup
+
+```bash
+cd src/frontend
+npm install
+```
+
+### Development
+
+Start the backend first (see [MongoDB Event Store](#mongodb-event-store) below), then run the dev server:
+
+```bash
+cd src/frontend
+npm run dev
+```
+
+The app is available at **http://localhost:5173**. API requests to `/api/*` are proxied to the backend at `http://localhost:5185`.
+
+### Other commands
+
+```bash
+npm run build          # Type-check and build for production
+npm run lint           # Run ESLint
+npm run generate-api   # Regenerate TypeScript types from openapi.json (run ./scripts/generate-openapi.sh first)
+```
+
+### API type generation
+
+The frontend uses generated TypeScript types from the backend's OpenAPI spec. To update them after backend changes:
+
+```bash
+./scripts/generate-openapi.sh   # Generate openapi.json from the running backend
+cd src/frontend && npm run generate-api
+```
+
 ## Architecture Documentation
 
 The architecture documentation follows the [arc42](https://arc42.org/) template and is written in AsciiDoc. The source files are located in [src/documentation/](src/documentation/).

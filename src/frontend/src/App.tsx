@@ -1,4 +1,7 @@
 import { Routes, Route } from "react-router-dom";
+import { Header } from "./shared/components/Header";
+import { ProtectedRoute } from "./shared/components/ProtectedRoute";
+import { RoleGuard } from "./shared/components/RoleGuard";
 import ConferenceListPage from "./pages/ConferenceListPage";
 import ConferenceProgramPage from "./pages/ConferenceProgramPage";
 import TalkDetailPage from "./pages/TalkDetailPage";
@@ -15,36 +18,142 @@ import OrganizerTalkTypesPage from "./pages/OrganizerTalkTypesPage";
 import OrganizerRoomsPage from "./pages/OrganizerRoomsPage";
 import OrganizerProposalsPage from "./pages/OrganizerProposalsPage";
 import OrganizerSchedulePage from "./pages/OrganizerSchedulePage";
+import ForbiddenPage from "./pages/ForbiddenPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
   return (
-    <Routes>
-      {/* Public (Attendee) */}
-      <Route path="/" element={<ConferenceListPage />} />
-      <Route path="/conferences/:id" element={<ConferenceProgramPage />} />
-      <Route path="/talks/:id" element={<TalkDetailPage />} />
+    <div className="min-h-screen">
+      <Header />
+      <main>
+        <Routes>
+          {/* Public (Attendee) */}
+          <Route path="/" element={<ConferenceListPage />} />
+          <Route path="/conferences/:id" element={<ConferenceProgramPage />} />
+          <Route path="/talks/:id" element={<TalkDetailPage />} />
 
-      {/* Auth */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+          {/* Auth */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-      {/* Speaker */}
-      <Route path="/profile" element={<SpeakerProfilePage />} />
-      <Route path="/my-talks" element={<MyTalksPage />} />
-      <Route path="/my-talks/submit" element={<SubmitTalkPage />} />
-      <Route path="/my-talks/:id/edit" element={<EditTalkPage />} />
+          {/* Speaker */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Speaker">
+                  <SpeakerProfilePage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-talks"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Speaker">
+                  <MyTalksPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-talks/submit"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Speaker">
+                  <SubmitTalkPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-talks/:id/edit"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Speaker">
+                  <EditTalkPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
 
-      {/* Organizer */}
-      <Route path="/organizer/conferences" element={<OrganizerConferenceListPage />} />
-      <Route path="/organizer/conferences/new" element={<OrganizerNewConferencePage />} />
-      <Route path="/organizer/conferences/:id" element={<OrganizerConferenceDetailPage />} />
-      <Route path="/organizer/conferences/:id/talk-types" element={<OrganizerTalkTypesPage />} />
-      <Route path="/organizer/conferences/:id/rooms" element={<OrganizerRoomsPage />} />
-      <Route path="/organizer/conferences/:id/proposals" element={<OrganizerProposalsPage />} />
-      <Route path="/organizer/conferences/:id/schedule" element={<OrganizerSchedulePage />} />
+          {/* Organizer */}
+          <Route
+            path="/organizer/conferences"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Organizer">
+                  <OrganizerConferenceListPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organizer/conferences/new"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Organizer">
+                  <OrganizerNewConferencePage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organizer/conferences/:id"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Organizer">
+                  <OrganizerConferenceDetailPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organizer/conferences/:id/talk-types"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Organizer">
+                  <OrganizerTalkTypesPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organizer/conferences/:id/rooms"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Organizer">
+                  <OrganizerRoomsPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organizer/conferences/:id/proposals"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Organizer">
+                  <OrganizerProposalsPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organizer/conferences/:id/schedule"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Organizer">
+                  <OrganizerSchedulePage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
 
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+          <Route path="/forbidden" element={<ForbiddenPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
