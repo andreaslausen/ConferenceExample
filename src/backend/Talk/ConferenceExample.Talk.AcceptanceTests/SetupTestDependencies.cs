@@ -1,6 +1,4 @@
 using System.Text.Json;
-using ConferenceExample.Authentication;
-using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
@@ -53,19 +51,19 @@ public class SetupTestDependencies
             });
 
         // Mock ICurrentUserService to return a fixed test user ID
-        var speakerId = GuidV7.NewGuid();
+        var speakerId = Guid.CreateVersion7();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        currentUserService.GetCurrentUserId().Returns(new UserId(speakerId));
+        currentUserService.GetCurrentUserId().Returns(speakerId);
 
         // Pre-seed speaker profile in event store
         var speakerProfileEvent = new StoredEvent(
             Guid.CreateVersion7(),
-            speakerId.Value,
+            speakerId,
             "SpeakerProfileCreatedEvent",
             JsonSerializer.Serialize(
                 new
                 {
-                    AggregateId = speakerId.Value,
+                    AggregateId = speakerId,
                     OccurredAt = DateTimeOffset.UtcNow,
                     Version = 0L,
                     FirstName = "Jane",
@@ -76,7 +74,7 @@ public class SetupTestDependencies
             DateTimeOffset.UtcNow,
             1
         );
-        storage[speakerId.Value] = new List<StoredEvent> { speakerProfileEvent };
+        storage[speakerId] = new List<StoredEvent> { speakerProfileEvent };
 
         services.AddSingleton(eventStore);
         services.AddSingleton(currentUserService);

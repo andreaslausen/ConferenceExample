@@ -1,10 +1,8 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using NSubstitute;
-using AuthGuidV7 = ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids.GuidV7;
 using TalkEntity = ConferenceExample.Talk.Domain.TalkManagement.Talk;
 
 namespace ConferenceExample.Talk.Application.UnitTests;
@@ -33,10 +31,10 @@ public class EditTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         var talk = CreateValidTalk(speakerId);
         talkRepository.GetById(talk.Id).Returns(talk);
 
@@ -63,7 +61,7 @@ public class EditTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var currentUserId = new UserId(AuthGuidV7.NewGuid());
+        var currentUserId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(currentUserId);
 
         // Create talk with different speaker
@@ -91,10 +89,10 @@ public class EditTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         var talk = CreateValidTalk(speakerId);
         talkRepository.GetById(talk.Id).Returns(talk);
 
@@ -123,10 +121,10 @@ public class EditTalkCommandHandlerTests
         // Arrange
         var talkRepository = Substitute.For<ITalkRepository>();
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var userId = new UserId(AuthGuidV7.NewGuid());
+        var userId = Guid.CreateVersion7();
         currentUserService.GetCurrentUserId().Returns(userId);
 
-        var speakerId = new SpeakerId(new GuidV7(userId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(userId));
         var talk = CreateValidTalk(speakerId);
         talkRepository.GetById(talk.Id).Returns(talk);
 

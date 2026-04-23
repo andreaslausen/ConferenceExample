@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.RoomManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
@@ -20,12 +19,12 @@ public class AssignTalkToRoomCommandHandler(
 
         // Check ownership: Only the organizer who created the conference can assign talks to rooms
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId.Value.Value));
+        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId));
 
         if (conference.OrganizerId.Value != currentOrganizerId.Value)
         {
             throw new UnauthorizedAccessException(
-                $"User {currentUserId.Value} is not authorized to assign talks to rooms for conference {conference.Id.Value}. Only the organizer who created the conference can assign talks to rooms."
+                $"User {currentUserId} is not authorized to assign talks to rooms for conference {conference.Id.Value}. Only the organizer who created the conference can assign talks to rooms."
             );
         }
 

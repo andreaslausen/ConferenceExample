@@ -6,10 +6,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
-    <PackageReference Include="Reqnroll.Microsoft.Extensions.DependencyInjection" Version="3.2.1" />
-    <PackageReference Include="Reqnroll.xUnit" Version="3.2.1" />
+    <PackageReference Include="Reqnroll.Microsoft.Extensions.DependencyInjection" Version="3.3.4" />
+    <PackageReference Include="Reqnroll.xUnit" Version="3.3.4" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
@@ -23,7 +23,6 @@
     <ProjectReference Include="..\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
     <ProjectReference Include="..\ConferenceExample.Talk.Domain\ConferenceExample.Talk.Domain.csproj" />
     <ProjectReference Include="..\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\ConferenceExample.Authentication\ConferenceExample.Authentication.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Features\" />

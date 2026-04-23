@@ -9,11 +9,11 @@ public class ConferenceDependencyRules : ArchitectureTest
     }
 
     [Fact]
-    public void ConferenceApplication_ShouldOnlyDependOnItselfAndConferenceDomainAndAuthentication()
+    public void ConferenceApplication_ShouldOnlyDependOnItselfAndConferenceDomain()
     {
         Dependencies.Check(
             ConferenceApplication,
-            [ConferenceDomain, Authentication],
+            [ConferenceDomain],
             "System",
             "Microsoft.Extensions"
         );

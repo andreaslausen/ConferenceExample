@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
@@ -25,7 +24,7 @@ public class SubmitTalkCommandHandler(
         }
 
         var currentUserId = currentUserService.GetCurrentUserId();
-        var speakerId = new SpeakerId(new GuidV7(currentUserId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(currentUserId));
 
         var speaker = await speakerRepository.GetSpeaker(speakerId);
 

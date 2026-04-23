@@ -1,12 +1,9 @@
-using ConferenceExample.Authentication;
-using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Application.DefineTalkType;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using AuthGuidV7 = ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids.GuidV7;
 using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 using ConferenceGuidV7 = ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids.GuidV7;
 
@@ -110,7 +107,7 @@ public class DefineTalkTypeCommandHandlerTests
     {
         var currentUserService = Substitute.For<ICurrentUserService>();
         var userId = organizerId?.Value.Value ?? ConferenceGuidV7.NewGuid();
-        currentUserService.GetCurrentUserId().Returns(new UserId(new AuthGuidV7(userId)));
+        currentUserService.GetCurrentUserId().Returns(userId);
         return currentUserService;
     }
 

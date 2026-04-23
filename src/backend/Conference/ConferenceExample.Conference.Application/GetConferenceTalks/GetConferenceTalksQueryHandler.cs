@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
@@ -17,12 +16,12 @@ public class GetConferenceTalksQueryHandler(
         var conference = await conferenceRepository.GetById(conferenceId);
 
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId.Value.Value));
+        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId));
 
         if (conference.OrganizerId.Value != currentOrganizerId.Value)
         {
             throw new UnauthorizedAccessException(
-                $"User {currentUserId.Value} is not authorized to view talks for conference {conference.Id.Value}. Only the organizer who created the conference can view submitted talks."
+                $"User {currentUserId} is not authorized to view talks for conference {conference.Id.Value}. Only the organizer who created the conference can view submitted talks."
             );
         }
 

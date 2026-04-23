@@ -1,4 +1,3 @@
-using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 
@@ -12,7 +11,7 @@ public class GetMyProfileQueryHandler(
     public async Task<GetMyProfileDto?> Handle(GetMyProfileQuery query)
     {
         var currentUserId = currentUserService.GetCurrentUserId();
-        var speakerId = new SpeakerId(new GuidV7(currentUserId.Value.Value));
+        var speakerId = new SpeakerId(new GuidV7(currentUserId));
 
         var profile = await speakerReadModelRepository.GetById(speakerId);
 
