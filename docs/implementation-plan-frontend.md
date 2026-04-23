@@ -97,10 +97,10 @@ Ziel: Lauffähiges Grundgerüst, das alle späteren Features trägt.
 
 #### Aufgaben
 
-- [ ] **M2-1** Vite-Projekt mit React und TypeScript anlegen (`npm create vite@latest`)
-- [ ] **M2-2** Tailwind CSS v4 installieren und konfigurieren
-- [ ] **M2-3** shadcn/ui initialisieren (`npx shadcn@latest init`)
-- [ ] **M2-4** Verzeichnisstruktur anlegen:
+- [x] **M2-1** Vite-Projekt mit React und TypeScript anlegen (`npm create vite@latest`)
+- [x] **M2-2** Tailwind CSS v4 installieren und konfigurieren
+- [x] **M2-3** shadcn/ui initialisieren (`npx shadcn@latest init`)
+- [x] **M2-4** Verzeichnisstruktur anlegen:
   ```
   src/
     features/
@@ -112,12 +112,12 @@ Ziel: Lauffähiges Grundgerüst, das alle späteren Features trägt.
       components/   ← gemeinsame UI-Komponenten
       lib/          ← Hilfsfunktionen
   ```
-- [ ] **M2-5** React Router v7 installieren und Root-Router in `main.tsx` konfigurieren
-- [ ] **M2-6** TypeScript-Client aus `openapi.json` mit `openapi-typescript` oder `orval` generieren
-- [ ] **M2-7** Vite-Dev-Proxy konfigurieren: `/api` → `https://localhost:5001` (löst CORS im Dev-Betrieb ohne Browser-Einschränkungen)
-- [ ] **M2-8** Axios-Instanz mit Base-URL und Bearer-Token-Interceptor anlegen
-- [ ] **M2-9** Platzhalter-Routen für alle Screens anlegen (leere Komponenten), damit der Router vollständig verdrahtet ist
-- [ ] **M2-10** Globale Fehlerbehandlung: `ErrorBoundary`-Komponente und 404-Seite
+- [x] **M2-5** React Router v7 installieren und Root-Router in `main.tsx` konfigurieren
+- [x] **M2-6** TypeScript-Client aus `openapi.json` mit `openapi-typescript` oder `orval` generieren
+- [x] **M2-7** Vite-Dev-Proxy konfigurieren: `/api` → `https://localhost:5001` (löst CORS im Dev-Betrieb ohne Browser-Einschränkungen)
+- [x] **M2-8** Axios-Instanz mit Base-URL und Bearer-Token-Interceptor anlegen
+- [x] **M2-9** Platzhalter-Routen für alle Screens anlegen (leere Komponenten), damit der Router vollständig verdrahtet ist
+- [x] **M2-10** Globale Fehlerbehandlung: `ErrorBoundary`-Komponente und 404-Seite
 
 ---
 
