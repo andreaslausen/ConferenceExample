@@ -145,14 +145,14 @@ Ziel: Nicht eingeloggte Nutzer können Konferenzen und das Programm einsehen.
 
 #### Aufgaben
 
-- [ ] **M4-1** `GET /api/conferences` aufrufen; Konferenzliste als Karten-Grid rendern
-- [ ] **M4-2** Pagination für die Konferenzliste implementieren (shadcn/ui `Pagination`)
-- [ ] **M4-3** `GET /api/conferences/:id` aufrufen; Konferenzdetail-Header rendern (Name, Status)
-- [ ] **M4-4** `GET /api/conferences/:id/program` aufrufen; Zeitplan als Tabelle (Zeitslots × Räume) rendern
-- [ ] **M4-5** Klick auf Talk in der Zeitplan-Tabelle navigiert zu `/talks/:id`
-- [ ] **M4-6** `GET /api/talks/:id` aufrufen; Talk-Detailseite rendern (Titel, Abstract, Tags, Speaker-Name)
-- [ ] **M4-7** Loading-Skeletons (shadcn/ui `Skeleton`) für alle Datenladeoperationen
-- [ ] **M4-8** Leerzustand-Komponente für Konferenzen ohne Einträge im Zeitplan
+- [x] **M4-1** `GET /api/conferences` aufrufen; Konferenzliste als Karten-Grid rendern
+- [x] **M4-2** Pagination für die Konferenzliste implementieren (shadcn/ui `Pagination`)
+- [x] **M4-3** `GET /api/conferences/:id` aufrufen; Konferenzdetail-Header rendern (Name, Status)
+- [x] **M4-4** `GET /api/conferences/:id/program` aufrufen; Zeitplan als Tabelle (Zeitslots × Räume) rendern
+- [x] **M4-5** Klick auf Talk in der Zeitplan-Tabelle navigiert zu `/talks/:id`
+- [x] **M4-6** `GET /api/talks/:id` aufrufen; Talk-Detailseite rendern (Titel, Abstract, Tags, Speaker-Name)
+- [x] **M4-7** Loading-Skeletons (shadcn/ui `Skeleton`) für alle Datenladeoperationen
+- [x] **M4-8** Leerzustand-Komponente für Konferenzen ohne Einträge im Zeitplan
 
 ---
 
