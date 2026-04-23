@@ -134,9 +134,8 @@ public class RenameConferenceCommandHandlerTests
     private static ICurrentUserService CreateMockCurrentUserService(OrganizerId? organizerId = null)
     {
         var currentUserService = Substitute.For<ICurrentUserService>();
-        var authGuidV7 =
-            organizerId != null ? new AuthGuidV7(organizerId.Value.Value) : AuthGuidV7.NewGuid();
-        currentUserService.GetCurrentUserId().Returns(new UserId(authGuidV7));
+        var userId = organizerId?.Value.Value ?? ConferenceGuidV7.NewGuid();
+        currentUserService.GetCurrentUserId().Returns(userId);
         return currentUserService;
     }
 }

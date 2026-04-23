@@ -22,7 +22,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddHttpContextAccessor();
         services.AddScoped<CurrentUserService>();
-        services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<CurrentUserService>());
         services.AddScoped<Conference.Application.ICurrentUserService>(sp =>
             sp.GetRequiredService<CurrentUserService>()
         );
