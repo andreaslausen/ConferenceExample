@@ -54,15 +54,17 @@ public class ConferenceEventHandler
                 Status = domainEvent.Status,
                 CreatedAt = domainEvent.OccurredAt,
                 LastModifiedAt = domainEvent.OccurredAt,
-                Version = domainEvent.Version,
+                Version = storedEvent.Version,
             };
 
             await _readModelRepository.Save(newReadModel);
         }
         else
         {
-            // Check for idempotency - skip if event version is not newer than read model version
-            if (domainEvent.Version <= existingReadModel.Version)
+            // Use the event store version (storedEvent.Version) for idempotency rather than the
+            // embedded payload version, which can be identical across multiple events raised within
+            // the same command (e.g. EditTalk).
+            if (storedEvent.Version <= existingReadModel.Version)
             {
                 return; // Event already processed or out of order, skip to prevent duplicates
             }
@@ -80,7 +82,7 @@ public class ConferenceEventHandler
             existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
             existingReadModel.Status = domainEvent.Status;
             existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-            existingReadModel.Version = domainEvent.Version;
+            existingReadModel.Version = storedEvent.Version;
 
             // Repository uses optimistic locking - will only update if version is newer
             await _readModelRepository.Update(existingReadModel);
@@ -97,7 +99,7 @@ public class ConferenceEventHandler
         if (existingReadModel is null)
             return;
 
-        if (domainEvent.Version <= existingReadModel.Version)
+        if (storedEvent.Version <= existingReadModel.Version)
             return;
 
         existingReadModel.Name = domainEvent.Name;
@@ -112,7 +114,7 @@ public class ConferenceEventHandler
         existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
         existingReadModel.Status = domainEvent.Status;
         existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-        existingReadModel.Version = domainEvent.Version;
+        existingReadModel.Version = storedEvent.Version;
 
         await _readModelRepository.Update(existingReadModel);
     }
@@ -127,7 +129,7 @@ public class ConferenceEventHandler
         if (existingReadModel is null)
             return;
 
-        if (domainEvent.Version <= existingReadModel.Version)
+        if (storedEvent.Version <= existingReadModel.Version)
             return;
 
         existingReadModel.Name = domainEvent.Name;
@@ -142,7 +144,7 @@ public class ConferenceEventHandler
         existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
         existingReadModel.Status = domainEvent.Status;
         existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-        existingReadModel.Version = domainEvent.Version;
+        existingReadModel.Version = storedEvent.Version;
 
         await _readModelRepository.Update(existingReadModel);
     }
@@ -185,15 +187,17 @@ public class ConferenceEventHandler
                 ],
                 CreatedAt = domainEvent.OccurredAt,
                 LastModifiedAt = domainEvent.OccurredAt,
-                Version = domainEvent.Version,
+                Version = storedEvent.Version,
             };
 
             await _readModelRepository.Save(newReadModel);
         }
         else
         {
-            // Check for idempotency - skip if event version is not newer than read model version
-            if (domainEvent.Version <= existingReadModel.Version)
+            // Use the event store version (storedEvent.Version) for idempotency rather than the
+            // embedded payload version, which can be identical across multiple events raised within
+            // the same command (e.g. EditTalk).
+            if (storedEvent.Version <= existingReadModel.Version)
             {
                 return; // Event already processed or out of order, skip to prevent duplicates
             }
@@ -211,7 +215,7 @@ public class ConferenceEventHandler
             existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
             existingReadModel.Status = domainEvent.Status;
             existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-            existingReadModel.Version = domainEvent.Version;
+            existingReadModel.Version = storedEvent.Version;
 
             // Add the new TalkType if it doesn't already exist
             var talkTypeId = domainEvent.TalkTypeId.ToString();
@@ -244,8 +248,10 @@ public class ConferenceEventHandler
         if (existingReadModel is null)
             return;
 
-        // Check for idempotency - skip if event version is not newer than read model version
-        if (domainEvent.Version <= existingReadModel.Version)
+        // Use the event store version (storedEvent.Version) for idempotency rather than the
+        // embedded payload version, which can be identical across multiple events raised within
+        // the same command (e.g. EditTalk).
+        if (storedEvent.Version <= existingReadModel.Version)
         {
             return; // Event already processed or out of order, skip to prevent duplicates
         }
@@ -263,7 +269,7 @@ public class ConferenceEventHandler
         existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
         existingReadModel.Status = domainEvent.Status;
         existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-        existingReadModel.Version = domainEvent.Version;
+        existingReadModel.Version = storedEvent.Version;
 
         // Remove the TalkType
         var talkTypeId = domainEvent.TalkTypeId.ToString();

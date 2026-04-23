@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using ConferenceExample.API.Controllers;
 using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application.CreateConference;
 using ConferenceExample.Conference.Application.GetAllConferences;
@@ -85,9 +86,9 @@ public class ConferencesControllerTests : IntegrationTestBase
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadFromJsonAsync<List<GetAllConferencesDto>>();
+        var result = await response.Content.ReadFromJsonAsync<PagedResult<GetAllConferencesDto>>();
         Assert.NotNull(result);
-        Assert.Empty(result);
+        Assert.Empty(result!.Items);
     }
 
     [Fact]
@@ -120,11 +121,11 @@ public class ConferencesControllerTests : IntegrationTestBase
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadFromJsonAsync<List<GetAllConferencesDto>>();
+        var result = await response.Content.ReadFromJsonAsync<PagedResult<GetAllConferencesDto>>();
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal("Test Conference", result![0].Name);
-        Assert.Equal("Munich", result[0].City);
+        Assert.Single(result!.Items);
+        Assert.Equal("Test Conference", result.Items[0].Name);
+        Assert.Equal("Munich", result.Items[0].City);
     }
 
     [Fact]

@@ -51,15 +51,17 @@ public class TalkEventHandler
                 Status = domainEvent.Status,
                 SubmittedAt = domainEvent.OccurredAt,
                 LastModifiedAt = domainEvent.OccurredAt,
-                Version = domainEvent.Version,
+                Version = storedEvent.Version,
             };
 
             await _readModelRepository.Save(newReadModel);
         }
         else
         {
-            // Check for idempotency - skip if event version is not newer than read model version
-            if (domainEvent.Version <= existingReadModel.Version)
+            // Use the event store version (storedEvent.Version) for idempotency rather than the
+            // embedded payload version, which can be identical across multiple events raised within
+            // the same command (e.g. EditTalk).
+            if (storedEvent.Version <= existingReadModel.Version)
             {
                 return; // Event already processed or out of order, skip to prevent duplicates
             }
@@ -77,7 +79,7 @@ public class TalkEventHandler
             existingReadModel.Tags = domainEvent.Tags;
             existingReadModel.Status = domainEvent.Status;
             existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-            existingReadModel.Version = domainEvent.Version;
+            existingReadModel.Version = storedEvent.Version;
 
             // Repository uses optimistic locking - will only update if version is newer
             await _readModelRepository.Update(existingReadModel);
@@ -112,15 +114,17 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
-        // Check for idempotency - skip if event version is not newer than read model version
-        if (payload.Version <= readModel.Version)
+        // Use the event store version (storedEvent.Version) for idempotency rather than the
+        // embedded payload version, which can be identical across multiple events raised within
+        // the same command (e.g. EditTalk).
+        if (storedEvent.Version <= readModel.Version)
         {
             return; // Event already processed or out of order, skip to prevent duplicates
         }
 
         readModel.Status = "Accepted";
         readModel.LastModifiedAt = storedEvent.OccurredAt;
-        readModel.Version = payload.Version;
+        readModel.Version = storedEvent.Version;
 
         await _readModelRepository.Update(readModel);
     }
@@ -136,15 +140,17 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
-        // Check for idempotency - skip if event version is not newer than read model version
-        if (payload.Version <= readModel.Version)
+        // Use the event store version (storedEvent.Version) for idempotency rather than the
+        // embedded payload version, which can be identical across multiple events raised within
+        // the same command (e.g. EditTalk).
+        if (storedEvent.Version <= readModel.Version)
         {
             return; // Event already processed or out of order, skip to prevent duplicates
         }
 
         readModel.Status = "Rejected";
         readModel.LastModifiedAt = storedEvent.OccurredAt;
-        readModel.Version = payload.Version;
+        readModel.Version = storedEvent.Version;
 
         await _readModelRepository.Update(readModel);
     }
@@ -160,8 +166,10 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
-        // Check for idempotency - skip if event version is not newer than read model version
-        if (payload.Version <= readModel.Version)
+        // Use the event store version (storedEvent.Version) for idempotency rather than the
+        // embedded payload version, which can be identical across multiple events raised within
+        // the same command (e.g. EditTalk).
+        if (storedEvent.Version <= readModel.Version)
         {
             return; // Event already processed or out of order, skip to prevent duplicates
         }
@@ -169,7 +177,7 @@ public class TalkEventHandler
         readModel.SlotStart = payload.TalkStart;
         readModel.SlotEnd = payload.TalkEnd;
         readModel.LastModifiedAt = storedEvent.OccurredAt;
-        readModel.Version = payload.Version;
+        readModel.Version = storedEvent.Version;
 
         await _readModelRepository.Update(readModel);
     }
@@ -185,8 +193,10 @@ public class TalkEventHandler
         if (readModel is null)
             return;
 
-        // Check for idempotency - skip if event version is not newer than read model version
-        if (payload.Version <= readModel.Version)
+        // Use the event store version (storedEvent.Version) for idempotency rather than the
+        // embedded payload version, which can be identical across multiple events raised within
+        // the same command (e.g. EditTalk).
+        if (storedEvent.Version <= readModel.Version)
         {
             return; // Event already processed or out of order, skip to prevent duplicates
         }
@@ -194,7 +204,7 @@ public class TalkEventHandler
         readModel.RoomId = payload.RoomId.ToString();
         readModel.RoomName = payload.RoomName;
         readModel.LastModifiedAt = storedEvent.OccurredAt;
-        readModel.Version = payload.Version;
+        readModel.Version = storedEvent.Version;
 
         await _readModelRepository.Update(readModel);
     }
