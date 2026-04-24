@@ -45,6 +45,5 @@ jobs:
           dotnet test src/backend/Talk/ConferenceExample.Talk.Domain.UnitTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
           dotnet test src/backend/Talk/ConferenceExample.Talk.Application.UnitTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
           dotnet test src/backend/Talk/ConferenceExample.Talk.Persistence.UnitTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
-          dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
           dotnet test src/backend/Infrastructure/ConferenceExample.EventStore.UnitTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
           dotnet test src/backend/Infrastructure/ConferenceExample.Authentication.UnitTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"

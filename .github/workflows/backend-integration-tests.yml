@@ -25,10 +25,12 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore
-        run: dotnet restore src/backend/Tests/ConferenceExample.IntegrationTests
+        run: dotnet restore src/backend/ConferenceExample.sln
 
       - name: Build
-        run: dotnet build src/backend/Tests/ConferenceExample.IntegrationTests --no-restore --configuration Release
+        run: dotnet build src/backend/ConferenceExample.sln --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test src/backend/Tests/ConferenceExample.IntegrationTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
+        run: |
+          dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
+          dotnet test src/backend/Tests/ConferenceExample.IntegrationTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
