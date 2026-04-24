@@ -32,5 +32,5 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
-          dotnet test src/backend/Tests/ConferenceExample.IntegrationTests --no-build --configuration Release --logger "github-actions;summary.includePassedTests=false"
+          dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests --no-build --configuration Release
+          dotnet test src/backend/Tests/ConferenceExample.IntegrationTests --no-build --configuration Release

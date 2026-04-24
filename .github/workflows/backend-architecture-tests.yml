@@ -31,4 +31,4 @@ jobs:
         run: dotnet build src/backend/Tests/ConferenceExample.ArchitectureTests --no-restore --configuration Debug
 
       - name: Test
-        run: dotnet test src/backend/Tests/ConferenceExample.ArchitectureTests --no-build -c Debug --logger "github-actions;summary.includePassedTests=false"
+        run: dotnet test src/backend/Tests/ConferenceExample.ArchitectureTests --no-build -c Debug
