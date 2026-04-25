@@ -34,6 +34,7 @@ public class DefineTalkTypeCommandHandlerTests
             );
         await repository.Received(1).Save(Arg.Is<ConferenceAggregate>(c => c.TalkTypes.Count == 1));
         Assert.Equal("Workshop", result.Name);
+        Assert.Equal(45, result.DurationInMinutes);
     }
 
     [Fact]
