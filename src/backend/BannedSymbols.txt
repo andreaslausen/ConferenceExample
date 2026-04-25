@@ -1,0 +1,2 @@
+T:System.DateTime;Use DateTimeOffset instead of DateTime
+M:System.Guid.NewGuid;Use Guid.CreateVersion7() instead of Guid.NewGuid()
