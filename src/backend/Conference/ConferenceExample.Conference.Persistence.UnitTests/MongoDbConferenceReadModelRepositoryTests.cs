@@ -32,7 +32,7 @@ public class MongoDbConferenceReadModelRepositoryTests
     public async Task GetById_ExistingConference_ReturnsConferenceDocument()
     {
         // Arrange
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
         var expectedConference = new ConferenceDocument
         {
             Id = conferenceId.ToString(),
@@ -45,7 +45,7 @@ public class MongoDbConferenceReadModelRepositoryTests
             State = "IL",
             PostalCode = "62701",
             Country = "USA",
-            OrganizerId = Guid.NewGuid().ToString(),
+            OrganizerId = Guid.CreateVersion7().ToString(),
             Status = "Draft",
             Version = 1,
         };
@@ -77,7 +77,7 @@ public class MongoDbConferenceReadModelRepositoryTests
     public async Task GetById_NonExistingConference_ReturnsNull()
     {
         // Arrange
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
 
         var mockCursor = Substitute.For<IAsyncCursor<ConferenceDocument>>();
         mockCursor.MoveNextAsync(Arg.Any<CancellationToken>()).Returns(true, false);
@@ -108,14 +108,14 @@ public class MongoDbConferenceReadModelRepositoryTests
         {
             new()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Name = "Conference 1",
                 Status = "Draft",
                 Version = 1,
             },
             new()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Name = "Conference 2",
                 Status = "Published",
                 Version = 1,
@@ -176,7 +176,7 @@ public class MongoDbConferenceReadModelRepositoryTests
         // Arrange
         var conferenceReadModel = new ConferenceDocument
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.CreateVersion7().ToString(),
             Name = "New Conference",
             Start = DateTimeOffset.UtcNow,
             End = DateTimeOffset.UtcNow.AddDays(2),
@@ -186,7 +186,7 @@ public class MongoDbConferenceReadModelRepositoryTests
             State = "IL",
             PostalCode = "62701",
             Country = "USA",
-            OrganizerId = Guid.NewGuid().ToString(),
+            OrganizerId = Guid.CreateVersion7().ToString(),
             Status = "Draft",
             Version = 1,
         };
@@ -212,7 +212,7 @@ public class MongoDbConferenceReadModelRepositoryTests
         // Arrange
         var conferenceReadModel = new ConferenceDocument
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.CreateVersion7().ToString(),
             Name = "Updated Conference",
             Start = DateTimeOffset.UtcNow,
             End = DateTimeOffset.UtcNow.AddDays(3),
@@ -222,7 +222,7 @@ public class MongoDbConferenceReadModelRepositoryTests
             State = "NY",
             PostalCode = "10001",
             Country = "USA",
-            OrganizerId = Guid.NewGuid().ToString(),
+            OrganizerId = Guid.CreateVersion7().ToString(),
             Status = "Published",
             Version = 2,
         };
@@ -247,7 +247,7 @@ public class MongoDbConferenceReadModelRepositoryTests
     public async Task Delete_ExistingConference_DeletesFromCollection()
     {
         // Arrange
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
 
         var repository = new MongoDbConferenceReadModelRepository(_mockDatabase);
 

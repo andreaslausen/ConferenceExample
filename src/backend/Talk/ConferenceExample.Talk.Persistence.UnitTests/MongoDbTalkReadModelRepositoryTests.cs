@@ -30,15 +30,15 @@ public class MongoDbTalkReadModelRepositoryTests
     public async Task GetById_ExistingTalk_ReturnsTalkDocument()
     {
         // Arrange
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
         var expectedTalk = new TalkDocument
         {
             Id = talkId.ToString(),
             Title = "Test Talk",
             Abstract = "Test Abstract",
-            SpeakerId = Guid.NewGuid().ToString(),
-            TalkTypeId = Guid.NewGuid().ToString(),
-            ConferenceId = Guid.NewGuid().ToString(),
+            SpeakerId = Guid.CreateVersion7().ToString(),
+            TalkTypeId = Guid.CreateVersion7().ToString(),
+            ConferenceId = Guid.CreateVersion7().ToString(),
             Tags = new List<string> { "dotnet" },
             Status = "Submitted",
             Version = 1,
@@ -71,7 +71,7 @@ public class MongoDbTalkReadModelRepositoryTests
     public async Task GetById_NonExistingTalk_ReturnsNull()
     {
         // Arrange
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
 
         var mockCursor = Substitute.For<IAsyncCursor<TalkDocument>>();
         mockCursor.MoveNextAsync(Arg.Any<CancellationToken>()).Returns(true, false);
@@ -98,18 +98,18 @@ public class MongoDbTalkReadModelRepositoryTests
     public async Task GetByConferenceId_ExistingTalks_ReturnsTalkList()
     {
         // Arrange
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
         var expectedTalks = new List<TalkDocument>
         {
             new()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Title = "Talk 1",
                 ConferenceId = conferenceId.ToString(),
             },
             new()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Title = "Talk 2",
                 ConferenceId = conferenceId.ToString(),
             },
@@ -141,7 +141,7 @@ public class MongoDbTalkReadModelRepositoryTests
     public async Task GetByConferenceId_NoTalks_ReturnsEmptyList()
     {
         // Arrange
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
 
         var mockCursor = Substitute.For<IAsyncCursor<TalkDocument>>();
         mockCursor.MoveNextAsync(Arg.Any<CancellationToken>()).Returns(true, false);
@@ -168,18 +168,18 @@ public class MongoDbTalkReadModelRepositoryTests
     public async Task GetBySpeakerId_ExistingTalks_ReturnsTalkList()
     {
         // Arrange
-        var speakerId = Guid.NewGuid();
+        var speakerId = Guid.CreateVersion7();
         var expectedTalks = new List<TalkDocument>
         {
             new()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Title = "Talk 1",
                 SpeakerId = speakerId.ToString(),
             },
             new()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Title = "Talk 2",
                 SpeakerId = speakerId.ToString(),
             },
@@ -211,7 +211,7 @@ public class MongoDbTalkReadModelRepositoryTests
     public async Task GetBySpeakerId_NoTalks_ReturnsEmptyList()
     {
         // Arrange
-        var speakerId = Guid.NewGuid();
+        var speakerId = Guid.CreateVersion7();
 
         var mockCursor = Substitute.For<IAsyncCursor<TalkDocument>>();
         mockCursor.MoveNextAsync(Arg.Any<CancellationToken>()).Returns(true, false);
@@ -240,12 +240,12 @@ public class MongoDbTalkReadModelRepositoryTests
         // Arrange
         var talkReadModel = new TalkDocument
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.CreateVersion7().ToString(),
             Title = "New Talk",
             Abstract = "New Abstract",
-            SpeakerId = Guid.NewGuid().ToString(),
-            TalkTypeId = Guid.NewGuid().ToString(),
-            ConferenceId = Guid.NewGuid().ToString(),
+            SpeakerId = Guid.CreateVersion7().ToString(),
+            TalkTypeId = Guid.CreateVersion7().ToString(),
+            ConferenceId = Guid.CreateVersion7().ToString(),
             Tags = new List<string> { "dotnet" },
             Status = "Submitted",
             Version = 1,
@@ -272,12 +272,12 @@ public class MongoDbTalkReadModelRepositoryTests
         // Arrange
         var talkReadModel = new TalkDocument
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.CreateVersion7().ToString(),
             Title = "Updated Talk",
             Abstract = "Updated Abstract",
-            SpeakerId = Guid.NewGuid().ToString(),
-            TalkTypeId = Guid.NewGuid().ToString(),
-            ConferenceId = Guid.NewGuid().ToString(),
+            SpeakerId = Guid.CreateVersion7().ToString(),
+            TalkTypeId = Guid.CreateVersion7().ToString(),
+            ConferenceId = Guid.CreateVersion7().ToString(),
             Tags = new List<string> { "dotnet", "testing" },
             Status = "Submitted",
             Version = 2,
@@ -303,7 +303,7 @@ public class MongoDbTalkReadModelRepositoryTests
     public async Task Delete_ExistingTalk_DeletesFromCollection()
     {
         // Arrange
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
 
         var repository = new MongoDbTalkReadModelRepository(_mockDatabase);
 

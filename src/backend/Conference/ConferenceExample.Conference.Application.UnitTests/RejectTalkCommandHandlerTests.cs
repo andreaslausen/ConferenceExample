@@ -63,7 +63,7 @@ public class RejectTalkCommandHandlerTests
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = CreateMockCurrentUserService();
         var handler = new RejectTalkCommandHandler(repository, currentUserService);
-        var invalidGuid = Guid.NewGuid(); // Not a GuidV7
+        var invalidGuid = new Guid("00000000-0000-4000-8000-000000000000"); // Not a GuidV7
         var command = new RejectTalkCommand(invalidGuid, ConferenceGuidV7.NewGuid());
 
         // Act & Assert

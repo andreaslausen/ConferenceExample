@@ -21,9 +21,9 @@ public class GetConferenceTalksQueryHandlerTests
         var conference = CreateValidConference();
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
 
-        var talkId = Guid.NewGuid();
-        var speakerId = Guid.NewGuid();
-        var talkTypeId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
+        var speakerId = Guid.CreateVersion7();
+        var talkTypeId = Guid.CreateVersion7();
         var talks = new List<ConferenceTalkReadModel>
         {
             new(
@@ -133,7 +133,7 @@ public class GetConferenceTalksQueryHandlerTests
             conferenceRepository,
             currentUserService
         );
-        var invalidGuid = Guid.NewGuid();
+        var invalidGuid = new Guid("00000000-0000-4000-8000-000000000000");
         var query = new GetConferenceTalksQuery(invalidGuid);
 
         // Act & Assert

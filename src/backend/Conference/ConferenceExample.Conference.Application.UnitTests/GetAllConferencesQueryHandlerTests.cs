@@ -9,7 +9,7 @@ public class GetAllConferencesQueryHandlerTests
 {
     private static ConferenceReadModel CreateSummary(string name, string city, string country) =>
         new(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             name,
             DateTimeOffset.UtcNow.AddDays(30),
             DateTimeOffset.UtcNow.AddDays(32),

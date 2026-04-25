@@ -144,8 +144,8 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "ConferenceCreatedEvent",
             "{}",
             DateTimeOffset.UtcNow,
@@ -188,8 +188,8 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkSubmittedEvent",
             "{}",
             DateTimeOffset.UtcNow,
@@ -232,8 +232,8 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAcceptedEvent",
             "{}",
             DateTimeOffset.UtcNow,
@@ -276,8 +276,8 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkRejectedEvent",
             "{}",
             DateTimeOffset.UtcNow,
@@ -320,8 +320,8 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkScheduledEvent",
             "{}",
             DateTimeOffset.UtcNow,
@@ -364,8 +364,8 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAssignedToRoomEvent",
             "{}",
             DateTimeOffset.UtcNow,

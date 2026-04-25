@@ -1,5 +1,5 @@
 <Project>
-  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests'))">
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

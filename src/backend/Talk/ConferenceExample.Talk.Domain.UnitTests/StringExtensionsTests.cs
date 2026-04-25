@@ -23,7 +23,7 @@ public class StringExtensionsTests
     public void IsGuidV7_ValidGuidV4String_ReturnsFalse()
     {
         // Arrange
-        var guidV4 = Guid.NewGuid();
+        var guidV4 = new Guid("00000000-0000-4000-8000-000000000000");
         var guidString = guidV4.ToString();
 
         // Act

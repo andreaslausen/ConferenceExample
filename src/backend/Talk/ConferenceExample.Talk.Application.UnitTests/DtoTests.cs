@@ -14,9 +14,9 @@ public class DtoTests
         {
             Title = "Test Title",
             Abstract = "Test Abstract",
-            ConferenceId = Guid.NewGuid(),
+            ConferenceId = Guid.CreateVersion7(),
             Tags = new List<string> { "tag1", "tag2" },
-            TalkTypeId = Guid.NewGuid(),
+            TalkTypeId = Guid.CreateVersion7(),
         };
 
         // Assert
@@ -33,9 +33,9 @@ public class DtoTests
         // Arrange
         var title = "Test Title";
         var @abstract = "Test Abstract";
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
         var tags = new List<string> { "tag1" };
-        var talkTypeId = Guid.NewGuid();
+        var talkTypeId = Guid.CreateVersion7();
 
         // Act
         var command = new SubmitTalkCommand(title, @abstract, conferenceId, tags, talkTypeId);
@@ -69,7 +69,7 @@ public class DtoTests
     public void EditTalkCommand_CanBeCreated()
     {
         // Arrange
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
         var title = "Updated Title";
         var @abstract = "Updated Abstract";
         var tags = new List<string> { "tag1" };
@@ -88,10 +88,10 @@ public class DtoTests
     public void GetMyTalksDto_CanBeCreated()
     {
         // Arrange
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
         var title = "Test Title";
         var @abstract = "Test Abstract";
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
         var status = "Submitted";
         var tags = new List<string> { "tag1", "tag2" };
 
@@ -133,9 +133,9 @@ public class DtoTests
     public void GetMyTalksDto_RecordEquality()
     {
         // Arrange
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
         var tags = new List<string> { "tag1" };
-        var dto1 = new GetMyTalksDto(id, "Title", "Abstract", Guid.NewGuid(), "Status", tags);
+        var dto1 = new GetMyTalksDto(id, "Title", "Abstract", Guid.CreateVersion7(), "Status", tags);
         var dto2 = new GetMyTalksDto(id, "Title", "Abstract", dto1.ConferenceId, "Status", tags);
 
         // Act & Assert

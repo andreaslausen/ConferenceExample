@@ -6,8 +6,8 @@ public class StoredEventTests
     public void Constructor_WithValidParameters_CreatesInstance()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var aggregateId = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
+        var aggregateId = Guid.CreateVersion7();
         const string eventType = "TestEvent";
         const string payload = "{\"data\": \"test\"}";
         var occurredAt = DateTimeOffset.UtcNow;
@@ -29,8 +29,8 @@ public class StoredEventTests
     public void Equality_SameValues_AreEqual()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var aggregateId = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
+        var aggregateId = Guid.CreateVersion7();
         const string eventType = "TestEvent";
         const string payload = "{\"data\": \"test\"}";
         var occurredAt = DateTimeOffset.UtcNow;
@@ -47,14 +47,14 @@ public class StoredEventTests
     public void Equality_DifferentId_AreNotEqual()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         const string eventType = "TestEvent";
         const string payload = "{\"data\": \"test\"}";
         var occurredAt = DateTimeOffset.UtcNow;
         const long version = 1;
 
         var event1 = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             eventType,
             payload,
@@ -62,7 +62,7 @@ public class StoredEventTests
             version
         );
         var event2 = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             eventType,
             payload,
@@ -78,14 +78,14 @@ public class StoredEventTests
     public void Equality_DifferentAggregateId_AreNotEqual()
     {
         // Arrange
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
         const string eventType = "TestEvent";
         const string payload = "{\"data\": \"test\"}";
         var occurredAt = DateTimeOffset.UtcNow;
         const long version = 1;
 
-        var event1 = new StoredEvent(id, Guid.NewGuid(), eventType, payload, occurredAt, version);
-        var event2 = new StoredEvent(id, Guid.NewGuid(), eventType, payload, occurredAt, version);
+        var event1 = new StoredEvent(id, Guid.CreateVersion7(), eventType, payload, occurredAt, version);
+        var event2 = new StoredEvent(id, Guid.CreateVersion7(), eventType, payload, occurredAt, version);
 
         // Act & Assert
         Assert.NotEqual(event1, event2);
@@ -95,8 +95,8 @@ public class StoredEventTests
     public void Equality_DifferentVersion_AreNotEqual()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var aggregateId = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
+        var aggregateId = Guid.CreateVersion7();
         const string eventType = "TestEvent";
         const string payload = "{\"data\": \"test\"}";
         var occurredAt = DateTimeOffset.UtcNow;
@@ -112,8 +112,8 @@ public class StoredEventTests
     public void GetHashCode_SameValues_ProduceSameHashCode()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var aggregateId = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
+        var aggregateId = Guid.CreateVersion7();
         const string eventType = "TestEvent";
         const string payload = "{\"data\": \"test\"}";
         var occurredAt = DateTimeOffset.UtcNow;
@@ -130,8 +130,8 @@ public class StoredEventTests
     public void With_ModifyingProperty_CreatesNewInstance()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var aggregateId = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
+        var aggregateId = Guid.CreateVersion7();
         const string eventType = "TestEvent";
         const string payload = "{\"data\": \"test\"}";
         var occurredAt = DateTimeOffset.UtcNow;
@@ -163,8 +163,8 @@ public class StoredEventTests
     public void Constructor_WithNegativeVersion_CreatesInstance()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var aggregateId = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
+        var aggregateId = Guid.CreateVersion7();
         const string eventType = "TestEvent";
         const string payload = "{}";
         var occurredAt = DateTimeOffset.UtcNow;
