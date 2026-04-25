@@ -15,9 +15,9 @@ public class ConferenceEventHandlerTests
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
-        var organizerId = Guid.NewGuid();
+        var organizerId = Guid.CreateVersion7();
 
         var payload = new
         {
@@ -38,7 +38,7 @@ public class ConferenceEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "ConferenceCreatedEvent",
             JsonSerializer.Serialize(payload),
@@ -71,9 +71,9 @@ public class ConferenceEventHandlerTests
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
-        var organizerId = Guid.NewGuid();
+        var organizerId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceDocument
         {
@@ -101,7 +101,7 @@ public class ConferenceEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "ConferenceRenamedEvent",
             JsonSerializer.Serialize(payload),
@@ -135,8 +135,8 @@ public class ConferenceEventHandlerTests
         var handler = new ConferenceEventHandler(repository);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "ConferenceCreatedEvent",
             "invalid json",
             DateTimeOffset.UtcNow,
@@ -157,8 +157,8 @@ public class ConferenceEventHandlerTests
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
-        var aggregateId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
+        var organizerId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceDocument
         {
@@ -187,7 +187,7 @@ public class ConferenceEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "ConferenceRenamedEvent",
             JsonSerializer.Serialize(payload),
@@ -212,8 +212,8 @@ public class ConferenceEventHandlerTests
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
-        var aggregateId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
+        var organizerId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceDocument
         {
@@ -242,7 +242,7 @@ public class ConferenceEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "ConferenceStatusChangedEvent",
             JsonSerializer.Serialize(payload),
@@ -268,9 +268,9 @@ public class ConferenceEventHandlerTests
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
-        var organizerId = Guid.NewGuid();
+        var organizerId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceDocument
         {
@@ -284,7 +284,7 @@ public class ConferenceEventHandlerTests
             State = "Old State",
             PostalCode = "00000",
             Country = "Old Country",
-            OrganizerId = Guid.NewGuid().ToString(),
+            OrganizerId = Guid.CreateVersion7().ToString(),
             Status = "Draft",
             Version = 1,
         };
@@ -305,12 +305,12 @@ public class ConferenceEventHandlerTests
             Country = "USA",
             OrganizerId = organizerId,
             Status = "Published",
-            RoomId = Guid.NewGuid(),
+            RoomId = Guid.CreateVersion7(),
             RoomName = "Main Hall",
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "RoomAddedEvent",
             JsonSerializer.Serialize(payload),
@@ -349,9 +349,9 @@ public class ConferenceEventHandlerTests
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
-        var organizerId = Guid.NewGuid();
+        var organizerId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceDocument
         {
@@ -365,7 +365,7 @@ public class ConferenceEventHandlerTests
             State = "Old State",
             PostalCode = "00000",
             Country = "Old Country",
-            OrganizerId = Guid.NewGuid().ToString(),
+            OrganizerId = Guid.CreateVersion7().ToString(),
             Status = "Draft",
             Version = 1,
         };
@@ -386,11 +386,11 @@ public class ConferenceEventHandlerTests
             Country = "USA",
             OrganizerId = organizerId,
             Status = "Published",
-            RoomId = Guid.NewGuid(),
+            RoomId = Guid.CreateVersion7(),
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "RoomRemovedEvent",
             JsonSerializer.Serialize(payload),
@@ -429,8 +429,8 @@ public class ConferenceEventHandlerTests
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
-        var aggregateId = Guid.NewGuid();
-        var talkTypeId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
+        var talkTypeId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceDocument
         {
@@ -457,14 +457,14 @@ public class ConferenceEventHandlerTests
             State = "IL",
             PostalCode = "62701",
             Country = "USA",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkTypeId = talkTypeId,
             TalkTypeName = "Keynote",
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "TalkTypeDefinedEvent",
             JsonSerializer.Serialize(payload),
@@ -489,8 +489,8 @@ public class ConferenceEventHandlerTests
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
-        var aggregateId = Guid.NewGuid();
-        var talkTypeId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
+        var talkTypeId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceDocument
         {
@@ -517,13 +517,13 @@ public class ConferenceEventHandlerTests
             State = "IL",
             PostalCode = "62701",
             Country = "USA",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkTypeId = talkTypeId,
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "TalkTypeRemovedEvent",
             JsonSerializer.Serialize(payload),

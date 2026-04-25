@@ -60,7 +60,7 @@ public abstract class IntegrationTestBase
     /// </summary>
     protected string GetUniqueEmail(string prefix = "test")
     {
-        return $"{prefix}-{Guid.NewGuid():N}@test.com";
+        return $"{prefix}-{Guid.CreateVersion7():N}@test.com";
     }
 
     protected async Task<string> GetAuthenticationToken(

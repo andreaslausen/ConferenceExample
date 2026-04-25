@@ -22,7 +22,7 @@ public class StringExtensionsTests
     public void IsGuidV7_NonGuidV7String_ReturnsFalse()
     {
         // Arrange
-        var nonV7Guid = Guid.NewGuid(); // Creates a Version 4 GUID
+        var nonV7Guid = new Guid("00000000-0000-4000-8000-000000000000"); // Creates a Version 4 GUID
         var guidString = nonV7Guid.ToString();
 
         // Act

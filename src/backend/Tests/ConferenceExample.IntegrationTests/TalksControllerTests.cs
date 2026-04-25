@@ -55,8 +55,8 @@ public class TalksControllerTests : IntegrationTestBase
         {
             Title = "Test Talk",
             Abstract = "Test Abstract",
-            ConferenceId = Guid.NewGuid(),
-            TalkTypeId = Guid.NewGuid(),
+            ConferenceId = Guid.CreateVersion7(),
+            TalkTypeId = Guid.CreateVersion7(),
             Tags = new List<string> { "test" },
         };
 

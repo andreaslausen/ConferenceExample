@@ -23,11 +23,11 @@ public class MongoDbEventStoreIntegrationTests : IntegrationTestBase
     public async Task AppendEvents_WhenVersionIsStale_ThrowsConcurrencyException()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var store = new MongoDbEventStore(_database);
 
         var firstEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "TestEvent",
             "{}",
@@ -37,7 +37,7 @@ public class MongoDbEventStoreIntegrationTests : IntegrationTestBase
         await store.AppendEvents(aggregateId, [firstEvent], -1);
 
         var conflictingEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "TestEvent",
             "{}",
@@ -55,10 +55,10 @@ public class MongoDbEventStoreIntegrationTests : IntegrationTestBase
     public async Task AppendEvents_WhenNewAggregateButNonNegativeOneExpectedVersion_ThrowsConcurrencyException()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var store = new MongoDbEventStore(_database);
         var @event = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "TestEvent",
             "{}",
@@ -76,11 +76,11 @@ public class MongoDbEventStoreIntegrationTests : IntegrationTestBase
     public async Task AppendEvents_WithCorrectExpectedVersion_Succeeds()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var store = new MongoDbEventStore(_database);
 
         var firstEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "TestEvent",
             "{}",
@@ -90,7 +90,7 @@ public class MongoDbEventStoreIntegrationTests : IntegrationTestBase
         await store.AppendEvents(aggregateId, [firstEvent], -1);
 
         var secondEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             aggregateId,
             "TestEvent",
             "{}",

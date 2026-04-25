@@ -98,8 +98,8 @@ public class TalkEventSubscriptionsTests
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkSubmittedEvent",
             "{}",
             DateTimeOffset.UtcNow,

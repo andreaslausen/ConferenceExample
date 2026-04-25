@@ -15,10 +15,10 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
-        var conferenceId = Guid.NewGuid();
-        var speakerId = Guid.NewGuid();
-        var talkTypeId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
+        var conferenceId = Guid.CreateVersion7();
+        var speakerId = Guid.CreateVersion7();
+        var talkTypeId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
 
         var payload = new
@@ -39,7 +39,7 @@ public class TalkEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             talkId,
             "TalkSubmittedEvent",
             JsonSerializer.Serialize(payload),
@@ -73,7 +73,7 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
 
         var existingReadModel = new ConferenceTalkDocument
@@ -85,7 +85,7 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = occurredAt,
             Version = 2L,
             Name = "Conference",
@@ -97,14 +97,14 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAcceptedEvent",
             JsonSerializer.Serialize(payload),
             occurredAt,
@@ -133,7 +133,7 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
         var talkStart = DateTimeOffset.UtcNow.AddDays(30);
         var talkEnd = talkStart.AddHours(1);
 
@@ -146,7 +146,7 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L,
             Name = "Conference",
@@ -158,7 +158,7 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
             TalkStart = talkStart,
@@ -166,8 +166,8 @@ public class TalkEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkScheduledEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
@@ -196,7 +196,7 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
 
         var existingReadModel = new ConferenceTalkDocument
@@ -208,7 +208,7 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = occurredAt,
             Version = 2L,
             Name = "Conference",
@@ -220,14 +220,14 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkRejectedEvent",
             JsonSerializer.Serialize(payload),
             occurredAt,
@@ -257,8 +257,8 @@ public class TalkEventHandlerTests
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkRejectedEvent",
             "null",
             DateTimeOffset.UtcNow,
@@ -280,11 +280,11 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L,
             Name = "Conference",
@@ -296,14 +296,14 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkRejectedEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
@@ -327,8 +327,8 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
-        var roomId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
+        var roomId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
 
         var existingReadModel = new ConferenceTalkDocument
@@ -340,7 +340,7 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = occurredAt,
             Version = 2L,
             Name = "Conference",
@@ -352,7 +352,7 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
             RoomId = roomId,
@@ -360,8 +360,8 @@ public class TalkEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAssignedToRoomEvent",
             JsonSerializer.Serialize(payload),
             occurredAt,
@@ -393,8 +393,8 @@ public class TalkEventHandlerTests
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAssignedToRoomEvent",
             "null",
             DateTimeOffset.UtcNow,
@@ -416,11 +416,11 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L,
             Name = "Conference",
@@ -432,16 +432,16 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
-            RoomId = Guid.NewGuid(),
+            RoomId = Guid.CreateVersion7(),
             RoomName = "Main Hall",
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAssignedToRoomEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
@@ -465,10 +465,10 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
-        var conferenceId = Guid.NewGuid();
-        var speakerId = Guid.NewGuid();
-        var talkTypeId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
+        var conferenceId = Guid.CreateVersion7();
+        var speakerId = Guid.CreateVersion7();
+        var talkTypeId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
 
         var existingReadModel = new ConferenceTalkDocument
@@ -497,7 +497,7 @@ public class TalkEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             talkId,
             "TalkEditedEvent",
             JsonSerializer.Serialize(payload),
@@ -531,8 +531,8 @@ public class TalkEventHandlerTests
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkSubmittedEvent",
             "null",
             DateTimeOffset.UtcNow,
@@ -555,8 +555,8 @@ public class TalkEventHandlerTests
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAcceptedEvent",
             "null",
             DateTimeOffset.UtcNow,
@@ -578,11 +578,11 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L,
             Name = "Conference",
@@ -594,14 +594,14 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAcceptedEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
@@ -626,8 +626,8 @@ public class TalkEventHandlerTests
         var handler = new TalkEventHandler(repository);
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkScheduledEvent",
             "null",
             DateTimeOffset.UtcNow,
@@ -649,13 +649,13 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
         var talkStart = DateTimeOffset.UtcNow.AddDays(30);
         var talkEnd = talkStart.AddHours(1);
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L,
             Name = "Conference",
@@ -667,7 +667,7 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
             TalkStart = talkStart,
@@ -675,8 +675,8 @@ public class TalkEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkScheduledEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
@@ -701,10 +701,10 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
-        var conferenceId = Guid.NewGuid();
-        var speakerId = Guid.NewGuid();
-        var talkTypeId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
+        var conferenceId = Guid.CreateVersion7();
+        var speakerId = Guid.CreateVersion7();
+        var talkTypeId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceTalkDocument
         {
@@ -729,7 +729,7 @@ public class TalkEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             talkId,
             "TalkEditedEvent",
             JsonSerializer.Serialize(payload),
@@ -753,7 +753,7 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceTalkDocument
         {
@@ -764,7 +764,7 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L, // Same version - duplicate
             Name = "Conference",
@@ -776,14 +776,14 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAcceptedEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
@@ -806,7 +806,7 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceTalkDocument
         {
@@ -817,7 +817,7 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L, // Older version - out of order
             Name = "Conference",
@@ -829,14 +829,14 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
             TalkId = talkId,
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkRejectedEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
@@ -860,7 +860,7 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceTalkDocument
         {
@@ -872,7 +872,7 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L, // Same version - duplicate
             Name = "Conference",
@@ -884,7 +884,7 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Published",
             TalkId = talkId,
             TalkStart = DateTimeOffset.UtcNow.AddDays(30),
@@ -892,8 +892,8 @@ public class TalkEventHandlerTests
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkScheduledEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
@@ -916,8 +916,8 @@ public class TalkEventHandlerTests
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
         var handler = new TalkEventHandler(repository);
 
-        var talkId = Guid.NewGuid();
-        var roomId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
+        var roomId = Guid.CreateVersion7();
 
         var existingReadModel = new ConferenceTalkDocument
         {
@@ -929,7 +929,7 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = Guid.NewGuid(),
+            AggregateId = Guid.CreateVersion7(),
             OccurredAt = DateTimeOffset.UtcNow,
             Version = 2L, // Older version - out of order
             Name = "Conference",
@@ -941,16 +941,16 @@ public class TalkEventHandlerTests
             State = "State",
             PostalCode = "12345",
             Country = "Country",
-            OrganizerId = Guid.NewGuid(),
+            OrganizerId = Guid.CreateVersion7(),
             Status = "Published",
             TalkId = talkId,
-            RoomId = Guid.NewGuid(),
+            RoomId = Guid.CreateVersion7(),
             RoomName = "Different Room",
         };
 
         var storedEvent = new StoredEvent(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "TalkAssignedToRoomEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
