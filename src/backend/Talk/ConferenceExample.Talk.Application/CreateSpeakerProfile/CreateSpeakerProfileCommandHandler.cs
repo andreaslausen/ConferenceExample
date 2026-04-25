@@ -9,7 +9,7 @@ public class CreateSpeakerProfileCommandHandler(
     ICurrentUserService currentUserService
 ) : ICreateSpeakerProfileCommandHandler
 {
-    public async Task Handle(CreateSpeakerProfileCommand command)
+    public async Task<SpeakerProfileCreatedDto> Handle(CreateSpeakerProfileCommand command)
     {
         var currentUserId = currentUserService.GetCurrentUserId();
         var speakerId = new SpeakerId(new GuidV7(currentUserId));
@@ -21,5 +21,7 @@ public class CreateSpeakerProfileCommandHandler(
         );
 
         await speakerRepository.Save(speaker);
+
+        return new SpeakerProfileCreatedDto(speakerId.Value.Value);
     }
 }

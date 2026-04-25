@@ -401,6 +401,8 @@ export interface components {
         };
         DefineTalkTypeDto: {
             name: string;
+            /** Format: int32 */
+            durationInMinutes: number;
         };
         EditTalkDto: {
             title: string;
@@ -490,6 +492,8 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            /** Format: int32 */
+            durationInMinutes: number;
         };
         GetMyProfileDto: {
             /** Format: uuid */
@@ -592,6 +596,10 @@ export interface components {
             /** Format: date-time */
             end: string;
         };
+        SpeakerProfileCreatedDto: {
+            /** Format: uuid */
+            id: string;
+        };
         SubmitTalkDto: {
             title: string;
             abstract: string;
@@ -605,6 +613,8 @@ export interface components {
             /** Format: uuid */
             talkTypeId: string;
             name: string;
+            /** Format: int32 */
+            durationInMinutes: number;
         };
         UpdateSpeakerProfileDto: {
             firstName: string;
@@ -1853,7 +1863,11 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "text/plain": components["schemas"]["SpeakerProfileCreatedDto"];
+                    "application/json": components["schemas"]["SpeakerProfileCreatedDto"];
+                    "text/json": components["schemas"]["SpeakerProfileCreatedDto"];
+                };
             };
             /** @description Bad Request */
             400: {

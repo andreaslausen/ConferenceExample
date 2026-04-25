@@ -16,6 +16,7 @@ export default function OrganizerTalkTypesPage() {
   const [talkTypes, setTalkTypes] = useState<TalkType[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
+  const [newDuration, setNewDuration] = useState(45);
   const [adding, setAdding] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<TalkType | null>(null);
 
@@ -37,7 +38,7 @@ export default function OrganizerTalkTypesPage() {
       "/api/Conferences/{id}/talk-types",
       {
         params: { path: { id } },
-        body: { name: newName.trim() },
+        body: { name: newName.trim(), durationInMinutes: Number(newDuration) },
       },
     );
     setAdding(false);
@@ -45,8 +46,12 @@ export default function OrganizerTalkTypesPage() {
       toast({ title: "Talk-Typ konnte nicht angelegt werden.", variant: "destructive" });
       return;
     }
-    setTalkTypes((prev) => [...prev, { id: data.talkTypeId, name: data.name }]);
+    setTalkTypes((prev) => [
+      ...prev,
+      { id: data.talkTypeId, name: data.name, durationInMinutes: data.durationInMinutes },
+    ]);
     setNewName("");
+    setNewDuration(45);
     toast({ title: `Talk-Typ „${data.name}" angelegt.` });
   }
 
@@ -94,7 +99,7 @@ export default function OrganizerTalkTypesPage() {
                   key={tt.id}
                   className="flex items-center justify-between px-4 py-3"
                 >
-                  <span className="text-sm">{tt.name}</span>
+                  <span className="text-sm">{tt.name} — {tt.durationInMinutes} Min.</span>
                   <button
                     onClick={() => setDeleteTarget(tt)}
                     aria-label={`Talk-Typ ${tt.name} löschen`}
@@ -115,6 +120,15 @@ export default function OrganizerTalkTypesPage() {
               required
               className="border-input bg-background focus-visible:ring-ring flex h-10 flex-1 rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none"
               aria-label="Name des neuen Talk-Typs"
+            />
+            <input
+              type="number"
+              min={1}
+              value={newDuration}
+              onChange={(e) => setNewDuration(Number(e.target.value))}
+              required
+              className="border-input bg-background focus-visible:ring-ring flex h-10 w-24 rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              aria-label="Dauer in Minuten"
             />
             <button
               type="submit"

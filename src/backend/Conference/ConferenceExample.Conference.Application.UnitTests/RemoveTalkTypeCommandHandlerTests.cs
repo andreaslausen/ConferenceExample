@@ -139,7 +139,7 @@ public class RemoveTalkTypeCommandHandlerTests
     {
         var conference = CreateValidConference();
         var talkTypeId = new TalkTypeId(ConferenceGuidV7.NewGuid());
-        conference.DefineTalkType(talkTypeId, new Text("Workshop"));
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"), 45);
         return conference;
     }
 }

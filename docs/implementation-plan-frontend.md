@@ -285,3 +285,13 @@ M1 (Backend-Erweiterungen)
 | 2 | Vite-Proxy oder CORS? | Beides: Vite-Proxy für Dev (M2-7), CORS-Middleware im Backend für Production (M1-1) |
 | 3 | Slide Sharing? | Nicht in diesem Plan — kommt später |
 | 4 | Real-time-Benachrichtigungen? | Nicht in diesem Plan — kommt später |
+
+---
+
+## Nachträgliche Backend-Fixes (nach M9)
+
+Zwei Backend-Verbesserungen wurden nach Abschluss der Frontend-Meilensteine implementiert:
+
+1. **`POST /api/speakers/profile` gibt jetzt die erstellte Profil-ID zurück** — Bisher wurde `Created(..., null)` zurückgegeben, sodass das Frontend einen zusätzlichen GET-Request machen musste, um die ID zu erfahren. Jetzt gibt der Endpoint `SpeakerProfileCreatedDto { Id }` als Body zurück. Der `SpeakerProfilePage.tsx` wurde entsprechend angepasst (kein Extra-GET mehr nötig).
+
+2. **TalkType bekommt `DurationInMinutes`** — Das Daten-Modell für Talk-Typen wurde um ein Pflichtfeld `DurationInMinutes` (int) ergänzt, das angibt, wie lange ein Talk dieses Typs dauert. Die Änderungen betreffen Domain (`TalkType`, `TalkTypeDefinedEvent`, `Conference`), Application (`DefineTalkTypeCommand`, `DefineTalkTypeDto`, `TalkTypeDefinedDto`, `GetConferenceTalkTypesDto`), Persistence (`ConferenceDocument.TalkTypeDocument`, `ConferenceEventHandler`) sowie den `OrganizerTalkTypesPage.tsx` (neues Eingabefeld für Dauer, Anzeige in der Liste).

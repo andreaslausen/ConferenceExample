@@ -2,5 +2,5 @@ namespace ConferenceExample.Talk.Application.CreateSpeakerProfile;
 
 public interface ICreateSpeakerProfileCommandHandler
 {
-    Task Handle(CreateSpeakerProfileCommand command);
+    Task<SpeakerProfileCreatedDto> Handle(CreateSpeakerProfileCommand command);
 }

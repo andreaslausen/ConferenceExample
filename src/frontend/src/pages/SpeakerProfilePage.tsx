@@ -69,13 +69,11 @@ export default function SpeakerProfilePage() {
         setProfile({ ...profile, ...form });
         toast({ title: "Profil gespeichert." });
       } else {
-        const { error } = await apiClient.POST("/api/Speakers/profile", {
+        const { data, error } = await apiClient.POST("/api/Speakers/profile", {
           body: form,
         });
-        if (error) throw new Error();
-        // Reload to get the generated id
-        const { data: reloaded } = await apiClient.GET("/api/Speakers/profile");
-        if (reloaded) setProfile(reloaded);
+        if (error || !data) throw new Error();
+        setProfile({ id: data.id, ...form });
         toast({ title: "Profil angelegt." });
       }
     } catch {

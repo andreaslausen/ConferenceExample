@@ -183,6 +183,7 @@ public class ConferenceEventHandler
                     {
                         Id = domainEvent.TalkTypeId.ToString(),
                         Name = domainEvent.TalkTypeName,
+                        DurationInMinutes = domainEvent.TalkTypeDurationInMinutes,
                     },
                 ],
                 CreatedAt = domainEvent.OccurredAt,
@@ -226,6 +227,7 @@ public class ConferenceEventHandler
                     {
                         Id = talkTypeId,
                         Name = domainEvent.TalkTypeName,
+                        DurationInMinutes = domainEvent.TalkTypeDurationInMinutes,
                     }
                 );
             }
@@ -313,7 +315,8 @@ public class ConferenceEventHandler
         Guid OrganizerId,
         string Status,
         Guid TalkTypeId,
-        string TalkTypeName
+        string TalkTypeName,
+        int TalkTypeDurationInMinutes
     );
 
     private record RoomAddedPayload(

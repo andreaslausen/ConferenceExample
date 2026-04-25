@@ -318,12 +318,13 @@ public class ConferenceTests
         var name = new Text("Workshop");
 
         // Act
-        conference.DefineTalkType(talkTypeId, name);
+        conference.DefineTalkType(talkTypeId, name, 45);
 
         // Assert
         var talkType = Assert.Single(conference.TalkTypes);
         Assert.Equal(talkTypeId, talkType.Id);
         Assert.Equal(name, talkType.Name);
+        Assert.Equal(45, talkType.DurationInMinutes);
     }
 
     [Fact]
@@ -335,7 +336,7 @@ public class ConferenceTests
         var name = new Text("Workshop");
 
         // Act
-        conference.DefineTalkType(talkTypeId, name);
+        conference.DefineTalkType(talkTypeId, name, 45);
 
         // Assert
         var events = conference.GetUncommittedEvents();
@@ -349,11 +350,11 @@ public class ConferenceTests
         // Arrange
         var conference = CreateValidConference();
         var name = new Text("Workshop");
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), name);
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), name, 45);
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() =>
-            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), name)
+            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), name, 45)
         );
         Assert.Contains("already exists", exception.Message);
     }
@@ -363,11 +364,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Workshop"));
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Workshop"), 45);
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() =>
-            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("WORKSHOP"))
+            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("WORKSHOP"), 45)
         );
         Assert.Contains("already exists", exception.Message);
     }
@@ -378,7 +379,7 @@ public class ConferenceTests
         // Arrange
         var conference = CreateValidConference();
         var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
-        conference.DefineTalkType(talkTypeId, new Text("Workshop"));
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"), 45);
 
         // Act
         conference.RemoveTalkType(talkTypeId);
@@ -393,7 +394,7 @@ public class ConferenceTests
         // Arrange
         var conference = CreateValidConference();
         var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
-        conference.DefineTalkType(talkTypeId, new Text("Workshop"));
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"), 45);
 
         // Act
         conference.RemoveTalkType(talkTypeId);
@@ -424,7 +425,7 @@ public class ConferenceTests
         // Arrange
         var conference = CreateValidConference();
         var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
-        conference.DefineTalkType(talkTypeId, new Text("Workshop"));
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"), 45);
         var events = conference.GetUncommittedEvents();
 
         // Act
@@ -434,6 +435,7 @@ public class ConferenceTests
         var talkType = Assert.Single(replayedConference.TalkTypes);
         Assert.Equal(talkTypeId, talkType.Id);
         Assert.Equal(new Text("Workshop"), talkType.Name);
+        Assert.Equal(45, talkType.DurationInMinutes);
     }
 
     private static ConferenceAggregate CreateValidConference()

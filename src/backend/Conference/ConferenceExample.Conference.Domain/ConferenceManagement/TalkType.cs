@@ -11,10 +11,12 @@ public class TalkType
 {
     public TalkTypeId Id { get; }
     public Text Name { get; }
+    public int DurationInMinutes { get; }
 
-    internal TalkType(TalkTypeId id, Text name)
+    internal TalkType(TalkTypeId id, Text name, int durationInMinutes)
     {
         Id = id;
         Name = name;
+        DurationInMinutes = durationInMinutes;
     }
 }

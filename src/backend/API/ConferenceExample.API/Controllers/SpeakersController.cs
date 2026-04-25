@@ -15,14 +15,14 @@ public class SpeakersController(ISpeakerService speakerService) : ControllerBase
 {
     [HttpPost("profile", Name = "CreateSpeakerProfile")]
     [Authorize(Roles = "Speaker")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType<SpeakerProfileCreatedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CreateProfile([FromBody] CreateSpeakerProfileDto dto)
     {
-        await speakerService.CreateProfile(dto);
-        return Created("/api/speakers/profile", null);
+        var result = await speakerService.CreateProfile(dto);
+        return Created("/api/speakers/profile", result);
     }
 
     [HttpPut("profile", Name = "UpdateSpeakerProfile")]

@@ -287,7 +287,7 @@ public class Conference : AggregateRoot
         );
     }
 
-    public void DefineTalkType(TalkTypeId talkTypeId, Text name)
+    public void DefineTalkType(TalkTypeId talkTypeId, Text name, int durationInMinutes)
     {
         // Check if talk type with same name already exists
         if (
@@ -318,7 +318,8 @@ public class Conference : AggregateRoot
                 OrganizerId.Value,
                 Status.ToString(),
                 talkTypeId.Value,
-                name.Value
+                name.Value,
+                durationInMinutes
             )
         );
     }
@@ -490,7 +491,11 @@ public class Conference : AggregateRoot
                 Status = Enum.Parse<ConferenceStatus>(e.Status);
                 // Apply event-specific change
                 _talkTypes.Add(
-                    new TalkType(new TalkTypeId(new GuidV7(e.TalkTypeId)), new Text(e.TalkTypeName))
+                    new TalkType(
+                        new TalkTypeId(new GuidV7(e.TalkTypeId)),
+                        new Text(e.TalkTypeName),
+                        e.TalkTypeDurationInMinutes
+                    )
                 );
                 break;
             case TalkTypeRemovedEvent e:
