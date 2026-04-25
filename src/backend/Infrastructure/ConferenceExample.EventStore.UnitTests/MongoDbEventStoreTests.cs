@@ -47,7 +47,7 @@ public class MongoDbEventStoreTests
     {
         // Arrange
         var store = new MongoDbEventStore(_mockDatabase);
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var events = new List<StoredEvent>();
 
         // Act
@@ -76,7 +76,7 @@ public class MongoDbEventStoreTests
     {
         // Arrange
         var store = new MongoDbEventStore(_mockDatabase);
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var emptyEvents = new List<StoredEvent>();
 
         // Act

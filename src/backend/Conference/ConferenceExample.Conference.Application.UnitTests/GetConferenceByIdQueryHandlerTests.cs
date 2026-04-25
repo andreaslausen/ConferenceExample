@@ -62,7 +62,7 @@ public class GetConferenceByIdQueryHandlerTests
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
         var handler = new GetConferenceByIdQueryHandler(repository);
-        var invalidGuid = Guid.NewGuid(); // Not a GuidV7
+        var invalidGuid = new Guid("00000000-0000-4000-8000-000000000000"); // Not a GuidV7
         var query = new GetConferenceByIdQuery(invalidGuid);
 
         // Act & Assert

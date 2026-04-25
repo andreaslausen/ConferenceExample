@@ -21,7 +21,7 @@ public class GuidV7Tests
     public void Constructor_NonGuidV7_ThrowsArgumentException()
     {
         // Arrange
-        var nonV7Guid = Guid.NewGuid(); // Creates a Version 4 GUID
+        var nonV7Guid = new Guid("00000000-0000-4000-8000-000000000000"); // Creates a Version 4 GUID
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => new GuidV7(nonV7Guid));
@@ -58,7 +58,7 @@ public class GuidV7Tests
     public void Parse_NonGuidV7String_ThrowsArgumentException()
     {
         // Arrange
-        var nonV7Guid = Guid.NewGuid(); // Creates a Version 4 GUID
+        var nonV7Guid = new Guid("00000000-0000-4000-8000-000000000000"); // Creates a Version 4 GUID
         var guidString = nonV7Guid.ToString();
 
         // Act & Assert
@@ -129,7 +129,7 @@ public class GuidV7Tests
     public void ImplicitOperatorFromGuid_InvalidGuid_ThrowsArgumentException()
     {
         // Arrange
-        var nonV7Guid = Guid.NewGuid();
+        var nonV7Guid = new Guid("00000000-0000-4000-8000-000000000000");
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>

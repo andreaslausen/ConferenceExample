@@ -53,7 +53,7 @@ public class IntegrationTestWebApplicationFactory : WebApplicationFactory<Progra
 
     public new async Task DisposeAsync()
     {
-        await _mongoContainer.DisposeAsync();
         await base.DisposeAsync();
+        await _mongoContainer.DisposeAsync();
     }
 }

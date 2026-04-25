@@ -78,7 +78,7 @@ public class ScheduleTalkCommandHandlerTests
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = CreateMockCurrentUserService();
         var handler = new ScheduleTalkCommandHandler(repository, currentUserService);
-        var invalidGuid = Guid.NewGuid(); // Not a GuidV7
+        var invalidGuid = new Guid("00000000-0000-4000-8000-000000000000"); // Not a GuidV7
         var start = DateTimeOffset.UtcNow.AddDays(30);
         var end = start.AddHours(1);
         var command = new ScheduleTalkCommand(invalidGuid, ConferenceGuidV7.NewGuid(), start, end);

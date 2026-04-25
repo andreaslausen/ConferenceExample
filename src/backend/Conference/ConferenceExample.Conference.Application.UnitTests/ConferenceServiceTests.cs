@@ -84,7 +84,7 @@ public class ConferenceServiceTests
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            service.RenameConference(Guid.NewGuid(), new RenameConferenceDto { Name = "New Name" })
+            service.RenameConference(Guid.CreateVersion7(), new RenameConferenceDto { Name = "New Name" })
         );
     }
 
@@ -95,16 +95,16 @@ public class ConferenceServiceTests
         var queryHandler = Substitute.For<IGetConferenceScheduleQueryHandler>();
         var service = CreateConferenceService(queryHandler: queryHandler);
 
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
         var expectedSessions = new List<GetConferenceScheduleDto>
         {
             new(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Talk Title",
                 "Accepted",
                 DateTimeOffset.UtcNow,
                 DateTimeOffset.UtcNow.AddHours(1),
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Room A"
             ),
         };
@@ -134,7 +134,7 @@ public class ConferenceServiceTests
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            service.GetConferenceSchedule(Guid.NewGuid())
+            service.GetConferenceSchedule(Guid.CreateVersion7())
         );
     }
 
@@ -149,7 +149,7 @@ public class ConferenceServiceTests
 
         // Act
         await service.ChangeConferenceStatus(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             new ChangeConferenceStatusDto
             {
                 Status = Domain.ConferenceManagement.ConferenceStatus.CallForSpeakers,
@@ -180,7 +180,7 @@ public class ConferenceServiceTests
         // Arrange
         var getByIdHandler = Substitute.For<IGetConferenceByIdQueryHandler>();
         var service = CreateConferenceService(getConferenceByIdQueryHandler: getByIdHandler);
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
 
         // Act
         await service.GetConferenceById(conferenceId);
@@ -195,7 +195,7 @@ public class ConferenceServiceTests
         // Arrange
         var getTalksHandler = Substitute.For<IGetConferenceTalksQueryHandler>();
         var service = CreateConferenceService(getConferenceTalksQueryHandler: getTalksHandler);
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
 
         // Act
         await service.GetConferenceTalks(conferenceId);
@@ -210,8 +210,8 @@ public class ConferenceServiceTests
         // Arrange
         var acceptHandler = Substitute.For<IAcceptTalkCommandHandler>();
         var service = CreateConferenceService(acceptTalkCommandHandler: acceptHandler);
-        var conferenceId = Guid.NewGuid();
-        var talkId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
+        var talkId = Guid.CreateVersion7();
 
         // Act
         await service.AcceptTalk(conferenceId, talkId);
@@ -226,8 +226,8 @@ public class ConferenceServiceTests
         // Arrange
         var rejectHandler = Substitute.For<IRejectTalkCommandHandler>();
         var service = CreateConferenceService(rejectTalkCommandHandler: rejectHandler);
-        var conferenceId = Guid.NewGuid();
-        var talkId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
+        var talkId = Guid.CreateVersion7();
 
         // Act
         await service.RejectTalk(conferenceId, talkId);
@@ -242,8 +242,8 @@ public class ConferenceServiceTests
         // Arrange
         var scheduleHandler = Substitute.For<IScheduleTalkCommandHandler>();
         var service = CreateConferenceService(scheduleTalkCommandHandler: scheduleHandler);
-        var conferenceId = Guid.NewGuid();
-        var talkId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
+        var talkId = Guid.CreateVersion7();
         var dto = new ScheduleTalkDto
         {
             Start = DateTimeOffset.UtcNow,
@@ -263,9 +263,9 @@ public class ConferenceServiceTests
         // Arrange
         var assignHandler = Substitute.For<IAssignTalkToRoomCommandHandler>();
         var service = CreateConferenceService(assignTalkToRoomCommandHandler: assignHandler);
-        var conferenceId = Guid.NewGuid();
-        var talkId = Guid.NewGuid();
-        var dto = new AssignTalkToRoomDto { RoomId = Guid.NewGuid() };
+        var conferenceId = Guid.CreateVersion7();
+        var talkId = Guid.CreateVersion7();
+        var dto = new AssignTalkToRoomDto { RoomId = Guid.CreateVersion7() };
 
         // Act
         await service.AssignTalkToRoom(conferenceId, talkId, dto);

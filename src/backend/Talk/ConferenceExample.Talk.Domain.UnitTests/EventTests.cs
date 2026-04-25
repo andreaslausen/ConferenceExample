@@ -8,14 +8,14 @@ public class EventTests
     public void TalkSubmittedEvent_Constructor_InitializesProperties()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
         var title = "Test Title";
         var @abstract = "Test Abstract";
-        var speakerId = Guid.NewGuid();
+        var speakerId = Guid.CreateVersion7();
         var tags = new List<string> { "tag1", "tag2" };
-        var talkTypeId = Guid.NewGuid();
-        var conferenceId = Guid.NewGuid();
+        var talkTypeId = Guid.CreateVersion7();
+        var conferenceId = Guid.CreateVersion7();
 
         // Act
         var @event = new TalkSubmittedEvent(
@@ -49,7 +49,7 @@ public class EventTests
     public void TalkSubmittedEvent_Equality_SameValues_ReturnsTrue()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
         var tags = new List<string> { "tag1", "tag2" };
 
@@ -59,13 +59,13 @@ public class EventTests
             1,
             "Title",
             "Abstract",
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "Jane",
             "Doe",
             "Speaker bio",
             tags,
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "Submitted"
         );
 
@@ -93,7 +93,7 @@ public class EventTests
     public void TalkTitleEditedEvent_Constructor_InitializesProperties()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
         var title = "Updated Title";
 
@@ -104,13 +104,13 @@ public class EventTests
             2,
             title,
             "Test Abstract",
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "Jane",
             "Doe",
             "Speaker bio",
             new List<string> { "tag1" },
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "Submitted"
         );
 
@@ -124,7 +124,7 @@ public class EventTests
     public void TalkAbstractEditedEvent_Constructor_InitializesProperties()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
         var @abstract = "Updated Abstract";
 
@@ -135,13 +135,13 @@ public class EventTests
             2,
             "Test Title",
             @abstract,
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "Jane",
             "Doe",
             "Speaker bio",
             new List<string> { "tag1" },
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "Submitted"
         );
 
@@ -155,7 +155,7 @@ public class EventTests
     public void TalkTagAddedEvent_Constructor_InitializesProperties()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
         var tag = "newtag";
 
@@ -166,13 +166,13 @@ public class EventTests
             2,
             "Test Title",
             "Test Abstract",
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "Jane",
             "Doe",
             "Speaker bio",
             new List<string> { "tag1", tag },
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "Submitted"
         );
 
@@ -186,7 +186,7 @@ public class EventTests
     public void TalkTagRemovedEvent_Constructor_InitializesProperties()
     {
         // Arrange
-        var aggregateId = Guid.NewGuid();
+        var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
         var tag = "removedtag";
 
@@ -197,13 +197,13 @@ public class EventTests
             2,
             "Test Title",
             "Test Abstract",
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "Jane",
             "Doe",
             "Speaker bio",
             new List<string>(), // Tag was removed, so it's not in the list
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
             "Submitted"
         );
 

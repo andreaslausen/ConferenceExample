@@ -72,7 +72,7 @@ public class AuthenticationService(IUserRepository userRepository, JwtSettings j
             issuer: jwtSettings.Issuer,
             audience: jwtSettings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(jwtSettings.ExpirationHours),
+            expires: DateTimeOffset.UtcNow.AddHours(jwtSettings.ExpirationHours).UtcDateTime,
             signingCredentials: credentials
         );
 

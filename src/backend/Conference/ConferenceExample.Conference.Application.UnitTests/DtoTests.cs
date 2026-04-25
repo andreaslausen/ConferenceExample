@@ -17,7 +17,7 @@ public class DtoTests
     public void AssignTalkToRoomDto_CanBeCreated()
     {
         // Arrange & Act
-        var dto = new AssignTalkToRoomDto { RoomId = Guid.NewGuid() };
+        var dto = new AssignTalkToRoomDto { RoomId = Guid.CreateVersion7() };
 
         // Assert
         Assert.NotEqual(Guid.Empty, dto.RoomId);
@@ -55,7 +55,7 @@ public class DtoTests
     public void ConferenceCreatedDto_AllProperties_AreAccessible()
     {
         // Arrange
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
         var name = "Test Conference";
         var start = DateTimeOffset.UtcNow;
         var end = start.AddDays(2);
@@ -76,11 +76,11 @@ public class DtoTests
     public void GetConferenceScheduleDto_AllProperties_AreAccessible()
     {
         // Arrange
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
         var status = "Accepted";
         var slotStart = DateTimeOffset.UtcNow;
         var slotEnd = slotStart.AddHours(1);
-        var roomId = Guid.NewGuid();
+        var roomId = Guid.CreateVersion7();
         var roomName = "Room A";
 
         // Act
@@ -107,11 +107,11 @@ public class DtoTests
     public void GetConferenceScheduleDto_WithDeconstruction_WorksCorrectly()
     {
         // Arrange
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
         var status = "Accepted";
         var slotStart = DateTimeOffset.UtcNow;
         var slotEnd = slotStart.AddHours(1);
-        var roomId = Guid.NewGuid();
+        var roomId = Guid.CreateVersion7();
         var roomName = "Room A";
         var dto = new GetConferenceScheduleDto(
             id,
@@ -139,13 +139,13 @@ public class DtoTests
     public void GetConferenceTalksDto_AllProperties_AreAccessible()
     {
         // Arrange
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
         var title = "Talk Title";
         var abstractText = "Talk Abstract";
-        var speakerId = Guid.NewGuid();
+        var speakerId = Guid.CreateVersion7();
         var status = "Accepted";
         var tags = new List<string> { "tag1", "tag2" };
-        var talkTypeId = Guid.NewGuid();
+        var talkTypeId = Guid.CreateVersion7();
 
         // Act
         var dto = new GetConferenceTalksDto(

@@ -49,10 +49,10 @@ public class TalkServiceTests
         var expectedTalks = new List<GetMyTalksDto>
         {
             new(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Title",
                 "Abstract",
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Submitted",
                 new List<string>()
             ),
@@ -81,7 +81,7 @@ public class TalkServiceTests
             getTalkByIdQueryHandler,
             editTalkCommandHandler
         );
-        var talkId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
         var dto = new EditTalkDto("Updated Title", "Updated Abstract", new List<string> { "tag1" });
 
         // Act

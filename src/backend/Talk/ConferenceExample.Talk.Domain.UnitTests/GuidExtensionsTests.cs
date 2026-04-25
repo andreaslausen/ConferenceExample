@@ -22,7 +22,7 @@ public class GuidExtensionsTests
     public void IsGuidV7_GuidV4_ReturnsFalse()
     {
         // Arrange
-        var guidV4 = Guid.NewGuid();
+        var guidV4 = new Guid("00000000-0000-4000-8000-000000000000");
 
         // Act
         var result = guidV4.IsGuidV7();

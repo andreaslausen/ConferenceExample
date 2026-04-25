@@ -10,10 +10,10 @@ public class GetMyTalksQueryHandlerTests
 {
     private static TalkReadModel CreateSummary(Guid speakerId, string title) =>
         new(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             title,
             "Test Abstract",
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "Submitted",
             new List<string> { "tag1", "tag2" },
             speakerId,
@@ -80,8 +80,8 @@ public class GetMyTalksQueryHandlerTests
         currentUserService.GetCurrentUserId().Returns(userId);
 
         var speakerId = new SpeakerId(new GuidV7(userId));
-        var talkId = Guid.NewGuid();
-        var conferenceId = Guid.NewGuid();
+        var talkId = Guid.CreateVersion7();
+        var conferenceId = Guid.CreateVersion7();
         var summary = new TalkReadModel(
             talkId,
             "Test Talk",

@@ -30,16 +30,16 @@ public class GetConferenceScheduleQueryHandlerTests
         var talkReadModels = new List<ConferenceTalkReadModel>
         {
             new(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Test Talk",
                 "Abstract",
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Jane",
                 "Doe",
                 "Bio",
                 "Submitted",
                 new List<string>(),
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 null,
                 null,
                 null,
@@ -139,7 +139,7 @@ public class GetConferenceScheduleQueryHandlerTests
             talkReadModelRepository,
             currentUserService
         );
-        var invalidGuid = Guid.NewGuid(); // Not a GuidV7
+        var invalidGuid = new Guid("00000000-0000-4000-8000-000000000000"); // Not a GuidV7
         var query = new GetConferenceScheduleQuery(invalidGuid);
 
         // Act & Assert

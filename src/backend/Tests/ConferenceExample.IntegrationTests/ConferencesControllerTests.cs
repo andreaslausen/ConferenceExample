@@ -212,7 +212,7 @@ public class ConferencesControllerTests : IntegrationTestBase
     public async Task RenameConference_WithoutAuthorization_ReturnsUnauthorized()
     {
         // Arrange
-        var conferenceId = Guid.NewGuid();
+        var conferenceId = Guid.CreateVersion7();
         var renameDto = new RenameConferenceDto { Name = "New Name" };
 
         // Act
