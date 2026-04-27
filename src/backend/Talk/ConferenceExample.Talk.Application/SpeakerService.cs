@@ -12,10 +12,10 @@ public class SpeakerService(
     IGetSpeakerByIdQueryHandler getSpeakerByIdQueryHandler
 ) : ISpeakerService
 {
-    public async Task CreateProfile(CreateSpeakerProfileDto dto)
+    public async Task<SpeakerProfileCreatedDto> CreateProfile(CreateSpeakerProfileDto dto)
     {
         var command = new CreateSpeakerProfileCommand(dto.FirstName, dto.LastName, dto.Biography);
-        await createSpeakerProfileCommandHandler.Handle(command);
+        return await createSpeakerProfileCommandHandler.Handle(command);
     }
 
     public async Task UpdateProfile(UpdateSpeakerProfileDto dto)

@@ -17,7 +17,15 @@ export function Header() {
           ConferenceExample
         </Link>
 
-        <nav className="flex items-center gap-4 text-sm">
+        <nav className="flex items-center gap-4 text-sm" aria-label="Hauptnavigation">
+          {/* Public link always visible */}
+          <Link
+            to="/"
+            className="text-muted-foreground hover:text-foreground hidden sm:inline"
+          >
+            Konferenzen
+          </Link>
+
           {user?.role === "Speaker" && (
             <>
               <Link
@@ -40,16 +48,17 @@ export function Header() {
               to="/organizer/conferences"
               className="text-muted-foreground hover:text-foreground"
             >
-              Konferenzen
+              Verwaltung
             </Link>
           )}
 
           {user ? (
             <div className="flex items-center gap-3">
-              <span className="text-muted-foreground">{user.email}</span>
+              <span className="text-muted-foreground hidden sm:inline">{user.email}</span>
               <button
                 onClick={handleLogout}
                 className="border-input hover:bg-accent inline-flex h-9 items-center rounded-md border px-3 text-sm"
+                aria-label="Abmelden"
               >
                 Abmelden
               </button>

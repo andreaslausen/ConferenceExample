@@ -461,6 +461,7 @@ public class ConferenceEventHandlerTests
             Status = "Draft",
             TalkTypeId = talkTypeId,
             TalkTypeName = "Keynote",
+            TalkTypeDurationInMinutes = 60,
         };
 
         var storedEvent = new StoredEvent(

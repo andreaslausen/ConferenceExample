@@ -1,3 +1,4 @@
+using ConferenceExample.Talk.Application.CreateSpeakerProfile;
 using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.SubmitTalk;
@@ -140,5 +141,18 @@ public class DtoTests
 
         // Act & Assert
         Assert.Equal(dto1, dto2);
+    }
+
+    [Fact]
+    public void SpeakerProfileCreatedDto_CanBeCreated()
+    {
+        // Arrange
+        var id = Guid.CreateVersion7();
+
+        // Act
+        var dto = new SpeakerProfileCreatedDto(id);
+
+        // Assert
+        Assert.Equal(id, dto.Id);
     }
 }

@@ -68,5 +68,8 @@ public class ConferenceDocument
 
         [BsonElement("name")]
         public string Name { get; set; } = string.Empty;
+
+        [BsonElement("durationInMinutes")]
+        public int DurationInMinutes { get; set; }
     }
 }

@@ -25,7 +25,18 @@ const authMiddleware: Middleware = {
   },
 };
 
+const errorMiddleware: Middleware = {
+  async onResponse({ response }) {
+    if (response.status === 401) {
+      clearToken();
+      window.location.href = "/login";
+    }
+    return response;
+  },
+};
+
 const apiClient = createClient<paths>({ baseUrl: "/" });
 apiClient.use(authMiddleware);
+apiClient.use(errorMiddleware);
 
 export default apiClient;

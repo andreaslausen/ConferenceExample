@@ -1,3 +1,3 @@
 namespace ConferenceExample.Conference.Application.DefineTalkType;
 
-public record TalkTypeDefinedDto(Guid TalkTypeId, string Name);
+public record TalkTypeDefinedDto(Guid TalkTypeId, string Name, int DurationInMinutes);

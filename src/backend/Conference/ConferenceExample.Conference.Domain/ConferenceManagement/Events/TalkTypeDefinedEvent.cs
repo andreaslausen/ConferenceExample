@@ -22,5 +22,6 @@ public record TalkTypeDefinedEvent(
     Guid OrganizerId,
     string Status,
     Guid TalkTypeId,
-    string TalkTypeName
+    string TalkTypeName,
+    int TalkTypeDurationInMinutes
 ) : IDomainEvent;

@@ -121,7 +121,7 @@ public class ConferenceService(
 
     public async Task<TalkTypeDefinedDto> DefineTalkType(Guid conferenceId, DefineTalkTypeDto dto)
     {
-        var command = new DefineTalkTypeCommand(conferenceId, dto.Name);
+        var command = new DefineTalkTypeCommand(conferenceId, dto.Name, dto.DurationInMinutes);
         return await defineTalkTypeCommandHandler.Handle(command);
     }
 

@@ -7,7 +7,7 @@ namespace ConferenceExample.Talk.Application;
 
 public interface ISpeakerService
 {
-    Task CreateProfile(CreateSpeakerProfileDto dto);
+    Task<SpeakerProfileCreatedDto> CreateProfile(CreateSpeakerProfileDto dto);
     Task UpdateProfile(UpdateSpeakerProfileDto dto);
     Task<GetMyProfileDto?> GetMyProfile();
     Task<GetSpeakerByIdDto?> GetSpeakerById(Guid speakerId);

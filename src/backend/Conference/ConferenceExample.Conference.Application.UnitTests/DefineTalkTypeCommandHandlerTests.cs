@@ -19,7 +19,7 @@ public class DefineTalkTypeCommandHandlerTests
         var conference = CreateValidConference();
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
         var handler = new DefineTalkTypeCommandHandler(repository, currentUserService);
-        var command = new DefineTalkTypeCommand(conference.Id.Value, "Workshop");
+        var command = new DefineTalkTypeCommand(conference.Id.Value, "Workshop", 45);
 
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
@@ -34,6 +34,7 @@ public class DefineTalkTypeCommandHandlerTests
             );
         await repository.Received(1).Save(Arg.Is<ConferenceAggregate>(c => c.TalkTypes.Count == 1));
         Assert.Equal("Workshop", result.Name);
+        Assert.Equal(45, result.DurationInMinutes);
     }
 
     [Fact]
@@ -43,7 +44,7 @@ public class DefineTalkTypeCommandHandlerTests
         var repository = Substitute.For<IConferenceRepository>();
         var currentUserService = CreateMockCurrentUserService();
         var handler = new DefineTalkTypeCommandHandler(repository, currentUserService);
-        var command = new DefineTalkTypeCommand(ConferenceGuidV7.NewGuid(), "Workshop");
+        var command = new DefineTalkTypeCommand(ConferenceGuidV7.NewGuid(), "Workshop", 45);
 
         repository
             .GetById(Arg.Any<ConferenceId>())
@@ -61,7 +62,7 @@ public class DefineTalkTypeCommandHandlerTests
         var currentUserService = CreateMockCurrentUserService();
         var handler = new DefineTalkTypeCommandHandler(repository, currentUserService);
         var invalidGuid = new Guid("00000000-0000-4000-8000-000000000000"); // Not a GuidV7
-        var command = new DefineTalkTypeCommand(invalidGuid, "Workshop");
+        var command = new DefineTalkTypeCommand(invalidGuid, "Workshop", 45);
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(command));
@@ -76,7 +77,7 @@ public class DefineTalkTypeCommandHandlerTests
         var differentUserId = ConferenceGuidV7.NewGuid();
         var currentUserService = CreateMockCurrentUserService(new OrganizerId(differentUserId));
         var handler = new DefineTalkTypeCommandHandler(repository, currentUserService);
-        var command = new DefineTalkTypeCommand(conference.Id.Value, "Workshop");
+        var command = new DefineTalkTypeCommand(conference.Id.Value, "Workshop", 45);
 
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
@@ -92,7 +93,7 @@ public class DefineTalkTypeCommandHandlerTests
         var conference = CreateValidConference();
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
         var handler = new DefineTalkTypeCommandHandler(repository, currentUserService);
-        var command = new DefineTalkTypeCommand(conference.Id.Value, "Workshop");
+        var command = new DefineTalkTypeCommand(conference.Id.Value, "Workshop", 45);
 
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
         repository

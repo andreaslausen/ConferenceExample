@@ -5,13 +5,16 @@ import "./index.css";
 import App from "./App.tsx";
 import { ErrorBoundary } from "./shared/components/ErrorBoundary.tsx";
 import { AuthProvider } from "./shared/auth/AuthContext.tsx";
+import { ToastProvider } from "./shared/components/Toast.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

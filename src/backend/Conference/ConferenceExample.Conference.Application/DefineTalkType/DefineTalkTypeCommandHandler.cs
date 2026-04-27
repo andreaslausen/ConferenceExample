@@ -27,10 +27,10 @@ public class DefineTalkTypeCommandHandler(
         }
 
         var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
-        conference.DefineTalkType(talkTypeId, new Text(command.Name));
+        conference.DefineTalkType(talkTypeId, new Text(command.Name), command.DurationInMinutes);
 
         await conferenceRepository.Save(conference);
 
-        return new TalkTypeDefinedDto(talkTypeId.Value, command.Name);
+        return new TalkTypeDefinedDto(talkTypeId.Value, command.Name, command.DurationInMinutes);
     }
 }

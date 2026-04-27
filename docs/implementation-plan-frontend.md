@@ -145,14 +145,14 @@ Ziel: Nicht eingeloggte Nutzer können Konferenzen und das Programm einsehen.
 
 #### Aufgaben
 
-- [ ] **M4-1** `GET /api/conferences` aufrufen; Konferenzliste als Karten-Grid rendern
-- [ ] **M4-2** Pagination für die Konferenzliste implementieren (shadcn/ui `Pagination`)
-- [ ] **M4-3** `GET /api/conferences/:id` aufrufen; Konferenzdetail-Header rendern (Name, Status)
-- [ ] **M4-4** `GET /api/conferences/:id/program` aufrufen; Zeitplan als Tabelle (Zeitslots × Räume) rendern
-- [ ] **M4-5** Klick auf Talk in der Zeitplan-Tabelle navigiert zu `/talks/:id`
-- [ ] **M4-6** `GET /api/talks/:id` aufrufen; Talk-Detailseite rendern (Titel, Abstract, Tags, Speaker-Name)
-- [ ] **M4-7** Loading-Skeletons (shadcn/ui `Skeleton`) für alle Datenladeoperationen
-- [ ] **M4-8** Leerzustand-Komponente für Konferenzen ohne Einträge im Zeitplan
+- [x] **M4-1** `GET /api/conferences` aufrufen; Konferenzliste als Karten-Grid rendern
+- [x] **M4-2** Pagination für die Konferenzliste implementieren (shadcn/ui `Pagination`)
+- [x] **M4-3** `GET /api/conferences/:id` aufrufen; Konferenzdetail-Header rendern (Name, Status)
+- [x] **M4-4** `GET /api/conferences/:id/program` aufrufen; Zeitplan als Tabelle (Zeitslots × Räume) rendern
+- [x] **M4-5** Klick auf Talk in der Zeitplan-Tabelle navigiert zu `/talks/:id`
+- [x] **M4-6** `GET /api/talks/:id` aufrufen; Talk-Detailseite rendern (Titel, Abstract, Tags, Speaker-Name)
+- [x] **M4-7** Loading-Skeletons (shadcn/ui `Skeleton`) für alle Datenladeoperationen
+- [x] **M4-8** Leerzustand-Komponente für Konferenzen ohne Einträge im Zeitplan
 
 ---
 
@@ -164,21 +164,21 @@ Ziel: Speaker können ihr Profil verwalten und Talks einreichen/bearbeiten.
 
 **Speaker-Profil**
 
-- [ ] **M5-1** `GET /api/speakers/profile` aufrufen; Profildaten anzeigen
-- [ ] **M5-2** Profil-Formular (Name, Bio) für `POST /api/speakers/profile` implementieren
-- [ ] **M5-3** Profil-Formular für `PUT /api/speakers/profile` implementieren (gleiche Komponente, anderer Submit-Handler)
-- [ ] **M5-4** Weiterleitung nach dem ersten Anlegen auf `/profile` statt auf ein leeres Formular
+- [x] **M5-1** `GET /api/speakers/profile` aufrufen; Profildaten anzeigen
+- [x] **M5-2** Profil-Formular (Name, Bio) für `POST /api/speakers/profile` implementieren
+- [x] **M5-3** Profil-Formular für `PUT /api/speakers/profile` implementieren (gleiche Komponente, anderer Submit-Handler)
+- [x] **M5-4** Weiterleitung nach dem ersten Anlegen auf `/profile` statt auf ein leeres Formular
 
 **Talk-Einreichung**
 
-- [ ] **M5-5** `GET /api/conferences` aufrufen und Konferenzauswahl als Dropdown in Submit-Formular einbinden
-- [ ] **M5-6** `GET /api/conferences/:id/talk-types` aufrufen und Talk-Typ-Auswahl als Dropdown einbinden
-- [ ] **M5-7** Submit-Formular mit Feldern: Titel, Abstract, Tags (Chip-Input), Konferenz, Talk-Typ
-- [ ] **M5-8** `POST /api/talks` aufrufen und nach Erfolg auf `/my-talks` weiterleiten
-- [ ] **M5-9** `GET /api/talks/my-talks` aufrufen; eigene Talks als Liste rendern (Titel, Status-Badge)
-- [ ] **M5-10** Edit-Formular mit `GET /api/talks/:id` vorausfüllen
-- [ ] **M5-11** `PUT /api/talks/:id` aufrufen und nach Erfolg auf `/my-talks` weiterleiten
-- [ ] **M5-12** Inline-Validierung: Titel und Abstract sind Pflichtfelder
+- [x] **M5-5** `GET /api/conferences` aufrufen und Konferenzauswahl als Dropdown in Submit-Formular einbinden
+- [x] **M5-6** `GET /api/conferences/:id/talk-types` aufrufen und Talk-Typ-Auswahl als Dropdown einbinden
+- [x] **M5-7** Submit-Formular mit Feldern: Titel, Abstract, Tags (Chip-Input), Konferenz, Talk-Typ
+- [x] **M5-8** `POST /api/talks` aufrufen und nach Erfolg auf `/my-talks` weiterleiten
+- [x] **M5-9** `GET /api/talks/my-talks` aufrufen; eigene Talks als Liste rendern (Titel, Status-Badge)
+- [x] **M5-10** Edit-Formular mit `GET /api/talks/:id` vorausfüllen
+- [x] **M5-11** `PUT /api/talks/:id` aufrufen und nach Erfolg auf `/my-talks` weiterleiten
+- [x] **M5-12** Inline-Validierung: Titel und Abstract sind Pflichtfelder
 
 ---
 
@@ -190,22 +190,22 @@ Ziel: Organizer können Konferenzen anlegen, umbenennen, Räume und Talk-Typen d
 
 **Konferenz-Verwaltung**
 
-- [ ] **M6-1** Konferenzliste für Organizer aus `GET /api/conferences` mit eigenem Layout (Tabelle statt Karten)
-- [ ] **M6-2** Formular für `POST /api/conferences` (Name, Datum); nach Erfolg auf Detailseite weiterleiten
-- [ ] **M6-3** Inline-Umbenennung: Klick auf Konferenzname öffnet Eingabefeld → `PUT /api/conferences/:id/name`
-- [ ] **M6-4** Status-Änderung: Dropdown/Button-Gruppe → `PUT /api/conferences/:id/status` (z. B. Draft → Published)
+- [x] **M6-1** Konferenzliste für Organizer aus `GET /api/conferences` mit eigenem Layout (Tabelle statt Karten)
+- [x] **M6-2** Formular für `POST /api/conferences` (Name, Datum); nach Erfolg auf Detailseite weiterleiten
+- [x] **M6-3** Inline-Umbenennung: Klick auf Konferenzname öffnet Eingabefeld → `PUT /api/conferences/:id/name`
+- [x] **M6-4** Status-Änderung: Dropdown/Button-Gruppe → `PUT /api/conferences/:id/status` (z. B. Draft → Published)
 
 **Raum-Verwaltung**
 
-- [ ] **M6-5** Raum-Liste aus `GET /api/conferences/:id/rooms` anzeigen
-- [ ] **M6-6** Formular für `POST /api/conferences/:id/rooms` (Name)
-- [ ] **M6-7** Löschen-Button pro Raum → `DELETE /api/conferences/:id/rooms/:roomId` mit Bestätigungsdialog
+- [x] **M6-5** Raum-Liste aus `GET /api/conferences/:id/rooms` anzeigen
+- [x] **M6-6** Formular für `POST /api/conferences/:id/rooms` (Name)
+- [x] **M6-7** Löschen-Button pro Raum → `DELETE /api/conferences/:id/rooms/:roomId` mit Bestätigungsdialog
 
 **Talk-Typen**
 
-- [ ] **M6-8** Talk-Typen-Liste aus `GET /api/conferences/:id/talk-types` anzeigen
-- [ ] **M6-9** Formular für `POST /api/conferences/:id/talk-types` (Name, Dauer in Minuten)
-- [ ] **M6-10** Löschen-Button pro Talk-Typ → `DELETE /api/conferences/:id/talk-types/:talkTypeId` mit Bestätigungsdialog
+- [x] **M6-8** Talk-Typen-Liste aus `GET /api/conferences/:id/talk-types` anzeigen
+- [x] **M6-9** Formular für `POST /api/conferences/:id/talk-types` (Name, Dauer in Minuten)
+- [x] **M6-10** Löschen-Button pro Talk-Typ → `DELETE /api/conferences/:id/talk-types/:talkTypeId` mit Bestätigungsdialog
 
 ---
 
@@ -215,12 +215,12 @@ Ziel: Organizer können eingereichte Talks akzeptieren oder ablehnen.
 
 #### Aufgaben
 
-- [ ] **M7-1** `GET /api/conferences/:id/talks` aufrufen; Einreichungen als Liste rendern (inkl. `SpeakerName` aus erweitertem DTO)
-- [ ] **M7-2** Statusfilter (Alle / Pending / Accepted / Rejected) als Tab-Leiste
-- [ ] **M7-3** Pagination für die Einreichungsliste
-- [ ] **M7-4** Accept-Button → `PUT /api/conferences/:id/talks/:talkId/accept`; optimistisches UI-Update
-- [ ] **M7-5** Reject-Button → `PUT /api/conferences/:id/talks/:talkId/reject`; optimistisches UI-Update
-- [ ] **M7-6** Klick auf einen Talk öffnet Detail-Drawer (shadcn/ui `Sheet`) mit Titel, Abstract, Speaker
+- [x] **M7-1** `GET /api/conferences/:id/talks` aufrufen; Einreichungen als Liste rendern (inkl. `SpeakerName` aus erweitertem DTO)
+- [x] **M7-2** Statusfilter (Alle / Pending / Accepted / Rejected) als Tab-Leiste
+- [x] **M7-3** Pagination für die Einreichungsliste
+- [x] **M7-4** Accept-Button → `PUT /api/conferences/:id/talks/:talkId/accept`; optimistisches UI-Update
+- [x] **M7-5** Reject-Button → `PUT /api/conferences/:id/talks/:talkId/reject`; optimistisches UI-Update
+- [x] **M7-6** Klick auf einen Talk öffnet Detail-Drawer (shadcn/ui `Sheet`) mit Titel, Abstract, Speaker
 
 ---
 
@@ -230,16 +230,16 @@ Ziel: Organizer können akzeptierte Talks per Drag & Drop in Zeitslots und Räum
 
 #### Aufgaben
 
-- [ ] **M8-1** `@dnd-kit/core` und `@dnd-kit/sortable` installieren
-- [ ] **M8-2** Räume aus `GET /api/conferences/:id/rooms` laden und als Spalten im Grid rendern
-- [ ] **M8-3** Zeitplan-Grid-Komponente: Achsen Zeitslots (Zeilen) × Räume (Spalten)
-- [ ] **M8-4** Seitenleiste mit nicht eingeplanten (accepted) Talks als Drag-Quellen
-- [ ] **M8-5** Zellen im Grid als Drop-Targets implementieren
-- [ ] **M8-6** Beim Drop: `PUT /api/conferences/:id/talks/:talkId/schedule` mit Zeitslot aufrufen
-- [ ] **M8-7** Beim Drop auf andere Spalte: `PUT /api/conferences/:id/talks/:talkId/room` mit `RoomId` aufrufen (kein `RoomName` mehr nötig, da M1-10)
-- [ ] **M8-8** Visuelles Feedback während Drag (Ghost-Element, Hover-Highlight auf Zielzelle)
-- [ ] **M8-9** Fehlerbehandlung: API-Fehler rückgängig machen und Toast-Nachricht anzeigen (shadcn/ui `Toast`)
-- [ ] **M8-10** Bereits eingeplante Talks können per Drag innerhalb des Grids verschoben werden
+- [x] **M8-1** `@dnd-kit/core` und `@dnd-kit/sortable` installieren
+- [x] **M8-2** Räume aus `GET /api/conferences/:id/rooms` laden und als Spalten im Grid rendern
+- [x] **M8-3** Zeitplan-Grid-Komponente: Achsen Zeitslots (Zeilen) × Räume (Spalten)
+- [x] **M8-4** Seitenleiste mit nicht eingeplanten (accepted) Talks als Drag-Quellen
+- [x] **M8-5** Zellen im Grid als Drop-Targets implementieren
+- [x] **M8-6** Beim Drop: `PUT /api/conferences/:id/talks/:talkId/schedule` mit Zeitslot aufrufen
+- [x] **M8-7** Beim Drop auf andere Spalte: `PUT /api/conferences/:id/talks/:talkId/room` mit `RoomId` aufrufen (kein `RoomName` mehr nötig, da M1-10)
+- [x] **M8-8** Visuelles Feedback während Drag (Ghost-Element, Hover-Highlight auf Zielzelle)
+- [x] **M8-9** Fehlerbehandlung: API-Fehler rückgängig machen und Toast-Nachricht anzeigen (shadcn/ui `Toast`)
+- [x] **M8-10** Bereits eingeplante Talks können per Drag innerhalb des Grids verschoben werden
 
 ---
 
@@ -249,14 +249,15 @@ Ziel: Konsistente UX, Barrierefreiheit und stabile Basis.
 
 #### Aufgaben
 
-- [ ] **M9-1** Rollenbasierte Navigation im Header vervollständigen (Links je nach Rolle ein-/ausblenden)
-- [ ] **M9-2** Breadcrumb-Navigation für tief verschachtelte Organizer-Seiten
-- [ ] **M9-3** Globale Toast/Notification-Infrastruktur für Erfolgsmeldungen
-- [ ] **M9-4** Alle Formulare: Keyboard-Navigation und ARIA-Labels prüfen
-- [ ] **M9-5** Responsive Layout: Zeitplan-Grid auf Mobilgeräten als vertikale Liste darstellen
-- [ ] **M9-6** API-Fehler-Kategorisierung: 401 → Login-Redirect, 403 → Zugriffsfehler-Banner, 5xx → generische Fehlermeldung
-- [ ] **M9-7** TypeScript `strict`-Mode aktivieren; alle `any`-Typen entfernen
+- [x] **M9-1** Rollenbasierte Navigation im Header vervollständigen (Links je nach Rolle ein-/ausblenden)
+- [x] **M9-2** Breadcrumb-Navigation für tief verschachtelte Organizer-Seiten
+- [x] **M9-3** Globale Toast/Notification-Infrastruktur für Erfolgsmeldungen
+- [x] **M9-4** Alle Formulare: Keyboard-Navigation und ARIA-Labels prüfen
+- [x] **M9-5** Responsive Layout: Zeitplan-Grid auf Mobilgeräten als vertikale Liste darstellen
+- [x] **M9-6** API-Fehler-Kategorisierung: 401 → Login-Redirect, 403 → Zugriffsfehler-Banner, 5xx → generische Fehlermeldung
+- [x] **M9-7** TypeScript `strict`-Mode aktivieren; alle `any`-Typen entfernen
 - [ ] **M9-8** OpenAPI-generierten Client in CI einbinden (Build schlägt fehl, wenn `openapi.json` veraltet ist)
+  > Hinweis: Der CI-Workflow (frontend-ci.yml) führt bereits `npm run build` aus, welches den TypeScript-Client voraussetzt. Eine explizite openapi-typescript-Regeneration in CI würde ein laufendes Backend benötigen und ist für eine spätere Iteration vorgesehen.
 
 ---
 
@@ -284,3 +285,13 @@ M1 (Backend-Erweiterungen)
 | 2 | Vite-Proxy oder CORS? | Beides: Vite-Proxy für Dev (M2-7), CORS-Middleware im Backend für Production (M1-1) |
 | 3 | Slide Sharing? | Nicht in diesem Plan — kommt später |
 | 4 | Real-time-Benachrichtigungen? | Nicht in diesem Plan — kommt später |
+
+---
+
+## Nachträgliche Backend-Fixes (nach M9)
+
+Zwei Backend-Verbesserungen wurden nach Abschluss der Frontend-Meilensteine implementiert:
+
+1. **`POST /api/speakers/profile` gibt jetzt die erstellte Profil-ID zurück** — Bisher wurde `Created(..., null)` zurückgegeben, sodass das Frontend einen zusätzlichen GET-Request machen musste, um die ID zu erfahren. Jetzt gibt der Endpoint `SpeakerProfileCreatedDto { Id }` als Body zurück. Der `SpeakerProfilePage.tsx` wurde entsprechend angepasst (kein Extra-GET mehr nötig).
+
+2. **TalkType bekommt `DurationInMinutes`** — Das Daten-Modell für Talk-Typen wurde um ein Pflichtfeld `DurationInMinutes` (int) ergänzt, das angibt, wie lange ein Talk dieses Typs dauert. Die Änderungen betreffen Domain (`TalkType`, `TalkTypeDefinedEvent`, `Conference`), Application (`DefineTalkTypeCommand`, `DefineTalkTypeDto`, `TalkTypeDefinedDto`, `GetConferenceTalkTypesDto`), Persistence (`ConferenceDocument.TalkTypeDocument`, `ConferenceEventHandler`) sowie den `OrganizerTalkTypesPage.tsx` (neues Eingabefeld für Dauer, Anzeige in der Liste).
