@@ -11,6 +11,7 @@ using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
+using ConferenceExample.Conference.Application.GetMyConferences;
 using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
@@ -298,6 +299,7 @@ public class ConferenceServiceTests
         IUpdateConferenceDetailsCommandHandler? updateConferenceDetailsCommandHandler = null,
         IChangeConferenceStatusCommandHandler? changeConferenceStatusCommandHandler = null,
         IGetAllConferencesQueryHandler? getAllConferencesQueryHandler = null,
+        IGetMyConferencesQueryHandler? getMyConferencesQueryHandler = null,
         IGetConferenceByIdQueryHandler? getConferenceByIdQueryHandler = null,
         IGetConferenceScheduleQueryHandler? queryHandler = null,
         IGetConferenceTalksQueryHandler? getConferenceTalksQueryHandler = null,
@@ -318,6 +320,7 @@ public class ConferenceServiceTests
             changeConferenceStatusCommandHandler
                 ?? Substitute.For<IChangeConferenceStatusCommandHandler>(),
             getAllConferencesQueryHandler ?? Substitute.For<IGetAllConferencesQueryHandler>(),
+            getMyConferencesQueryHandler ?? Substitute.For<IGetMyConferencesQueryHandler>(),
             getConferenceByIdQueryHandler ?? Substitute.For<IGetConferenceByIdQueryHandler>(),
             queryHandler ?? Substitute.For<IGetConferenceScheduleQueryHandler>(),
             getConferenceTalksQueryHandler ?? Substitute.For<IGetConferenceTalksQueryHandler>(),

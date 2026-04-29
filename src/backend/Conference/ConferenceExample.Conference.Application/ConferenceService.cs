@@ -11,6 +11,7 @@ using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
+using ConferenceExample.Conference.Application.GetMyConferences;
 using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
@@ -26,6 +27,7 @@ public class ConferenceService(
     IUpdateConferenceDetailsCommandHandler updateConferenceDetailsCommandHandler,
     IChangeConferenceStatusCommandHandler changeConferenceStatusCommandHandler,
     IGetAllConferencesQueryHandler getAllConferencesQueryHandler,
+    IGetMyConferencesQueryHandler getMyConferencesQueryHandler,
     IGetConferenceByIdQueryHandler getConferenceByIdQueryHandler,
     IGetConferenceScheduleQueryHandler getConferenceScheduleQueryHandler,
     IGetConferenceTalksQueryHandler getConferenceTalksQueryHandler,
@@ -92,6 +94,12 @@ public class ConferenceService(
     {
         var query = new GetAllConferencesQuery();
         return await getAllConferencesQueryHandler.Handle(query);
+    }
+
+    public async Task<IReadOnlyList<GetMyConferencesDto>> GetMyConferences()
+    {
+        var query = new GetMyConferencesQuery();
+        return await getMyConferencesQueryHandler.Handle(query);
     }
 
     public async Task<GetConferenceByIdDto> GetConferenceById(Guid conferenceId)

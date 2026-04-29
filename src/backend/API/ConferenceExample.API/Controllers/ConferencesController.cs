@@ -11,6 +11,7 @@ using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
+using ConferenceExample.Conference.Application.GetMyConferences;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
 using ConferenceExample.Conference.Application.UpdateConferenceDetails;
@@ -35,6 +36,21 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         var conferences = await conferenceService.GetAllConferences();
         var items = conferences.Skip((page - 1) * pageSize).Take(pageSize).ToList();
         return Ok(new PagedResult<GetAllConferencesDto>(items, conferences.Count, page, pageSize));
+    }
+
+    [HttpGet("my", Name = "GetMyConferences")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType<PagedResult<GetMyConferencesDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<PagedResult<GetMyConferencesDto>>> GetMyConferences(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20
+    )
+    {
+        var conferences = await conferenceService.GetMyConferences();
+        var items = conferences.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return Ok(new PagedResult<GetMyConferencesDto>(items, conferences.Count, page, pageSize));
     }
 
     [HttpGet("{id:guid}", Name = "GetConferenceById")]

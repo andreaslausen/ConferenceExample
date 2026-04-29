@@ -11,6 +11,7 @@ using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
+using ConferenceExample.Conference.Application.GetMyConferences;
 using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
@@ -49,6 +50,7 @@ public static class ServiceCollectionExtensions
 
         // Query Handlers
         services.AddScoped<IGetAllConferencesQueryHandler, GetAllConferencesQueryHandler>();
+        services.AddScoped<IGetMyConferencesQueryHandler, GetMyConferencesQueryHandler>();
         services.AddScoped<IGetConferenceByIdQueryHandler, GetConferenceByIdQueryHandler>();
         services.AddScoped<IGetConferenceScheduleQueryHandler, GetConferenceScheduleQueryHandler>();
         services.AddScoped<IGetConferenceTalksQueryHandler, GetConferenceTalksQueryHandler>();

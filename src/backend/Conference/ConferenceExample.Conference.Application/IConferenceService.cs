@@ -11,6 +11,7 @@ using ConferenceExample.Conference.Application.GetConferenceRooms;
 using ConferenceExample.Conference.Application.GetConferenceSchedule;
 using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
+using ConferenceExample.Conference.Application.GetMyConferences;
 using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RenameConference;
@@ -26,6 +27,7 @@ public interface IConferenceService
     Task UpdateConferenceDetails(Guid id, UpdateConferenceDetailsDto dto);
     Task ChangeConferenceStatus(Guid id, ChangeConferenceStatusDto dto);
     Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences();
+    Task<IReadOnlyList<GetMyConferencesDto>> GetMyConferences();
     Task<GetConferenceByIdDto> GetConferenceById(Guid conferenceId);
     Task<IReadOnlyList<GetConferenceScheduleDto>> GetConferenceSchedule(Guid conferenceId);
     Task<IReadOnlyList<GetConferenceTalksDto>> GetConferenceTalks(Guid conferenceId);
