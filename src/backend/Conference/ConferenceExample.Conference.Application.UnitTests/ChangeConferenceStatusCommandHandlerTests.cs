@@ -170,12 +170,17 @@ public class ChangeConferenceStatusCommandHandlerTests
             new Address("123 Main St", "Springfield", "IL", "62701", "US")
         );
 
-        return ConferenceAggregate.Create(
+        var conference = ConferenceAggregate.Create(
             id,
             name,
             time,
             location,
             new OrganizerId(ConferenceGuidV7.NewGuid())
         );
+
+        // Define a talk type to allow changing status to CallForSpeakers
+        conference.DefineTalkType(new TalkTypeId(ConferenceGuidV7.NewGuid()), new Text("Talk"), 45);
+
+        return conference;
     }
 }

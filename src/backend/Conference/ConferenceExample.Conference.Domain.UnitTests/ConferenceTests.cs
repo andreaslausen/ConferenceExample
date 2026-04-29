@@ -72,6 +72,7 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
 
         // Act
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
@@ -85,14 +86,15 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
 
         // Act
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Assert
         var events = conference.GetUncommittedEvents();
-        Assert.Equal(2, events.Count);
-        Assert.IsType<ConferenceStatusChangedEvent>(events[1]);
+        Assert.Equal(3, events.Count);
+        Assert.IsType<ConferenceStatusChangedEvent>(events[2]);
     }
 
     [Fact]
@@ -100,6 +102,7 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
 
         // Act
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
@@ -108,6 +111,20 @@ public class ConferenceTests
 
         // Assert
         Assert.Equal(ConferenceStatus.ProgramPublished, conference.Status);
+    }
+
+    [Fact]
+    public void ChangeStatus_ToCallForSpeakersWithoutTalkTypes_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.ChangeStatus(ConferenceStatus.CallForSpeakers)
+        );
+        Assert.Contains("cannot be changed to 'CallForSpeakers'", exception.Message);
+        Assert.Contains("without defined talk types", exception.Message);
     }
 
     [Fact]
@@ -443,6 +460,7 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Act & Assert
@@ -510,6 +528,7 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var newName = new Text("Updated Conference");
         var newTime = new Time(

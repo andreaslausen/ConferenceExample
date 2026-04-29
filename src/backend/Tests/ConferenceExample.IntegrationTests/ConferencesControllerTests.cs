@@ -117,6 +117,13 @@ public class ConferencesControllerTests : IntegrationTestBase
         var createResponse = await PostAsync("/api/conferences", createDto);
         var createdConference = await DeserializeResponse<ConferenceCreatedDto>(createResponse);
 
+        // Define a talk type before changing status to CallForSpeakers
+        var defineTalkTypeDto = new Conference.Application.DefineTalkType.DefineTalkTypeDto(
+            "Talk",
+            45
+        );
+        await PostAsync($"/api/conferences/{createdConference!.Id}/talk-types", defineTalkTypeDto);
+
         // Change status to CallForSpeakers so it appears in public list
         var changeStatusDto =
             new Conference.Application.ChangeConferenceStatus.ChangeConferenceStatusDto
@@ -292,14 +299,6 @@ public class ConferencesControllerTests : IntegrationTestBase
         var createResponse = await PostAsync("/api/conferences", createDto);
         var createdConference = await DeserializeResponse<ConferenceCreatedDto>(createResponse);
 
-        // Change status to CallForSpeakers so it appears in public list
-        var changeStatusDto =
-            new Conference.Application.ChangeConferenceStatus.ChangeConferenceStatusDto
-            {
-                Status = Conference.Domain.ConferenceManagement.ConferenceStatus.CallForSpeakers,
-            };
-        await PutAsync($"/api/conferences/{createdConference!.Id}/status", changeStatusDto);
-
         var updateDto =
             new Conference.Application.UpdateConferenceDetails.UpdateConferenceDetailsDto
             {
@@ -316,9 +315,24 @@ public class ConferencesControllerTests : IntegrationTestBase
 
         // Act
         var updateResponse = await PutAsync(
-            $"/api/conferences/{createdConference.Id}/details",
+            $"/api/conferences/{createdConference!.Id}/details",
             updateDto
         );
+
+        // Define a talk type before changing status to CallForSpeakers
+        var defineTalkTypeDto = new Conference.Application.DefineTalkType.DefineTalkTypeDto(
+            "Talk",
+            45
+        );
+        await PostAsync($"/api/conferences/{createdConference!.Id}/talk-types", defineTalkTypeDto);
+
+        // Change status to CallForSpeakers so it appears in public list
+        var changeStatusDto =
+            new Conference.Application.ChangeConferenceStatus.ChangeConferenceStatusDto
+            {
+                Status = Conference.Domain.ConferenceManagement.ConferenceStatus.CallForSpeakers,
+            };
+        await PutAsync($"/api/conferences/{createdConference!.Id}/status", changeStatusDto);
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, updateResponse.StatusCode);

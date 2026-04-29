@@ -220,6 +220,17 @@ public class TalksControllerTests : IntegrationTestBase
                 response
             );
 
+        // Define a talk type before changing status to CallForSpeakers
+        var defineTalkTypeDto = new Conference.Application.DefineTalkType.DefineTalkTypeDto(
+            "Talk",
+            45
+        );
+        var defineTalkTypeResponse = await PostAsync(
+            $"/api/conferences/{result!.Id}/talk-types",
+            defineTalkTypeDto
+        );
+        defineTalkTypeResponse.EnsureSuccessStatusCode();
+
         // Change status to CallForSpeakers so talks can be submitted
         var changeStatusDto =
             new Conference.Application.ChangeConferenceStatus.ChangeConferenceStatusDto

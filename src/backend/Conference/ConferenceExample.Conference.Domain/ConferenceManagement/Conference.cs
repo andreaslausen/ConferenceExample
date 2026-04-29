@@ -89,6 +89,13 @@ public class Conference : AggregateRoot
 
     public void ChangeStatus(ConferenceStatus newStatus)
     {
+        if (newStatus == ConferenceStatus.CallForSpeakers && !_talkTypes.Any())
+        {
+            throw new InvalidOperationException(
+                "Conference cannot be changed to 'CallForSpeakers' status without defined talk types. Please define at least one talk type first."
+            );
+        }
+
         RaiseEvent(
             new ConferenceStatusChangedEvent(
                 Id.Value,
