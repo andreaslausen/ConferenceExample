@@ -437,6 +437,99 @@ public class ConferenceTests
     }
 
     [Fact]
+    public void DefineTalkType_WhenStatusIsCallForSpeakers_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Existing"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("NewTalkType"), 60)
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+        Assert.Contains("CallForSpeakers", exception.Message);
+    }
+
+    [Fact]
+    public void DefineTalkType_WhenStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("TalkType"), 45)
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+    }
+
+    [Fact]
+    public void DefineTalkType_WhenStatusIsProgramPublished_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.ChangeStatus(ConferenceStatus.ProgramPublished);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("TalkType"), 45)
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+    }
+
+    [Fact]
+    public void RemoveTalkType_WhenStatusIsCallForSpeakers_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.RemoveTalkType(talkTypeId)
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+        Assert.Contains("CallForSpeakers", exception.Message);
+    }
+
+    [Fact]
+    public void RemoveTalkType_WhenStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.RemoveTalkType(talkTypeId)
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+    }
+
+    [Fact]
+    public void RemoveTalkType_WhenStatusIsProgramPublished_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Workshop"), 45);
+        conference.ChangeStatus(ConferenceStatus.ProgramPublished);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.RemoveTalkType(talkTypeId)
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+    }
+
+    [Fact]
     public void LoadFromHistory_WithTalkTypeEvents_ReconstructsCorrectly()
     {
         // Arrange

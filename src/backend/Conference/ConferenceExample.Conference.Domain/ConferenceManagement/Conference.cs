@@ -322,6 +322,8 @@ public class Conference : AggregateRoot
 
     public void DefineTalkType(TalkTypeId talkTypeId, Text name, int durationInMinutes)
     {
+        EnsureIsEditable();
+
         // Check if talk type with same name already exists
         if (
             _talkTypes.Any(tt =>
@@ -359,6 +361,8 @@ public class Conference : AggregateRoot
 
     public void RemoveTalkType(TalkTypeId talkTypeId)
     {
+        EnsureIsEditable();
+
         // Check if talk type exists
         if (!_talkTypes.Any(tt => tt.Id == talkTypeId))
         {
