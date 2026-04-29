@@ -9,15 +9,17 @@ import { useToast } from "../shared/components/Toast";
 type ConferenceDetail = components["schemas"]["GetConferenceByIdDto"];
 
 const STATUSES = [
-  { value: 0, label: "Entwurf" },
-  { value: 1, label: "Veröffentlicht" },
-  { value: 2, label: "Abgeschlossen" },
+  { value: 0, label: "Entwurf", backendName: "Draft" },
+  { value: 1, label: "Call for Speakers", backendName: "CallForSpeakers" },
+  { value: 2, label: "Call for Speakers geschlossen", backendName: "CallForSpeakersClosed" },
+  { value: 3, label: "Programm veröffentlicht", backendName: "ProgramPublished" },
 ];
 
-const STATUS_NAMES: Record<string, string> = {
+const STATUS_LABELS: Record<string, string> = {
   Draft: "Entwurf",
-  Published: "Veröffentlicht",
-  Completed: "Abgeschlossen",
+  CallForSpeakers: "Call for Speakers",
+  CallForSpeakersClosed: "Call for Speakers geschlossen",
+  ProgramPublished: "Programm veröffentlicht",
 };
 
 function formatDate(iso: string): string {
@@ -93,9 +95,10 @@ export default function OrganizerConferenceDetailPage() {
       return;
     }
     const newStatus = STATUSES.find((s) => s.value === statusValue);
-    const newStatusName = newStatus?.label ?? "";
+    const newStatusLabel = newStatus?.label ?? "";
+    const newStatusName = newStatus?.backendName ?? "";
     setConference((c) => c ? { ...c, status: newStatusName } : c);
-    toast({ title: `Status auf "${newStatusName}" gesetzt.` });
+    toast({ title: `Status auf "${newStatusLabel}" gesetzt.` });
   }
 
   if (loading) {
@@ -121,7 +124,7 @@ export default function OrganizerConferenceDetailPage() {
   }
 
   const currentStatusIndex = STATUSES.findIndex(
-    (s) => s.label === STATUS_NAMES[conference.status],
+    (s) => s.backendName === conference.status,
   );
 
   return (
@@ -173,34 +176,37 @@ export default function OrganizerConferenceDetailPage() {
         )}
       </div>
 
-      <p className="text-muted-foreground mb-4 text-sm">
-        {formatDate(conference.startDate)} – {formatDate(conference.endDate)} ·{" "}
-        {conference.locationName}, {conference.city}
-      </p>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">
+          {formatDate(conference.startDate)} – {formatDate(conference.endDate)} ·{" "}
+          {conference.locationName}, {conference.city}
+        </p>
+        <Link
+          to={`/organizer/conferences/${id}/edit`}
+          className="bg-secondary text-secondary-foreground hover:bg-secondary/80 inline-flex h-9 items-center rounded-md px-3 text-sm font-medium"
+        >
+          Bearbeiten
+        </Link>
+      </div>
 
       {/* Status change */}
-      <div className="mb-8 flex items-center gap-2">
-        <span className="text-sm font-medium">Status:</span>
-        <div className="flex rounded-md border" role="group" aria-label="Status ändern">
-          {STATUSES.map((s, i) => {
-            const isActive = i === currentStatusIndex;
-            return (
-              <button
-                key={s.value}
-                onClick={() => handleStatusChange(s.value)}
-                disabled={changingStatus || isActive}
-                aria-pressed={isActive}
-                className={`inline-flex h-8 items-center px-3 text-xs font-medium transition-colors first:rounded-l-md last:rounded-r-md focus-visible:outline-none ${
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted disabled:cursor-not-allowed"
-                }`}
-              >
-                {s.label}
-              </button>
-            );
-          })}
-        </div>
+      <div className="mb-8 flex items-center gap-3">
+        <span className="text-sm font-medium">Aktueller Status:</span>
+        <span className="rounded-md bg-muted px-3 py-1.5 text-sm font-medium">
+          {STATUS_LABELS[conference.status] ?? conference.status}
+        </span>
+        {currentStatusIndex < STATUSES.length - 1 && (
+          <>
+            <span className="text-muted-foreground">→</span>
+            <button
+              onClick={() => handleStatusChange(STATUSES[currentStatusIndex + 1].value)}
+              disabled={changingStatus}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {changingStatus ? "Wird geändert..." : `Weiter zu "${STATUSES[currentStatusIndex + 1].label}"`}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Management links */}

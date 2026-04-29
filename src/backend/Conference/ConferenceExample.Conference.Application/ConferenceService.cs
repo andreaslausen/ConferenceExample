@@ -16,12 +16,14 @@ using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
+using ConferenceExample.Conference.Application.UpdateConferenceDetails;
 
 namespace ConferenceExample.Conference.Application;
 
 public class ConferenceService(
     ICreateConferenceCommandHandler createConferenceCommandHandler,
     IRenameConferenceCommandHandler renameConferenceCommandHandler,
+    IUpdateConferenceDetailsCommandHandler updateConferenceDetailsCommandHandler,
     IChangeConferenceStatusCommandHandler changeConferenceStatusCommandHandler,
     IGetAllConferencesQueryHandler getAllConferencesQueryHandler,
     IGetConferenceByIdQueryHandler getConferenceByIdQueryHandler,
@@ -61,6 +63,23 @@ public class ConferenceService(
     {
         var command = new RenameConferenceCommand(id, dto.Name);
         await renameConferenceCommandHandler.Handle(command);
+    }
+
+    public async Task UpdateConferenceDetails(Guid id, UpdateConferenceDetailsDto dto)
+    {
+        var command = new UpdateConferenceDetailsCommand(
+            id,
+            dto.Name,
+            dto.Start,
+            dto.End,
+            dto.LocationName,
+            dto.Street,
+            dto.City,
+            dto.State,
+            dto.PostalCode,
+            dto.Country
+        );
+        await updateConferenceDetailsCommandHandler.Handle(command);
     }
 
     public async Task ChangeConferenceStatus(Guid id, ChangeConferenceStatusDto dto)

@@ -16,6 +16,7 @@ using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
+using ConferenceExample.Conference.Application.UpdateConferenceDetails;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -84,7 +85,10 @@ public class ConferenceServiceTests
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            service.RenameConference(Guid.CreateVersion7(), new RenameConferenceDto { Name = "New Name" })
+            service.RenameConference(
+                Guid.CreateVersion7(),
+                new RenameConferenceDto { Name = "New Name" }
+            )
         );
     }
 
@@ -291,6 +295,7 @@ public class ConferenceServiceTests
     private static ConferenceService CreateConferenceService(
         ICreateConferenceCommandHandler? createCommandHandler = null,
         IRenameConferenceCommandHandler? renameCommandHandler = null,
+        IUpdateConferenceDetailsCommandHandler? updateConferenceDetailsCommandHandler = null,
         IChangeConferenceStatusCommandHandler? changeConferenceStatusCommandHandler = null,
         IGetAllConferencesQueryHandler? getAllConferencesQueryHandler = null,
         IGetConferenceByIdQueryHandler? getConferenceByIdQueryHandler = null,
@@ -308,6 +313,8 @@ public class ConferenceServiceTests
         return new ConferenceService(
             createCommandHandler ?? Substitute.For<ICreateConferenceCommandHandler>(),
             renameCommandHandler ?? Substitute.For<IRenameConferenceCommandHandler>(),
+            updateConferenceDetailsCommandHandler
+                ?? Substitute.For<IUpdateConferenceDetailsCommandHandler>(),
             changeConferenceStatusCommandHandler
                 ?? Substitute.For<IChangeConferenceStatusCommandHandler>(),
             getAllConferencesQueryHandler ?? Substitute.For<IGetAllConferencesQueryHandler>(),

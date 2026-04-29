@@ -13,6 +13,7 @@ using ConferenceExample.Conference.Application.GetConferenceTalks;
 using ConferenceExample.Conference.Application.GetConferenceTalkTypes;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
+using ConferenceExample.Conference.Application.UpdateConferenceDetails;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,6 +59,22 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     {
         var result = await conferenceService.CreateConference(dto);
         return Created($"/api/conferences/{result.Id}", result);
+    }
+
+    [HttpPut("{id:guid}/details", Name = "UpdateConferenceDetails")]
+    [Authorize(Roles = "Organizer")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> UpdateConferenceDetails(
+        Guid id,
+        [FromBody] UpdateConferenceDetailsDto dto
+    )
+    {
+        await conferenceService.UpdateConferenceDetails(id, dto);
+        return NoContent();
     }
 
     [HttpPut("{id:guid}/name", Name = "RenameConference")]

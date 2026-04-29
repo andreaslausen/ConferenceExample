@@ -14,6 +14,7 @@ import EditTalkPage from "./pages/EditTalkPage";
 import OrganizerConferenceListPage from "./pages/OrganizerConferenceListPage";
 import OrganizerNewConferencePage from "./pages/OrganizerNewConferencePage";
 import OrganizerConferenceDetailPage from "./pages/OrganizerConferenceDetailPage";
+import EditConferencePage from "./pages/EditConferencePage";
 import OrganizerTalkTypesPage from "./pages/OrganizerTalkTypesPage";
 import OrganizerRoomsPage from "./pages/OrganizerRoomsPage";
 import OrganizerProposalsPage from "./pages/OrganizerProposalsPage";
@@ -105,6 +106,16 @@ export default function App() {
               <ProtectedRoute>
                 <RoleGuard role="Organizer">
                   <OrganizerConferenceDetailPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organizer/conferences/:id/edit"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Organizer">
+                  <EditConferencePage />
                 </RoleGuard>
               </ProtectedRoute>
             }

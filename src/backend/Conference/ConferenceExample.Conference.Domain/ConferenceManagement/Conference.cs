@@ -107,6 +107,28 @@ public class Conference : AggregateRoot
         );
     }
 
+    public void UpdateDetails(Text name, Time conferenceTime, Location location)
+    {
+        RaiseEvent(
+            new ConferenceDetailsUpdatedEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                Version + 1,
+                name.Value,
+                conferenceTime.Start,
+                conferenceTime.End,
+                location.Name.Value,
+                location.Address.Street,
+                location.Address.City,
+                location.Address.State,
+                location.Address.PostalCode,
+                location.Address.Country,
+                OrganizerId.Value,
+                Status.ToString()
+            )
+        );
+    }
+
     public void SubmitTalk(TalkId talkId)
     {
         RaiseEvent(
@@ -381,6 +403,16 @@ public class Conference : AggregateRoot
                 Status = Enum.Parse<ConferenceStatus>(e.Status);
                 break;
             case ConferenceStatusChangedEvent e:
+                Name = new Text(e.Name);
+                ConferenceTime = new Time(e.Start, e.End);
+                Location = new Location(
+                    new Text(e.LocationName),
+                    new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
+                );
+                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                Status = Enum.Parse<ConferenceStatus>(e.Status);
+                break;
+            case ConferenceDetailsUpdatedEvent e:
                 Name = new Text(e.Name);
                 ConferenceTime = new Time(e.Start, e.End);
                 Location = new Location(

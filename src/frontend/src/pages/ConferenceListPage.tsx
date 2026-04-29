@@ -20,13 +20,15 @@ function formatDateRange(start: string, end: string): string {
 function StatusBadge({ status }: { status: string }) {
   const labels: Record<string, string> = {
     Draft: "Entwurf",
-    Published: "Veröffentlicht",
-    Completed: "Abgeschlossen",
+    CallForSpeakers: "Call for Speakers",
+    CallForSpeakersClosed: "Call for Speakers geschlossen",
+    ProgramPublished: "Programm veröffentlicht",
   };
   const colors: Record<string, string> = {
     Draft: "bg-muted text-muted-foreground",
-    Published: "bg-primary/10 text-primary",
-    Completed: "bg-secondary text-secondary-foreground",
+    CallForSpeakers: "bg-primary/10 text-primary",
+    CallForSpeakersClosed: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+    ProgramPublished: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   };
   return (
     <span

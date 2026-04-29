@@ -15,6 +15,7 @@ using ConferenceExample.Conference.Application.RejectTalk;
 using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
+using ConferenceExample.Conference.Application.UpdateConferenceDetails;
 
 namespace ConferenceExample.Conference.Application;
 
@@ -22,6 +23,7 @@ public interface IConferenceService
 {
     Task<ConferenceCreatedDto> CreateConference(CreateConferenceDto createConferenceDto);
     Task RenameConference(Guid id, RenameConferenceDto dto);
+    Task UpdateConferenceDetails(Guid id, UpdateConferenceDetailsDto dto);
     Task ChangeConferenceStatus(Guid id, ChangeConferenceStatusDto dto);
     Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences();
     Task<GetConferenceByIdDto> GetConferenceById(Guid conferenceId);

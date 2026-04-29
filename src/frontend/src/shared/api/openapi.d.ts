@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/Conferences/{id}/details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UpdateConferenceDetails"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/Conferences/{id}/name": {
         parameters: {
             query?: never;
@@ -402,7 +418,7 @@ export interface components {
         DefineTalkTypeDto: {
             name: string;
             /** Format: int32 */
-            durationInMinutes: number;
+            durationInMinutes: number | string;
         };
         EditTalkDto: {
             title: string;
@@ -493,7 +509,7 @@ export interface components {
             id: string;
             name: string;
             /** Format: int32 */
-            durationInMinutes: number;
+            durationInMinutes: number | string;
         };
         GetMyProfileDto: {
             /** Format: uuid */
@@ -614,7 +630,20 @@ export interface components {
             talkTypeId: string;
             name: string;
             /** Format: int32 */
-            durationInMinutes: number;
+            durationInMinutes: number | string;
+        };
+        UpdateConferenceDetailsDto: {
+            name: string;
+            /** Format: date-time */
+            start?: null | string;
+            /** Format: date-time */
+            end?: null | string;
+            locationName: string;
+            street: string;
+            city: string;
+            state: string;
+            postalCode: string;
+            country: string;
         };
         UpdateSpeakerProfileDto: {
             firstName: string;
@@ -815,6 +844,76 @@ export interface operations {
                     "text/plain": components["schemas"]["GetConferenceByIdDto"];
                     "application/json": components["schemas"]["GetConferenceByIdDto"];
                     "text/json": components["schemas"]["GetConferenceByIdDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateConferenceDetails: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateConferenceDetailsDto"];
+                "text/json": components["schemas"]["UpdateConferenceDetailsDto"];
+                "application/*+json": components["schemas"]["UpdateConferenceDetailsDto"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Not Found */

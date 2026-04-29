@@ -16,6 +16,7 @@ using ConferenceExample.Conference.Application.RemoveRoom;
 using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
+using ConferenceExample.Conference.Application.UpdateConferenceDetails;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,6 +29,10 @@ public static class ServiceCollectionExtensions
         // Command Handlers
         services.AddScoped<ICreateConferenceCommandHandler, CreateConferenceCommandHandler>();
         services.AddScoped<IRenameConferenceCommandHandler, RenameConferenceCommandHandler>();
+        services.AddScoped<
+            IUpdateConferenceDetailsCommandHandler,
+            UpdateConferenceDetailsCommandHandler
+        >();
         services.AddScoped<
             IChangeConferenceStatusCommandHandler,
             ChangeConferenceStatusCommandHandler

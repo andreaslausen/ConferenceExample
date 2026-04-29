@@ -11,8 +11,9 @@ const PAGE_SIZE = 15;
 
 const STATUS_LABELS: Record<string, string> = {
   Draft: "Entwurf",
-  Published: "Veröffentlicht",
-  Completed: "Abgeschlossen",
+  CallForSpeakers: "Call for Speakers",
+  CallForSpeakersClosed: "Call for Speakers geschlossen",
+  ProgramPublished: "Programm veröffentlicht",
 };
 
 function formatDate(iso: string): string {
