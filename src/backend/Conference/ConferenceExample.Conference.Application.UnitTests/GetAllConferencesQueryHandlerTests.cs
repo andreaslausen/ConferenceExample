@@ -7,7 +7,12 @@ namespace ConferenceExample.Conference.Application.UnitTests;
 
 public class GetAllConferencesQueryHandlerTests
 {
-    private static ConferenceReadModel CreateSummary(string name, string city, string country) =>
+    private static ConferenceReadModel CreateSummary(
+        string name,
+        string city,
+        string country,
+        string status = "CallForSpeakers"
+    ) =>
         new(
             Guid.CreateVersion7(),
             name,
@@ -17,7 +22,7 @@ public class GetAllConferencesQueryHandlerTests
             city,
             "10115",
             country,
-            "Draft"
+            status
         );
 
     [Fact]
@@ -127,5 +132,32 @@ public class GetAllConferencesQueryHandlerTests
         Assert.Contains(result, c => c.City == "Berlin" && c.Country == "Germany");
         Assert.Contains(result, c => c.City == "New York" && c.Country == "USA");
         Assert.Contains(result, c => c.City == "Tokyo" && c.Country == "Japan");
+    }
+
+    [Fact]
+    public async Task Handle_OnlyReturnsConferencesInPublicStatuses()
+    {
+        // Arrange
+        var repository = Substitute.For<IConferenceReadModelRepository>();
+        var summaries = new List<ConferenceReadModel>
+        {
+            CreateSummary("Conference CFS", "Berlin", "Germany", "CallForSpeakers"),
+            CreateSummary("Conference Closed", "Munich", "Germany", "CallForSpeakersClosed"),
+            CreateSummary("Conference Published", "Hamburg", "Germany", "ProgramPublished"),
+        };
+
+        repository.GetAll().Returns(summaries);
+        var handler = new GetAllConferencesQueryHandler(repository);
+        var query = new GetAllConferencesQuery();
+
+        // Act
+        var result = await handler.Handle(query);
+
+        // Assert
+        Assert.Equal(3, result.Count);
+        Assert.Contains(result, c => c.Status == "CallForSpeakers");
+        Assert.Contains(result, c => c.Status == "CallForSpeakersClosed");
+        Assert.Contains(result, c => c.Status == "ProgramPublished");
+        Assert.DoesNotContain(result, c => c.Status == "Draft");
     }
 }

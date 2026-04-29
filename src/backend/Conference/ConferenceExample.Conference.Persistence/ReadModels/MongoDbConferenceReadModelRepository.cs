@@ -9,6 +9,13 @@ public class MongoDbConferenceReadModelRepository
     : IConferenceDocumentRepository,
         IConferenceReadModelRepository
 {
+    private static readonly string[] PublicConferenceStatuses =
+    [
+        "CallForSpeakers",
+        "CallForSpeakersClosed",
+        "ProgramPublished",
+    ];
+
     private readonly IMongoCollection<ConferenceDocument> _collection;
 
     public MongoDbConferenceReadModelRepository(IMongoDatabase database)
@@ -29,9 +36,11 @@ public class MongoDbConferenceReadModelRepository
 
     async Task<IReadOnlyList<ConferenceReadModel>> IConferenceReadModelRepository.GetAll()
     {
-        var documents = await _collection
-            .Find(FilterDefinition<ConferenceDocument>.Empty)
-            .ToListAsync();
+        var filter = Builders<ConferenceDocument>.Filter.In(
+            c => c.Status,
+            PublicConferenceStatuses
+        );
+        var documents = await _collection.Find(filter).ToListAsync();
 
         return documents
             .Select(d => new ConferenceReadModel(

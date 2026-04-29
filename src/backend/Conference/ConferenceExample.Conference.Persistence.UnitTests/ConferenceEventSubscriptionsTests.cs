@@ -20,6 +20,7 @@ public class ConferenceEventSubscriptionsTests
         {
             "ConferenceCreatedEvent",
             "ConferenceRenamedEvent",
+            "ConferenceDetailsUpdatedEvent",
             "ConferenceStatusChangedEvent",
         };
 
@@ -113,8 +114,8 @@ public class ConferenceEventSubscriptionsTests
         // Act
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - should register exactly 16 event types (3 conference + 5 talk + 4 conference-specific + 2 talktype + 2 room)
-        eventBus.Received(16).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        // Assert - should register exactly 17 event types (4 conference + 5 talk + 4 conference-specific + 2 talktype + 2 room)
+        eventBus.Received(17).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 
     [Fact]
@@ -392,7 +393,7 @@ public class ConferenceEventSubscriptionsTests
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - each call should register handlers
-        eventBus.Received(32).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        // Assert - each call should register handlers (17 events × 2 calls = 34)
+        eventBus.Received(34).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 }

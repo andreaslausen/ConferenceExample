@@ -114,7 +114,16 @@ public class ConferencesControllerTests : IntegrationTestBase
             PostalCode = "80331",
             Country = "Germany",
         };
-        await PostAsync("/api/conferences", createDto);
+        var createResponse = await PostAsync("/api/conferences", createDto);
+        var createdConference = await DeserializeResponse<ConferenceCreatedDto>(createResponse);
+
+        // Change status to CallForSpeakers so it appears in public list
+        var changeStatusDto =
+            new Conference.Application.ChangeConferenceStatus.ChangeConferenceStatusDto
+            {
+                Status = Conference.Domain.ConferenceManagement.ConferenceStatus.CallForSpeakers,
+            };
+        await PutAsync($"/api/conferences/{createdConference!.Id}/status", changeStatusDto);
 
         // Act
         var response = await HttpClient.GetAsync("/api/conferences");
@@ -126,6 +135,41 @@ public class ConferencesControllerTests : IntegrationTestBase
         Assert.Single(result!.Items);
         Assert.Equal("Test Conference", result.Items[0].Name);
         Assert.Equal("Munich", result.Items[0].City);
+    }
+
+    [Fact]
+    public async Task GetAllConferences_DoesNotReturnDraftConferences()
+    {
+        // Arrange
+        var token = await GetAuthenticationToken(
+            GetUniqueEmail("organizer"),
+            "password123",
+            UserRole.Organizer
+        );
+        SetAuthenticationToken(token);
+
+        var createDto = new CreateConferenceDto
+        {
+            Name = "Draft Conference",
+            Start = new DateTimeOffset(2026, 10, 1, 9, 0, 0, TimeSpan.Zero),
+            End = new DateTimeOffset(2026, 10, 3, 18, 0, 0, TimeSpan.Zero),
+            LocationName = "Test Location",
+            Street = "Test Street 1",
+            City = "Munich",
+            State = "Bavaria",
+            PostalCode = "80331",
+            Country = "Germany",
+        };
+        await PostAsync("/api/conferences", createDto);
+
+        // Act
+        var response = await HttpClient.GetAsync("/api/conferences");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResult<GetAllConferencesDto>>();
+        Assert.NotNull(result);
+        Assert.Empty(result!.Items);
     }
 
     [Fact]
@@ -220,5 +264,74 @@ public class ConferencesControllerTests : IntegrationTestBase
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateConferenceDetails_UpdatesReadModel_AndReturnsNewNameInList()
+    {
+        // Arrange
+        var token = await GetAuthenticationToken(
+            GetUniqueEmail("organizer"),
+            "password123",
+            UserRole.Organizer
+        );
+        SetAuthenticationToken(token);
+
+        var createDto = new CreateConferenceDto
+        {
+            Name = "Original Conference Name",
+            Start = new DateTimeOffset(2026, 10, 1, 9, 0, 0, TimeSpan.Zero),
+            End = new DateTimeOffset(2026, 10, 3, 18, 0, 0, TimeSpan.Zero),
+            LocationName = "Original Location",
+            Street = "Original Street 1",
+            City = "Hamburg",
+            State = "Hamburg",
+            PostalCode = "20095",
+            Country = "Germany",
+        };
+        var createResponse = await PostAsync("/api/conferences", createDto);
+        var createdConference = await DeserializeResponse<ConferenceCreatedDto>(createResponse);
+
+        // Change status to CallForSpeakers so it appears in public list
+        var changeStatusDto =
+            new Conference.Application.ChangeConferenceStatus.ChangeConferenceStatusDto
+            {
+                Status = Conference.Domain.ConferenceManagement.ConferenceStatus.CallForSpeakers,
+            };
+        await PutAsync($"/api/conferences/{createdConference!.Id}/status", changeStatusDto);
+
+        var updateDto =
+            new Conference.Application.UpdateConferenceDetails.UpdateConferenceDetailsDto
+            {
+                Name = "Updated Conference Name",
+                Start = new DateTimeOffset(2026, 10, 2, 9, 0, 0, TimeSpan.Zero),
+                End = new DateTimeOffset(2026, 10, 4, 18, 0, 0, TimeSpan.Zero),
+                LocationName = "Updated Location",
+                Street = "Updated Street 1",
+                City = "Berlin",
+                State = "Berlin",
+                PostalCode = "10115",
+                Country = "Germany",
+            };
+
+        // Act
+        var updateResponse = await PutAsync(
+            $"/api/conferences/{createdConference.Id}/details",
+            updateDto
+        );
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, updateResponse.StatusCode);
+
+        // Verify the read model was updated by checking the public list
+        var listResponse = await HttpClient.GetAsync("/api/conferences");
+        Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+        var listResult = await listResponse.Content.ReadFromJsonAsync<
+            PagedResult<GetAllConferencesDto>
+        >();
+        Assert.NotNull(listResult);
+        Assert.Single(listResult!.Items);
+        Assert.Equal("Updated Conference Name", listResult.Items[0].Name);
+        Assert.Equal("Berlin", listResult.Items[0].City);
     }
 }

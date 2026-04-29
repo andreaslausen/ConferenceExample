@@ -18,6 +18,7 @@ public static class ConferenceEventSubscriptions
         {
             "ConferenceCreatedEvent",
             "ConferenceRenamedEvent",
+            "ConferenceDetailsUpdatedEvent",
             "ConferenceStatusChangedEvent",
         };
 
