@@ -8,26 +8,35 @@ import { ConfirmDialog } from "../shared/components/Dialog";
 import { useToast } from "../shared/components/Toast";
 
 type TalkType = components["schemas"]["GetConferenceTalkTypesDto"];
+type ConferenceDetail = components["schemas"]["GetConferenceByIdDto"];
 
 export default function OrganizerTalkTypesPage() {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
 
   const [talkTypes, setTalkTypes] = useState<TalkType[]>([]);
+  const [conference, setConference] = useState<ConferenceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
   const [newDuration, setNewDuration] = useState(45);
   const [adding, setAdding] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<TalkType | null>(null);
 
+  // Check if conference is editable (only Draft status allows editing talk types)
+  const isEditable = conference?.status === "Draft";
+
   useEffect(() => {
     if (!id) return;
-    apiClient
-      .GET("/api/Conferences/{id}/talk-types", { params: { path: { id } } })
-      .then(({ data }) => {
-        setTalkTypes(data ?? []);
-        setLoading(false);
-      });
+
+    // Fetch conference details to get status
+    Promise.all([
+      apiClient.GET("/api/Conferences/{id}", { params: { path: { id } } }),
+      apiClient.GET("/api/Conferences/{id}/talk-types", { params: { path: { id } } }),
+    ]).then(([conferenceRes, talkTypesRes]) => {
+      setConference(conferenceRes.data ?? null);
+      setTalkTypes(talkTypesRes.data ?? []);
+      setLoading(false);
+    });
   }, [id]);
 
   async function handleAdd(e: FormEvent) {
@@ -88,6 +97,14 @@ export default function OrganizerTalkTypesPage() {
         </div>
       ) : (
         <div className="max-w-lg space-y-4">
+          {!isEditable && (
+            <div className="rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Talk-Typen können nur bearbeitet werden, solange die Konferenz im Status „Entwurf" ist.
+              </p>
+            </div>
+          )}
+
           {talkTypes.length === 0 ? (
             <p className="text-muted-foreground text-sm">
               Noch keine Talk-Typen definiert.
@@ -102,8 +119,9 @@ export default function OrganizerTalkTypesPage() {
                   <span className="text-sm">{tt.name} — {tt.durationInMinutes} Min.</span>
                   <button
                     onClick={() => setDeleteTarget(tt)}
+                    disabled={!isEditable}
                     aria-label={`Talk-Typ ${tt.name} löschen`}
-                    className="text-destructive hover:opacity-70 text-xs"
+                    className="text-destructive hover:opacity-70 text-xs disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     Löschen
                   </button>
@@ -118,7 +136,8 @@ export default function OrganizerTalkTypesPage() {
               onChange={(e) => setNewName(e.target.value)}
               placeholder="z. B. Keynote, Workshop…"
               required
-              className="border-input bg-background focus-visible:ring-ring flex h-10 flex-1 rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              disabled={!isEditable}
+              className="border-input bg-background focus-visible:ring-ring flex h-10 flex-1 rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Name des neuen Talk-Typs"
             />
             <input
@@ -127,12 +146,13 @@ export default function OrganizerTalkTypesPage() {
               value={newDuration}
               onChange={(e) => setNewDuration(Number(e.target.value))}
               required
-              className="border-input bg-background focus-visible:ring-ring flex h-10 w-24 rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              disabled={!isEditable}
+              className="border-input bg-background focus-visible:ring-ring flex h-10 w-24 rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Dauer in Minuten"
             />
             <button
               type="submit"
-              disabled={adding || !newName.trim()}
+              disabled={adding || !newName.trim() || !isEditable}
               className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center rounded-md px-3 text-sm font-medium disabled:pointer-events-none disabled:opacity-50"
             >
               {adding ? "…" : "Hinzufügen"}
