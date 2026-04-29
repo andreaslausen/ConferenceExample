@@ -65,6 +65,8 @@ public class Conference : AggregateRoot
 
     public void Rename(Text name)
     {
+        EnsureIsEditable();
+
         RaiseEvent(
             new ConferenceRenamedEvent(
                 Id.Value,
@@ -109,6 +111,8 @@ public class Conference : AggregateRoot
 
     public void UpdateDetails(Text name, Time conferenceTime, Location location)
     {
+        EnsureIsEditable();
+
         RaiseEvent(
             new ConferenceDetailsUpdatedEvent(
                 Id.Value,
@@ -544,6 +548,16 @@ public class Conference : AggregateRoot
                 var talkTypeToRemove = FindTalkType(e.TalkTypeId);
                 _talkTypes.Remove(talkTypeToRemove);
                 break;
+        }
+    }
+
+    private void EnsureIsEditable()
+    {
+        if (Status >= ConferenceStatus.CallForSpeakers)
+        {
+            throw new InvalidOperationException(
+                $"Conference cannot be edited when status is '{Status}'. Only conferences in 'Draft' status can be edited."
+            );
         }
     }
 

@@ -22,6 +22,13 @@ const STATUS_LABELS: Record<string, string> = {
   ProgramPublished: "Programm veröffentlicht",
 };
 
+const STATUS_ORDER = {
+  Draft: 0,
+  CallForSpeakers: 1,
+  CallForSpeakersClosed: 2,
+  ProgramPublished: 3,
+} as const;
+
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("de-DE", {
     day: "2-digit",
@@ -127,6 +134,12 @@ export default function OrganizerConferenceDetailPage() {
     (s) => s.backendName === conference.status,
   );
 
+  // Check if conference is editable (only Draft status can be edited)
+  const isEditable =
+    conference?.status &&
+    STATUS_ORDER[conference.status as keyof typeof STATUS_ORDER] <
+    STATUS_ORDER.CallForSpeakers;
+
   return (
     <PageLayout>
       <Breadcrumbs
@@ -165,13 +178,15 @@ export default function OrganizerConferenceDetailPage() {
         ) : (
           <>
             <h1 className="text-2xl font-semibold">{conference.name}</h1>
-            <button
-              onClick={startRenaming}
-              aria-label="Name bearbeiten"
-              className="text-muted-foreground hover:text-foreground text-sm"
-            >
-              ✎
-            </button>
+            {isEditable && (
+              <button
+                onClick={startRenaming}
+                aria-label="Name bearbeiten"
+                className="text-muted-foreground hover:text-foreground text-sm"
+              >
+                ✎
+              </button>
+            )}
           </>
         )}
       </div>
@@ -181,12 +196,18 @@ export default function OrganizerConferenceDetailPage() {
           {formatDate(conference.startDate)} – {formatDate(conference.endDate)} ·{" "}
           {conference.locationName}, {conference.city}
         </p>
-        <Link
-          to={`/organizer/conferences/${id}/edit`}
-          className="bg-secondary text-secondary-foreground hover:bg-secondary/80 inline-flex h-9 items-center rounded-md px-3 text-sm font-medium"
-        >
-          Bearbeiten
-        </Link>
+        {isEditable ? (
+          <Link
+            to={`/organizer/conferences/${id}/edit`}
+            className="bg-secondary text-secondary-foreground hover:bg-secondary/80 inline-flex h-9 items-center rounded-md px-3 text-sm font-medium"
+          >
+            Bearbeiten
+          </Link>
+        ) : (
+          <span className="text-muted-foreground inline-flex h-9 items-center px-3 text-sm">
+            Nicht bearbeitbar
+          </span>
+        )}
       </div>
 
       {/* Status change */}

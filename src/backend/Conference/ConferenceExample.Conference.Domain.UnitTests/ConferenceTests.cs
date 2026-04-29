@@ -438,6 +438,120 @@ public class ConferenceTests
         Assert.Equal(45, talkType.DurationInMinutes);
     }
 
+    [Fact]
+    public void Rename_WhenStatusIsCallForSpeakers_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.Rename(new Text("New Name"))
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+        Assert.Contains("CallForSpeakers", exception.Message);
+    }
+
+    [Fact]
+    public void Rename_WhenStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.Rename(new Text("New Name"))
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+    }
+
+    [Fact]
+    public void Rename_WhenStatusIsProgramPublished_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.ChangeStatus(ConferenceStatus.ProgramPublished);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.Rename(new Text("New Name"))
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+    }
+
+    [Fact]
+    public void UpdateDetails_WhenStatusIsDraft_UpdatesDetails()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var newName = new Text("Updated Conference");
+        var newTime = new Time(
+            DateTimeOffset.UtcNow.AddDays(40),
+            DateTimeOffset.UtcNow.AddDays(42)
+        );
+        var newLocation = new Location(
+            new Text("Updated Venue"),
+            new Address("456 New St", "New City", "CA", "90001", "US")
+        );
+
+        // Act
+        conference.UpdateDetails(newName, newTime, newLocation);
+
+        // Assert
+        Assert.Equal(newName, conference.Name);
+        Assert.Equal(newTime, conference.ConferenceTime);
+        Assert.Equal(newLocation, conference.Location);
+    }
+
+    [Fact]
+    public void UpdateDetails_WhenStatusIsCallForSpeakers_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        var newName = new Text("Updated Conference");
+        var newTime = new Time(
+            DateTimeOffset.UtcNow.AddDays(40),
+            DateTimeOffset.UtcNow.AddDays(42)
+        );
+        var newLocation = new Location(
+            new Text("Updated Venue"),
+            new Address("456 New St", "New City", "CA", "90001", "US")
+        );
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.UpdateDetails(newName, newTime, newLocation)
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+        Assert.Contains("CallForSpeakers", exception.Message);
+    }
+
+    [Fact]
+    public void UpdateDetails_WhenStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
+        var newName = new Text("Updated Conference");
+        var newTime = new Time(
+            DateTimeOffset.UtcNow.AddDays(40),
+            DateTimeOffset.UtcNow.AddDays(42)
+        );
+        var newLocation = new Location(
+            new Text("Updated Venue"),
+            new Address("456 New St", "New City", "CA", "90001", "US")
+        );
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.UpdateDetails(newName, newTime, newLocation)
+        );
+        Assert.Contains("cannot be edited", exception.Message);
+    }
+
     private static ConferenceAggregate CreateValidConference()
     {
         var id = new ConferenceId(GuidV7.NewGuid());

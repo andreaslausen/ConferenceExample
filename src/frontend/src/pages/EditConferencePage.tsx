@@ -20,6 +20,13 @@ function toLocalDateTimeValue(isoString: string | null | undefined): string {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
+const STATUS_ORDER = {
+  Draft: 0,
+  CallForSpeakers: 1,
+  CallForSpeakersClosed: 2,
+  ProgramPublished: 3,
+} as const;
+
 export default function EditConferencePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -39,6 +46,12 @@ export default function EditConferencePage() {
   const [state, setState] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [country, setCountry] = useState("");
+
+  // Check if conference is editable (only Draft status can be edited)
+  const isEditable =
+    conference?.status &&
+    STATUS_ORDER[conference.status as keyof typeof STATUS_ORDER] <
+    STATUS_ORDER.CallForSpeakers;
 
   useEffect(() => {
     if (!id) return;
@@ -119,6 +132,16 @@ export default function EditConferencePage() {
 
       <h1 className="mb-6 text-2xl font-semibold">Konferenz bearbeiten</h1>
 
+      {!isEditable && (
+        <div className="mb-6 rounded-md border border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            Diese Konferenz kann nicht mehr bearbeitet werden, da sie bereits
+            im Status "{conference.status}" ist. Nur Konferenzen im Status
+            "Draft" können bearbeitet werden.
+          </p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         {/* Name */}
         <div>
@@ -129,9 +152,10 @@ export default function EditConferencePage() {
             id="name"
             type="text"
             required
+            disabled={!isEditable}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+            className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
 
@@ -144,9 +168,10 @@ export default function EditConferencePage() {
             <input
               id="start"
               type="datetime-local"
+              disabled={!isEditable}
               value={start}
               onChange={(e) => setStart(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
           <div>
@@ -156,9 +181,10 @@ export default function EditConferencePage() {
             <input
               id="end"
               type="datetime-local"
+              disabled={!isEditable}
               value={end}
               onChange={(e) => setEnd(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
         </div>
@@ -172,9 +198,10 @@ export default function EditConferencePage() {
             id="locationName"
             type="text"
             required
+            disabled={!isEditable}
             value={locationName}
             onChange={(e) => setLocationName(e.target.value)}
-            className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+            className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
 
@@ -186,9 +213,10 @@ export default function EditConferencePage() {
             id="street"
             type="text"
             required
+            disabled={!isEditable}
             value={street}
             onChange={(e) => setStreet(e.target.value)}
-            className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+            className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
 
@@ -201,9 +229,10 @@ export default function EditConferencePage() {
               id="city"
               type="text"
               required
+              disabled={!isEditable}
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
           <div>
@@ -214,9 +243,10 @@ export default function EditConferencePage() {
               id="state"
               type="text"
               required
+              disabled={!isEditable}
               value={state}
               onChange={(e) => setState(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
         </div>
@@ -230,9 +260,10 @@ export default function EditConferencePage() {
               id="postalCode"
               type="text"
               required
+              disabled={!isEditable}
               value={postalCode}
               onChange={(e) => setPostalCode(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
           <div>
@@ -243,9 +274,10 @@ export default function EditConferencePage() {
               id="country"
               type="text"
               required
+              disabled={!isEditable}
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+              className="border-input bg-background focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
         </div>
@@ -254,8 +286,8 @@ export default function EditConferencePage() {
         <div className="flex gap-3">
           <button
             type="submit"
-            disabled={saving}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center rounded-md px-4 text-sm font-medium disabled:opacity-50"
+            disabled={saving || !isEditable}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center rounded-md px-4 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving ? "Speichern..." : "Speichern"}
           </button>
