@@ -145,7 +145,11 @@ public class MongoDbEventBus : IEventBus, IHostedService, IDisposable
 
     public void Dispose()
     {
-        _cts?.Cancel();
+        if (_cts is { IsCancellationRequested: false })
+        {
+            _cts.Cancel();
+        }
+
         _processingTask?.Wait(TimeSpan.FromSeconds(5));
         _cts?.Dispose();
         GC.SuppressFinalize(this);
