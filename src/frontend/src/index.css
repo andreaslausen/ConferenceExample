@@ -25,6 +25,14 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+html {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Default (Light) — shadcn base
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
@@ -45,6 +53,9 @@
   --input: oklch(0.929 0.013 255.508);
   --ring: oklch(0.704 0.04 256.788);
   --radius: 0.625rem;
+  --header-gradient: linear-gradient(135deg, oklch(0.208 0.042 265.755), oklch(0.35 0.06 255));
+  --card-shadow: 0 1px 3px oklch(0 0 0 / 6%), 0 0 0 1px oklch(0.929 0.013 255.508);
+  --card-hover-shadow: 0 6px 20px oklch(0 0 0 / 10%), 0 0 0 1px oklch(0.208 0.042 265.755 / 30%);
 }
 
 .dark {
@@ -66,4 +77,141 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.551 0.027 264.364);
+  --header-gradient: linear-gradient(135deg, oklch(0.129 0.042 264.695), oklch(0.20 0.05 258));
+  --card-shadow: 0 1px 3px oklch(0 0 0 / 30%), 0 0 0 1px oklch(1 0 0 / 8%);
+  --card-hover-shadow: 0 6px 20px oklch(0 0 0 / 40%), 0 0 0 1px oklch(1 0 0 / 15%);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Aurora — Deep Space / Neon Purple
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-theme="aurora"] {
+  --background: oklch(0.11 0.035 275);
+  --foreground: oklch(0.93 0.015 285);
+  --card: oklch(0.17 0.042 270);
+  --card-foreground: oklch(0.93 0.015 285);
+  --popover: oklch(0.17 0.042 270);
+  --popover-foreground: oklch(0.93 0.015 285);
+  --primary: oklch(0.68 0.22 285);
+  --primary-foreground: oklch(0.11 0.035 275);
+  --secondary: oklch(0.22 0.05 265);
+  --secondary-foreground: oklch(0.93 0.015 285);
+  --muted: oklch(0.22 0.05 265);
+  --muted-foreground: oklch(0.65 0.05 275);
+  --accent: oklch(0.60 0.18 195);
+  --accent-foreground: oklch(0.11 0.035 275);
+  --destructive: oklch(0.68 0.22 22);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.68 0.22 285 / 50%);
+  --radius: 0.75rem;
+  --header-gradient: linear-gradient(
+    135deg,
+    oklch(0.22 0.15 295) 0%,
+    oklch(0.18 0.12 240) 55%,
+    oklch(0.14 0.08 200) 100%
+  );
+  --card-shadow: 0 1px 3px oklch(0 0 0 / 40%), 0 0 0 1px oklch(1 0 0 / 10%);
+  --card-hover-shadow: 0 4px 20px oklch(0.68 0.22 285 / 30%),
+    0 0 0 1px oklch(0.68 0.22 285 / 40%);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Sunrise — Warm & Vibrant
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-theme="sunrise"] {
+  --background: oklch(0.978 0.008 75);
+  --foreground: oklch(0.18 0.045 35);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.045 35);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.045 35);
+  --primary: oklch(0.59 0.21 35);
+  --primary-foreground: oklch(0.99 0.005 60);
+  --secondary: oklch(0.95 0.015 70);
+  --secondary-foreground: oklch(0.18 0.045 35);
+  --muted: oklch(0.95 0.015 70);
+  --muted-foreground: oklch(0.52 0.055 40);
+  --accent: oklch(0.92 0.025 70);
+  --accent-foreground: oklch(0.18 0.045 35);
+  --destructive: oklch(0.58 0.24 25);
+  --border: oklch(0.88 0.02 65);
+  --input: oklch(0.88 0.02 65);
+  --ring: oklch(0.59 0.21 35 / 40%);
+  --radius: 0.875rem;
+  --header-gradient: linear-gradient(
+    135deg,
+    oklch(0.62 0.21 35) 0%,
+    oklch(0.58 0.23 355) 50%,
+    oklch(0.50 0.20 295) 100%
+  );
+  --card-shadow: 0 1px 4px oklch(0.18 0.045 35 / 8%), 0 0 0 1px oklch(0.88 0.02 65);
+  --card-hover-shadow: 0 8px 28px oklch(0.59 0.21 35 / 18%),
+    0 0 0 1px oklch(0.59 0.21 35 / 30%);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Ocean — Professional Deep Blue
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-theme="ocean"] {
+  --background: oklch(0.973 0.012 240);
+  --foreground: oklch(0.17 0.05 245);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.17 0.05 245);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.17 0.05 245);
+  --primary: oklch(0.44 0.18 248);
+  --primary-foreground: oklch(0.985 0.003 247);
+  --secondary: oklch(0.935 0.02 235);
+  --secondary-foreground: oklch(0.17 0.05 245);
+  --muted: oklch(0.935 0.02 235);
+  --muted-foreground: oklch(0.52 0.05 250);
+  --accent: oklch(0.935 0.02 235);
+  --accent-foreground: oklch(0.17 0.05 245);
+  --destructive: oklch(0.58 0.24 25);
+  --border: oklch(0.88 0.018 240);
+  --input: oklch(0.88 0.018 240);
+  --ring: oklch(0.44 0.18 248 / 40%);
+  --radius: 0.625rem;
+  --header-gradient: linear-gradient(
+    135deg,
+    oklch(0.23 0.12 250) 0%,
+    oklch(0.38 0.18 230) 100%
+  );
+  --card-shadow: 0 1px 3px oklch(0 0 0 / 6%), 0 0 0 1px oklch(0.88 0.018 240);
+  --card-hover-shadow: 0 6px 20px oklch(0.44 0.18 248 / 14%),
+    0 0 0 1px oklch(0.44 0.18 248 / 28%);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Conference Card
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.conference-card {
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.conference-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--header-gradient);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.conference-card:hover {
+  box-shadow: var(--card-hover-shadow);
+  transform: translateY(-2px);
+}
+
+.conference-card:hover::before {
+  opacity: 1;
 }

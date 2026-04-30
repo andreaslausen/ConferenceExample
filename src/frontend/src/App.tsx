@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Header } from "./shared/components/Header";
+import { ThemeProvider } from "./shared/auth/ThemeContext";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import { RoleGuard } from "./shared/components/RoleGuard";
 import ConferenceListPage from "./pages/ConferenceListPage";
@@ -24,7 +25,8 @@ import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
   return (
-    <div className="min-h-screen">
+    <ThemeProvider>
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main>
         <Routes>
@@ -166,5 +168,6 @@ export default function App() {
         </Routes>
       </main>
     </div>
+    </ThemeProvider>
   );
 }

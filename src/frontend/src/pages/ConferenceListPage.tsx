@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Calendar, MapPin } from "lucide-react";
 import apiClient from "../shared/api/client";
 import type { components } from "../shared/api/openapi.d";
 import { Skeleton } from "../shared/components/Skeleton";
@@ -27,12 +28,14 @@ function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     Draft: "bg-muted text-muted-foreground",
     CallForSpeakers: "bg-primary/10 text-primary",
-    CallForSpeakersClosed: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-    ProgramPublished: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    CallForSpeakersClosed:
+      "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+    ProgramPublished:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[status] ?? "bg-muted text-muted-foreground"}`}
+      className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[status] ?? "bg-muted text-muted-foreground"}`}
     >
       {labels[status] ?? status}
     </span>
@@ -43,33 +46,39 @@ function ConferenceCard({ conference }: { conference: Conference }) {
   return (
     <Link
       to={`/conferences/${conference.id}`}
-      className="border-border hover:border-primary/50 hover:shadow-sm block rounded-lg border bg-card p-5 transition-all"
+      className="conference-card block rounded-xl p-6"
     >
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <h2 className="text-base font-semibold leading-tight text-card-foreground">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <h2 className="text-base font-semibold leading-snug">
           {conference.name}
         </h2>
         <StatusBadge status={conference.status} />
       </div>
-      <p className="text-muted-foreground mb-1 text-sm">
-        {formatDateRange(conference.startDate, conference.endDate)}
-      </p>
-      <p className="text-muted-foreground text-sm">
-        {conference.city}, {conference.country}
-      </p>
+      <div className="space-y-1.5">
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar size={13} className="shrink-0" />
+          {formatDateRange(conference.startDate, conference.endDate)}
+        </p>
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <MapPin size={13} className="shrink-0" />
+          {conference.city}, {conference.country}
+        </p>
+      </div>
     </Link>
   );
 }
 
 function ConferenceCardSkeleton() {
   return (
-    <div className="rounded-lg border p-5">
-      <div className="mb-3 flex items-start justify-between">
+    <div className="rounded-xl border p-6" style={{ borderColor: "var(--border)" }}>
+      <div className="mb-4 flex items-start justify-between gap-3">
         <Skeleton className="h-5 w-3/4" />
         <Skeleton className="h-5 w-16 rounded-full" />
       </div>
-      <Skeleton className="mb-1 h-4 w-1/2" />
-      <Skeleton className="h-4 w-2/5" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-4 w-2/5" />
+      </div>
     </div>
   );
 }
@@ -111,11 +120,16 @@ export default function ConferenceListPage() {
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-semibold">Konferenzen</h1>
+    <div className="mx-auto max-w-7xl px-4 py-10">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Konferenzen</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Entdecke kommende Veranstaltungen und melde dich an.
+        </p>
+      </div>
 
       {error && (
-        <p role="alert" className="text-destructive mb-4 text-sm">
+        <p role="alert" className="mb-4 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -128,7 +142,7 @@ export default function ConferenceListPage() {
         </div>
       ) : conferences.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-muted-foreground text-base">
+          <p className="text-base text-muted-foreground">
             Keine Konferenzen vorhanden.
           </p>
         </div>
@@ -141,21 +155,21 @@ export default function ConferenceListPage() {
       )}
 
       {!loading && totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-2">
+        <div className="mt-10 flex items-center justify-center gap-2">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="border-input hover:bg-accent inline-flex h-9 items-center rounded-md border px-3 text-sm disabled:pointer-events-none disabled:opacity-50"
+            className="inline-flex h-9 items-center rounded-md border border-input bg-background px-3 text-sm transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
           >
             Zurück
           </button>
-          <span className="text-muted-foreground text-sm">
+          <span className="text-sm text-muted-foreground">
             Seite {page} von {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="border-input hover:bg-accent inline-flex h-9 items-center rounded-md border px-3 text-sm disabled:pointer-events-none disabled:opacity-50"
+            className="inline-flex h-9 items-center rounded-md border border-input bg-background px-3 text-sm transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
           >
             Weiter
           </button>
