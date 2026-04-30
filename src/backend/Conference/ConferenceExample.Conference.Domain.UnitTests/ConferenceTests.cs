@@ -104,6 +104,22 @@ public class ConferenceTests
         var conference = CreateValidConference();
         conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
 
+        // Add and accept a talk, schedule it
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var roomId = new RoomId(GuidV7.NewGuid());
+        conference.AddRoom(roomId, new Text("Main Hall"));
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+        conference.ScheduleTalk(
+            talkId,
+            new Time(
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(9),
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(10)
+            )
+        );
+        var room = conference.Rooms.First(r => r.Id == roomId);
+        conference.AssignTalkToRoom(talkId, room);
+
         // Act
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
@@ -125,6 +141,150 @@ public class ConferenceTests
         );
         Assert.Contains("cannot be changed to 'CallForSpeakers'", exception.Message);
         Assert.Contains("without defined talk types", exception.Message);
+    }
+
+    [Fact]
+    public void ChangeStatus_ToProgramPublishedWithoutAcceptedTalks_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.ChangeStatus(ConferenceStatus.ProgramPublished)
+        );
+        Assert.Contains("cannot be changed to 'ProgramPublished'", exception.Message);
+        Assert.Contains("without at least one accepted talk", exception.Message);
+    }
+
+    [Fact]
+    public void ChangeStatus_ToProgramPublishedWithUnscheduledTalks_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+
+        // Act & Assert - Talk accepted but not scheduled
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.ChangeStatus(ConferenceStatus.ProgramPublished)
+        );
+        Assert.Contains("cannot be changed to 'ProgramPublished'", exception.Message);
+        Assert.Contains(
+            "All accepted talks must have a room and time slot assigned",
+            exception.Message
+        );
+    }
+
+    [Fact]
+    public void ChangeStatus_ToProgramPublishedWithoutRoomAssignment_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+        conference.ScheduleTalk(
+            talkId,
+            new Time(
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(9),
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(10)
+            )
+        );
+
+        // Act & Assert - Talk scheduled but no room assigned
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.ChangeStatus(ConferenceStatus.ProgramPublished)
+        );
+        Assert.Contains("cannot be changed to 'ProgramPublished'", exception.Message);
+        Assert.Contains(
+            "All accepted talks must have a room and time slot assigned",
+            exception.Message
+        );
+    }
+
+    [Fact]
+    public void ChangeStatus_FromProgramPublished_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var roomId = new RoomId(GuidV7.NewGuid());
+        conference.AddRoom(roomId, new Text("Main Hall"));
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+        conference.ScheduleTalk(
+            talkId,
+            new Time(
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(9),
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(10)
+            )
+        );
+        var room = conference.Rooms.First(r => r.Id == roomId);
+        conference.AssignTalkToRoom(talkId, room);
+        conference.ChangeStatus(ConferenceStatus.ProgramPublished);
+
+        // Act & Assert - Cannot rollback from ProgramPublished
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed)
+        );
+        Assert.Contains("cannot be changed back from 'ProgramPublished'", exception.Message);
+    }
+
+    [Fact]
+    public void ChangeStatus_FromCallForSpeakersToDraftWithSubmittedTalks_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId);
+
+        // Act & Assert - Cannot rollback to Draft when talks submitted
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.ChangeStatus(ConferenceStatus.Draft)
+        );
+        Assert.Contains("cannot be changed back to 'Draft'", exception.Message);
+        Assert.Contains("when talks have already been submitted", exception.Message);
+    }
+
+    [Fact]
+    public void ChangeStatus_FromCallForSpeakersToDraftWithoutTalks_Succeeds()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+
+        // Act - Rollback to Draft is allowed when no talks submitted
+        conference.ChangeStatus(ConferenceStatus.Draft);
+
+        // Assert
+        Assert.Equal(ConferenceStatus.Draft, conference.Status);
+    }
+
+    [Fact]
+    public void ChangeStatus_FromCallForSpeakersClosedToCallForSpeakers_Succeeds()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
+
+        // Act - Reopening Call for Speakers is allowed
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+
+        // Assert
+        Assert.Equal(ConferenceStatus.CallForSpeakers, conference.Status);
     }
 
     [Fact]
@@ -471,6 +631,24 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+
+        // Add and accept a talk, schedule it
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var roomId = new RoomId(GuidV7.NewGuid());
+        conference.AddRoom(roomId, new Text("Main Hall"));
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+        conference.ScheduleTalk(
+            talkId,
+            new Time(
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(9),
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(10)
+            )
+        );
+        var room = conference.Rooms.First(r => r.Id == roomId);
+        conference.AssignTalkToRoom(talkId, room);
+
         conference.ChangeStatus(ConferenceStatus.ProgramPublished);
 
         // Act & Assert
@@ -520,6 +698,23 @@ public class ConferenceTests
         var conference = CreateValidConference();
         var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
         conference.DefineTalkType(talkTypeId, new Text("Workshop"), 45);
+
+        // Add and accept a talk, schedule it
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var roomId = new RoomId(GuidV7.NewGuid());
+        conference.AddRoom(roomId, new Text("Main Hall"));
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+        conference.ScheduleTalk(
+            talkId,
+            new Time(
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(9),
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(10)
+            )
+        );
+        var room = conference.Rooms.First(r => r.Id == roomId);
+        conference.AssignTalkToRoom(talkId, room);
+
         conference.ChangeStatus(ConferenceStatus.ProgramPublished);
 
         // Act & Assert
@@ -583,6 +778,24 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+
+        // Add and accept a talk, schedule it
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var roomId = new RoomId(GuidV7.NewGuid());
+        conference.AddRoom(roomId, new Text("Main Hall"));
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+        conference.ScheduleTalk(
+            talkId,
+            new Time(
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(9),
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(10)
+            )
+        );
+        var room = conference.Rooms.First(r => r.Id == roomId);
+        conference.AssignTalkToRoom(talkId, room);
+
         conference.ChangeStatus(ConferenceStatus.ProgramPublished);
 
         // Act & Assert

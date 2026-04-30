@@ -5,7 +5,7 @@ import type { components } from "../shared/api/openapi.d";
 import { Skeleton } from "../shared/components/Skeleton";
 import { PageLayout } from "../shared/components/Layout";
 
-type Conference = components["schemas"]["GetAllConferencesDto"];
+type Conference = components["schemas"]["GetMyConferencesDto"];
 
 const PAGE_SIZE = 15;
 
@@ -34,7 +34,7 @@ export default function OrganizerConferenceListPage() {
     let cancelled = false;
     setLoading(true);
     apiClient
-      .GET("/api/Conferences", { params: { query: { page, pageSize: PAGE_SIZE } } })
+      .GET("/api/Conferences/my", { params: { query: { page, pageSize: PAGE_SIZE } } })
       .then(({ data }) => {
         if (cancelled) return;
         setConferences(data?.items ?? []);

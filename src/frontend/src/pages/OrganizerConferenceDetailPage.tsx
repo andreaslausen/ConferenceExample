@@ -92,13 +92,29 @@ export default function OrganizerConferenceDetailPage() {
   async function handleStatusChange(statusValue: number) {
     if (!id) return;
     setChangingStatus(true);
-    const { error } = await apiClient.PUT("/api/Conferences/{id}/status", {
+    const { error, response } = await apiClient.PUT("/api/Conferences/{id}/status", {
       params: { path: { id } },
       body: { status: statusValue },
     });
     setChangingStatus(false);
     if (error) {
-      toast({ title: "Statusänderung fehlgeschlagen.", variant: "destructive" });
+      // Try to extract error message from response
+      let errorMessage = "Statusänderung fehlgeschlagen.";
+      if (response && !response.ok) {
+        try {
+          const errorData = await response.text();
+          if (errorData) {
+            errorMessage = errorData;
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      }
+      toast({
+        title: "Statusänderung fehlgeschlagen",
+        description: errorMessage,
+        variant: "destructive"
+      });
       return;
     }
     const newStatus = STATUSES.find((s) => s.value === statusValue);
@@ -211,23 +227,39 @@ export default function OrganizerConferenceDetailPage() {
       </div>
 
       {/* Status change */}
-      <div className="mb-8 flex items-center gap-3">
-        <span className="text-sm font-medium">Aktueller Status:</span>
-        <span className="rounded-md bg-muted px-3 py-1.5 text-sm font-medium">
-          {STATUS_LABELS[conference.status] ?? conference.status}
-        </span>
-        {currentStatusIndex < STATUSES.length - 1 && (
-          <>
-            <span className="text-muted-foreground">→</span>
-            <button
-              onClick={() => handleStatusChange(STATUSES[currentStatusIndex + 1].value)}
-              disabled={changingStatus}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {changingStatus ? "Wird geändert..." : `Weiter zu "${STATUSES[currentStatusIndex + 1].label}"`}
-            </button>
-          </>
-        )}
+      <div className="mb-8">
+        <div className="mb-3 flex items-center gap-3">
+          <span className="text-sm font-medium">Aktueller Status:</span>
+          <span className="rounded-md bg-muted px-3 py-1.5 text-sm font-medium">
+            {STATUS_LABELS[conference.status] ?? conference.status}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Backward button */}
+          {currentStatusIndex > 0 && (
+            <>
+              <button
+                onClick={() => handleStatusChange(STATUSES[currentStatusIndex - 1].value)}
+                disabled={changingStatus}
+                className="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-9 items-center rounded-md border px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {changingStatus ? "Wird geändert..." : `← Zurück zu "${STATUSES[currentStatusIndex - 1].label}"`}
+              </button>
+            </>
+          )}
+          {/* Forward button */}
+          {currentStatusIndex < STATUSES.length - 1 && (
+            <>
+              <button
+                onClick={() => handleStatusChange(STATUSES[currentStatusIndex + 1].value)}
+                disabled={changingStatus}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {changingStatus ? "Wird geändert..." : `Weiter zu "${STATUSES[currentStatusIndex + 1].label}" →`}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Management links */}

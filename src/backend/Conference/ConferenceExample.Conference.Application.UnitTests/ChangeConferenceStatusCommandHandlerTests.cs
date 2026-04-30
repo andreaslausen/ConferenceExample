@@ -1,7 +1,9 @@
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.RoomManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.TalkManagement;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
@@ -46,6 +48,23 @@ public class ChangeConferenceStatusCommandHandlerTests
         // Arrange
         var repository = Substitute.For<IConferenceRepository>();
         var conference = CreateValidConference();
+
+        // Add and accept a talk, schedule it
+        var talkId = new TalkId(ConferenceGuidV7.NewGuid());
+        var roomId = new RoomId(ConferenceGuidV7.NewGuid());
+        conference.AddRoom(roomId, new Text("Main Hall"));
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+        conference.ScheduleTalk(
+            talkId,
+            new Time(
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(9),
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(10)
+            )
+        );
+        var room = conference.Rooms.First(r => r.Id == roomId);
+        conference.AssignTalkToRoom(talkId, room);
+
         var currentUserService = CreateMockCurrentUserService(conference.OrganizerId);
         var handler = new ChangeConferenceStatusCommandHandler(repository, currentUserService);
 

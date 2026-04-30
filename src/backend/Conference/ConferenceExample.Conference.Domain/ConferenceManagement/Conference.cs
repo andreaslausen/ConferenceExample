@@ -89,12 +89,8 @@ public class Conference : AggregateRoot
 
     public void ChangeStatus(ConferenceStatus newStatus)
     {
-        if (newStatus == ConferenceStatus.CallForSpeakers && !_talkTypes.Any())
-        {
-            throw new InvalidOperationException(
-                "Conference cannot be changed to 'CallForSpeakers' status without defined talk types. Please define at least one talk type first."
-            );
-        }
+        // Validate status transitions
+        ValidateStatusTransition(Status, newStatus);
 
         RaiseEvent(
             new ConferenceStatusChangedEvent(
@@ -114,6 +110,88 @@ public class Conference : AggregateRoot
                 newStatus.ToString()
             )
         );
+    }
+
+    private void ValidateStatusTransition(
+        ConferenceStatus currentStatus,
+        ConferenceStatus newStatus
+    )
+    {
+        // No change is always allowed
+        if (currentStatus == newStatus)
+        {
+            return;
+        }
+
+        // Forward transitions
+        if (newStatus > currentStatus)
+        {
+            // Draft -> CallForSpeakers requires talk types
+            if (
+                currentStatus == ConferenceStatus.Draft
+                && newStatus == ConferenceStatus.CallForSpeakers
+            )
+            {
+                if (!_talkTypes.Any())
+                {
+                    throw new InvalidOperationException(
+                        "Conference cannot be changed to 'CallForSpeakers' status without defined talk types. Please define at least one talk type first."
+                    );
+                }
+            }
+
+            // Any status -> ProgramPublished requires accepted talks with room and slot
+            if (newStatus == ConferenceStatus.ProgramPublished)
+            {
+                var acceptedTalks = _talks.Where(t => t.Status == TalkStatus.Accepted).ToList();
+
+                if (!acceptedTalks.Any())
+                {
+                    throw new InvalidOperationException(
+                        "Conference cannot be changed to 'ProgramPublished' status without at least one accepted talk."
+                    );
+                }
+
+                var unscheduledTalks = acceptedTalks
+                    .Where(t => t.Slot == null || t.Room == null)
+                    .ToList();
+
+                if (unscheduledTalks.Any())
+                {
+                    throw new InvalidOperationException(
+                        $"Conference cannot be changed to 'ProgramPublished' status. All accepted talks must have a room and time slot assigned. {unscheduledTalks.Count} talk(s) are not fully scheduled."
+                    );
+                }
+            }
+        }
+        // Backward transitions (rollback)
+        else
+        {
+            // ProgramPublished cannot be rolled back
+            if (currentStatus == ConferenceStatus.ProgramPublished)
+            {
+                throw new InvalidOperationException(
+                    "Conference status cannot be changed back from 'ProgramPublished'. The program has been published and cannot be unpublished."
+                );
+            }
+
+            // CallForSpeakers -> Draft only if no talks submitted
+            if (
+                currentStatus == ConferenceStatus.CallForSpeakers
+                && newStatus == ConferenceStatus.Draft
+            )
+            {
+                if (_talks.Any())
+                {
+                    throw new InvalidOperationException(
+                        "Conference status cannot be changed back to 'Draft' when talks have already been submitted. Consider closing the Call for Speakers instead."
+                    );
+                }
+            }
+
+            // CallForSpeakersClosed -> CallForSpeakers is always allowed (reopening)
+            // No additional validation needed
+        }
     }
 
     public void UpdateDetails(Text name, Time conferenceTime, Location location)

@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/Conferences/my": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMyConferences"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/Conferences/{id}": {
         parameters: {
             query?: never;
@@ -511,6 +527,20 @@ export interface components {
             /** Format: int32 */
             durationInMinutes: number | string;
         };
+        GetMyConferencesDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: date-time */
+            startDate: string;
+            /** Format: date-time */
+            endDate: string;
+            city: string;
+            state: string;
+            postalCode: string;
+            country: string;
+            status: string;
+        };
         GetMyProfileDto: {
             /** Format: uuid */
             id: string;
@@ -566,6 +596,15 @@ export interface components {
         };
         PagedResultOfGetConferenceTalksDto: {
             items: components["schemas"]["GetConferenceTalksDto"][];
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+        };
+        PagedResultOfGetMyConferencesDto: {
+            items: components["schemas"]["GetMyConferencesDto"][];
             /** Format: int32 */
             totalCount: number | string;
             /** Format: int32 */
@@ -798,6 +837,53 @@ export interface operations {
                     "text/plain": components["schemas"]["ProblemDetails"];
                     "application/json": components["schemas"]["ProblemDetails"];
                     "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetMyConferences: {
+        parameters: {
+            query?: {
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["PagedResultOfGetMyConferencesDto"];
+                    "application/json": components["schemas"]["PagedResultOfGetMyConferencesDto"];
+                    "text/json": components["schemas"]["PagedResultOfGetMyConferencesDto"];
                 };
             };
             /** @description Unauthorized */
