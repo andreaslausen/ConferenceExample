@@ -38,6 +38,10 @@ public class GetConferenceByIdQueryHandlerTests
         Assert.Equal(conference.Location.Address.PostalCode, result.PostalCode);
         Assert.Equal(conference.Location.Address.Country, result.Country);
         Assert.Equal(conference.OrganizerId.Value.Value, result.OrganizerId);
+        Assert.Equal(0, result.TalkTypesCount);
+        Assert.Equal(0, result.TalksCount);
+        Assert.Equal(0, result.AcceptedTalksCount);
+        Assert.Equal(0, result.UnscheduledAcceptedTalksCount);
     }
 
     [Fact]
@@ -148,6 +152,10 @@ public class GetConferenceByIdQueryHandlerTests
         Assert.Equal("14055", result.PostalCode);
         Assert.Equal("Germany", result.Country);
         Assert.Equal((Guid)organizerId, result.OrganizerId);
+        Assert.Equal(0, result.TalkTypesCount);
+        Assert.Equal(0, result.TalksCount);
+        Assert.Equal(0, result.AcceptedTalksCount);
+        Assert.Equal(0, result.UnscheduledAcceptedTalksCount);
     }
 
     private static ConferenceAggregate CreateValidConference()

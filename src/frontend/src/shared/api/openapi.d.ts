@@ -475,6 +475,14 @@ export interface components {
             /** Format: uuid */
             organizerId: string;
             status: string;
+            /** Format: int32 */
+            talkTypesCount: number | string;
+            /** Format: int32 */
+            talksCount: number | string;
+            /** Format: int32 */
+            acceptedTalksCount: number | string;
+            /** Format: int32 */
+            unscheduledAcceptedTalksCount: number | string;
         };
         GetConferenceProgramDto: {
             /** Format: uuid */

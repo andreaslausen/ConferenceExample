@@ -156,6 +156,80 @@ export default function OrganizerConferenceDetailPage() {
     STATUS_ORDER[conference.status as keyof typeof STATUS_ORDER] <
     STATUS_ORDER.CallForSpeakers;
 
+  // Validate if a status transition is allowed
+  function canTransitionTo(targetStatusValue: number): { allowed: boolean; reason?: string } {
+    if (!conference) return { allowed: false };
+
+    const currentStatus = conference.status;
+    const currentOrder = STATUS_ORDER[currentStatus as keyof typeof STATUS_ORDER];
+    const targetOrder = targetStatusValue;
+
+    // No change is always allowed
+    if (currentOrder === targetOrder) {
+      return { allowed: true };
+    }
+
+    // Convert counts to numbers (they can be string | number from API)
+    const talkTypesCount = typeof conference.talkTypesCount === 'string' ? parseInt(conference.talkTypesCount, 10) : conference.talkTypesCount;
+    const talksCount = typeof conference.talksCount === 'string' ? parseInt(conference.talksCount, 10) : conference.talksCount;
+    const acceptedTalksCount = typeof conference.acceptedTalksCount === 'string' ? parseInt(conference.acceptedTalksCount, 10) : conference.acceptedTalksCount;
+    const unscheduledAcceptedTalksCount = typeof conference.unscheduledAcceptedTalksCount === 'string' ? parseInt(conference.unscheduledAcceptedTalksCount, 10) : conference.unscheduledAcceptedTalksCount;
+
+    // Forward transitions
+    if (targetOrder > currentOrder) {
+      // Draft -> CallForSpeakers requires talk types
+      if (currentStatus === "Draft" && targetStatusValue === STATUS_ORDER.CallForSpeakers) {
+        if (talkTypesCount === 0) {
+          return {
+            allowed: false,
+            reason: "Mindestens ein Talk-Typ muss definiert sein, bevor der Call for Speakers geöffnet werden kann."
+          };
+        }
+      }
+
+      // Any status -> ProgramPublished requires accepted talks with room and slot
+      if (targetStatusValue === STATUS_ORDER.ProgramPublished) {
+        if (acceptedTalksCount === 0) {
+          return {
+            allowed: false,
+            reason: "Mindestens ein Talk muss angenommen sein, bevor das Programm veröffentlicht werden kann."
+          };
+        }
+
+        if (unscheduledAcceptedTalksCount > 0) {
+          return {
+            allowed: false,
+            reason: `Alle angenommenen Talks müssen eingeplant sein. ${unscheduledAcceptedTalksCount} Talk(s) sind noch nicht vollständig eingeplant.`
+          };
+        }
+      }
+
+      return { allowed: true };
+    }
+
+    // Backward transitions (rollback)
+    // ProgramPublished cannot be rolled back
+    if (currentStatus === "ProgramPublished") {
+      return {
+        allowed: false,
+        reason: "Der Status kann nicht zurückgesetzt werden, nachdem das Programm veröffentlicht wurde."
+      };
+    }
+
+    // CallForSpeakers -> Draft only if no talks submitted
+    if (currentStatus === "CallForSpeakers" && targetStatusValue === STATUS_ORDER.Draft) {
+      if (talksCount > 0) {
+        return {
+          allowed: false,
+          reason: "Der Status kann nicht auf 'Entwurf' zurückgesetzt werden, wenn bereits Talks eingereicht wurden."
+        };
+      }
+    }
+
+    // CallForSpeakersClosed -> CallForSpeakers is always allowed (reopening)
+    return { allowed: true };
+  }
+
   return (
     <PageLayout>
       <Breadcrumbs
@@ -234,31 +308,49 @@ export default function OrganizerConferenceDetailPage() {
             {STATUS_LABELS[conference.status] ?? conference.status}
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Backward button */}
-          {currentStatusIndex > 0 && (
-            <>
-              <button
-                onClick={() => handleStatusChange(STATUSES[currentStatusIndex - 1].value)}
-                disabled={changingStatus}
-                className="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-9 items-center rounded-md border px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {changingStatus ? "Wird geändert..." : `← Zurück zu "${STATUSES[currentStatusIndex - 1].label}"`}
-              </button>
-            </>
-          )}
-          {/* Forward button */}
-          {currentStatusIndex < STATUSES.length - 1 && (
-            <>
-              <button
-                onClick={() => handleStatusChange(STATUSES[currentStatusIndex + 1].value)}
-                disabled={changingStatus}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {changingStatus ? "Wird geändert..." : `Weiter zu "${STATUSES[currentStatusIndex + 1].label}" →`}
-              </button>
-            </>
-          )}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            {/* Backward button */}
+            {currentStatusIndex > 0 && (() => {
+              const targetStatus = STATUSES[currentStatusIndex - 1];
+              const validation = canTransitionTo(targetStatus.value);
+              return (
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => handleStatusChange(targetStatus.value)}
+                    disabled={changingStatus || !validation.allowed}
+                    className="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-9 items-center rounded-md border px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={validation.reason}
+                  >
+                    {changingStatus ? "Wird geändert..." : `← Zurück zu "${targetStatus.label}"`}
+                  </button>
+                  {!validation.allowed && validation.reason && (
+                    <span className="text-xs text-destructive">{validation.reason}</span>
+                  )}
+                </div>
+              );
+            })()}
+            {/* Forward button */}
+            {currentStatusIndex < STATUSES.length - 1 && (() => {
+              const targetStatus = STATUSES[currentStatusIndex + 1];
+              const validation = canTransitionTo(targetStatus.value);
+              return (
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => handleStatusChange(targetStatus.value)}
+                    disabled={changingStatus || !validation.allowed}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={validation.reason}
+                  >
+                    {changingStatus ? "Wird geändert..." : `Weiter zu "${targetStatus.label}" →`}
+                  </button>
+                  {!validation.allowed && validation.reason && (
+                    <span className="text-xs text-destructive">{validation.reason}</span>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
         </div>
       </div>
 

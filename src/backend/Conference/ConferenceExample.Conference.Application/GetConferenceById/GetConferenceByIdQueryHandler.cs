@@ -12,19 +12,34 @@ public class GetConferenceByIdQueryHandler(IConferenceRepository conferenceRepos
             new ConferenceId(new GuidV7(query.ConferenceId))
         );
 
-        return new GetConferenceByIdDto(
-            conference.Id.Value.Value,
-            conference.Name.Value,
-            conference.ConferenceTime.Start,
-            conference.ConferenceTime.End,
-            conference.Location.Name.Value,
-            conference.Location.Address.Street,
-            conference.Location.Address.City,
-            conference.Location.Address.State,
-            conference.Location.Address.PostalCode,
-            conference.Location.Address.Country,
-            conference.OrganizerId.Value.Value,
-            conference.Status.ToString()
+        var talkTypesCount = conference.TalkTypes.Count;
+        var talksCount = conference.Talks.Count;
+        var acceptedTalksCount = conference.Talks.Count(t =>
+            t.Status == Domain.TalkManagement.TalkStatus.Accepted
         );
+        var unscheduledAcceptedTalksCount = conference.Talks.Count(t =>
+            t.Status == Domain.TalkManagement.TalkStatus.Accepted
+            && (t.Slot == null || t.Room == null)
+        );
+
+        return new GetConferenceByIdDto
+        {
+            Id = conference.Id.Value.Value,
+            Name = conference.Name.Value,
+            StartDate = conference.ConferenceTime.Start,
+            EndDate = conference.ConferenceTime.End,
+            LocationName = conference.Location.Name.Value,
+            Street = conference.Location.Address.Street,
+            City = conference.Location.Address.City,
+            State = conference.Location.Address.State,
+            PostalCode = conference.Location.Address.PostalCode,
+            Country = conference.Location.Address.Country,
+            OrganizerId = conference.OrganizerId.Value.Value,
+            Status = conference.Status.ToString(),
+            TalkTypesCount = talkTypesCount,
+            TalksCount = talksCount,
+            AcceptedTalksCount = acceptedTalksCount,
+            UnscheduledAcceptedTalksCount = unscheduledAcceptedTalksCount,
+        };
     }
 }

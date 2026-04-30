@@ -3258,7 +3258,11 @@
           "postalCode",
           "country",
           "organizerId",
-          "status"
+          "status",
+          "talkTypesCount",
+          "talksCount",
+          "acceptedTalksCount",
+          "unscheduledAcceptedTalksCount"
         ],
         "type": "object",
         "properties": {
@@ -3301,6 +3305,38 @@
           },
           "status": {
             "type": "string"
+          },
+          "talkTypesCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "talksCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "acceptedTalksCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "unscheduledAcceptedTalksCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
           }
         }
       },
