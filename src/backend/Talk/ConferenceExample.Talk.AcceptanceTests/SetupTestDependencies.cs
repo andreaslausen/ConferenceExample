@@ -19,7 +19,7 @@ public class SetupTestDependencies
         var services = new ServiceCollection();
 
         // Use in-memory mock implementations for testing
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
 
         // Configure eventStore to use in-memory storage
         var storage = new Dictionary<Guid, List<StoredEvent>>();
@@ -76,7 +76,7 @@ public class SetupTestDependencies
         );
         storage[speakerId] = new List<StoredEvent> { speakerProfileEvent };
 
-        services.AddSingleton(eventStore);
+        services.AddSingleton<ITalkEventStore>(eventStore);
         services.AddSingleton(currentUserService);
         services.AddTalkPersistence();
 

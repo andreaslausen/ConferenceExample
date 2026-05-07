@@ -58,7 +58,7 @@ public class TalkEventSubscriptionsTests
     }
 
     [Fact]
-    public void Subscribe_RegistersExactlySevenEventTypes()
+    public void Subscribe_RegistersExactlyNineteenEventTypes()
     {
         // Arrange
         var eventBus = Substitute.For<IEventBus>();
@@ -67,8 +67,8 @@ public class TalkEventSubscriptionsTests
         // Act
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - 5 talk events + 2 speaker events
-        eventBus.Received(7).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        // Assert - 12 conference replication events + 5 talk events + 2 speaker events
+        eventBus.Received(19).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class TalkEventSubscriptionsTests
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - each call should register handlers (7 events × 2 calls = 14)
-        eventBus.Received(14).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        // Assert - each call should register handlers (19 events × 2 calls = 38)
+        eventBus.Received(38).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 }

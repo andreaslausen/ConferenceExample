@@ -7,7 +7,7 @@ using ConferenceExample.Talk.Domain.SpeakerManagement.Events;
 
 namespace ConferenceExample.Talk.Persistence;
 
-public class SpeakerRepository(IEventStore eventStore) : ISpeakerRepository
+public class SpeakerRepository(ITalkEventStore eventStore) : ISpeakerRepository
 {
     private static readonly Dictionary<string, Type> EventTypeMap = new()
     {

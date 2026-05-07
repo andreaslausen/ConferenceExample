@@ -16,7 +16,7 @@ public class MongoDbEventBusTests
     public void Constructor_CanBeInstantiated()
     {
         // Act
-        var bus = new MongoDbEventBus(_mockDatabase);
+        var bus = new MongoDbEventBus(_mockDatabase, ["events"]);
 
         // Assert
         Assert.NotNull(bus);
@@ -26,7 +26,7 @@ public class MongoDbEventBusTests
     public void Subscribe_AddsHandler()
     {
         // Arrange
-        var eventBus = new MongoDbEventBus(_mockDatabase);
+        var eventBus = new MongoDbEventBus(_mockDatabase, ["events"]);
         var handlerCalled = false;
         Func<StoredEvent, Task> handler = _ =>
         {
@@ -45,7 +45,7 @@ public class MongoDbEventBusTests
     public void Subscribe_MultipleHandlersForSameEventType_AddsAllHandlers()
     {
         // Arrange
-        var eventBus = new MongoDbEventBus(_mockDatabase);
+        var eventBus = new MongoDbEventBus(_mockDatabase, ["events"]);
         var handler1Called = false;
         var handler2Called = false;
         Func<StoredEvent, Task> handler1 = _ =>
@@ -72,7 +72,7 @@ public class MongoDbEventBusTests
     public void Subscribe_DifferentEventTypes_AddsHandlersSeparately()
     {
         // Arrange
-        var eventBus = new MongoDbEventBus(_mockDatabase);
+        var eventBus = new MongoDbEventBus(_mockDatabase, ["events"]);
         var handler1Called = false;
         var handler2Called = false;
         Func<StoredEvent, Task> handler1 = _ =>
@@ -99,7 +99,7 @@ public class MongoDbEventBusTests
     public void Dispose_CancelsChangeStream()
     {
         // Arrange
-        var eventBus = new MongoDbEventBus(_mockDatabase);
+        var eventBus = new MongoDbEventBus(_mockDatabase, ["events"]);
         Func<StoredEvent, Task> handler = _ => Task.CompletedTask;
 
         // Subscribe to start the change stream task
@@ -117,7 +117,7 @@ public class MongoDbEventBusTests
     public void Dispose_CalledMultipleTimes_DoesNotThrow()
     {
         // Arrange
-        var eventBus = new MongoDbEventBus(_mockDatabase);
+        var eventBus = new MongoDbEventBus(_mockDatabase, ["events"]);
 
         // Act & Assert - multiple Dispose calls should not throw
         eventBus.Dispose();
@@ -131,7 +131,7 @@ public class MongoDbEventBusTests
     public async Task Subscribe_ThreadSafe_NoExceptions()
     {
         // Arrange
-        var eventBus = new MongoDbEventBus(_mockDatabase);
+        var eventBus = new MongoDbEventBus(_mockDatabase, ["events"]);
         var tasks = new List<Task>();
 
         // Act - subscribe from multiple threads
@@ -156,7 +156,7 @@ public class MongoDbEventBusTests
     public void Subscribe_NullEventType_DoesNotThrow()
     {
         // Arrange
-        var eventBus = new MongoDbEventBus(_mockDatabase);
+        var eventBus = new MongoDbEventBus(_mockDatabase, ["events"]);
         Func<StoredEvent, Task> handler = _ => Task.CompletedTask;
 
         // Act & Assert - should handle null event type gracefully

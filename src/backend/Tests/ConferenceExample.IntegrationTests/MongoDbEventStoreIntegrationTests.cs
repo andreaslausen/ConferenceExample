@@ -24,7 +24,7 @@ public class MongoDbEventStoreIntegrationTests : IntegrationTestBase
     {
         // Arrange
         var aggregateId = Guid.CreateVersion7();
-        var store = new MongoDbEventStore(_database);
+        var store = new ConferenceEventStore(_database);
 
         var firstEvent = new StoredEvent(
             Guid.CreateVersion7(),
@@ -56,7 +56,7 @@ public class MongoDbEventStoreIntegrationTests : IntegrationTestBase
     {
         // Arrange
         var aggregateId = Guid.CreateVersion7();
-        var store = new MongoDbEventStore(_database);
+        var store = new ConferenceEventStore(_database);
         var @event = new StoredEvent(
             Guid.CreateVersion7(),
             aggregateId,
@@ -77,7 +77,7 @@ public class MongoDbEventStoreIntegrationTests : IntegrationTestBase
     {
         // Arrange
         var aggregateId = Guid.CreateVersion7();
-        var store = new MongoDbEventStore(_database);
+        var store = new ConferenceEventStore(_database);
 
         var firstEvent = new StoredEvent(
             Guid.CreateVersion7(),

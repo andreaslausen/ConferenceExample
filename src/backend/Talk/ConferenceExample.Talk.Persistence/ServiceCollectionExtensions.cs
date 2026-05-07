@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
         // Event Handlers
         services.AddScoped<TalkEventHandler>();
         services.AddScoped<SpeakerEventHandler>();
+        services.AddScoped<ConferenceEventReplicationHandler>();
 
         return services;
     }

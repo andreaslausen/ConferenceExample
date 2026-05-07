@@ -9,7 +9,7 @@ using GuidV7 = ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids
 
 namespace ConferenceExample.Conference.Persistence;
 
-public class ConferenceRepository(IEventStore eventStore) : IConferenceRepository
+public class ConferenceRepository(IConferenceEventStore eventStore) : IConferenceRepository
 {
     private static readonly Dictionary<string, Type> EventTypeMap = new()
     {

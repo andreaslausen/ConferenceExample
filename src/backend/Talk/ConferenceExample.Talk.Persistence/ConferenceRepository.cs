@@ -5,7 +5,7 @@ using ConferenceExample.Talk.Domain.TalkManagement;
 
 namespace ConferenceExample.Talk.Persistence;
 
-public class ConferenceRepository(IEventStore eventStore) : IConferenceRepository
+public class ConferenceRepository(ITalkEventStore eventStore) : IConferenceRepository
 {
     public async Task<Conference> GetById(ConferenceId conferenceId)
     {

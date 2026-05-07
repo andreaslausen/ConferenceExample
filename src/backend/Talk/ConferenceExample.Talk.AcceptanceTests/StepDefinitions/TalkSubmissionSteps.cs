@@ -13,7 +13,7 @@ namespace ConferenceExample.Talk.AcceptanceTests.StepDefinitions;
 public class TalkSubmissionSteps(
     ITalkService talkService,
     ITalkRepository talkRepository,
-    IEventStore eventStore
+    ITalkEventStore eventStore
 )
 {
     private Guid _conferenceId;

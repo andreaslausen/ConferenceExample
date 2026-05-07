@@ -8,14 +8,16 @@ namespace ConferenceExample.EventStore;
 public class MongoDbEventBus : IEventBus, IHostedService, IDisposable
 {
     private readonly IMongoDatabase _database;
+    private readonly IReadOnlyCollection<string> _collectionNames;
     private readonly Dictionary<string, List<Func<StoredEvent, Task>>> _subscriptions = [];
     private readonly Lock _lock = new();
     private CancellationTokenSource? _cts;
     private Task? _processingTask;
 
-    public MongoDbEventBus(IMongoDatabase database)
+    public MongoDbEventBus(IMongoDatabase database, IReadOnlyCollection<string> collectionNames)
     {
         _database = database;
+        _collectionNames = collectionNames;
     }
 
     public void Subscribe(string eventType, Func<StoredEvent, Task> handler)
@@ -36,10 +38,11 @@ public class MongoDbEventBus : IEventBus, IHostedService, IDisposable
     {
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
+        var watchedCollections = _collectionNames;
         var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>().Match(
             change =>
                 change.OperationType == ChangeStreamOperationType.Insert
-                && change.CollectionNamespace.CollectionName == "events"
+                && watchedCollections.Contains(change.CollectionNamespace.CollectionName)
         );
 
         var options = new ChangeStreamOptions

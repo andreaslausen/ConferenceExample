@@ -27,7 +27,7 @@ public class ConferenceRepositoryTests
     public async Task Save_NewConference_AppendsSerializedEventsToEventStore()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<IConferenceEventStore>();
         var repo = new ConferenceRepository(eventStore);
         var conference = CreateValidConference();
 
@@ -52,7 +52,7 @@ public class ConferenceRepositoryTests
     public async Task Save_ClearsUncommittedEventsAfterSaving()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<IConferenceEventStore>();
         var repo = new ConferenceRepository(eventStore);
         var conference = CreateValidConference();
 
@@ -67,7 +67,7 @@ public class ConferenceRepositoryTests
     public async Task Save_NoUncommittedEvents_DoesNothing()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<IConferenceEventStore>();
         var repo = new ConferenceRepository(eventStore);
 
         var conference = CreateValidConference();
@@ -86,7 +86,7 @@ public class ConferenceRepositoryTests
     public async Task GetById_ExistingConference_RebuildsConferenceFromEvents()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<IConferenceEventStore>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
         var organizerId = GuidV7.NewGuid();
 
@@ -127,7 +127,7 @@ public class ConferenceRepositoryTests
     public async Task GetById_UnknownConference_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<IConferenceEventStore>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         eventStore.GetEvents(conferenceId.Value).Returns(new List<StoredEvent>());
@@ -142,7 +142,7 @@ public class ConferenceRepositoryTests
     public async Task GetById_UnknownEventType_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<IConferenceEventStore>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         var unknownEvent = new StoredEvent(
@@ -169,7 +169,7 @@ public class ConferenceRepositoryTests
     public async Task Save_WhenEventStoreThrowsConcurrencyException_PropagatesException()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<IConferenceEventStore>();
         var repo = new ConferenceRepository(eventStore);
         var conference = CreateValidConference();
 
@@ -185,7 +185,7 @@ public class ConferenceRepositoryTests
     public async Task GetById_InvalidEventPayload_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<IConferenceEventStore>();
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         var invalidEvent = new StoredEvent(

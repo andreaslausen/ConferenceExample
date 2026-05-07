@@ -2,13 +2,13 @@ using MongoDB.Driver;
 
 namespace ConferenceExample.EventStore;
 
-public class MongoDbEventStore : IEventStore
+public abstract class MongoDbEventStore : IEventStore
 {
     private readonly IMongoCollection<StoredEvent> _eventsCollection;
 
-    public MongoDbEventStore(IMongoDatabase database)
+    public MongoDbEventStore(IMongoDatabase database, string collectionName)
     {
-        _eventsCollection = database.GetCollection<StoredEvent>("events");
+        _eventsCollection = database.GetCollection<StoredEvent>(collectionName);
         CreateIndexes();
     }
 

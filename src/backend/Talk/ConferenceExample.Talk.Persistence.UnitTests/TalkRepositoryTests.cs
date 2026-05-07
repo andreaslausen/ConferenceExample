@@ -29,7 +29,7 @@ public class TalkRepositoryTests
     public async Task Save_NewTalk_AppendsSerializedEventsToEventStore()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
         var repo = new TalkRepository(eventStore);
         var talk = CreateValidTalk();
 
@@ -54,7 +54,7 @@ public class TalkRepositoryTests
     public async Task Save_ClearsUncommittedEventsAfterSaving()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
         var repo = new TalkRepository(eventStore);
         var talk = CreateValidTalk();
 
@@ -69,7 +69,7 @@ public class TalkRepositoryTests
     public async Task Save_NoUncommittedEvents_DoesNothing()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
         var repo = new TalkRepository(eventStore);
 
         var talk = CreateValidTalk();
@@ -88,7 +88,7 @@ public class TalkRepositoryTests
     public async Task GetById_ExistingTalk_RebuildsTalkFromEvents()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
         var talkId = new TalkId(GuidV7.NewGuid());
         var speakerId = new SpeakerId(GuidV7.NewGuid());
         var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
@@ -130,7 +130,7 @@ public class TalkRepositoryTests
     public async Task GetById_UnknownTalk_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
         var talkId = new TalkId(GuidV7.NewGuid());
 
         eventStore.GetEvents(talkId.Value).Returns(new List<StoredEvent>());
@@ -145,7 +145,7 @@ public class TalkRepositoryTests
     public async Task GetById_UnknownEventType_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
         var repo = new TalkRepository(eventStore);
 
         var talkId = new TalkId(GuidV7.NewGuid());
@@ -171,7 +171,7 @@ public class TalkRepositoryTests
     public async Task Save_WhenEventStoreThrowsConcurrencyException_PropagatesException()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
         var repo = new TalkRepository(eventStore);
         var talk = CreateValidTalk();
 
@@ -187,7 +187,7 @@ public class TalkRepositoryTests
     public async Task GetById_InvalidPayload_ThrowsInvalidOperationException()
     {
         // Arrange
-        var eventStore = Substitute.For<IEventStore>();
+        var eventStore = Substitute.For<ITalkEventStore>();
         var repo = new TalkRepository(eventStore);
 
         var talkId = new TalkId(GuidV7.NewGuid());

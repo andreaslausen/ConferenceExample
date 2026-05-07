@@ -19,10 +19,14 @@ public static class ServiceCollectionExtensions
         var database = mongoClient.GetDatabase(mongoSettings.DatabaseName);
 
         services.AddSingleton(database);
-        services.AddSingleton<MongoDbEventBus>();
+        services.AddSingleton<MongoDbEventBus>(sp => new MongoDbEventBus(
+            sp.GetRequiredService<IMongoDatabase>(),
+            ["conference_events", "talk_events"]
+        ));
         services.AddSingleton<IEventBus>(sp => sp.GetRequiredService<MongoDbEventBus>());
         services.AddHostedService(sp => sp.GetRequiredService<MongoDbEventBus>());
-        services.AddSingleton<IEventStore, MongoDbEventStore>();
+        services.AddSingleton<IConferenceEventStore, ConferenceEventStore>();
+        services.AddSingleton<ITalkEventStore, TalkEventStore>();
 
         return services;
     }
