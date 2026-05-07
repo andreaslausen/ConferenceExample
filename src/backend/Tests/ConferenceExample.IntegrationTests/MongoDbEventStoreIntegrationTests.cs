@@ -1,3 +1,4 @@
+using ConferenceExample.Conference.Persistence;
 using ConferenceExample.EventStore;
 using ConferenceExample.IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;

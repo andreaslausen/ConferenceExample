@@ -1,6 +1,7 @@
+using ConferenceExample.EventStore;
 using MongoDB.Driver;
 
-namespace ConferenceExample.EventStore;
+namespace ConferenceExample.Talk.Persistence;
 
 public class TalkEventStore(IMongoDatabase database)
     : MongoDbEventStore(database, "talk_events"),

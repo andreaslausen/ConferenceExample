@@ -3,6 +3,7 @@ using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence.EventHandlers;
 using ConferenceExample.Talk.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ConferenceExample.Talk.Persistence;
 
@@ -10,6 +11,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddTalkPersistence(this IServiceCollection services)
     {
+        services.TryAddSingleton<ITalkEventStore, TalkEventStore>();
+
         // Talk Aggregate Repositories
         services.AddScoped<ITalkRepository, TalkRepository>();
         services.AddScoped<IConferenceRepository, ConferenceRepository>();

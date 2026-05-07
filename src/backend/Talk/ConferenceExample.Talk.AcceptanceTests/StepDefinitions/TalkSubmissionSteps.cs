@@ -3,6 +3,7 @@ using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Application.SubmitTalk;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.TalkManagement;
+using ConferenceExample.Talk.Persistence;
 using Reqnroll;
 using Xunit;
 using TalkEntity = ConferenceExample.Talk.Domain.TalkManagement.Talk;

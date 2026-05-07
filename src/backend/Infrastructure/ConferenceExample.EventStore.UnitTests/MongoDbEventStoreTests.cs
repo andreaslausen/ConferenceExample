@@ -24,17 +24,17 @@ public class MongoDbEventStoreTests
     public void Constructor_CreatesCollection()
     {
         // Act
-        _ = new ConferenceEventStore(_mockDatabase);
+        _ = new TestEventStore(_mockDatabase);
 
         // Assert
-        _mockDatabase.Received(1).GetCollection<StoredEvent>("conference_events");
+        _mockDatabase.Received(1).GetCollection<StoredEvent>("test_events");
     }
 
     [Fact]
     public void Constructor_CreatesIndexes()
     {
         // Act
-        _ = new ConferenceEventStore(_mockDatabase);
+        _ = new TestEventStore(_mockDatabase);
 
         // Assert
         _mockIndexManager
@@ -46,7 +46,7 @@ public class MongoDbEventStoreTests
     public async Task AppendEvents_EmptyEventList_DoesNothing()
     {
         // Arrange
-        var store = new ConferenceEventStore(_mockDatabase);
+        var store = new TestEventStore(_mockDatabase);
         var aggregateId = Guid.CreateVersion7();
         var events = new List<StoredEvent>();
 
@@ -65,17 +65,17 @@ public class MongoDbEventStoreTests
     public void Constructor_CallsGetCollection()
     {
         // Act
-        _ = new ConferenceEventStore(_mockDatabase);
+        _ = new TestEventStore(_mockDatabase);
 
         // Assert
-        _mockDatabase.Received(1).GetCollection<StoredEvent>("conference_events");
+        _mockDatabase.Received(1).GetCollection<StoredEvent>("test_events");
     }
 
     [Fact]
     public async Task AppendEvents_WithEmptyList_ReturnsImmediately()
     {
         // Arrange
-        var store = new ConferenceEventStore(_mockDatabase);
+        var store = new TestEventStore(_mockDatabase);
         var aggregateId = Guid.CreateVersion7();
         var emptyEvents = new List<StoredEvent>();
 
@@ -90,7 +90,7 @@ public class MongoDbEventStoreTests
     public void MongoDbEventStore_CanBeInstantiated()
     {
         // Act
-        var store = new ConferenceEventStore(_mockDatabase);
+        var store = new TestEventStore(_mockDatabase);
 
         // Assert
         Assert.NotNull(store);

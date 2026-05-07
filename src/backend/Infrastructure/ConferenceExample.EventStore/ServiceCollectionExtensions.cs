@@ -25,8 +25,6 @@ public static class ServiceCollectionExtensions
         ));
         services.AddSingleton<IEventBus>(sp => sp.GetRequiredService<MongoDbEventBus>());
         services.AddHostedService(sp => sp.GetRequiredService<MongoDbEventBus>());
-        services.AddSingleton<IConferenceEventStore, ConferenceEventStore>();
-        services.AddSingleton<ITalkEventStore, TalkEventStore>();
 
         return services;
     }
