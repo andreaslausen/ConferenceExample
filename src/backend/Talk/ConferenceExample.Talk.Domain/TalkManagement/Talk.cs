@@ -51,7 +51,6 @@ public class Talk : AggregateRoot
             new TalkSubmittedEvent(
                 id.Value,
                 DateTimeOffset.UtcNow,
-                0,
                 title.Title,
                 @abstract.Content,
                 speakerId.Value,
@@ -69,91 +68,22 @@ public class Talk : AggregateRoot
 
     public void EditTitle(TalkTitle title)
     {
-        RaiseEvent(
-            new TalkTitleEditedEvent(
-                Id.Value,
-                DateTimeOffset.UtcNow,
-                Version + 1,
-                title.Title,
-                Abstract.Content,
-                SpeakerId.Value,
-                SpeakerFirstName,
-                SpeakerLastName,
-                SpeakerBiography,
-                Tags.Select(t => t.Tag).ToList(),
-                TalkTypeId.Value,
-                ConferenceId.Value,
-                Status.ToString()
-            )
-        );
+        RaiseEvent(new TalkTitleEditedEvent(Id.Value, DateTimeOffset.UtcNow, title.Title));
     }
 
     public void EditAbstract(Abstract @abstract)
     {
-        RaiseEvent(
-            new TalkAbstractEditedEvent(
-                Id.Value,
-                DateTimeOffset.UtcNow,
-                Version + 1,
-                Title.Title,
-                @abstract.Content,
-                SpeakerId.Value,
-                SpeakerFirstName,
-                SpeakerLastName,
-                SpeakerBiography,
-                Tags.Select(t => t.Tag).ToList(),
-                TalkTypeId.Value,
-                ConferenceId.Value,
-                Status.ToString()
-            )
-        );
+        RaiseEvent(new TalkAbstractEditedEvent(Id.Value, DateTimeOffset.UtcNow, @abstract.Content));
     }
 
     public void AddTag(TalkTag tag)
     {
-        var updatedTags = Tags.Select(t => t.Tag).ToList();
-        updatedTags.Add(tag.Tag);
-
-        RaiseEvent(
-            new TalkTagAddedEvent(
-                Id.Value,
-                DateTimeOffset.UtcNow,
-                Version + 1,
-                Title.Title,
-                Abstract.Content,
-                SpeakerId.Value,
-                SpeakerFirstName,
-                SpeakerLastName,
-                SpeakerBiography,
-                updatedTags,
-                TalkTypeId.Value,
-                ConferenceId.Value,
-                Status.ToString()
-            )
-        );
+        RaiseEvent(new TalkTagAddedEvent(Id.Value, DateTimeOffset.UtcNow, tag.Tag));
     }
 
     public void RemoveTag(TalkTag tag)
     {
-        var updatedTags = Tags.Where(t => t.Tag != tag.Tag).Select(t => t.Tag).ToList();
-
-        RaiseEvent(
-            new TalkTagRemovedEvent(
-                Id.Value,
-                DateTimeOffset.UtcNow,
-                Version + 1,
-                Title.Title,
-                Abstract.Content,
-                SpeakerId.Value,
-                SpeakerFirstName,
-                SpeakerLastName,
-                SpeakerBiography,
-                updatedTags,
-                TalkTypeId.Value,
-                ConferenceId.Value,
-                Status.ToString()
-            )
-        );
+        RaiseEvent(new TalkTagRemovedEvent(Id.Value, DateTimeOffset.UtcNow, tag.Tag));
     }
 
     protected override void ApplyEvent(IDomainEvent @event)
@@ -176,55 +106,15 @@ public class Talk : AggregateRoot
                 break;
             case TalkTitleEditedEvent e:
                 Title = new TalkTitle(e.Title);
-                SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
-                SpeakerFirstName = e.SpeakerFirstName;
-                SpeakerLastName = e.SpeakerLastName;
-                SpeakerBiography = e.SpeakerBiography;
-                TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
-                Abstract = new Abstract(e.Abstract);
-                ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
-                Status = Enum.Parse<TalkStatus>(e.Status);
-                _tags.Clear();
-                _tags.AddRange(e.Tags.Select(t => new TalkTag(t)));
                 break;
             case TalkAbstractEditedEvent e:
-                Title = new TalkTitle(e.Title);
-                SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
-                SpeakerFirstName = e.SpeakerFirstName;
-                SpeakerLastName = e.SpeakerLastName;
-                SpeakerBiography = e.SpeakerBiography;
-                TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
                 Abstract = new Abstract(e.Abstract);
-                ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
-                Status = Enum.Parse<TalkStatus>(e.Status);
-                _tags.Clear();
-                _tags.AddRange(e.Tags.Select(t => new TalkTag(t)));
                 break;
             case TalkTagAddedEvent e:
-                Title = new TalkTitle(e.Title);
-                SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
-                SpeakerFirstName = e.SpeakerFirstName;
-                SpeakerLastName = e.SpeakerLastName;
-                SpeakerBiography = e.SpeakerBiography;
-                TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
-                Abstract = new Abstract(e.Abstract);
-                ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
-                Status = Enum.Parse<TalkStatus>(e.Status);
-                _tags.Clear();
-                _tags.AddRange(e.Tags.Select(t => new TalkTag(t)));
+                _tags.Add(new TalkTag(e.Tag));
                 break;
             case TalkTagRemovedEvent e:
-                Title = new TalkTitle(e.Title);
-                SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
-                SpeakerFirstName = e.SpeakerFirstName;
-                SpeakerLastName = e.SpeakerLastName;
-                SpeakerBiography = e.SpeakerBiography;
-                TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
-                Abstract = new Abstract(e.Abstract);
-                ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
-                Status = Enum.Parse<TalkStatus>(e.Status);
-                _tags.Clear();
-                _tags.AddRange(e.Tags.Select(t => new TalkTag(t)));
+                _tags.RemoveAll(t => t.Tag == e.Tag);
                 break;
         }
     }

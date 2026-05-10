@@ -27,7 +27,6 @@ public class Speaker : AggregateRoot
             new SpeakerProfileCreatedEvent(
                 id.Value,
                 DateTimeOffset.UtcNow,
-                0,
                 name.FirstName,
                 name.LastName,
                 biography.Content
@@ -42,7 +41,6 @@ public class Speaker : AggregateRoot
             new SpeakerProfileUpdatedEvent(
                 Id.Value,
                 DateTimeOffset.UtcNow,
-                Version + 1,
                 name.FirstName,
                 name.LastName,
                 biography.Content

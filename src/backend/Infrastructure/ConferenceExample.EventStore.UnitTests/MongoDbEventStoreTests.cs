@@ -8,12 +8,14 @@ public class MongoDbEventStoreTests
     private readonly IMongoDatabase _mockDatabase;
     private readonly IMongoCollection<StoredEvent> _mockCollection;
     private readonly IMongoIndexManager<StoredEvent> _mockIndexManager;
+    private readonly IEventBus _mockEventBus;
 
     public MongoDbEventStoreTests()
     {
         _mockDatabase = Substitute.For<IMongoDatabase>();
         _mockCollection = Substitute.For<IMongoCollection<StoredEvent>>();
         _mockIndexManager = Substitute.For<IMongoIndexManager<StoredEvent>>();
+        _mockEventBus = Substitute.For<IEventBus>();
 
         _mockDatabase.GetCollection<StoredEvent>(Arg.Any<string>()).Returns(_mockCollection);
         _mockCollection.Indexes.Returns(_mockIndexManager);
@@ -23,20 +25,16 @@ public class MongoDbEventStoreTests
     [Fact]
     public void Constructor_CreatesCollection()
     {
-        // Act
-        _ = new TestEventStore(_mockDatabase);
+        _ = new TestEventStore(_mockDatabase, _mockEventBus);
 
-        // Assert
         _mockDatabase.Received(1).GetCollection<StoredEvent>("test_events");
     }
 
     [Fact]
     public void Constructor_CreatesIndexes()
     {
-        // Act
-        _ = new TestEventStore(_mockDatabase);
+        _ = new TestEventStore(_mockDatabase, _mockEventBus);
 
-        // Assert
         _mockIndexManager
             .Received(1)
             .CreateMany(Arg.Any<IEnumerable<CreateIndexModel<StoredEvent>>>());
@@ -45,54 +43,36 @@ public class MongoDbEventStoreTests
     [Fact]
     public async Task AppendEvents_EmptyEventList_DoesNothing()
     {
-        // Arrange
-        var store = new TestEventStore(_mockDatabase);
+        var store = new TestEventStore(_mockDatabase, _mockEventBus);
         var aggregateId = Guid.CreateVersion7();
         var events = new List<StoredEvent>();
 
-        // Act
         await store.AppendEvents(aggregateId, events, -1);
 
-        // Assert - no session should be started for empty list
         var mockClient = Substitute.For<IMongoClient>();
         _mockDatabase.Client.Returns(mockClient);
         await mockClient
             .DidNotReceive()
             .StartSessionAsync(Arg.Any<ClientSessionOptions>(), Arg.Any<CancellationToken>());
+        _mockEventBus.DidNotReceive().Publish(Arg.Any<StoredEvent>());
     }
 
     [Fact]
-    public void Constructor_CallsGetCollection()
+    public async Task AppendEvents_WithEmptyList_DoesNotPublish()
     {
-        // Act
-        _ = new TestEventStore(_mockDatabase);
-
-        // Assert
-        _mockDatabase.Received(1).GetCollection<StoredEvent>("test_events");
-    }
-
-    [Fact]
-    public async Task AppendEvents_WithEmptyList_ReturnsImmediately()
-    {
-        // Arrange
-        var store = new TestEventStore(_mockDatabase);
+        var store = new TestEventStore(_mockDatabase, _mockEventBus);
         var aggregateId = Guid.CreateVersion7();
-        var emptyEvents = new List<StoredEvent>();
 
-        // Act
-        await store.AppendEvents(aggregateId, emptyEvents, -1);
+        await store.AppendEvents(aggregateId, [], -1);
 
-        // Assert - should not interact with collection when list is empty
-        Assert.True(true);
+        _mockEventBus.DidNotReceive().Publish(Arg.Any<StoredEvent>());
     }
 
     [Fact]
     public void MongoDbEventStore_CanBeInstantiated()
     {
-        // Act
-        var store = new TestEventStore(_mockDatabase);
+        var store = new TestEventStore(_mockDatabase, _mockEventBus);
 
-        // Assert
         Assert.NotNull(store);
     }
 }

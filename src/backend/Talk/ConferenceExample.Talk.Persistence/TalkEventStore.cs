@@ -3,6 +3,6 @@ using MongoDB.Driver;
 
 namespace ConferenceExample.Talk.Persistence;
 
-public class TalkEventStore(IMongoDatabase database)
-    : MongoDbEventStore(database, "talk_events"),
+public class TalkEventStore(IMongoDatabase database, IEventBus eventBus)
+    : MongoDbEventStore(database, "talk_events", eventBus),
         ITalkEventStore { }

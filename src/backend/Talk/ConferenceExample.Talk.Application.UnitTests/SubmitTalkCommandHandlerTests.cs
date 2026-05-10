@@ -26,7 +26,6 @@ public class SubmitTalkCommandHandlerTests
                 new SpeakerProfileCreatedEvent(
                     speakerId.Value.Value,
                     DateTimeOffset.UtcNow,
-                    0,
                     "Jane",
                     "Doe",
                     "Speaker bio"
@@ -82,7 +81,6 @@ public class SubmitTalkCommandHandlerTests
                 new SpeakerProfileCreatedEvent(
                     speakerId.Value.Value,
                     DateTimeOffset.UtcNow,
-                    0,
                     "Jane",
                     "Doe",
                     "Speaker bio"
@@ -142,7 +140,6 @@ public class SubmitTalkCommandHandlerTests
                 new SpeakerProfileCreatedEvent(
                     speakerId.Value.Value,
                     DateTimeOffset.UtcNow,
-                    0,
                     "Jane",
                     "Doe",
                     "Speaker bio"

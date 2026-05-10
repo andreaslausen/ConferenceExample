@@ -5,7 +5,6 @@ namespace ConferenceExample.Talk.Domain.SpeakerManagement.Events;
 public record SpeakerProfileUpdatedEvent(
     Guid AggregateId,
     DateTimeOffset OccurredAt,
-    long Version,
     string FirstName,
     string LastName,
     string Biography

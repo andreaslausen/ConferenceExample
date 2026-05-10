@@ -5,9 +5,8 @@ using ConferenceExample.EventStore;
 namespace ConferenceExample.Conference.Persistence.EventHandlers;
 
 /// <summary>
-/// Event handler that updates Conference Read Models when any Conference domain event occurs.
-/// Handles fat domain events that contain the complete aggregate state.
-/// Uses optimistic locking via version checking in the repository.
+/// Updates Conference Read Models in response to slim Conference domain events.
+/// Each handler applies only the delta carried by its event.
 /// </summary>
 public class ConferenceEventHandler
 {
@@ -18,273 +17,142 @@ public class ConferenceEventHandler
         _readModelRepository = readModelRepository;
     }
 
-    /// <summary>
-    /// Handles any Conference domain event (created, renamed, status changed).
-    /// All domain events now contain the complete aggregate state, so we can use a single handler.
-    /// Ensures idempotency by checking event version against read model version.
-    /// </summary>
-    public async Task HandleConferenceDomainEvent(StoredEvent storedEvent)
+    public async Task HandleConferenceCreated(StoredEvent storedEvent)
     {
-        // All Conference domain events have the same structure with complete aggregate state
-        var domainEvent = JsonSerializer.Deserialize<ConferenceDomainEventPayload>(
-            storedEvent.Payload
-        );
-        if (domainEvent is null)
+        var payload = JsonSerializer.Deserialize<ConferenceCreatedPayload>(storedEvent.Payload);
+        if (payload is null)
             return;
 
-        // Check if read model already exists
-        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-
-        if (existingReadModel is null)
+        var newReadModel = new ConferenceDocument
         {
-            // Create new read model with complete state from domain event
-            var newReadModel = new ConferenceDocument
-            {
-                Id = domainEvent.AggregateId.ToString(),
-                Name = domainEvent.Name,
-                Start = domainEvent.Start,
-                End = domainEvent.End,
-                LocationName = domainEvent.LocationName,
-                Street = domainEvent.Street,
-                City = domainEvent.City,
-                State = domainEvent.State,
-                PostalCode = domainEvent.PostalCode,
-                Country = domainEvent.Country,
-                OrganizerId = domainEvent.OrganizerId.ToString(),
-                Status = domainEvent.Status,
-                CreatedAt = domainEvent.OccurredAt,
-                LastModifiedAt = domainEvent.OccurredAt,
-                Version = storedEvent.Version,
-            };
+            Id = storedEvent.AggregateId.ToString(),
+            Name = payload.Name,
+            Start = payload.Start,
+            End = payload.End,
+            LocationName = payload.LocationName,
+            Street = payload.Street,
+            City = payload.City,
+            State = payload.State,
+            PostalCode = payload.PostalCode,
+            Country = payload.Country,
+            OrganizerId = payload.OrganizerId.ToString(),
+            Status = payload.Status,
+            CreatedAt = storedEvent.OccurredAt,
+            LastModifiedAt = storedEvent.OccurredAt,
+            Version = storedEvent.Version,
+        };
 
-            await _readModelRepository.Save(newReadModel);
-        }
-        else
-        {
-            // Use the event store version (storedEvent.Version) for idempotency rather than the
-            // embedded payload version, which can be identical across multiple events raised within
-            // the same command (e.g. EditTalk).
-            if (storedEvent.Version <= existingReadModel.Version)
-            {
-                return; // Event already processed or out of order, skip to prevent duplicates
-            }
-
-            // Update existing read model with complete state from domain event
-            existingReadModel.Name = domainEvent.Name;
-            existingReadModel.Start = domainEvent.Start;
-            existingReadModel.End = domainEvent.End;
-            existingReadModel.LocationName = domainEvent.LocationName;
-            existingReadModel.Street = domainEvent.Street;
-            existingReadModel.City = domainEvent.City;
-            existingReadModel.State = domainEvent.State;
-            existingReadModel.PostalCode = domainEvent.PostalCode;
-            existingReadModel.Country = domainEvent.Country;
-            existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
-            existingReadModel.Status = domainEvent.Status;
-            existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-            existingReadModel.Version = storedEvent.Version;
-
-            // Repository uses optimistic locking - will only update if version is newer
-            await _readModelRepository.Update(existingReadModel);
-        }
+        await _readModelRepository.Save(newReadModel);
     }
 
-    public async Task HandleRoomAdded(StoredEvent storedEvent)
+    public async Task HandleConferenceRenamed(StoredEvent storedEvent)
     {
-        var domainEvent = JsonSerializer.Deserialize<RoomAddedPayload>(storedEvent.Payload);
-        if (domainEvent is null)
+        var payload = JsonSerializer.Deserialize<RenamedPayload>(storedEvent.Payload);
+        if (payload is null)
             return;
 
-        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-        if (existingReadModel is null)
+        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
             return;
 
-        if (storedEvent.Version <= existingReadModel.Version)
-            return;
+        readModel.Name = payload.Name;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
 
-        existingReadModel.Name = domainEvent.Name;
-        existingReadModel.Start = domainEvent.Start;
-        existingReadModel.End = domainEvent.End;
-        existingReadModel.LocationName = domainEvent.LocationName;
-        existingReadModel.Street = domainEvent.Street;
-        existingReadModel.City = domainEvent.City;
-        existingReadModel.State = domainEvent.State;
-        existingReadModel.PostalCode = domainEvent.PostalCode;
-        existingReadModel.Country = domainEvent.Country;
-        existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
-        existingReadModel.Status = domainEvent.Status;
-        existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-        existingReadModel.Version = storedEvent.Version;
-
-        await _readModelRepository.Update(existingReadModel);
+        await _readModelRepository.Update(readModel);
     }
 
-    public async Task HandleRoomRemoved(StoredEvent storedEvent)
+    public async Task HandleConferenceStatusChanged(StoredEvent storedEvent)
     {
-        var domainEvent = JsonSerializer.Deserialize<RoomRemovedPayload>(storedEvent.Payload);
-        if (domainEvent is null)
+        var payload = JsonSerializer.Deserialize<StatusChangedPayload>(storedEvent.Payload);
+        if (payload is null)
             return;
 
-        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-        if (existingReadModel is null)
+        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
             return;
 
-        if (storedEvent.Version <= existingReadModel.Version)
-            return;
+        readModel.Status = payload.Status;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
 
-        existingReadModel.Name = domainEvent.Name;
-        existingReadModel.Start = domainEvent.Start;
-        existingReadModel.End = domainEvent.End;
-        existingReadModel.LocationName = domainEvent.LocationName;
-        existingReadModel.Street = domainEvent.Street;
-        existingReadModel.City = domainEvent.City;
-        existingReadModel.State = domainEvent.State;
-        existingReadModel.PostalCode = domainEvent.PostalCode;
-        existingReadModel.Country = domainEvent.Country;
-        existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
-        existingReadModel.Status = domainEvent.Status;
-        existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-        existingReadModel.Version = storedEvent.Version;
-
-        await _readModelRepository.Update(existingReadModel);
+        await _readModelRepository.Update(readModel);
     }
 
-    /// <summary>
-    /// Handles TalkTypeDefinedEvent - adds a new TalkType to the Conference read model.
-    /// Ensures idempotency by checking event version against read model version.
-    /// </summary>
+    public async Task HandleConferenceDetailsUpdated(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<DetailsUpdatedPayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
+            return;
+
+        readModel.Name = payload.Name;
+        readModel.Start = payload.Start;
+        readModel.End = payload.End;
+        readModel.LocationName = payload.LocationName;
+        readModel.Street = payload.Street;
+        readModel.City = payload.City;
+        readModel.State = payload.State;
+        readModel.PostalCode = payload.PostalCode;
+        readModel.Country = payload.Country;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await _readModelRepository.Update(readModel);
+    }
+
     public async Task HandleTalkTypeDefined(StoredEvent storedEvent)
     {
-        var domainEvent = JsonSerializer.Deserialize<TalkTypeDefinedPayload>(storedEvent.Payload);
-        if (domainEvent is null)
+        var payload = JsonSerializer.Deserialize<TalkTypeDefinedPayload>(storedEvent.Payload);
+        if (payload is null)
             return;
 
-        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-        if (existingReadModel is null)
+        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
+            return;
+
+        var talkTypeId = payload.TalkTypeId.ToString();
+        if (readModel.TalkTypes.All(tt => tt.Id != talkTypeId))
         {
-            // Create new read model with the TalkType included
-            var newReadModel = new ConferenceDocument
-            {
-                Id = domainEvent.AggregateId.ToString(),
-                Name = domainEvent.Name,
-                Start = domainEvent.Start,
-                End = domainEvent.End,
-                LocationName = domainEvent.LocationName,
-                Street = domainEvent.Street,
-                City = domainEvent.City,
-                State = domainEvent.State,
-                PostalCode = domainEvent.PostalCode,
-                Country = domainEvent.Country,
-                OrganizerId = domainEvent.OrganizerId.ToString(),
-                Status = domainEvent.Status,
-                TalkTypes =
-                [
-                    new ConferenceDocument.TalkTypeDocument
-                    {
-                        Id = domainEvent.TalkTypeId.ToString(),
-                        Name = domainEvent.TalkTypeName,
-                        DurationInMinutes = domainEvent.TalkTypeDurationInMinutes,
-                    },
-                ],
-                CreatedAt = domainEvent.OccurredAt,
-                LastModifiedAt = domainEvent.OccurredAt,
-                Version = storedEvent.Version,
-            };
-
-            await _readModelRepository.Save(newReadModel);
+            readModel.TalkTypes.Add(
+                new ConferenceDocument.TalkTypeDocument
+                {
+                    Id = talkTypeId,
+                    Name = payload.TalkTypeName,
+                    DurationInMinutes = payload.TalkTypeDurationInMinutes,
+                }
+            );
         }
-        else
-        {
-            // Use the event store version (storedEvent.Version) for idempotency rather than the
-            // embedded payload version, which can be identical across multiple events raised within
-            // the same command (e.g. EditTalk).
-            if (storedEvent.Version <= existingReadModel.Version)
-            {
-                return; // Event already processed or out of order, skip to prevent duplicates
-            }
 
-            // Update existing read model with complete state and add the new TalkType
-            existingReadModel.Name = domainEvent.Name;
-            existingReadModel.Start = domainEvent.Start;
-            existingReadModel.End = domainEvent.End;
-            existingReadModel.LocationName = domainEvent.LocationName;
-            existingReadModel.Street = domainEvent.Street;
-            existingReadModel.City = domainEvent.City;
-            existingReadModel.State = domainEvent.State;
-            existingReadModel.PostalCode = domainEvent.PostalCode;
-            existingReadModel.Country = domainEvent.Country;
-            existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
-            existingReadModel.Status = domainEvent.Status;
-            existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-            existingReadModel.Version = storedEvent.Version;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
 
-            // Add the new TalkType if it doesn't already exist
-            var talkTypeId = domainEvent.TalkTypeId.ToString();
-            if (existingReadModel.TalkTypes.All(tt => tt.Id != talkTypeId))
-            {
-                existingReadModel.TalkTypes.Add(
-                    new ConferenceDocument.TalkTypeDocument
-                    {
-                        Id = talkTypeId,
-                        Name = domainEvent.TalkTypeName,
-                        DurationInMinutes = domainEvent.TalkTypeDurationInMinutes,
-                    }
-                );
-            }
-
-            await _readModelRepository.Update(existingReadModel);
-        }
+        await _readModelRepository.Update(readModel);
     }
 
-    /// <summary>
-    /// Handles TalkTypeRemovedEvent - removes a TalkType from the Conference read model.
-    /// Ensures idempotency by checking event version against read model version.
-    /// </summary>
     public async Task HandleTalkTypeRemoved(StoredEvent storedEvent)
     {
-        var domainEvent = JsonSerializer.Deserialize<TalkTypeRemovedPayload>(storedEvent.Payload);
-        if (domainEvent is null)
+        var payload = JsonSerializer.Deserialize<TalkTypeRemovedPayload>(storedEvent.Payload);
+        if (payload is null)
             return;
 
-        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-        if (existingReadModel is null)
+        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
             return;
 
-        // Use the event store version (storedEvent.Version) for idempotency rather than the
-        // embedded payload version, which can be identical across multiple events raised within
-        // the same command (e.g. EditTalk).
-        if (storedEvent.Version <= existingReadModel.Version)
-        {
-            return; // Event already processed or out of order, skip to prevent duplicates
-        }
+        var talkTypeId = payload.TalkTypeId.ToString();
+        readModel.TalkTypes.RemoveAll(tt => tt.Id == talkTypeId);
 
-        // Update existing read model with complete state and remove the TalkType
-        existingReadModel.Name = domainEvent.Name;
-        existingReadModel.Start = domainEvent.Start;
-        existingReadModel.End = domainEvent.End;
-        existingReadModel.LocationName = domainEvent.LocationName;
-        existingReadModel.Street = domainEvent.Street;
-        existingReadModel.City = domainEvent.City;
-        existingReadModel.State = domainEvent.State;
-        existingReadModel.PostalCode = domainEvent.PostalCode;
-        existingReadModel.Country = domainEvent.Country;
-        existingReadModel.OrganizerId = domainEvent.OrganizerId.ToString();
-        existingReadModel.Status = domainEvent.Status;
-        existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-        existingReadModel.Version = storedEvent.Version;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
 
-        // Remove the TalkType
-        var talkTypeId = domainEvent.TalkTypeId.ToString();
-        existingReadModel.TalkTypes.RemoveAll(tt => tt.Id == talkTypeId);
-
-        await _readModelRepository.Update(existingReadModel);
+        await _readModelRepository.Update(readModel);
     }
 
-    // DTO for deserializing any Conference domain event (all have the same structure now)
-    private record ConferenceDomainEventPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
+    private record ConferenceCreatedPayload(
         string Name,
         DateTimeOffset Start,
         DateTimeOffset End,
@@ -298,11 +166,11 @@ public class ConferenceEventHandler
         string Status
     );
 
-    // DTO for deserializing TalkTypeDefinedEvent
-    private record TalkTypeDefinedPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
+    private record RenamedPayload(string Name);
+
+    private record StatusChangedPayload(string Status);
+
+    private record DetailsUpdatedPayload(
         string Name,
         DateTimeOffset Start,
         DateTimeOffset End,
@@ -311,67 +179,14 @@ public class ConferenceEventHandler
         string City,
         string State,
         string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status,
+        string Country
+    );
+
+    private record TalkTypeDefinedPayload(
         Guid TalkTypeId,
         string TalkTypeName,
         int TalkTypeDurationInMinutes
     );
 
-    private record RoomAddedPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string Name,
-        DateTimeOffset Start,
-        DateTimeOffset End,
-        string LocationName,
-        string Street,
-        string City,
-        string State,
-        string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status,
-        Guid RoomId,
-        string RoomName
-    );
-
-    private record RoomRemovedPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string Name,
-        DateTimeOffset Start,
-        DateTimeOffset End,
-        string LocationName,
-        string Street,
-        string City,
-        string State,
-        string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status,
-        Guid RoomId
-    );
-
-    // DTO for deserializing TalkTypeRemovedEvent
-    private record TalkTypeRemovedPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string Name,
-        DateTimeOffset Start,
-        DateTimeOffset End,
-        string LocationName,
-        string Street,
-        string City,
-        string State,
-        string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status,
-        Guid TalkTypeId
-    );
+    private record TalkTypeRemovedPayload(Guid TalkTypeId);
 }

@@ -9,9 +9,8 @@ namespace ConferenceExample.Conference.Persistence.UnitTests;
 public class ConferenceEventHandlerTests
 {
     [Fact]
-    public async Task HandleConferenceDomainEvent_NewConference_CreatesReadModel()
+    public async Task HandleConferenceCreated_CreatesReadModel()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
@@ -21,9 +20,6 @@ public class ConferenceEventHandlerTests
 
         var payload = new
         {
-            AggregateId = aggregateId,
-            OccurredAt = occurredAt,
-            Version = 1L,
             Name = "Test Conference",
             Start = occurredAt.AddDays(30),
             End = occurredAt.AddDays(32),
@@ -43,15 +39,11 @@ public class ConferenceEventHandlerTests
             "ConferenceCreatedEvent",
             JsonSerializer.Serialize(payload),
             occurredAt,
-            1
+            0
         );
 
-        repository.GetById(aggregateId).Returns((ConferenceDocument?)null);
+        await handler.HandleConferenceCreated(storedEvent);
 
-        // Act
-        await handler.HandleConferenceDomainEvent(storedEvent);
-
-        // Assert
         await repository
             .Received(1)
             .Save(
@@ -59,241 +51,109 @@ public class ConferenceEventHandlerTests
                     rm.Id == aggregateId.ToString()
                     && rm.Name == "Test Conference"
                     && rm.Status == "Draft"
+                    && rm.Version == 0
+                )
+            );
+    }
+
+    [Fact]
+    public async Task HandleConferenceRenamed_UpdatesNameOnly()
+    {
+        var repository = Substitute.For<IConferenceDocumentRepository>();
+        var handler = new ConferenceEventHandler(repository);
+
+        var aggregateId = Guid.CreateVersion7();
+        var existing = new ConferenceDocument
+        {
+            Id = aggregateId.ToString(),
+            Name = "Old Name",
+            Status = "Draft",
+            LocationName = "Convention Center",
+            Version = 0,
+        };
+        repository.GetById(aggregateId).Returns(existing);
+
+        var storedEvent = new StoredEvent(
+            Guid.CreateVersion7(),
+            aggregateId,
+            "ConferenceRenamedEvent",
+            JsonSerializer.Serialize(new { Name = "New Name" }),
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        await handler.HandleConferenceRenamed(storedEvent);
+
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceDocument>(rm =>
+                    rm.Name == "New Name"
+                    && rm.Status == "Draft"
+                    && rm.LocationName == "Convention Center"
                     && rm.Version == 1
                 )
             );
     }
 
     [Fact]
-    public async Task HandleConferenceDomainEvent_ExistingConference_UpdatesReadModel()
+    public async Task HandleConferenceStatusChanged_UpdatesStatusOnly()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.CreateVersion7();
-        var occurredAt = DateTimeOffset.UtcNow;
-        var organizerId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceDocument
+        var existing = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
-            Name = "Old Name",
-            Version = 1,
-        };
-
-        var payload = new
-        {
-            AggregateId = aggregateId,
-            OccurredAt = occurredAt,
-            Version = 2L,
-            Name = "New Name",
-            Start = occurredAt.AddDays(30),
-            End = occurredAt.AddDays(32),
-            LocationName = "Convention Center",
-            Street = "123 Main St",
-            City = "Springfield",
-            State = "IL",
-            PostalCode = "62701",
-            Country = "USA",
-            OrganizerId = organizerId,
-            Status = "Published",
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            aggregateId,
-            "ConferenceRenamedEvent",
-            JsonSerializer.Serialize(payload),
-            occurredAt,
-            2
-        );
-
-        repository.GetById(aggregateId).Returns(existingReadModel);
-
-        // Act
-        await handler.HandleConferenceDomainEvent(storedEvent);
-
-        // Assert
-        await repository
-            .Received(1)
-            .Update(
-                Arg.Is<ConferenceDocument>(rm =>
-                    rm.Id == aggregateId.ToString()
-                    && rm.Name == "New Name"
-                    && rm.Status == "Published"
-                    && rm.Version == 2
-                )
-            );
-    }
-
-    [Fact]
-    public async Task HandleConferenceDomainEvent_InvalidPayload_ThrowsException()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceDocumentRepository>();
-        var handler = new ConferenceEventHandler(repository);
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "ConferenceCreatedEvent",
-            "invalid json",
-            DateTimeOffset.UtcNow,
-            1
-        );
-
-        // Act & Assert
-        await Assert.ThrowsAsync<System.Text.Json.JsonException>(async () =>
-            await handler.HandleConferenceDomainEvent(storedEvent)
-        );
-    }
-
-    // Idempotency Tests
-    [Fact]
-    public async Task HandleConferenceDomainEvent_DuplicateEvent_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceDocumentRepository>();
-        var handler = new ConferenceEventHandler(repository);
-
-        var aggregateId = Guid.CreateVersion7();
-        var organizerId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceDocument
-        {
-            Id = aggregateId.ToString(),
-            Name = "Existing Name",
-            Status = "Published",
-            Version = 2, // Already at version 2
-        };
-
-        var payload = new
-        {
-            AggregateId = aggregateId,
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Same version - duplicate
-            Name = "Duplicate Name",
-            Start = DateTimeOffset.UtcNow.AddDays(30),
-            End = DateTimeOffset.UtcNow.AddDays(32),
-            LocationName = "Convention Center",
-            Street = "123 Main St",
-            City = "Springfield",
-            State = "IL",
-            PostalCode = "62701",
-            Country = "USA",
-            OrganizerId = organizerId,
-            Status = "Published",
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            aggregateId,
-            "ConferenceRenamedEvent",
-            JsonSerializer.Serialize(payload),
-            DateTimeOffset.UtcNow,
-            2
-        );
-
-        repository.GetById(aggregateId).Returns(existingReadModel);
-
-        // Act
-        await handler.HandleConferenceDomainEvent(storedEvent);
-
-        // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceDocument>());
-        Assert.Equal("Existing Name", existingReadModel.Name); // Name unchanged
-    }
-
-    [Fact]
-    public async Task HandleConferenceDomainEvent_OutOfOrderEvent_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceDocumentRepository>();
-        var handler = new ConferenceEventHandler(repository);
-
-        var aggregateId = Guid.CreateVersion7();
-        var organizerId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceDocument
-        {
-            Id = aggregateId.ToString(),
-            Name = "Current Name",
-            Status = "Published",
-            Version = 3, // Already at version 3
-        };
-
-        var payload = new
-        {
-            AggregateId = aggregateId,
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Older version - out of order
-            Name = "Old Name",
-            Start = DateTimeOffset.UtcNow.AddDays(30),
-            End = DateTimeOffset.UtcNow.AddDays(32),
-            LocationName = "Convention Center",
-            Street = "123 Main St",
-            City = "Springfield",
-            State = "IL",
-            PostalCode = "62701",
-            Country = "USA",
-            OrganizerId = organizerId,
+            Name = "Conference",
             Status = "Draft",
+            Version = 0,
         };
+        repository.GetById(aggregateId).Returns(existing);
 
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             aggregateId,
             "ConferenceStatusChangedEvent",
-            JsonSerializer.Serialize(payload),
+            JsonSerializer.Serialize(new { Status = "CallForSpeakers" }),
             DateTimeOffset.UtcNow,
-            2
+            1
         );
 
-        repository.GetById(aggregateId).Returns(existingReadModel);
+        await handler.HandleConferenceStatusChanged(storedEvent);
 
-        // Act
-        await handler.HandleConferenceDomainEvent(storedEvent);
-
-        // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceDocument>());
-        Assert.Equal("Current Name", existingReadModel.Name); // Name unchanged
-        Assert.Equal(3, existingReadModel.Version); // Version unchanged
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceDocument>(rm =>
+                    rm.Name == "Conference"
+                    && rm.Status == "CallForSpeakers"
+                    && rm.Version == 1
+                )
+            );
     }
 
     [Fact]
-    public async Task HandleRoomAdded_UpdatesAllConferenceFields()
+    public async Task HandleConferenceDetailsUpdated_UpdatesNameTimeAndLocation()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.CreateVersion7();
-        var occurredAt = DateTimeOffset.UtcNow;
-        var organizerId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceDocument
+        var existing = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
-            Name = "Old Name",
-            Start = occurredAt,
-            End = occurredAt,
-            LocationName = "Old Location",
-            Street = "Old Street",
-            City = "Old City",
-            State = "Old State",
-            PostalCode = "00000",
-            Country = "Old Country",
-            OrganizerId = Guid.CreateVersion7().ToString(),
+            Name = "Old",
+            LocationName = "Old Loc",
             Status = "Draft",
-            Version = 1,
+            Version = 0,
         };
+        repository.GetById(aggregateId).Returns(existing);
 
+        var occurredAt = DateTimeOffset.UtcNow;
         var payload = new
         {
-            AggregateId = aggregateId,
-            OccurredAt = occurredAt,
-            Version = 2L,
             Name = "New Name",
             Start = occurredAt.AddDays(30),
             End = occurredAt.AddDays(32),
@@ -303,27 +163,19 @@ public class ConferenceEventHandlerTests
             State = "IL",
             PostalCode = "62701",
             Country = "USA",
-            OrganizerId = organizerId,
-            Status = "Published",
-            RoomId = Guid.CreateVersion7(),
-            RoomName = "Main Hall",
         };
 
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             aggregateId,
-            "RoomAddedEvent",
+            "ConferenceDetailsUpdatedEvent",
             JsonSerializer.Serialize(payload),
             occurredAt,
-            2
+            1
         );
 
-        repository.GetById(aggregateId).Returns(existingReadModel);
+        await handler.HandleConferenceDetailsUpdated(storedEvent);
 
-        // Act
-        await handler.HandleRoomAdded(storedEvent);
-
-        // Assert
         await repository
             .Received(1)
             .Update(
@@ -332,133 +184,31 @@ public class ConferenceEventHandlerTests
                     && rm.LocationName == "Convention Center"
                     && rm.Street == "123 Main St"
                     && rm.City == "Springfield"
-                    && rm.State == "IL"
-                    && rm.PostalCode == "62701"
-                    && rm.Country == "USA"
-                    && rm.OrganizerId == organizerId.ToString()
-                    && rm.Status == "Published"
-                    && rm.Version == 2
+                    && rm.Status == "Draft"
+                    && rm.Version == 1
                 )
             );
     }
 
     [Fact]
-    public async Task HandleRoomRemoved_UpdatesAllConferenceFields()
+    public async Task HandleTalkTypeDefined_AddsTalkType()
     {
-        // Arrange
-        var repository = Substitute.For<IConferenceDocumentRepository>();
-        var handler = new ConferenceEventHandler(repository);
-
-        var aggregateId = Guid.CreateVersion7();
-        var occurredAt = DateTimeOffset.UtcNow;
-        var organizerId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceDocument
-        {
-            Id = aggregateId.ToString(),
-            Name = "Old Name",
-            Start = occurredAt,
-            End = occurredAt,
-            LocationName = "Old Location",
-            Street = "Old Street",
-            City = "Old City",
-            State = "Old State",
-            PostalCode = "00000",
-            Country = "Old Country",
-            OrganizerId = Guid.CreateVersion7().ToString(),
-            Status = "Draft",
-            Version = 1,
-        };
-
-        var payload = new
-        {
-            AggregateId = aggregateId,
-            OccurredAt = occurredAt,
-            Version = 2L,
-            Name = "New Name",
-            Start = occurredAt.AddDays(30),
-            End = occurredAt.AddDays(32),
-            LocationName = "Convention Center",
-            Street = "123 Main St",
-            City = "Springfield",
-            State = "IL",
-            PostalCode = "62701",
-            Country = "USA",
-            OrganizerId = organizerId,
-            Status = "Published",
-            RoomId = Guid.CreateVersion7(),
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            aggregateId,
-            "RoomRemovedEvent",
-            JsonSerializer.Serialize(payload),
-            occurredAt,
-            2
-        );
-
-        repository.GetById(aggregateId).Returns(existingReadModel);
-
-        // Act
-        await handler.HandleRoomRemoved(storedEvent);
-
-        // Assert
-        await repository
-            .Received(1)
-            .Update(
-                Arg.Is<ConferenceDocument>(rm =>
-                    rm.Name == "New Name"
-                    && rm.LocationName == "Convention Center"
-                    && rm.Street == "123 Main St"
-                    && rm.City == "Springfield"
-                    && rm.State == "IL"
-                    && rm.PostalCode == "62701"
-                    && rm.Country == "USA"
-                    && rm.OrganizerId == organizerId.ToString()
-                    && rm.Status == "Published"
-                    && rm.Version == 2
-                )
-            );
-    }
-
-    [Fact]
-    public async Task HandleTalkTypeDefined_DuplicateEvent_DoesNotUpdate()
-    {
-        // Arrange
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.CreateVersion7();
         var talkTypeId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceDocument
+        var existing = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
             Name = "Conference",
-            Version = 2, // Already at version 2
-            TalkTypes = new List<ConferenceDocument.TalkTypeDocument>
-            {
-                new() { Id = talkTypeId.ToString(), Name = "Keynote" },
-            },
+            Status = "Draft",
+            Version = 0,
         };
+        repository.GetById(aggregateId).Returns(existing);
 
         var payload = new
         {
-            AggregateId = aggregateId,
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Same version - duplicate
-            Name = "Conference",
-            Start = DateTimeOffset.UtcNow.AddDays(30),
-            End = DateTimeOffset.UtcNow.AddDays(32),
-            LocationName = "Convention Center",
-            Street = "123 Main St",
-            City = "Springfield",
-            State = "IL",
-            PostalCode = "62701",
-            Country = "USA",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
             TalkTypeId = talkTypeId,
             TalkTypeName = "Keynote",
             TalkTypeDurationInMinutes = 60,
@@ -470,76 +220,82 @@ public class ConferenceEventHandlerTests
             "TalkTypeDefinedEvent",
             JsonSerializer.Serialize(payload),
             DateTimeOffset.UtcNow,
-            2
+            1
         );
 
-        repository.GetById(aggregateId).Returns(existingReadModel);
-
-        // Act
         await handler.HandleTalkTypeDefined(storedEvent);
 
-        // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceDocument>());
-        Assert.Single(existingReadModel.TalkTypes); // TalkTypes unchanged
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceDocument>(rm =>
+                    rm.TalkTypes.Count == 1
+                    && rm.TalkTypes[0].Id == talkTypeId.ToString()
+                    && rm.TalkTypes[0].DurationInMinutes == 60
+                    && rm.Version == 1
+                )
+            );
     }
 
     [Fact]
-    public async Task HandleTalkTypeRemoved_OutOfOrderEvent_DoesNotUpdate()
+    public async Task HandleTalkTypeRemoved_RemovesTalkType()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceDocumentRepository>();
         var handler = new ConferenceEventHandler(repository);
 
         var aggregateId = Guid.CreateVersion7();
         var talkTypeId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceDocument
+        var existing = new ConferenceDocument
         {
             Id = aggregateId.ToString(),
             Name = "Conference",
-            Version = 3, // Already at version 3
-            TalkTypes = new List<ConferenceDocument.TalkTypeDocument>
-            {
-                new() { Id = talkTypeId.ToString(), Name = "Workshop" },
-            },
-        };
-
-        var payload = new
-        {
-            AggregateId = aggregateId,
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Older version - out of order
-            Name = "Conference",
-            Start = DateTimeOffset.UtcNow.AddDays(30),
-            End = DateTimeOffset.UtcNow.AddDays(32),
-            LocationName = "Convention Center",
-            Street = "123 Main St",
-            City = "Springfield",
-            State = "IL",
-            PostalCode = "62701",
-            Country = "USA",
-            OrganizerId = Guid.CreateVersion7(),
             Status = "Draft",
-            TalkTypeId = talkTypeId,
+            Version = 0,
+            TalkTypes =
+            [
+                new() { Id = talkTypeId.ToString(), Name = "Workshop" },
+            ],
         };
+        repository.GetById(aggregateId).Returns(existing);
 
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             aggregateId,
             "TalkTypeRemovedEvent",
-            JsonSerializer.Serialize(payload),
+            JsonSerializer.Serialize(new { TalkTypeId = talkTypeId }),
             DateTimeOffset.UtcNow,
-            2
+            1
         );
 
-        repository.GetById(aggregateId).Returns(existingReadModel);
-
-        // Act
         await handler.HandleTalkTypeRemoved(storedEvent);
 
-        // Assert - should not update
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceDocument>(rm => rm.TalkTypes.Count == 0 && rm.Version == 1)
+            );
+    }
+
+    [Fact]
+    public async Task HandleConferenceRenamed_MissingReadModel_DoesNothing()
+    {
+        var repository = Substitute.For<IConferenceDocumentRepository>();
+        var handler = new ConferenceEventHandler(repository);
+
+        var aggregateId = Guid.CreateVersion7();
+        repository.GetById(aggregateId).Returns((ConferenceDocument?)null);
+
+        var storedEvent = new StoredEvent(
+            Guid.CreateVersion7(),
+            aggregateId,
+            "ConferenceRenamedEvent",
+            JsonSerializer.Serialize(new { Name = "Whatever" }),
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        await handler.HandleConferenceRenamed(storedEvent);
+
         await repository.DidNotReceive().Update(Arg.Any<ConferenceDocument>());
-        Assert.Single(existingReadModel.TalkTypes); // TalkTypes unchanged
-        Assert.Equal(3, existingReadModel.Version); // Version unchanged
     }
 }
