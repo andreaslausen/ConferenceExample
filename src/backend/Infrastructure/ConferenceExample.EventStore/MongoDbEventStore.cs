@@ -5,10 +5,12 @@ namespace ConferenceExample.EventStore;
 public abstract class MongoDbEventStore : IEventStore
 {
     private readonly IMongoCollection<StoredEvent> _eventsCollection;
+    private readonly IEventBus _eventBus;
 
-    public MongoDbEventStore(IMongoDatabase database, string collectionName)
+    protected MongoDbEventStore(IMongoDatabase database, string collectionName, IEventBus eventBus)
     {
         _eventsCollection = database.GetCollection<StoredEvent>(collectionName);
+        _eventBus = eventBus;
         CreateIndexes();
     }
 
@@ -77,6 +79,11 @@ public abstract class MongoDbEventStore : IEventStore
                 $"Duplicate event detected for aggregate {aggregateId}. Possible concurrency conflict.",
                 ex
             );
+        }
+
+        foreach (var storedEvent in eventsList)
+        {
+            _eventBus.Publish(storedEvent);
         }
     }
 

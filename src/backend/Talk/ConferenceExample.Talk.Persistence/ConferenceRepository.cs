@@ -19,33 +19,33 @@ public class ConferenceRepository(ITalkEventStore eventStore) : IConferenceRepos
             );
         }
 
-        var latestEvent = storedEvents.OrderByDescending(e => e.Version).First();
-        var payload = JsonSerializer.Deserialize<ConferenceEventPayload>(latestEvent.Payload);
+        // Slim events: only ConferenceCreatedEvent and ConferenceStatusChangedEvent carry Status.
+        // Pick the latest of those by version to get the current Status.
+        var latestStatusEvent = storedEvents
+            .Where(e =>
+                e.EventType == "ConferenceCreatedEvent"
+                || e.EventType == "ConferenceStatusChangedEvent"
+            )
+            .OrderByDescending(e => e.Version)
+            .FirstOrDefault();
 
+        if (latestStatusEvent is null)
+        {
+            throw new InvalidOperationException(
+                $"No status-bearing event found for Conference {conferenceId.Value}."
+            );
+        }
+
+        var payload = JsonSerializer.Deserialize<StatusPayload>(latestStatusEvent.Payload);
         if (payload is null)
         {
             throw new InvalidOperationException(
-                $"Failed to deserialize Conference event for {conferenceId.Value}"
+                $"Failed to deserialize Conference event for {conferenceId.Value}."
             );
         }
 
         return Conference.FromEvents(conferenceId, payload.Status);
     }
 
-    private record ConferenceEventPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string Name,
-        DateTimeOffset Start,
-        DateTimeOffset End,
-        string LocationName,
-        string Street,
-        string City,
-        string State,
-        string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status
-    );
+    private record StatusPayload(string Status);
 }

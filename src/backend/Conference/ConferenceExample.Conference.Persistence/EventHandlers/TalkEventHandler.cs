@@ -1,96 +1,198 @@
 using System.Text.Json;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.TalkManagement;
 using ConferenceExample.Conference.Persistence.ReadModels;
 using ConferenceExample.EventStore;
 
 namespace ConferenceExample.Conference.Persistence.EventHandlers;
 
 /// <summary>
-/// Event handler that synchronizes Talk events from the Talk BC to the Conference BC.
-/// Updates the Conference Talk Read Models when Talk domain events occur.
-/// This enables the Conference BC to have denormalized talk data without tight coupling.
+/// Synchronizes Talk events from the Talk BC into the Conference BC's denormalized
+/// ConferenceTalkDocument read model. Also handles Conference-side talk events
+/// (accept/reject/schedule/assign) which carry only the TalkId.
 /// </summary>
-public class TalkEventHandler
+public class TalkEventHandler(
+    IConferenceTalkDocumentRepository readModelRepository,
+    IConferenceRepository conferenceRepository
+)
 {
-    private readonly IConferenceTalkDocumentRepository _readModelRepository;
-
-    public TalkEventHandler(IConferenceTalkDocumentRepository readModelRepository)
+    public async Task HandleTalkSubmitted(StoredEvent storedEvent)
     {
-        _readModelRepository = readModelRepository;
-    }
-
-    /// <summary>
-    /// Handles any Talk domain event from the Talk BC (submitted, edited, tag added/removed).
-    /// All domain events now contain the complete aggregate state, so we can use a single handler.
-    /// Ensures idempotency by checking event version against read model version.
-    /// </summary>
-    public async Task HandleTalkDomainEvent(StoredEvent storedEvent)
-    {
-        // All Talk domain events have the same structure with complete aggregate state
-        var domainEvent = JsonSerializer.Deserialize<TalkDomainEventPayload>(storedEvent.Payload);
-        if (domainEvent is null)
+        var payload = JsonSerializer.Deserialize<TalkSubmittedPayload>(storedEvent.Payload);
+        if (payload is null)
             return;
 
-        // Check if read model already exists
-        var existingReadModel = await _readModelRepository.GetById(storedEvent.AggregateId);
-
-        if (existingReadModel is null)
+        var newReadModel = new ConferenceTalkDocument
         {
-            // Create new read model with complete state from domain event
-            var newReadModel = new ConferenceTalkDocument
-            {
-                Id = domainEvent.AggregateId.ToString(),
-                ConferenceId = domainEvent.ConferenceId.ToString(),
-                Title = domainEvent.Title,
-                Abstract = domainEvent.Abstract,
-                SpeakerId = domainEvent.SpeakerId.ToString(),
-                SpeakerFirstName = domainEvent.SpeakerFirstName,
-                SpeakerLastName = domainEvent.SpeakerLastName,
-                SpeakerBiography = domainEvent.SpeakerBiography,
-                TalkTypeId = domainEvent.TalkTypeId.ToString(),
-                Tags = domainEvent.Tags,
-                Status = domainEvent.Status,
-                SubmittedAt = domainEvent.OccurredAt,
-                LastModifiedAt = domainEvent.OccurredAt,
-                Version = storedEvent.Version,
-            };
+            Id = storedEvent.AggregateId.ToString(),
+            ConferenceId = payload.ConferenceId.ToString(),
+            Title = payload.Title,
+            Abstract = payload.Abstract,
+            SpeakerId = payload.SpeakerId.ToString(),
+            SpeakerFirstName = payload.SpeakerFirstName,
+            SpeakerLastName = payload.SpeakerLastName,
+            SpeakerBiography = payload.SpeakerBiography,
+            TalkTypeId = payload.TalkTypeId.ToString(),
+            Tags = payload.Tags,
+            Status = payload.Status,
+            SubmittedAt = storedEvent.OccurredAt,
+            LastModifiedAt = storedEvent.OccurredAt,
+            Version = storedEvent.Version,
+        };
 
-            await _readModelRepository.Save(newReadModel);
-        }
-        else
-        {
-            // Use the event store version (storedEvent.Version) for idempotency rather than the
-            // embedded payload version, which can be identical across multiple events raised within
-            // the same command (e.g. EditTalk).
-            if (storedEvent.Version <= existingReadModel.Version)
-            {
-                return; // Event already processed or out of order, skip to prevent duplicates
-            }
+        await readModelRepository.Save(newReadModel);
 
-            // Update existing read model with complete state from domain event
-            // Preserve Conference BC specific fields (SlotStart, SlotEnd, RoomId, RoomName)
-            existingReadModel.ConferenceId = domainEvent.ConferenceId.ToString();
-            existingReadModel.Title = domainEvent.Title;
-            existingReadModel.Abstract = domainEvent.Abstract;
-            existingReadModel.SpeakerId = domainEvent.SpeakerId.ToString();
-            existingReadModel.SpeakerFirstName = domainEvent.SpeakerFirstName;
-            existingReadModel.SpeakerLastName = domainEvent.SpeakerLastName;
-            existingReadModel.SpeakerBiography = domainEvent.SpeakerBiography;
-            existingReadModel.TalkTypeId = domainEvent.TalkTypeId.ToString();
-            existingReadModel.Tags = domainEvent.Tags;
-            existingReadModel.Status = domainEvent.Status;
-            existingReadModel.LastModifiedAt = domainEvent.OccurredAt;
-            existingReadModel.Version = storedEvent.Version;
-
-            // Repository uses optimistic locking - will only update if version is newer
-            await _readModelRepository.Update(existingReadModel);
-        }
+        var conference = await conferenceRepository.GetById(
+            new ConferenceId(new GuidV7(payload.ConferenceId))
+        );
+        conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
+        await conferenceRepository.Save(conference);
     }
 
-    // DTO for deserializing any Talk domain event (all have the same structure now)
-    private record TalkDomainEventPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
+    public async Task HandleTalkTitleEdited(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TitlePayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
+            return;
+
+        readModel.Title = payload.Title;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await readModelRepository.Update(readModel);
+    }
+
+    public async Task HandleTalkAbstractEdited(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<AbstractPayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
+            return;
+
+        readModel.Abstract = payload.Abstract;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await readModelRepository.Update(readModel);
+    }
+
+    public async Task HandleTalkTagAdded(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TagPayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
+            return;
+
+        if (!readModel.Tags.Contains(payload.Tag))
+        {
+            readModel.Tags.Add(payload.Tag);
+        }
+
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await readModelRepository.Update(readModel);
+    }
+
+    public async Task HandleTalkTagRemoved(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TagPayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
+        if (readModel is null)
+            return;
+
+        readModel.Tags.RemoveAll(t => t == payload.Tag);
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await readModelRepository.Update(readModel);
+    }
+
+    public async Task HandleTalkAccepted(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TalkIdPayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await readModelRepository.GetById(payload.TalkId);
+        if (readModel is null)
+            return;
+
+        readModel.Status = "Accepted";
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await readModelRepository.Update(readModel);
+    }
+
+    public async Task HandleTalkRejected(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TalkIdPayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await readModelRepository.GetById(payload.TalkId);
+        if (readModel is null)
+            return;
+
+        readModel.Status = "Rejected";
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await readModelRepository.Update(readModel);
+    }
+
+    public async Task HandleTalkScheduled(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TalkScheduledPayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await readModelRepository.GetById(payload.TalkId);
+        if (readModel is null)
+            return;
+
+        readModel.SlotStart = payload.TalkStart;
+        readModel.SlotEnd = payload.TalkEnd;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await readModelRepository.Update(readModel);
+    }
+
+    public async Task HandleTalkAssignedToRoom(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TalkAssignedToRoomPayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var readModel = await readModelRepository.GetById(payload.TalkId);
+        if (readModel is null)
+            return;
+
+        readModel.RoomId = payload.RoomId.ToString();
+        readModel.RoomName = payload.RoomName;
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
+
+        await readModelRepository.Update(readModel);
+    }
+
+    private record TalkSubmittedPayload(
         string Title,
         string Abstract,
         Guid SpeakerId,
@@ -103,186 +205,19 @@ public class TalkEventHandler
         string Status
     );
 
-    public async Task HandleTalkAccepted(StoredEvent storedEvent)
-    {
-        // Fat event contains full Conference state - we only care about TalkId for this handler
-        var payload = JsonSerializer.Deserialize<TalkAcceptedPayload>(storedEvent.Payload);
-        if (payload is null)
-            return;
+    private record TitlePayload(string Title);
 
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
-        if (readModel is null)
-            return;
+    private record AbstractPayload(string Abstract);
 
-        // Use the event store version (storedEvent.Version) for idempotency rather than the
-        // embedded payload version, which can be identical across multiple events raised within
-        // the same command (e.g. EditTalk).
-        if (storedEvent.Version <= readModel.Version)
-        {
-            return; // Event already processed or out of order, skip to prevent duplicates
-        }
+    private record TagPayload(string Tag);
 
-        readModel.Status = "Accepted";
-        readModel.LastModifiedAt = storedEvent.OccurredAt;
-        readModel.Version = storedEvent.Version;
-
-        await _readModelRepository.Update(readModel);
-    }
-
-    public async Task HandleTalkRejected(StoredEvent storedEvent)
-    {
-        // Fat event contains full Conference state - we only care about TalkId for this handler
-        var payload = JsonSerializer.Deserialize<TalkRejectedPayload>(storedEvent.Payload);
-        if (payload is null)
-            return;
-
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
-        if (readModel is null)
-            return;
-
-        // Use the event store version (storedEvent.Version) for idempotency rather than the
-        // embedded payload version, which can be identical across multiple events raised within
-        // the same command (e.g. EditTalk).
-        if (storedEvent.Version <= readModel.Version)
-        {
-            return; // Event already processed or out of order, skip to prevent duplicates
-        }
-
-        readModel.Status = "Rejected";
-        readModel.LastModifiedAt = storedEvent.OccurredAt;
-        readModel.Version = storedEvent.Version;
-
-        await _readModelRepository.Update(readModel);
-    }
-
-    public async Task HandleTalkScheduled(StoredEvent storedEvent)
-    {
-        // Fat event contains full Conference state - extract TalkStart/TalkEnd for scheduling
-        var payload = JsonSerializer.Deserialize<TalkScheduledPayload>(storedEvent.Payload);
-        if (payload is null)
-            return;
-
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
-        if (readModel is null)
-            return;
-
-        // Use the event store version (storedEvent.Version) for idempotency rather than the
-        // embedded payload version, which can be identical across multiple events raised within
-        // the same command (e.g. EditTalk).
-        if (storedEvent.Version <= readModel.Version)
-        {
-            return; // Event already processed or out of order, skip to prevent duplicates
-        }
-
-        readModel.SlotStart = payload.TalkStart;
-        readModel.SlotEnd = payload.TalkEnd;
-        readModel.LastModifiedAt = storedEvent.OccurredAt;
-        readModel.Version = storedEvent.Version;
-
-        await _readModelRepository.Update(readModel);
-    }
-
-    public async Task HandleTalkAssignedToRoom(StoredEvent storedEvent)
-    {
-        // Fat event contains full Conference state - extract Room info
-        var payload = JsonSerializer.Deserialize<TalkAssignedToRoomPayload>(storedEvent.Payload);
-        if (payload is null)
-            return;
-
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
-        if (readModel is null)
-            return;
-
-        // Use the event store version (storedEvent.Version) for idempotency rather than the
-        // embedded payload version, which can be identical across multiple events raised within
-        // the same command (e.g. EditTalk).
-        if (storedEvent.Version <= readModel.Version)
-        {
-            return; // Event already processed or out of order, skip to prevent duplicates
-        }
-
-        readModel.RoomId = payload.RoomId.ToString();
-        readModel.RoomName = payload.RoomName;
-        readModel.LastModifiedAt = storedEvent.OccurredAt;
-        readModel.Version = storedEvent.Version;
-
-        await _readModelRepository.Update(readModel);
-    }
-
-    // Event payload DTOs (from Conference BC) - Fat events with full Conference state
-    private record TalkAcceptedPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string Name,
-        DateTimeOffset Start,
-        DateTimeOffset End,
-        string LocationName,
-        string Street,
-        string City,
-        string State,
-        string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status,
-        Guid TalkId
-    );
-
-    private record TalkRejectedPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string Name,
-        DateTimeOffset Start,
-        DateTimeOffset End,
-        string LocationName,
-        string Street,
-        string City,
-        string State,
-        string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status,
-        Guid TalkId
-    );
+    private record TalkIdPayload(Guid TalkId);
 
     private record TalkScheduledPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string Name,
-        DateTimeOffset ConferenceStart,
-        DateTimeOffset ConferenceEnd,
-        string LocationName,
-        string Street,
-        string City,
-        string State,
-        string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status,
         Guid TalkId,
         DateTimeOffset TalkStart,
         DateTimeOffset TalkEnd
     );
 
-    private record TalkAssignedToRoomPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string Name,
-        DateTimeOffset Start,
-        DateTimeOffset End,
-        string LocationName,
-        string Street,
-        string City,
-        string State,
-        string PostalCode,
-        string Country,
-        Guid OrganizerId,
-        string Status,
-        Guid TalkId,
-        Guid RoomId,
-        string RoomName
-    );
+    private record TalkAssignedToRoomPayload(Guid TalkId, Guid RoomId, string RoomName);
 }

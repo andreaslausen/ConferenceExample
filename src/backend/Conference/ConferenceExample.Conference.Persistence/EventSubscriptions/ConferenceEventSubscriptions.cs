@@ -5,140 +5,139 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ConferenceExample.Conference.Persistence.EventSubscriptions;
 
 /// <summary>
-/// Registers event subscriptions for the Conference bounded context.
-/// Updates Conference Read Models when domain events occur.
-/// All domain events now contain the complete aggregate state.
+/// Wires Conference BC read-model handlers to the in-memory event bus.
+/// Each slim event is dispatched to its dedicated handler method.
 /// </summary>
 public static class ConferenceEventSubscriptions
 {
     public static void Subscribe(IEventBus eventBus, IServiceScopeFactory scopeFactory)
     {
-        // Subscribe to all Conference domain events - they all contain complete aggregate state
-        var conferenceDomainEvents = new[]
-        {
+        SubscribeConferenceHandler(
+            eventBus,
+            scopeFactory,
             "ConferenceCreatedEvent",
+            (h, e) => h.HandleConferenceCreated(e)
+        );
+        SubscribeConferenceHandler(
+            eventBus,
+            scopeFactory,
             "ConferenceRenamedEvent",
-            "ConferenceDetailsUpdatedEvent",
+            (h, e) => h.HandleConferenceRenamed(e)
+        );
+        SubscribeConferenceHandler(
+            eventBus,
+            scopeFactory,
             "ConferenceStatusChangedEvent",
-        };
-
-        foreach (var eventType in conferenceDomainEvents)
-        {
-            eventBus.Subscribe(
-                eventType,
-                async storedEvent =>
-                {
-                    using var scope = scopeFactory.CreateScope();
-                    var handler =
-                        scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
-                    await handler.HandleConferenceDomainEvent(storedEvent);
-                }
-            );
-        }
-
-        // Subscribe to TalkType events
-        eventBus.Subscribe(
+            (h, e) => h.HandleConferenceStatusChanged(e)
+        );
+        SubscribeConferenceHandler(
+            eventBus,
+            scopeFactory,
+            "ConferenceDetailsUpdatedEvent",
+            (h, e) => h.HandleConferenceDetailsUpdated(e)
+        );
+        SubscribeConferenceHandler(
+            eventBus,
+            scopeFactory,
             "TalkTypeDefinedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
-                await handler.HandleTalkTypeDefined(storedEvent);
-            }
+            (h, e) => h.HandleTalkTypeDefined(e)
         );
-
-        eventBus.Subscribe(
+        SubscribeConferenceHandler(
+            eventBus,
+            scopeFactory,
             "TalkTypeRemovedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
-                await handler.HandleTalkTypeRemoved(storedEvent);
-            }
+            (h, e) => h.HandleTalkTypeRemoved(e)
         );
 
-        // Subscribe to Room events
-        eventBus.Subscribe(
-            "RoomAddedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
-                await handler.HandleRoomAdded(storedEvent);
-            }
-        );
-
-        eventBus.Subscribe(
-            "RoomRemovedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
-                await handler.HandleRoomRemoved(storedEvent);
-            }
-        );
-
-        // Subscribe to Talk domain events (for cross-BC synchronization)
-        var talkDomainEvents = new[]
-        {
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
             "TalkSubmittedEvent",
+            (h, e) => h.HandleTalkSubmitted(e)
+        );
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
             "TalkTitleEditedEvent",
+            (h, e) => h.HandleTalkTitleEdited(e)
+        );
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
             "TalkAbstractEditedEvent",
+            (h, e) => h.HandleTalkAbstractEdited(e)
+        );
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
             "TalkTagAddedEvent",
+            (h, e) => h.HandleTalkTagAdded(e)
+        );
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
             "TalkTagRemovedEvent",
-        };
-
-        foreach (var eventType in talkDomainEvents)
-        {
-            eventBus.Subscribe(
-                eventType,
-                async storedEvent =>
-                {
-                    using var scope = scopeFactory.CreateScope();
-                    var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
-                    await handler.HandleTalkDomainEvent(storedEvent);
-                }
-            );
-        }
-
-        // Conference BC specific events (managed by Conference aggregate)
-        eventBus.Subscribe(
+            (h, e) => h.HandleTalkTagRemoved(e)
+        );
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
             "TalkAcceptedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
-                await handler.HandleTalkAccepted(storedEvent);
-            }
+            (h, e) => h.HandleTalkAccepted(e)
         );
-
-        eventBus.Subscribe(
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
             "TalkRejectedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
-                await handler.HandleTalkRejected(storedEvent);
-            }
+            (h, e) => h.HandleTalkRejected(e)
         );
-
-        eventBus.Subscribe(
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
             "TalkScheduledEvent",
+            (h, e) => h.HandleTalkScheduled(e)
+        );
+        SubscribeTalkHandler(
+            eventBus,
+            scopeFactory,
+            "TalkAssignedToRoomEvent",
+            (h, e) => h.HandleTalkAssignedToRoom(e)
+        );
+    }
+
+    private static void SubscribeConferenceHandler(
+        IEventBus eventBus,
+        IServiceScopeFactory scopeFactory,
+        string eventType,
+        Func<ConferenceEventHandler, StoredEvent, Task> dispatch
+    )
+    {
+        eventBus.Subscribe(
+            eventType,
             async storedEvent =>
             {
                 using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
-                await handler.HandleTalkScheduled(storedEvent);
+                var handler =
+                    scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
+                await dispatch(handler, storedEvent);
             }
         );
+    }
 
+    private static void SubscribeTalkHandler(
+        IEventBus eventBus,
+        IServiceScopeFactory scopeFactory,
+        string eventType,
+        Func<TalkEventHandler, StoredEvent, Task> dispatch
+    )
+    {
         eventBus.Subscribe(
-            "TalkAssignedToRoomEvent",
+            eventType,
             async storedEvent =>
             {
                 using var scope = scopeFactory.CreateScope();
                 var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
-                await handler.HandleTalkAssignedToRoom(storedEvent);
+                await dispatch(handler, storedEvent);
             }
         );
     }

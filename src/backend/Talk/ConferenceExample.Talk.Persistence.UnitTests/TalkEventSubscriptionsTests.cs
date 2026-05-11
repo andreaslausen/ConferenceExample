@@ -1,6 +1,7 @@
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Persistence.EventHandlers;
 using ConferenceExample.Talk.Persistence.EventSubscriptions;
+using ConferenceExample.Talk.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
@@ -11,7 +12,6 @@ public class TalkEventSubscriptionsTests
     [Fact]
     public void Subscribe_RegistersAllTalkDomainEvents()
     {
-        // Arrange
         var eventBus = Substitute.For<IEventBus>();
         var scopeFactory = Substitute.For<IServiceScopeFactory>();
 
@@ -24,10 +24,8 @@ public class TalkEventSubscriptionsTests
             "TalkTagRemovedEvent",
         };
 
-        // Act
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert
         foreach (var eventType in expectedEventTypes)
         {
             eventBus.Received(1).Subscribe(eventType, Arg.Any<Func<StoredEvent, Task>>());
@@ -37,7 +35,6 @@ public class TalkEventSubscriptionsTests
     [Fact]
     public void Subscribe_RegistersAllSpeakerDomainEvents()
     {
-        // Arrange
         var eventBus = Substitute.For<IEventBus>();
         var scopeFactory = Substitute.For<IServiceScopeFactory>();
 
@@ -47,10 +44,8 @@ public class TalkEventSubscriptionsTests
             "SpeakerProfileUpdatedEvent",
         };
 
-        // Act
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert
         foreach (var eventType in expectedEventTypes)
         {
             eventBus.Received(1).Subscribe(eventType, Arg.Any<Func<StoredEvent, Task>>());
@@ -58,42 +53,67 @@ public class TalkEventSubscriptionsTests
     }
 
     [Fact]
-    public void Subscribe_RegistersExactlyNineteenEventTypes()
+    public void Subscribe_RegistersAllConferenceReplicationEvents()
     {
-        // Arrange
         var eventBus = Substitute.For<IEventBus>();
         var scopeFactory = Substitute.For<IServiceScopeFactory>();
 
-        // Act
+        var expectedEventTypes = new[]
+        {
+            "ConferenceCreatedEvent",
+            "ConferenceRenamedEvent",
+            "ConferenceDetailsUpdatedEvent",
+            "ConferenceStatusChangedEvent",
+            "TalkTypeDefinedEvent",
+            "TalkTypeRemovedEvent",
+            "RoomAddedEvent",
+            "RoomRemovedEvent",
+            "TalkSubmittedToConferenceEvent",
+            "TalkAcceptedEvent",
+            "TalkRejectedEvent",
+            "TalkScheduledEvent",
+            "TalkAssignedToRoomEvent",
+        };
+
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - 12 conference replication events + 5 talk events + 2 speaker events
-        eventBus.Received(19).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        foreach (var eventType in expectedEventTypes)
+        {
+            eventBus.Received(1).Subscribe(eventType, Arg.Any<Func<StoredEvent, Task>>());
+        }
     }
 
     [Fact]
-    public async Task Subscribe_EventHandler_CreatesScopeAndCallsHandler()
+    public void Subscribe_RegistersExactlyTwentyEventTypes()
     {
-        // Arrange
+        var eventBus = Substitute.For<IEventBus>();
+        var scopeFactory = Substitute.For<IServiceScopeFactory>();
+
+        TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
+
+        // 13 conference replication events + 5 talk events + 2 speaker events
+        eventBus.Received(20).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+    }
+
+    [Fact]
+    public async Task Subscribe_TalkSubmittedHandler_ResolvesAndRunsHandler()
+    {
         var eventBus = Substitute.For<IEventBus>();
         var scopeFactory = Substitute.For<IServiceScopeFactory>();
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<ReadModels.ITalkDocumentRepository>()
+            Substitute.For<ITalkDocumentRepository>()
         );
 
         scopeFactory.CreateScope().Returns(scope);
         scope.ServiceProvider.Returns(serviceProvider);
         serviceProvider.GetService(typeof(TalkEventHandler)).Returns(handler);
 
-        Func<StoredEvent, Task>? capturedHandler = null;
+        Func<StoredEvent, Task>? captured = null;
         eventBus
             .When(x => x.Subscribe("TalkSubmittedEvent", Arg.Any<Func<StoredEvent, Task>>()))
-            .Do(callInfo =>
-            {
-                capturedHandler = callInfo.ArgAt<Func<StoredEvent, Task>>(1);
-            });
+            .Do(callInfo => captured = callInfo.ArgAt<Func<StoredEvent, Task>>(1));
 
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
@@ -103,14 +123,12 @@ public class TalkEventSubscriptionsTests
             "TalkSubmittedEvent",
             "{}",
             DateTimeOffset.UtcNow,
-            1
+            0
         );
 
-        // Act
-        Assert.NotNull(capturedHandler);
-        await capturedHandler!(storedEvent);
+        Assert.NotNull(captured);
+        await captured!(storedEvent);
 
-        // Assert
         scopeFactory.Received(1).CreateScope();
         scope.Received(1).Dispose();
     }
@@ -118,15 +136,12 @@ public class TalkEventSubscriptionsTests
     [Fact]
     public void Subscribe_CanBeCalledMultipleTimes()
     {
-        // Arrange
         var eventBus = Substitute.For<IEventBus>();
         var scopeFactory = Substitute.For<IServiceScopeFactory>();
 
-        // Act - call multiple times
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
-        // Assert - each call should register handlers (19 events × 2 calls = 38)
-        eventBus.Received(38).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
+        eventBus.Received(40).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
 }

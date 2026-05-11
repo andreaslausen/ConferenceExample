@@ -1,19 +1,25 @@
 using System.Text.Json;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence.EventHandlers;
 using ConferenceExample.Conference.Persistence.ReadModels;
 using ConferenceExample.EventStore;
 using NSubstitute;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 namespace ConferenceExample.Conference.Persistence.UnitTests;
 
 public class TalkEventHandlerTests
 {
     [Fact]
-    public async Task HandleTalkDomainEvent_NewTalk_CreatesReadModel()
+    public async Task HandleTalkSubmitted_CreatesReadModel()
     {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var readModelRepository = Substitute.For<IConferenceTalkDocumentRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(CreateConference());
+        var handler = new TalkEventHandler(readModelRepository, conferenceRepository);
 
         var talkId = Guid.CreateVersion7();
         var conferenceId = Guid.CreateVersion7();
@@ -23,9 +29,6 @@ public class TalkEventHandlerTests
 
         var payload = new
         {
-            AggregateId = talkId,
-            OccurredAt = occurredAt,
-            Version = 1L,
             Title = "Test Talk",
             Abstract = "Test Abstract",
             SpeakerId = speakerId,
@@ -44,16 +47,12 @@ public class TalkEventHandlerTests
             "TalkSubmittedEvent",
             JsonSerializer.Serialize(payload),
             occurredAt,
-            1
+            0
         );
 
-        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
+        await handler.HandleTalkSubmitted(storedEvent);
 
-        // Act
-        await handler.HandleTalkDomainEvent(storedEvent);
-
-        // Assert
-        await repository
+        await readModelRepository
             .Received(1)
             .Save(
                 Arg.Is<ConferenceTalkDocument>(rm =>
@@ -61,62 +60,117 @@ public class TalkEventHandlerTests
                     && rm.Title == "Test Talk"
                     && rm.ConferenceId == conferenceId.ToString()
                     && rm.Status == "Submitted"
-                    && rm.Version == 1
+                    && rm.Version == 0
                 )
             );
     }
 
     [Fact]
-    public async Task HandleTalkAccepted_UpdatesReadModelStatus()
+    public async Task HandleTalkSubmitted_SubmitsTalkToConferenceAggregate()
     {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var readModelRepository = Substitute.For<IConferenceTalkDocumentRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
+        var conference = CreateConference();
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
+        var handler = new TalkEventHandler(readModelRepository, conferenceRepository);
 
         var talkId = Guid.CreateVersion7();
-        var occurredAt = DateTimeOffset.UtcNow;
-
-        var existingReadModel = new ConferenceTalkDocument
-        {
-            Id = talkId.ToString(),
-            Status = "Submitted",
-            Version = 1,
-        };
+        var conferenceId = Guid.CreateVersion7();
 
         var payload = new
         {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = occurredAt,
-            Version = 2L,
-            Name = "Conference",
-            Start = occurredAt,
-            End = occurredAt,
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
-            TalkId = talkId,
+            Title = "Test Talk",
+            Abstract = "Test Abstract",
+            SpeakerId = Guid.CreateVersion7(),
+            SpeakerFirstName = "Jane",
+            SpeakerLastName = "Doe",
+            SpeakerBiography = "Speaker bio",
+            Tags = new List<string>(),
+            TalkTypeId = Guid.CreateVersion7(),
+            ConferenceId = conferenceId,
+            Status = "Submitted",
         };
+
+        var storedEvent = new StoredEvent(
+            Guid.CreateVersion7(),
+            talkId,
+            "TalkSubmittedEvent",
+            JsonSerializer.Serialize(payload),
+            DateTimeOffset.UtcNow,
+            0
+        );
+
+        await handler.HandleTalkSubmitted(storedEvent);
+
+        await conferenceRepository
+            .Received(1)
+            .Save(
+                Arg.Is<ConferenceAggregate>(c =>
+                    c.Talks.Count == 1 && (Guid)c.Talks[0].Id.Value == talkId
+                )
+            );
+    }
+
+    [Fact]
+    public async Task HandleTalkTitleEdited_UpdatesTitle()
+    {
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
+
+        var talkId = Guid.CreateVersion7();
+        var existing = new ConferenceTalkDocument
+        {
+            Id = talkId.ToString(),
+            Title = "Old",
+            Status = "Submitted",
+            Version = 0,
+        };
+        repository.GetById(talkId).Returns(existing);
+
+        var storedEvent = new StoredEvent(
+            Guid.CreateVersion7(),
+            talkId,
+            "TalkTitleEditedEvent",
+            JsonSerializer.Serialize(new { Title = "Brand New" }),
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        await handler.HandleTalkTitleEdited(storedEvent);
+
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceTalkDocument>(rm => rm.Title == "Brand New" && rm.Version == 1)
+            );
+    }
+
+    [Fact]
+    public async Task HandleTalkAccepted_SetsStatusToAccepted()
+    {
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
+
+        var talkId = Guid.CreateVersion7();
+        var existing = new ConferenceTalkDocument
+        {
+            Id = talkId.ToString(),
+            Status = "Submitted",
+            Version = 0,
+        };
+        repository.GetById(talkId).Returns(existing);
 
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
             "TalkAcceptedEvent",
-            JsonSerializer.Serialize(payload),
-            occurredAt,
-            2
+            JsonSerializer.Serialize(new { TalkId = talkId }),
+            DateTimeOffset.UtcNow,
+            1
         );
 
-        repository.GetById(talkId).Returns(existingReadModel);
-
-        // Act
         await handler.HandleTalkAccepted(storedEvent);
 
-        // Assert
         await repository
             .Received(1)
             .Update(
@@ -127,39 +181,60 @@ public class TalkEventHandlerTests
     }
 
     [Fact]
+    public async Task HandleTalkRejected_SetsStatusToRejected()
+    {
+        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
+
+        var talkId = Guid.CreateVersion7();
+        var existing = new ConferenceTalkDocument
+        {
+            Id = talkId.ToString(),
+            Status = "Submitted",
+            Version = 0,
+        };
+        repository.GetById(talkId).Returns(existing);
+
+        var storedEvent = new StoredEvent(
+            Guid.CreateVersion7(),
+            Guid.CreateVersion7(),
+            "TalkRejectedEvent",
+            JsonSerializer.Serialize(new { TalkId = talkId }),
+            DateTimeOffset.UtcNow,
+            1
+        );
+
+        await handler.HandleTalkRejected(storedEvent);
+
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceTalkDocument>(rm =>
+                    rm.Id == talkId.ToString() && rm.Status == "Rejected"
+                )
+            );
+    }
+
+    [Fact]
     public async Task HandleTalkScheduled_UpdatesSlotTimes()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var talkStart = DateTimeOffset.UtcNow.AddDays(30);
         var talkEnd = talkStart.AddHours(1);
 
-        var existingReadModel = new ConferenceTalkDocument
+        var existing = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Status = "Accepted",
             Version = 1,
         };
+        repository.GetById(talkId).Returns(existing);
 
         var payload = new
         {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L,
-            Name = "Conference",
-            ConferenceStart = DateTimeOffset.UtcNow.AddDays(30),
-            ConferenceEnd = DateTimeOffset.UtcNow.AddDays(32),
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
             TalkId = talkId,
             TalkStart = talkStart,
             TalkEnd = talkEnd,
@@ -174,12 +249,8 @@ public class TalkEventHandlerTests
             2
         );
 
-        repository.GetById(talkId).Returns(existingReadModel);
-
-        // Act
         await handler.HandleTalkScheduled(storedEvent);
 
-        // Assert
         await repository
             .Received(1)
             .Update(
@@ -190,170 +261,23 @@ public class TalkEventHandlerTests
     }
 
     [Fact]
-    public async Task HandleTalkRejected_UpdatesReadModelStatus()
+    public async Task HandleTalkAssignedToRoom_UpdatesRoomInfo()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var talkId = Guid.CreateVersion7();
-        var occurredAt = DateTimeOffset.UtcNow;
-
-        var existingReadModel = new ConferenceTalkDocument
-        {
-            Id = talkId.ToString(),
-            Status = "Submitted",
-            Version = 1,
-        };
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = occurredAt,
-            Version = 2L,
-            Name = "Conference",
-            Start = occurredAt,
-            End = occurredAt,
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
-            TalkId = talkId,
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkRejectedEvent",
-            JsonSerializer.Serialize(payload),
-            occurredAt,
-            2
-        );
-
-        repository.GetById(talkId).Returns(existingReadModel);
-
-        // Act
-        await handler.HandleTalkRejected(storedEvent);
-
-        // Assert
-        await repository
-            .Received(1)
-            .Update(
-                Arg.Is<ConferenceTalkDocument>(rm =>
-                    rm.Id == talkId.ToString() && rm.Status == "Rejected"
-                )
-            );
-    }
-
-    [Fact]
-    public async Task HandleTalkRejected_WithNullPayload_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkRejectedEvent",
-            "null",
-            DateTimeOffset.UtcNow,
-            1
-        );
-
-        // Act
-        await handler.HandleTalkRejected(storedEvent);
-
-        // Assert
-        await repository.DidNotReceive().GetById(Arg.Any<Guid>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    [Fact]
-    public async Task HandleTalkRejected_WithNonExistingReadModel_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var talkId = Guid.CreateVersion7();
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L,
-            Name = "Conference",
-            Start = DateTimeOffset.UtcNow,
-            End = DateTimeOffset.UtcNow,
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
-            TalkId = talkId,
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkRejectedEvent",
-            JsonSerializer.Serialize(payload),
-            DateTimeOffset.UtcNow,
-            2
-        );
-
-        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
-
-        // Act
-        await handler.HandleTalkRejected(storedEvent);
-
-        // Assert
-        await repository.Received(1).GetById(talkId);
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    [Fact]
-    public async Task HandleTalkAssignedToRoom_UpdatesRoomInformation()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var roomId = Guid.CreateVersion7();
-        var occurredAt = DateTimeOffset.UtcNow;
-
-        var existingReadModel = new ConferenceTalkDocument
+        var existing = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
             Status = "Accepted",
             Version = 1,
         };
+        repository.GetById(talkId).Returns(existing);
 
         var payload = new
         {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = occurredAt,
-            Version = 2L,
-            Name = "Conference",
-            Start = occurredAt,
-            End = occurredAt,
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
             TalkId = talkId,
             RoomId = roomId,
             RoomName = "Main Hall",
@@ -364,16 +288,12 @@ public class TalkEventHandlerTests
             Guid.CreateVersion7(),
             "TalkAssignedToRoomEvent",
             JsonSerializer.Serialize(payload),
-            occurredAt,
+            DateTimeOffset.UtcNow,
             2
         );
 
-        repository.GetById(talkId).Returns(existingReadModel);
-
-        // Act
         await handler.HandleTalkAssignedToRoom(storedEvent);
 
-        // Assert
         await repository
             .Received(1)
             .Update(
@@ -386,585 +306,138 @@ public class TalkEventHandlerTests
     }
 
     [Fact]
-    public async Task HandleTalkAssignedToRoom_WithNullPayload_DoesNotUpdate()
+    public async Task HandleTalkAccepted_NonExistingReadModel_DoesNotUpdate()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
+
+        var talkId = Guid.CreateVersion7();
+        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
 
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
-            "TalkAssignedToRoomEvent",
-            "null",
+            "TalkAcceptedEvent",
+            JsonSerializer.Serialize(new { TalkId = talkId }),
             DateTimeOffset.UtcNow,
             1
         );
 
-        // Act
-        await handler.HandleTalkAssignedToRoom(storedEvent);
+        await handler.HandleTalkAccepted(storedEvent);
 
-        // Assert
-        await repository.DidNotReceive().GetById(Arg.Any<Guid>());
         await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
     }
 
     [Fact]
-    public async Task HandleTalkAssignedToRoom_WithNonExistingReadModel_DoesNotUpdate()
+    public async Task HandleTalkTagAdded_AppendsTag()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L,
-            Name = "Conference",
-            Start = DateTimeOffset.UtcNow,
-            End = DateTimeOffset.UtcNow,
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
-            TalkId = talkId,
-            RoomId = Guid.CreateVersion7(),
-            RoomName = "Main Hall",
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkAssignedToRoomEvent",
-            JsonSerializer.Serialize(payload),
-            DateTimeOffset.UtcNow,
-            2
-        );
-
-        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
-
-        // Act
-        await handler.HandleTalkAssignedToRoom(storedEvent);
-
-        // Assert
-        await repository.Received(1).GetById(talkId);
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    [Fact]
-    public async Task HandleTalkDomainEvent_UpdatesExistingReadModel()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var talkId = Guid.CreateVersion7();
-        var conferenceId = Guid.CreateVersion7();
-        var speakerId = Guid.CreateVersion7();
-        var talkTypeId = Guid.CreateVersion7();
-        var occurredAt = DateTimeOffset.UtcNow;
-
-        var existingReadModel = new ConferenceTalkDocument
+        var existing = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
-            Title = "Old Title",
-            Status = "Submitted",
-            Version = 1,
+            Tags = ["dotnet"],
+            Version = 0,
         };
-
-        var payload = new
-        {
-            AggregateId = talkId,
-            OccurredAt = occurredAt,
-            Version = 2L,
-            Title = "Updated Talk",
-            Abstract = "Updated Abstract",
-            SpeakerId = speakerId,
-            SpeakerFirstName = "Jane",
-            SpeakerLastName = "Doe",
-            SpeakerBiography = "Speaker bio",
-            Tags = new List<string> { "csharp", "dotnet" },
-            TalkTypeId = talkTypeId,
-            ConferenceId = conferenceId,
-            Status = "Submitted",
-        };
+        repository.GetById(talkId).Returns(existing);
 
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             talkId,
-            "TalkEditedEvent",
-            JsonSerializer.Serialize(payload),
-            occurredAt,
-            2
+            "TalkTagAddedEvent",
+            JsonSerializer.Serialize(new { Tag = "csharp" }),
+            DateTimeOffset.UtcNow,
+            1
         );
 
-        repository.GetById(talkId).Returns(existingReadModel);
+        await handler.HandleTalkTagAdded(storedEvent);
 
-        // Act
-        await handler.HandleTalkDomainEvent(storedEvent);
-
-        // Assert
         await repository
             .Received(1)
             .Update(
                 Arg.Is<ConferenceTalkDocument>(rm =>
-                    rm.Id == talkId.ToString()
-                    && rm.Title == "Updated Talk"
-                    && rm.Abstract == "Updated Abstract"
-                    && rm.Version == 2
+                    rm.Tags.Count == 2 && rm.Tags.Contains("csharp") && rm.Version == 1
                 )
             );
     }
 
     [Fact]
-    public async Task HandleTalkDomainEvent_WithNullPayload_DoesNotCreateOrUpdate()
+    public async Task HandleTalkTagRemoved_DropsTag()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkSubmittedEvent",
-            "null",
-            DateTimeOffset.UtcNow,
-            1
-        );
-
-        // Act
-        await handler.HandleTalkDomainEvent(storedEvent);
-
-        // Assert
-        await repository.DidNotReceive().Save(Arg.Any<ConferenceTalkDocument>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    [Fact]
-    public async Task HandleTalkAccepted_WithNullPayload_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkAcceptedEvent",
-            "null",
-            DateTimeOffset.UtcNow,
-            1
-        );
-
-        // Act
-        await handler.HandleTalkAccepted(storedEvent);
-
-        // Assert
-        await repository.DidNotReceive().GetById(Arg.Any<Guid>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    [Fact]
-    public async Task HandleTalkAccepted_WithNonExistingReadModel_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L,
-            Name = "Conference",
-            Start = DateTimeOffset.UtcNow,
-            End = DateTimeOffset.UtcNow,
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
-            TalkId = talkId,
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkAcceptedEvent",
-            JsonSerializer.Serialize(payload),
-            DateTimeOffset.UtcNow,
-            2
-        );
-
-        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
-
-        // Act
-        await handler.HandleTalkAccepted(storedEvent);
-
-        // Assert
-        await repository.Received(1).GetById(talkId);
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    [Fact]
-    public async Task HandleTalkScheduled_WithNullPayload_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkScheduledEvent",
-            "null",
-            DateTimeOffset.UtcNow,
-            1
-        );
-
-        // Act
-        await handler.HandleTalkScheduled(storedEvent);
-
-        // Assert
-        await repository.DidNotReceive().GetById(Arg.Any<Guid>());
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    [Fact]
-    public async Task HandleTalkScheduled_WithNonExistingReadModel_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var talkId = Guid.CreateVersion7();
-        var talkStart = DateTimeOffset.UtcNow.AddDays(30);
-        var talkEnd = talkStart.AddHours(1);
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L,
-            Name = "Conference",
-            ConferenceStart = DateTimeOffset.UtcNow.AddDays(30),
-            ConferenceEnd = DateTimeOffset.UtcNow.AddDays(32),
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
-            TalkId = talkId,
-            TalkStart = talkStart,
-            TalkEnd = talkEnd,
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkScheduledEvent",
-            JsonSerializer.Serialize(payload),
-            DateTimeOffset.UtcNow,
-            2
-        );
-
-        repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
-
-        // Act
-        await handler.HandleTalkScheduled(storedEvent);
-
-        // Assert
-        await repository.Received(1).GetById(talkId);
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    // Idempotency Tests
-    [Fact]
-    public async Task HandleTalkDomainEvent_DuplicateEvent_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var talkId = Guid.CreateVersion7();
-        var conferenceId = Guid.CreateVersion7();
-        var speakerId = Guid.CreateVersion7();
-        var talkTypeId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceTalkDocument
+        var existing = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
-            ConferenceId = conferenceId.ToString(),
-            Title = "Existing Title",
-            Version = 2, // Already at version 2
+            Tags = ["dotnet", "csharp"],
+            Version = 0,
         };
-
-        var payload = new
-        {
-            AggregateId = talkId,
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Same version - duplicate
-            Title = "Duplicate Title",
-            Abstract = "Duplicate Abstract",
-            SpeakerId = speakerId,
-            Tags = new List<string>(),
-            TalkTypeId = talkTypeId,
-            ConferenceId = conferenceId,
-            Status = "Submitted",
-        };
+        repository.GetById(talkId).Returns(existing);
 
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             talkId,
-            "TalkEditedEvent",
-            JsonSerializer.Serialize(payload),
+            "TalkTagRemovedEvent",
+            JsonSerializer.Serialize(new { Tag = "dotnet" }),
             DateTimeOffset.UtcNow,
-            2
+            1
         );
 
-        repository.GetById(talkId).Returns(existingReadModel);
+        await handler.HandleTalkTagRemoved(storedEvent);
 
-        // Act
-        await handler.HandleTalkDomainEvent(storedEvent);
-
-        // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
+        await repository
+            .Received(1)
+            .Update(
+                Arg.Is<ConferenceTalkDocument>(rm =>
+                    rm.Tags.Count == 1 && !rm.Tags.Contains("dotnet")
+                )
+            );
     }
 
     [Fact]
-    public async Task HandleTalkAccepted_DuplicateEvent_DoesNotUpdate()
+    public async Task HandleTalkAbstractEdited_UpdatesAbstract()
     {
-        // Arrange
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceTalkDocument
+        var existing = new ConferenceTalkDocument
         {
             Id = talkId.ToString(),
-            Status = "Accepted",
-            Version = 2, // Already at version 2
+            Abstract = "Old",
+            Version = 0,
         };
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Same version - duplicate
-            Name = "Conference",
-            Start = DateTimeOffset.UtcNow,
-            End = DateTimeOffset.UtcNow,
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
-            TalkId = talkId,
-        };
+        repository.GetById(talkId).Returns(existing);
 
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkAcceptedEvent",
-            JsonSerializer.Serialize(payload),
+            talkId,
+            "TalkAbstractEditedEvent",
+            JsonSerializer.Serialize(new { Abstract = "New" }),
             DateTimeOffset.UtcNow,
-            2
+            1
         );
 
-        repository.GetById(talkId).Returns(existingReadModel);
+        await handler.HandleTalkAbstractEdited(storedEvent);
 
-        // Act
-        await handler.HandleTalkAccepted(storedEvent);
-
-        // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
+        await repository
+            .Received(1)
+            .Update(Arg.Is<ConferenceTalkDocument>(rm => rm.Abstract == "New" && rm.Version == 1));
     }
 
-    [Fact]
-    public async Task HandleTalkRejected_OutOfOrderEvent_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var talkId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceTalkDocument
-        {
-            Id = talkId.ToString(),
-            Status = "Rejected",
-            Version = 3, // Already at version 3
-        };
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Older version - out of order
-            Name = "Conference",
-            Start = DateTimeOffset.UtcNow,
-            End = DateTimeOffset.UtcNow,
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Draft",
-            TalkId = talkId,
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkRejectedEvent",
-            JsonSerializer.Serialize(payload),
-            DateTimeOffset.UtcNow,
-            2
+    private static ConferenceAggregate CreateConference() =>
+        ConferenceAggregate.Create(
+            new ConferenceId(GuidV7.NewGuid()),
+            new Text("Test Conference"),
+            new Time(DateTimeOffset.UtcNow.AddDays(30), DateTimeOffset.UtcNow.AddDays(32)),
+            new Location(
+                new Text("Test Venue"),
+                new Address("123 Main St", "Springfield", "IL", "62701", "US")
+            ),
+            new OrganizerId(GuidV7.NewGuid())
         );
-
-        repository.GetById(talkId).Returns(existingReadModel);
-
-        // Act
-        await handler.HandleTalkRejected(storedEvent);
-
-        // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-        Assert.Equal(3, existingReadModel.Version); // Version unchanged
-    }
-
-    [Fact]
-    public async Task HandleTalkScheduled_DuplicateEvent_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var talkId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceTalkDocument
-        {
-            Id = talkId.ToString(),
-            SlotStart = DateTimeOffset.UtcNow.AddDays(30),
-            SlotEnd = DateTimeOffset.UtcNow.AddDays(30).AddHours(1),
-            Version = 2, // Already at version 2
-        };
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Same version - duplicate
-            Name = "Conference",
-            ConferenceStart = DateTimeOffset.UtcNow.AddDays(30),
-            ConferenceEnd = DateTimeOffset.UtcNow.AddDays(32),
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Published",
-            TalkId = talkId,
-            TalkStart = DateTimeOffset.UtcNow.AddDays(30),
-            TalkEnd = DateTimeOffset.UtcNow.AddDays(30).AddHours(1),
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkScheduledEvent",
-            JsonSerializer.Serialize(payload),
-            DateTimeOffset.UtcNow,
-            2
-        );
-
-        repository.GetById(talkId).Returns(existingReadModel);
-
-        // Act
-        await handler.HandleTalkScheduled(storedEvent);
-
-        // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-    }
-
-    [Fact]
-    public async Task HandleTalkAssignedToRoom_OutOfOrderEvent_DoesNotUpdate()
-    {
-        // Arrange
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
-
-        var talkId = Guid.CreateVersion7();
-        var roomId = Guid.CreateVersion7();
-
-        var existingReadModel = new ConferenceTalkDocument
-        {
-            Id = talkId.ToString(),
-            RoomId = roomId.ToString(),
-            RoomName = "Main Hall",
-            Version = 3, // Already at version 3
-        };
-
-        var payload = new
-        {
-            AggregateId = Guid.CreateVersion7(),
-            OccurredAt = DateTimeOffset.UtcNow,
-            Version = 2L, // Older version - out of order
-            Name = "Conference",
-            Start = DateTimeOffset.UtcNow.AddDays(30),
-            End = DateTimeOffset.UtcNow.AddDays(32),
-            LocationName = "Location",
-            Street = "Street",
-            City = "City",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country",
-            OrganizerId = Guid.CreateVersion7(),
-            Status = "Published",
-            TalkId = talkId,
-            RoomId = Guid.CreateVersion7(),
-            RoomName = "Different Room",
-        };
-
-        var storedEvent = new StoredEvent(
-            Guid.CreateVersion7(),
-            Guid.CreateVersion7(),
-            "TalkAssignedToRoomEvent",
-            JsonSerializer.Serialize(payload),
-            DateTimeOffset.UtcNow,
-            2
-        );
-
-        repository.GetById(talkId).Returns(existingReadModel);
-
-        // Act
-        await handler.HandleTalkAssignedToRoom(storedEvent);
-
-        // Assert - should not update
-        await repository.DidNotReceive().Update(Arg.Any<ConferenceTalkDocument>());
-        Assert.Equal("Main Hall", existingReadModel.RoomName); // Room unchanged
-        Assert.Equal(3, existingReadModel.Version); // Version unchanged
-    }
 }

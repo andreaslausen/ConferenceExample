@@ -6,55 +6,44 @@ namespace ConferenceExample.Talk.Persistence.EventHandlers;
 
 public class SpeakerEventHandler(ISpeakerDocumentRepository readModelRepository)
 {
-    public async Task HandleSpeakerDomainEvent(StoredEvent storedEvent)
+    public async Task HandleSpeakerProfileCreated(StoredEvent storedEvent)
     {
-        var domainEvent = JsonSerializer.Deserialize<SpeakerDomainEventPayload>(
-            storedEvent.Payload
-        );
-        if (domainEvent is null)
+        var payload = JsonSerializer.Deserialize<SpeakerProfilePayload>(storedEvent.Payload);
+        if (payload is null)
+            return;
+
+        var newDocument = new SpeakerDocument
+        {
+            Id = storedEvent.AggregateId.ToString(),
+            FirstName = payload.FirstName,
+            LastName = payload.LastName,
+            Biography = payload.Biography,
+            CreatedAt = storedEvent.OccurredAt,
+            LastModifiedAt = storedEvent.OccurredAt,
+            Version = storedEvent.Version,
+        };
+
+        await readModelRepository.Save(newDocument);
+    }
+
+    public async Task HandleSpeakerProfileUpdated(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<SpeakerProfilePayload>(storedEvent.Payload);
+        if (payload is null)
             return;
 
         var existingDocument = await readModelRepository.GetById(storedEvent.AggregateId);
-
         if (existingDocument is null)
-        {
-            var newDocument = new SpeakerDocument
-            {
-                Id = domainEvent.AggregateId.ToString(),
-                FirstName = domainEvent.FirstName,
-                LastName = domainEvent.LastName,
-                Biography = domainEvent.Biography,
-                CreatedAt = domainEvent.OccurredAt,
-                LastModifiedAt = domainEvent.OccurredAt,
-                Version = storedEvent.Version,
-            };
+            return;
 
-            await readModelRepository.Save(newDocument);
-        }
-        else
-        {
-            // Use the event store version (storedEvent.Version) for idempotency rather than the
-            // embedded payload version, which can be identical across multiple events raised within
-            // the same command (e.g. EditTalk).
-            if (storedEvent.Version <= existingDocument.Version)
-                return;
+        existingDocument.FirstName = payload.FirstName;
+        existingDocument.LastName = payload.LastName;
+        existingDocument.Biography = payload.Biography;
+        existingDocument.LastModifiedAt = storedEvent.OccurredAt;
+        existingDocument.Version = storedEvent.Version;
 
-            existingDocument.FirstName = domainEvent.FirstName;
-            existingDocument.LastName = domainEvent.LastName;
-            existingDocument.Biography = domainEvent.Biography;
-            existingDocument.LastModifiedAt = domainEvent.OccurredAt;
-            existingDocument.Version = storedEvent.Version;
-
-            await readModelRepository.Update(existingDocument);
-        }
+        await readModelRepository.Update(existingDocument);
     }
 
-    private record SpeakerDomainEventPayload(
-        Guid AggregateId,
-        DateTimeOffset OccurredAt,
-        long Version,
-        string FirstName,
-        string LastName,
-        string Biography
-    );
+    private record SpeakerProfilePayload(string FirstName, string LastName, string Biography);
 }
