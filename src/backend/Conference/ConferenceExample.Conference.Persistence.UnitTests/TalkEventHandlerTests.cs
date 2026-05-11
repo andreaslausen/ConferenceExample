@@ -1,8 +1,13 @@
 using System.Text.Json;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence.EventHandlers;
 using ConferenceExample.Conference.Persistence.ReadModels;
 using ConferenceExample.EventStore;
 using NSubstitute;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 namespace ConferenceExample.Conference.Persistence.UnitTests;
 
@@ -11,8 +16,10 @@ public class TalkEventHandlerTests
     [Fact]
     public async Task HandleTalkSubmitted_CreatesReadModel()
     {
-        var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var readModelRepository = Substitute.For<IConferenceTalkDocumentRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(CreateConference());
+        var handler = new TalkEventHandler(readModelRepository, conferenceRepository);
 
         var talkId = Guid.CreateVersion7();
         var conferenceId = Guid.CreateVersion7();
@@ -45,7 +52,7 @@ public class TalkEventHandlerTests
 
         await handler.HandleTalkSubmitted(storedEvent);
 
-        await repository
+        await readModelRepository
             .Received(1)
             .Save(
                 Arg.Is<ConferenceTalkDocument>(rm =>
@@ -59,10 +66,56 @@ public class TalkEventHandlerTests
     }
 
     [Fact]
+    public async Task HandleTalkSubmitted_SubmitsTalkToConferenceAggregate()
+    {
+        var readModelRepository = Substitute.For<IConferenceTalkDocumentRepository>();
+        var conferenceRepository = Substitute.For<IConferenceRepository>();
+        var conference = CreateConference();
+        conferenceRepository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
+        var handler = new TalkEventHandler(readModelRepository, conferenceRepository);
+
+        var talkId = Guid.CreateVersion7();
+        var conferenceId = Guid.CreateVersion7();
+
+        var payload = new
+        {
+            Title = "Test Talk",
+            Abstract = "Test Abstract",
+            SpeakerId = Guid.CreateVersion7(),
+            SpeakerFirstName = "Jane",
+            SpeakerLastName = "Doe",
+            SpeakerBiography = "Speaker bio",
+            Tags = new List<string>(),
+            TalkTypeId = Guid.CreateVersion7(),
+            ConferenceId = conferenceId,
+            Status = "Submitted",
+        };
+
+        var storedEvent = new StoredEvent(
+            Guid.CreateVersion7(),
+            talkId,
+            "TalkSubmittedEvent",
+            JsonSerializer.Serialize(payload),
+            DateTimeOffset.UtcNow,
+            0
+        );
+
+        await handler.HandleTalkSubmitted(storedEvent);
+
+        await conferenceRepository
+            .Received(1)
+            .Save(
+                Arg.Is<ConferenceAggregate>(c =>
+                    c.Talks.Count == 1 && (Guid)c.Talks[0].Id.Value == talkId
+                )
+            );
+    }
+
+    [Fact]
     public async Task HandleTalkTitleEdited_UpdatesTitle()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var existing = new ConferenceTalkDocument
@@ -88,9 +141,7 @@ public class TalkEventHandlerTests
         await repository
             .Received(1)
             .Update(
-                Arg.Is<ConferenceTalkDocument>(rm =>
-                    rm.Title == "Brand New" && rm.Version == 1
-                )
+                Arg.Is<ConferenceTalkDocument>(rm => rm.Title == "Brand New" && rm.Version == 1)
             );
     }
 
@@ -98,7 +149,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkAccepted_SetsStatusToAccepted()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var existing = new ConferenceTalkDocument
@@ -133,7 +184,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkRejected_SetsStatusToRejected()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var existing = new ConferenceTalkDocument
@@ -168,7 +219,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkScheduled_UpdatesSlotTimes()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var talkStart = DateTimeOffset.UtcNow.AddDays(30);
@@ -204,9 +255,7 @@ public class TalkEventHandlerTests
             .Received(1)
             .Update(
                 Arg.Is<ConferenceTalkDocument>(rm =>
-                    rm.Id == talkId.ToString()
-                    && rm.SlotStart == talkStart
-                    && rm.SlotEnd == talkEnd
+                    rm.Id == talkId.ToString() && rm.SlotStart == talkStart && rm.SlotEnd == talkEnd
                 )
             );
     }
@@ -215,7 +264,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkAssignedToRoom_UpdatesRoomInfo()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var roomId = Guid.CreateVersion7();
@@ -260,7 +309,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkAccepted_NonExistingReadModel_DoesNotUpdate()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         repository.GetById(talkId).Returns((ConferenceTalkDocument?)null);
@@ -283,7 +332,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkTagAdded_AppendsTag()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var existing = new ConferenceTalkDocument
@@ -318,7 +367,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkTagRemoved_DropsTag()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var existing = new ConferenceTalkDocument
@@ -353,7 +402,7 @@ public class TalkEventHandlerTests
     public async Task HandleTalkAbstractEdited_UpdatesAbstract()
     {
         var repository = Substitute.For<IConferenceTalkDocumentRepository>();
-        var handler = new TalkEventHandler(repository);
+        var handler = new TalkEventHandler(repository, Substitute.For<IConferenceRepository>());
 
         var talkId = Guid.CreateVersion7();
         var existing = new ConferenceTalkDocument
@@ -379,4 +428,16 @@ public class TalkEventHandlerTests
             .Received(1)
             .Update(Arg.Is<ConferenceTalkDocument>(rm => rm.Abstract == "New" && rm.Version == 1));
     }
+
+    private static ConferenceAggregate CreateConference() =>
+        ConferenceAggregate.Create(
+            new ConferenceId(GuidV7.NewGuid()),
+            new Text("Test Conference"),
+            new Time(DateTimeOffset.UtcNow.AddDays(30), DateTimeOffset.UtcNow.AddDays(32)),
+            new Location(
+                new Text("Test Venue"),
+                new Address("123 Main St", "Springfield", "IL", "62701", "US")
+            ),
+            new OrganizerId(GuidV7.NewGuid())
+        );
 }

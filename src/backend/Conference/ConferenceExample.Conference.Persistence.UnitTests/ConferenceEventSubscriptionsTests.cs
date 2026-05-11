@@ -1,9 +1,14 @@
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence.EventHandlers;
 using ConferenceExample.Conference.Persistence.EventSubscriptions;
 using ConferenceExample.Conference.Persistence.ReadModels;
 using ConferenceExample.EventStore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 namespace ConferenceExample.Conference.Persistence.UnitTests;
 
@@ -117,8 +122,11 @@ public class ConferenceEventSubscriptionsTests
         var scopeFactory = Substitute.For<IServiceScopeFactory>();
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
-        var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<IConferenceTalkDocumentRepository>()
+        var conferenceRepo = Substitute.For<IConferenceRepository>();
+        conferenceRepo.GetById(Arg.Any<ConferenceId>()).Returns(CreateConference());
+        var handler = new TalkEventHandler(
+            Substitute.For<IConferenceTalkDocumentRepository>(),
+            conferenceRepo
         );
 
         scopeFactory.CreateScope().Returns(scope);
@@ -132,11 +140,26 @@ public class ConferenceEventSubscriptionsTests
 
         ConferenceEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
+        var payload = System.Text.Json.JsonSerializer.Serialize(
+            new
+            {
+                Title = "Talk",
+                Abstract = "Abstract",
+                SpeakerId = Guid.CreateVersion7(),
+                SpeakerFirstName = "Jane",
+                SpeakerLastName = "Doe",
+                SpeakerBiography = "Bio",
+                Tags = Array.Empty<string>(),
+                TalkTypeId = Guid.CreateVersion7(),
+                ConferenceId = Guid.CreateVersion7(),
+                Status = "Submitted",
+            }
+        );
         var storedEvent = new StoredEvent(
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
             "TalkSubmittedEvent",
-            "{}",
+            payload,
             DateTimeOffset.UtcNow,
             0
         );
@@ -159,4 +182,16 @@ public class ConferenceEventSubscriptionsTests
 
         eventBus.Received(30).Subscribe(Arg.Any<string>(), Arg.Any<Func<StoredEvent, Task>>());
     }
+
+    private static ConferenceAggregate CreateConference() =>
+        ConferenceAggregate.Create(
+            new ConferenceId(GuidV7.NewGuid()),
+            new Text("Test Conference"),
+            new Time(DateTimeOffset.UtcNow.AddDays(30), DateTimeOffset.UtcNow.AddDays(32)),
+            new Location(
+                new Text("Test Venue"),
+                new Address("123 Main St", "Springfield", "IL", "62701", "US")
+            ),
+            new OrganizerId(GuidV7.NewGuid())
+        );
 }

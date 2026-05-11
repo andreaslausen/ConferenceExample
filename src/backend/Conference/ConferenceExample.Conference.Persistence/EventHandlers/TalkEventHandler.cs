@@ -1,4 +1,7 @@
 using System.Text.Json;
+using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.TalkManagement;
 using ConferenceExample.Conference.Persistence.ReadModels;
 using ConferenceExample.EventStore;
 
@@ -9,15 +12,11 @@ namespace ConferenceExample.Conference.Persistence.EventHandlers;
 /// ConferenceTalkDocument read model. Also handles Conference-side talk events
 /// (accept/reject/schedule/assign) which carry only the TalkId.
 /// </summary>
-public class TalkEventHandler
+public class TalkEventHandler(
+    IConferenceTalkDocumentRepository readModelRepository,
+    IConferenceRepository conferenceRepository
+)
 {
-    private readonly IConferenceTalkDocumentRepository _readModelRepository;
-
-    public TalkEventHandler(IConferenceTalkDocumentRepository readModelRepository)
-    {
-        _readModelRepository = readModelRepository;
-    }
-
     public async Task HandleTalkSubmitted(StoredEvent storedEvent)
     {
         var payload = JsonSerializer.Deserialize<TalkSubmittedPayload>(storedEvent.Payload);
@@ -42,7 +41,13 @@ public class TalkEventHandler
             Version = storedEvent.Version,
         };
 
-        await _readModelRepository.Save(newReadModel);
+        await readModelRepository.Save(newReadModel);
+
+        var conference = await conferenceRepository.GetById(
+            new ConferenceId(new GuidV7(payload.ConferenceId))
+        );
+        conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
+        await conferenceRepository.Save(conference);
     }
 
     public async Task HandleTalkTitleEdited(StoredEvent storedEvent)
@@ -51,7 +56,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
@@ -59,7 +64,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkAbstractEdited(StoredEvent storedEvent)
@@ -68,7 +73,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
@@ -76,7 +81,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkTagAdded(StoredEvent storedEvent)
@@ -85,7 +90,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
@@ -97,7 +102,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkTagRemoved(StoredEvent storedEvent)
@@ -106,7 +111,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
@@ -114,7 +119,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkAccepted(StoredEvent storedEvent)
@@ -123,7 +128,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
+        var readModel = await readModelRepository.GetById(payload.TalkId);
         if (readModel is null)
             return;
 
@@ -131,7 +136,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkRejected(StoredEvent storedEvent)
@@ -140,7 +145,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
+        var readModel = await readModelRepository.GetById(payload.TalkId);
         if (readModel is null)
             return;
 
@@ -148,7 +153,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkScheduled(StoredEvent storedEvent)
@@ -157,7 +162,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
+        var readModel = await readModelRepository.GetById(payload.TalkId);
         if (readModel is null)
             return;
 
@@ -166,7 +171,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkAssignedToRoom(StoredEvent storedEvent)
@@ -175,7 +180,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
+        var readModel = await readModelRepository.GetById(payload.TalkId);
         if (readModel is null)
             return;
 
@@ -184,7 +189,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     private record TalkSubmittedPayload(
@@ -208,7 +213,11 @@ public class TalkEventHandler
 
     private record TalkIdPayload(Guid TalkId);
 
-    private record TalkScheduledPayload(Guid TalkId, DateTimeOffset TalkStart, DateTimeOffset TalkEnd);
+    private record TalkScheduledPayload(
+        Guid TalkId,
+        DateTimeOffset TalkStart,
+        DateTimeOffset TalkEnd
+    );
 
     private record TalkAssignedToRoomPayload(Guid TalkId, Guid RoomId, string RoomName);
 }
