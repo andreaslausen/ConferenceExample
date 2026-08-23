@@ -15,9 +15,11 @@ public class GetConferenceTalkTypesQueryHandler(IConferenceRepository conference
         );
 
         return conference
-            .TalkTypes.Select(tt =>
-                new GetConferenceTalkTypesDto(tt.Id.Value.Value, tt.Name.Value, tt.DurationInMinutes)
-            )
+            .TalkTypes.Select(tt => new GetConferenceTalkTypesDto(
+                tt.Id.Value.Value,
+                tt.Name.Value,
+                tt.DurationInMinutes
+            ))
             .ToList();
     }
 }

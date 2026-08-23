@@ -127,9 +127,7 @@ public class ConferenceEventHandlerTests
             .Received(1)
             .Update(
                 Arg.Is<ConferenceDocument>(rm =>
-                    rm.Name == "Conference"
-                    && rm.Status == "CallForSpeakers"
-                    && rm.Version == 1
+                    rm.Name == "Conference" && rm.Status == "CallForSpeakers" && rm.Version == 1
                 )
             );
     }
@@ -251,10 +249,7 @@ public class ConferenceEventHandlerTests
             Name = "Conference",
             Status = "Draft",
             Version = 0,
-            TalkTypes =
-            [
-                new() { Id = talkTypeId.ToString(), Name = "Workshop" },
-            ],
+            TalkTypes = [new() { Id = talkTypeId.ToString(), Name = "Workshop" }],
         };
         repository.GetById(aggregateId).Returns(existing);
 
@@ -271,9 +266,7 @@ public class ConferenceEventHandlerTests
 
         await repository
             .Received(1)
-            .Update(
-                Arg.Is<ConferenceDocument>(rm => rm.TalkTypes.Count == 0 && rm.Version == 1)
-            );
+            .Update(Arg.Is<ConferenceDocument>(rm => rm.TalkTypes.Count == 0 && rm.Version == 1));
     }
 
     [Fact]

@@ -185,9 +185,7 @@ public class InMemoryEventBusTests
         await bus.StartAsync(CancellationToken.None);
         await bus.StopAsync(CancellationToken.None);
 
-        Assert.Throws<InvalidOperationException>(() =>
-            bus.Publish(NewStoredEvent("Anything", 0))
-        );
+        Assert.Throws<InvalidOperationException>(() => bus.Publish(NewStoredEvent("Anything", 0)));
     }
 
     [Fact]

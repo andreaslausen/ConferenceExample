@@ -102,9 +102,7 @@ public class TalkEventSubscriptionsTests
         var scopeFactory = Substitute.For<IServiceScopeFactory>();
         var scope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
-        var handler = Substitute.For<TalkEventHandler>(
-            Substitute.For<ITalkDocumentRepository>()
-        );
+        var handler = Substitute.For<TalkEventHandler>(Substitute.For<ITalkDocumentRepository>());
 
         scopeFactory.CreateScope().Returns(scope);
         scope.ServiceProvider.Returns(serviceProvider);

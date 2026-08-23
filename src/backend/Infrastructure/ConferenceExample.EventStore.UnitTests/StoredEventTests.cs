@@ -84,8 +84,22 @@ public class StoredEventTests
         var occurredAt = DateTimeOffset.UtcNow;
         const long version = 1;
 
-        var event1 = new StoredEvent(id, Guid.CreateVersion7(), eventType, payload, occurredAt, version);
-        var event2 = new StoredEvent(id, Guid.CreateVersion7(), eventType, payload, occurredAt, version);
+        var event1 = new StoredEvent(
+            id,
+            Guid.CreateVersion7(),
+            eventType,
+            payload,
+            occurredAt,
+            version
+        );
+        var event2 = new StoredEvent(
+            id,
+            Guid.CreateVersion7(),
+            eventType,
+            payload,
+            occurredAt,
+            version
+        );
 
         // Act & Assert
         Assert.NotEqual(event1, event2);

@@ -136,7 +136,14 @@ public class DtoTests
         // Arrange
         var id = Guid.CreateVersion7();
         var tags = new List<string> { "tag1" };
-        var dto1 = new GetMyTalksDto(id, "Title", "Abstract", Guid.CreateVersion7(), "Status", tags);
+        var dto1 = new GetMyTalksDto(
+            id,
+            "Title",
+            "Abstract",
+            Guid.CreateVersion7(),
+            "Status",
+            tags
+        );
         var dto2 = new GetMyTalksDto(id, "Title", "Abstract", dto1.ConferenceId, "Status", tags);
 
         // Act & Assert
