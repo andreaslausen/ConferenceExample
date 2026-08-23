@@ -84,9 +84,7 @@ public class InMemoryEventBus : IEventBus, IHostedService, IAsyncDisposable
     {
         try
         {
-            await foreach (
-                var storedEvent in _channel.Reader.ReadAllAsync(cancellationToken)
-            )
+            await foreach (var storedEvent in _channel.Reader.ReadAllAsync(cancellationToken))
             {
                 List<Func<StoredEvent, Task>> handlers;
                 lock (_subscriptionLock)

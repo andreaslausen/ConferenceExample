@@ -11,12 +11,7 @@ public class TalkDependencyRules : ArchitectureTest
     [Fact]
     public void TalkApplication_ShouldOnlyDependOnItselfAndTalkDomain()
     {
-        Dependencies.Check(
-            TalkApplication,
-            [TalkDomain],
-            "System",
-            "Microsoft.Extensions"
-        );
+        Dependencies.Check(TalkApplication, [TalkDomain], "System", "Microsoft.Extensions");
     }
 
     [Fact]

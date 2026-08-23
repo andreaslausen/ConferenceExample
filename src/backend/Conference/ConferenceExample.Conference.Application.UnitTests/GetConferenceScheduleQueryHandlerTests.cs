@@ -20,11 +20,7 @@ public class GetConferenceScheduleQueryHandlerTests
         var conference = CreateConferenceWithTalks();
         var organizerId = conference.OrganizerId.Value.Value;
 
-        currentUserService
-            .GetCurrentUserId()
-            .Returns(
-                organizerId
-            );
+        currentUserService.GetCurrentUserId().Returns(organizerId);
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var talkReadModels = new List<ConferenceTalkReadModel>
@@ -73,11 +69,7 @@ public class GetConferenceScheduleQueryHandlerTests
         var conference = CreateValidConference();
         var organizerId = conference.OrganizerId.Value.Value;
 
-        currentUserService
-            .GetCurrentUserId()
-            .Returns(
-                organizerId
-            );
+        currentUserService.GetCurrentUserId().Returns(organizerId);
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var talkReadModelRepository = Substitute.For<IConferenceTalkReadModelRepository>();
@@ -180,11 +172,7 @@ public class GetConferenceScheduleQueryHandlerTests
         var conference = CreateValidConference();
         var differentUserId = GuidV7.NewGuid();
 
-        currentUserService
-            .GetCurrentUserId()
-            .Returns(
-                differentUserId.Value
-            );
+        currentUserService.GetCurrentUserId().Returns(differentUserId.Value);
         repository.GetById(Arg.Any<ConferenceId>()).Returns(conference);
 
         var talkReadModelRepository = Substitute.For<IConferenceTalkReadModelRepository>();

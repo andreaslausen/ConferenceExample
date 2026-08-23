@@ -117,8 +117,7 @@ public static class ConferenceEventSubscriptions
             async storedEvent =>
             {
                 using var scope = scopeFactory.CreateScope();
-                var handler =
-                    scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
+                var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
                 await dispatch(handler, storedEvent);
             }
         );

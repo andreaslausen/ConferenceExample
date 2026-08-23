@@ -230,9 +230,7 @@ public class Conference : AggregateRoot
             );
         }
 
-        RaiseEvent(
-            new RoomAddedEvent(Id.Value, DateTimeOffset.UtcNow, roomId.Value, name.Value)
-        );
+        RaiseEvent(new RoomAddedEvent(Id.Value, DateTimeOffset.UtcNow, roomId.Value, name.Value));
     }
 
     public void RemoveRoom(RoomId roomId)
