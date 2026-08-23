@@ -28,7 +28,8 @@ API  ──►  Application  ──►  Domain
 ## Event sourcing
 
 The system persists via **Event Sourcing** with MongoDB as the event store (optimistic
-concurrency via MongoDB transactions, Change Streams for real-time notifications). See
+concurrency via MongoDB transactions; events are then published in-process via an
+`InMemoryEventBus`). See
 `.agents/infrastructure.md` for running it locally, and
 `docs/implementation-plan-event-sourcing-cqrs.md` for the design rationale.
 

@@ -7,7 +7,9 @@ This document explains the MongoDB-based Event Store implementation and how to u
 The system uses **Event Sourcing** with MongoDB as the persistence layer:
 
 - **MongoDbEventStore** - Stores events in MongoDB with optimistic concurrency control
-- **MongoDbEventBus** - Uses MongoDB Change Streams for real-time event notifications
+- **InMemoryEventBus** - Publishes events in-process (FIFO, deduplicated) after a successful
+  append; not durable across restarts and not shared across instances (suitable for the
+  demo — replace with RabbitMQ/Kafka in production)
 
 ## Prerequisites
 
@@ -24,7 +26,8 @@ docker-compose up -d
 ```
 
 This starts:
-- **MongoDB 8.0** on `localhost:27017` (configured as replica set for Change Streams)
+- **MongoDB 8.0** on `localhost:27017` (configured as replica set — required for the
+  multi-document transactions used by optimistic concurrency control on append)
 - **Mongo Express** on `localhost:8081` (web UI for MongoDB)
 
 ### 2. Configure the Application
@@ -94,29 +97,28 @@ if (currentVersion != expectedVersion) {
 await collection.InsertManyAsync(events);
 ```
 
-### Change Streams (Real-time Event Bus)
+### Event Bus (In-Process Notifications)
 
-MongoDB Change Streams provide real-time notifications when events are inserted:
+After events are appended, `MongoDbEventStore` publishes them via `IEventBus`
+(`InMemoryEventBus`), which fans them out to subscribed handlers in FIFO order:
 
 ```csharp
-var changeStream = collection.Watch();
-await changeStream.ForEachAsync(change => {
-    NotifySubscribers(change.FullDocument);
+eventBus.Subscribe(nameof(ConferenceCreatedEvent), async storedEvent => {
+    // update read models, etc.
 });
+eventBus.Publish(storedEvent);
 ```
 
 **Important Notes:**
 
-- **Replica Set Required**: Change Streams require MongoDB to be configured as a **replica set**. The Docker Compose setup handles this automatically.
-
-- **Multi-Instance Support**: Change Streams ensure ALL application instances receive ALL events
-  - Events are propagated only via Change Streams (not immediately on `Publish()`)
-  - This guarantees consistent behavior across all instances
-  - Small latency (5-20ms) is acceptable for cross-instance correctness
-
-- **Single-Instance Deployment**: Even with a single instance, Change Streams are used for consistency
-  - Minimal overhead (5-20ms per event)
-  - Same code path for single and multi-instance deployments
+- **Single process only**: `InMemoryEventBus` runs in-process. In a multi-instance
+  deployment, only the instance that appended the event dispatches it — other instances do
+  not receive it. This is fine for the demo's single-instance setup; a production
+  deployment needs a shared bus (RabbitMQ/Kafka) or MongoDB Change Streams for
+  cross-instance propagation.
+- **Not durable**: events published while no process is running (or lost mid-flight) are
+  not redelivered — read models are rebuilt by replaying the event store, not by replaying
+  the bus.
 
 ### Event Replay
 
@@ -133,7 +135,6 @@ Access Mongo Express at `http://localhost:8081` to:
 - Browse the `conference_example` database
 - View events in the `events` collection
 - Debug event payloads
-- Monitor Change Streams
 
 ## Production Considerations
 
@@ -174,9 +175,7 @@ services:
 
 ## Troubleshooting
 
-### Change Streams not working
-
-If you see: `MongoDB Change Streams not available (requires replica set)`
+### Transactions failing / "Transaction numbers are only allowed on a replica set member"
 
 **Solution**: Make sure MongoDB is running as a replica set:
 
@@ -217,5 +216,4 @@ dotnet test src/backend/Infrastructure/ConferenceExample.EventStore.UnitTests
 ## Further Reading
 
 - [MongoDB Event Sourcing](https://www.mongodb.com/blog/post/event-sourcing-with-mongodb)
-- [Change Streams Documentation](https://www.mongodb.com/docs/manual/changeStreams/)
 - [Event Sourcing Pattern](https://martinfowler.com/eaaDev/EventSourcing.html)

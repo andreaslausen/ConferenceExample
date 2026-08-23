@@ -1,7 +1,9 @@
 # Event Store / Local Infrastructure
 
 The backend persists via **Event Sourcing** with **MongoDB** (Replica Set, required for
-Change Streams).
+multi-document transactions used by optimistic concurrency control on append). Events are
+published in-process via an `InMemoryEventBus` after a successful append — not via MongoDB
+Change Streams.
 
 ## Quick start
 

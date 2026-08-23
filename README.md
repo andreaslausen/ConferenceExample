@@ -94,7 +94,7 @@ The system uses **Event Sourcing** with **MongoDB** as the persistence layer:
 
 MongoDB provides production-ready persistence with:
 - **Optimistic Concurrency Control** via MongoDB transactions
-- **Change Streams** for real-time event notifications
+- **In-process Event Bus** (`InMemoryEventBus`) publishing events after each append
 - **Horizontal Scaling** support for millions of events
 - **BSON Storage** for efficient event serialization
 
