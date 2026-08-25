@@ -203,15 +203,9 @@ docker logs conference-mongodb
 
 ## Testing
 
-Run integration tests against MongoDB:
-
-```bash
-# Start MongoDB
-docker-compose up -d
-
-# Run tests
-dotnet test src/backend/Infrastructure/ConferenceExample.EventStore.UnitTests
-```
+There is currently no test suite exercising MongoDB — see `.agents/backend.md` for the
+test strategy (acceptance tests covering Persistence/Infrastructure code, once added, will
+run against MongoDB via Testcontainers, no manual `docker-compose up` needed).
 
 ## Further Reading
 

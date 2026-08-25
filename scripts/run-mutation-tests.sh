@@ -8,17 +8,10 @@ echo "🧬 Running Mutation Testing with Stryker.NET"
 echo "=============================================="
 echo ""
 
-# Define all unit test projects
+# Define all unit test projects (Domain layer only, per the test strategy)
 UNIT_TEST_PROJECTS=(
   "src/backend/Conference/ConferenceExample.Conference.Domain.UnitTests"
-  "src/backend/Conference/ConferenceExample.Conference.Application.UnitTests"
-  "src/backend/Conference/ConferenceExample.Conference.Persistence.UnitTests"
   "src/backend/Talk/ConferenceExample.Talk.Domain.UnitTests"
-  "src/backend/Talk/ConferenceExample.Talk.Application.UnitTests"
-  "src/backend/Talk/ConferenceExample.Talk.Persistence.UnitTests"
-  "src/backend/EventStore/ConferenceExample.EventStore.UnitTests"
-  "src/backend/Infrastructure/ConferenceExample.EventStore.UnitTests"
-  "src/backend/Infrastructure/ConferenceExample.Authentication.UnitTests"
 )
 
 FAILED_PROJECTS=()
