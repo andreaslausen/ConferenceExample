@@ -35,6 +35,12 @@ npm run lint            # ESLint
 npm run generate-api   # regenerate TypeScript types from openapi.json
 ```
 
+## Testing
+
+There are currently no frontend tests (no unit or component test setup). UI tests with
+Playwright are a possible future addition but not planned imminently — don't add a test
+framework or write frontend tests unless explicitly asked.
+
 ## API type generation
 
 The frontend consumes generated TypeScript types from the backend's OpenAPI spec. After
