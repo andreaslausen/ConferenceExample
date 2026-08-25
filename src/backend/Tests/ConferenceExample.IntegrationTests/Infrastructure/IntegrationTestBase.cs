@@ -114,7 +114,7 @@ public abstract class IntegrationTestBase
             "application/json"
         );
         var response = await HttpClient.PostAsync(url, content);
-        // Allow the change stream event handlers to update read models before assertions
+        // Allow the async event bus handlers to update read models before assertions
         await Task.Delay(100);
         return response;
     }
@@ -130,7 +130,7 @@ public abstract class IntegrationTestBase
             "application/json"
         );
         var response = await HttpClient.PutAsync(url, content);
-        // Allow the change stream event handlers to update read models before assertions
+        // Allow the async event bus handlers to update read models before assertions
         await Task.Delay(100);
         return response;
     }
