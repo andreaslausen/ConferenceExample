@@ -409,3 +409,6 @@ scripts/mongo-keyfile
 
 # Playwright MCP - temporary browser screenshots and snapshots
 .playwright-mcp/
+
+# OpenAPI document - regenerated automatically on every backend build
+/openapi.json

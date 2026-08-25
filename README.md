@@ -53,15 +53,17 @@ The app is available at **http://localhost:5173**. API requests to `/api/*` are 
 ```bash
 npm run build          # Type-check and build for production
 npm run lint           # Run ESLint
-npm run generate-api   # Regenerate TypeScript types from openapi.json (run ./scripts/generate-openapi.sh first)
+npm run generate-api   # Regenerate TypeScript types from openapi.json (run `dotnet build` on the backend first)
 ```
 
 ### API type generation
 
-The frontend uses generated TypeScript types from the backend's OpenAPI spec. To update them after backend changes:
+The frontend uses generated TypeScript types from the backend's OpenAPI spec. `openapi.json`
+is regenerated automatically at the repo root whenever the backend is built. To update the
+types after backend changes:
 
 ```bash
-./scripts/generate-openapi.sh   # Generate openapi.json from the running backend
+dotnet build src/backend/ConferenceExample.sln   # Regenerates openapi.json
 cd src/frontend && npm run generate-api
 ```
 

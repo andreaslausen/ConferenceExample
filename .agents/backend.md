@@ -90,9 +90,7 @@ Runs automatically on staged `.cs` files via the pre-commit hook — don't skip 
 
 ## OpenAPI
 
-```bash
-./scripts/generate-openapi.sh   # creates openapi.json in the repo root
-```
-
-Regenerate this after changing API contracts — the frontend's TypeScript types are
-generated from it (see `.agents/frontend.md`).
+`dotnet build` regenerates `openapi.json` in the repo root automatically (via
+`Microsoft.Extensions.ApiDescription.Server`) — no separate script or running instance
+needed. The frontend's TypeScript types are generated from it (see
+`.agents/frontend.md`).

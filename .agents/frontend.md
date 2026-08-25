@@ -37,10 +37,11 @@ npm run generate-api   # regenerate TypeScript types from openapi.json
 
 ## API type generation
 
-The frontend consumes generated TypeScript types from the backend's OpenAPI spec. After
-backend API changes:
+The frontend consumes generated TypeScript types from the backend's OpenAPI spec.
+`openapi.json` is (re)generated automatically at the repo root whenever the backend is
+built (see `.agents/backend.md`). After backend API changes:
 
 ```bash
-./scripts/generate-openapi.sh    # from repo root: generate openapi.json from the running backend
+dotnet build src/backend/ConferenceExample.sln   # regenerates openapi.json
 cd src/frontend && npm run generate-api
 ```
