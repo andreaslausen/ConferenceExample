@@ -29,7 +29,9 @@ cd src/frontend && npm run lint
 
 - `TreatWarningsAsErrors` is enabled for the backend — resolve all compiler warnings.
 - Nullable reference types are enabled project-wide.
-- Backend unit/integration tests: xUnit + NSubstitute. Do **not** use FluentAssertions.
+- Backend tests: unit tests only for the Domain layer (100% coverage, 100% mutation
+  score); everything else via Gherkin acceptance tests calling the REST API over HTTP. Both
+  use xUnit + NSubstitute. Do **not** use FluentAssertions. See `.agents/backend.md`.
 - The pre-commit hook auto-formats staged `.cs` files with CSharpier and regenerates
   architecture docs when `.adoc` files are staged — don't bypass it.
 
