@@ -4,10 +4,27 @@ Clean Architecture with Domain-Driven Design. Solution: `src/backend/ConferenceE
 
 ## Bounded contexts
 
-Two separate bounded contexts, each with its own layered stack:
+Two bounded contexts are implemented today, each with its own layered stack:
 
 - **Conference** — manages conferences, rooms, schedules
 - **Talk** — manages talks, speakers, tags, abstracts
+
+The arc42 docs (`src/documentation/chapters/04_solution_strategy.adoc`,
+`05_building_block_view.adoc`) describe further planned bounded contexts (Voting,
+Notification, Attendee, Content) that don't exist in code yet — check there before assuming
+a subdomain has no home.
+
+## Authentication & authorization
+
+Authentication is currently a self-built construct (`ConferenceExample.Authentication`
+under `src/backend/Infrastructure/`) — not a bounded context, just cross-cutting
+infrastructure. Per the arc42 solution strategy, it's planned to be replaced later by an
+external identity provider (e.g. Keycloak), at which point Identity becomes its own bounded
+context with an anti-corruption layer at the boundary. Don't build toward that migration
+preemptively — work with the current construct as-is.
+
+Authorization is role-based, with roles defined in code (not yet coming from claims/an IdP).
+That's expected to stay as-is for now.
 
 ## Layers (per bounded context)
 
