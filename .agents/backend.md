@@ -85,6 +85,8 @@ Runs automatically on staged `.cs` files via the pre-commit hook — don't skip 
 - Nullable reference types are enabled project-wide.
 - Banned APIs (`src/backend/BannedSymbols.txt`): use `DateTimeOffset` instead of
   `DateTime`; use `Guid.CreateVersion7()` instead of `Guid.NewGuid()`.
+- One type per file: every non-private class, record, interface, struct, or enum gets its
+  own file, named after the type. Private nested types are exempt.
 
 ## OpenAPI
 
