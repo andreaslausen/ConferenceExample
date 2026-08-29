@@ -73,7 +73,13 @@ public abstract class ArchitectureTest
     // Talk Test Assemblies
     protected static Assembly TalkDomainUnitTests =>
         typeof(Talk.Domain.UnitTests.AbstractTests).Assembly;
-    protected static readonly Assembly[] TalkTestAssemblies = [TalkDomainUnitTests];
+    protected static Assembly TalkAcceptanceTests =>
+        typeof(Talk.AcceptanceTests.SetupTestDependencies).Assembly;
+    protected static readonly Assembly[] TalkTestAssemblies =
+    [
+        TalkDomainUnitTests,
+        TalkAcceptanceTests,
+    ];
 
     protected static readonly Assembly[] AllTestAssemblies =
     [

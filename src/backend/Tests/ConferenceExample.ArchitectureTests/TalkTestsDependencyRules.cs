@@ -7,4 +7,22 @@ public class TalkTestsDependencyRules : ArchitectureTest
     {
         Dependencies.Check(TalkDomainUnitTests, [TalkDomain], "System", "Xunit");
     }
+
+    [Fact]
+    public void TalkAcceptanceTests_ShouldOnlyDependOn_AllAssemblies()
+    {
+        // The acceptance suite drives the real REST API over HTTP (WebApplicationFactory +
+        // Testcontainers), so it legitimately needs DTOs/enums from every layer it exercises,
+        // not just Talk's own assemblies.
+        Dependencies.Check(
+            TalkAcceptanceTests,
+            AllAssemblies,
+            "System",
+            "Xunit",
+            "Reqnroll",
+            "Microsoft",
+            "MongoDB",
+            "Testcontainers"
+        );
+    }
 }
