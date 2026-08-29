@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Reqnroll;
 
-namespace ConferenceExample.Talk.AcceptanceTests.Infrastructure;
+namespace ConferenceExample.AcceptanceTests.Infrastructure;
 
 /// <summary>
 /// Scenarios share the one Testcontainers-backed MongoDB instance (see

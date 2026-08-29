@@ -1,8 +1,8 @@
-using ConferenceExample.Talk.AcceptanceTests.Infrastructure;
+using ConferenceExample.AcceptanceTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll.Microsoft.Extensions.DependencyInjection;
 
-namespace ConferenceExample.Talk.AcceptanceTests;
+namespace ConferenceExample.AcceptanceTests;
 
 public class SetupTestDependencies
 {

@@ -35,6 +35,6 @@
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Domain.UnitTests\ConferenceExample.Conference.Domain.UnitTests.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Domain.UnitTests\ConferenceExample.Talk.Domain.UnitTests.csproj" />
-    <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.AcceptanceTests\ConferenceExample.Talk.AcceptanceTests.csproj" />
+    <ProjectReference Include="..\ConferenceExample.AcceptanceTests\ConferenceExample.AcceptanceTests.csproj" />
   </ItemGroup>
 </Project>

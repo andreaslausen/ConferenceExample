@@ -207,7 +207,7 @@ Acceptance tests spin up their own MongoDB via Testcontainers — no manual `doc
 needed, just a running Docker daemon:
 
 ```bash
-dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests
+dotnet test src/backend/Tests/ConferenceExample.AcceptanceTests
 ```
 
 See `.agents/backend.md` for the test strategy.

@@ -31,4 +31,4 @@ jobs:
         run: dotnet build src/backend/ConferenceExample.sln --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests --no-build --configuration Release
+        run: dotnet test src/backend/Tests/ConferenceExample.AcceptanceTests --no-build --configuration Release

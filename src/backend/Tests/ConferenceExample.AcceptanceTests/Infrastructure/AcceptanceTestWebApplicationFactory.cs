@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
-namespace ConferenceExample.Talk.AcceptanceTests.Infrastructure;
+namespace ConferenceExample.AcceptanceTests.Infrastructure;
 
 public class AcceptanceTestWebApplicationFactory(string mongoConnectionString)
     : WebApplicationFactory<Program>

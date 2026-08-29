@@ -14,7 +14,7 @@ using ConferenceExample.Talk.Application.SubmitTalk;
 using Reqnroll;
 using Xunit;
 
-namespace ConferenceExample.Talk.AcceptanceTests.StepDefinitions;
+namespace ConferenceExample.AcceptanceTests.StepDefinitions.Talk;
 
 [Binding]
 public class TalkSubmissionSteps(HttpClient httpClient)

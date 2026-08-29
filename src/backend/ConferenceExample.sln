@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Conferenc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.Persistence", "Talk\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj", "{DEF172D7-029E-4145-95AB-1716188455D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.Talk.AcceptanceTests", "Talk\ConferenceExample.Talk.AcceptanceTests\ConferenceExample.Talk.AcceptanceTests.csproj", "{E48EB629-B0AC-4F4D-AD64-9FC35C8E67F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceExample.AcceptanceTests", "Tests\ConferenceExample.AcceptanceTests\ConferenceExample.AcceptanceTests.csproj", "{E48EB629-B0AC-4F4D-AD64-9FC35C8E67F1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{9AEA0592-CC14-4A69-83FE-7DA975E173DB}"
 EndProject
@@ -208,7 +208,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E48EB629-B0AC-4F4D-AD64-9FC35C8E67F1} = {8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}
+		{E48EB629-B0AC-4F4D-AD64-9FC35C8E67F1} = {D23236E9-3FEC-4B72-A433-30C44697C87A}
 		{9695C38D-535B-4711-9344-F893BC345893} = {8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}
 		{76061CCC-D29B-4552-9F63-9CDC5AE12AA5} = {8CA6A5B7-9CE4-4BDD-8230-73EAA732AA18}
 		{B9DE3C8F-3364-4985-9962-D19DC5CEB52D} = {D2F1B72D-4E75-46D2-BF81-C0B6B7E5261D}

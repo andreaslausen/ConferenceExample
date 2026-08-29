@@ -1,7 +1,7 @@
 using Reqnroll;
 using Testcontainers.MongoDb;
 
-namespace ConferenceExample.Talk.AcceptanceTests.Infrastructure;
+namespace ConferenceExample.AcceptanceTests.Infrastructure;
 
 /// <summary>
 /// Starts a single MongoDB container and API host for the whole test run — spinning either

@@ -73,18 +73,19 @@ public abstract class ArchitectureTest
     // Talk Test Assemblies
     protected static Assembly TalkDomainUnitTests =>
         typeof(Talk.Domain.UnitTests.AbstractTests).Assembly;
-    protected static Assembly TalkAcceptanceTests =>
-        typeof(Talk.AcceptanceTests.SetupTestDependencies).Assembly;
-    protected static readonly Assembly[] TalkTestAssemblies =
-    [
-        TalkDomainUnitTests,
-        TalkAcceptanceTests,
-    ];
+    protected static readonly Assembly[] TalkTestAssemblies = [TalkDomainUnitTests];
+
+    // Acceptance Tests (one suite for the whole API — bounded contexts aren't visible at the
+    // HTTP level, so this isn't split per context like the Domain unit tests above)
+    protected static Assembly AcceptanceTests =>
+        typeof(ConferenceExample.AcceptanceTests.SetupTestDependencies).Assembly;
+    protected static readonly Assembly[] AcceptanceTestAssemblies = [AcceptanceTests];
 
     protected static readonly Assembly[] AllTestAssemblies =
     [
         .. ConferenceTestAssemblies,
         .. TalkTestAssemblies,
+        .. AcceptanceTestAssemblies,
     ];
 
     // Separate architecture for test assembly dependency checks.

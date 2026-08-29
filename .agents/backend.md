@@ -20,7 +20,13 @@ Two kinds of backend tests, nothing in between:
 - **Acceptance tests — API level, Gherkin, over HTTP.** `.feature` files (Reqnroll) drive
   scenarios through the real REST API via `HttpClient` against a `WebApplicationFactory`
   (Testcontainers-backed MongoDB) — no in-process shortcuts to the application layer. These
-  are the only tests exercising Application, Persistence, and Infrastructure code.
+  are the only tests exercising Application, Persistence, and Infrastructure code. One suite
+  (`ConferenceExample.AcceptanceTests`) covers the whole API rather than one project per
+  bounded context — there's a single Web API deployable, so the contexts aren't visible at
+  the HTTP level anyway (a scenario in one context routinely needs another, e.g. submitting a
+  talk needs a conference and a talk type to exist first). `.feature` files and step
+  definitions are organized into subfolders per bounded context for readability
+  (`Features/Talk/`, `StepDefinitions/Talk/`, ...).
 
 Do not add new `*.Application.UnitTests` / `*.Persistence.UnitTests` projects, and don't add
 scenarios to an acceptance suite that bypass HTTP — write an HTTP-driven Gherkin scenario
@@ -34,14 +40,13 @@ dotnet test --filter "FullyQualifiedName~Talk"   # single test class or namespac
 Test projects today:
 
 - `ConferenceExample.ArchitectureTests` — enforces layer dependency rules
-- `*.Domain.UnitTests` — unit tests for domain logic only
-- `*.AcceptanceTests` — Gherkin acceptance tests per bounded context (currently only
-  `ConferenceExample.Talk.AcceptanceTests`; Conference and the other contexts still have no
-  acceptance coverage — add suites for them the same way)
+- `*.Domain.UnitTests` — unit tests for domain logic only, one project per bounded context
+- `ConferenceExample.AcceptanceTests` — the one Gherkin acceptance suite for the whole API
+  (currently only covers Talk submission; add scenarios for the other contexts the same way)
 
 ```bash
 # run just the acceptance suite (starts a MongoDB Testcontainer, needs Docker)
-dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests
+dotnet test src/backend/Tests/ConferenceExample.AcceptanceTests
 ```
 
 Tools:
