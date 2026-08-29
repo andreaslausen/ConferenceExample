@@ -35,10 +35,14 @@ Test projects today:
 
 - `ConferenceExample.ArchitectureTests` — enforces layer dependency rules
 - `*.Domain.UnitTests` — unit tests for domain logic only
+- `*.AcceptanceTests` — Gherkin acceptance tests per bounded context (currently only
+  `ConferenceExample.Talk.AcceptanceTests`; Conference and the other contexts still have no
+  acceptance coverage — add suites for them the same way)
 
-There is currently no acceptance-test suite (Application, Persistence, and Infrastructure
-code is untested at present) — add HTTP-driven Gherkin acceptance suites per the strategy
-above when covering that code.
+```bash
+# run just the acceptance suite (starts a MongoDB Testcontainer, needs Docker)
+dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests
+```
 
 Tools:
 

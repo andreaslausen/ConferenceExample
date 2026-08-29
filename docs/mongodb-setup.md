@@ -203,9 +203,14 @@ docker logs conference-mongodb
 
 ## Testing
 
-There is currently no test suite exercising MongoDB — see `.agents/backend.md` for the
-test strategy (acceptance tests covering Persistence/Infrastructure code, once added, will
-run against MongoDB via Testcontainers, no manual `docker-compose up` needed).
+Acceptance tests spin up their own MongoDB via Testcontainers — no manual `docker-compose up`
+needed, just a running Docker daemon:
+
+```bash
+dotnet test src/backend/Talk/ConferenceExample.Talk.AcceptanceTests
+```
+
+See `.agents/backend.md` for the test strategy.
 
 ## Further Reading
 
