@@ -8,7 +8,7 @@ namespace ConferenceExample.AcceptanceTests.Infrastructure;
 /// up per scenario would make the suite far slower than the isolation is worth.
 /// </summary>
 [Binding]
-public static class AcceptanceTestEnvironment
+public class AcceptanceTestEnvironment
 {
     private static MongoDbContainer? _mongoContainer;
     private static AcceptanceTestWebApplicationFactory? _factory;
