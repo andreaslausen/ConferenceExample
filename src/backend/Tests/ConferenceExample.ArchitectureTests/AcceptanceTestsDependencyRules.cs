@@ -16,7 +16,8 @@ public class AcceptanceTestsDependencyRules : ArchitectureTest
             "Reqnroll",
             "Microsoft",
             "MongoDB",
-            "Testcontainers"
+            "Testcontainers",
+            "Docker"
         );
     }
 }
