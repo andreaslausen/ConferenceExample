@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using ConferenceExample.AcceptanceTests.Infrastructure;
 using ConferenceExample.API.Controllers;
 using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
@@ -11,6 +12,8 @@ using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Application.CreateSpeakerProfile;
 using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.SubmitTalk;
+using ConferenceExample.Talk.Persistence.ReadModels;
+using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
 using Xunit;
 
@@ -27,6 +30,8 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     private Guid _conferenceId;
     private Guid _talkTypeId;
     private Guid _talkId;
+    private string _submittedTitle = string.Empty;
+    private string _submittedAbstract = string.Empty;
 
     [Given("a conference exists")]
     public async Task GivenAConferenceExists()
@@ -97,19 +102,32 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     [Then("the talk is stored with status Submitted")]
     public async Task ThenTheTalkIsStoredWithStatusSubmitted()
     {
-        var talk = await WaitForTalk();
-        Assert.Equal("Submitted", talk.Status);
+        var document = await WaitForTalkDocument();
+        Assert.Equal("Submitted", document.Status);
+        Assert.Equal(_submittedTitle, document.Title);
+        Assert.Equal(_submittedAbstract, document.Abstract);
+
+        var response = await WaitForTalkResponse();
+        Assert.Equal("Submitted", response.Status);
+        Assert.Equal(_submittedTitle, response.Title);
+        Assert.Equal(_submittedAbstract, response.Abstract);
     }
 
     [Then("the talk has the tag {string}")]
     public async Task ThenTheTalkHasTheTag(string expectedTag)
     {
-        var talk = await WaitForTalk();
-        Assert.Contains(expectedTag, talk.Tags);
+        var document = await WaitForTalkDocument();
+        Assert.Contains(expectedTag, document.Tags);
+
+        var response = await WaitForTalkResponse();
+        Assert.Contains(expectedTag, response.Tags);
     }
 
     private async Task SubmitTalk(string title, string @abstract, List<string> tags)
     {
+        _submittedTitle = title;
+        _submittedAbstract = @abstract;
+
         SetBearerToken(await Register(UserRole.Speaker));
 
         var profileResponse = await httpClient.PostAsJsonAsync(
@@ -147,8 +165,34 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     }
 
     // Talk read models are projected asynchronously from stored events (see InMemoryEventBus),
-    // so the GET can 404 for a moment right after submission — poll instead of asserting once.
-    private async Task<GetTalkByIdDto> WaitForTalk()
+    // so the document can be missing for a moment right after submission — poll instead of
+    // asserting once. Reading the read-model repository directly (rather than the API's GET
+    // endpoint) verifies the data actually landed in the database, not just what the API layer
+    // returns.
+    private async Task<TalkDocument> WaitForTalkDocument()
+    {
+        using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<ITalkDocumentRepository>();
+
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            var document = await repository.GetById(_talkId);
+            if (document is not null)
+                return document;
+
+            await Task.Delay(50);
+        }
+
+        throw new TimeoutException(
+            $"Talk {_talkId} did not appear in the database within the timeout."
+        );
+    }
+
+    // Same eventual-consistency caveat as WaitForTalkDocument, but through the GET endpoint —
+    // this verifies the API's own read path (routing, controller, DTO mapping) returns the
+    // talk correctly, which the database check above does not cover.
+    private async Task<GetTalkByIdDto> WaitForTalkResponse()
     {
         var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
         while (DateTimeOffset.UtcNow < deadline)

@@ -19,8 +19,14 @@ Two kinds of backend tests, nothing in between:
   code is *not* unit-tested in isolation — it's covered by the acceptance tests instead.
 - **Acceptance tests — API level, Gherkin, over HTTP.** `.feature` files (Reqnroll) drive
   scenarios through the real REST API via `HttpClient` against a `WebApplicationFactory`
-  (Testcontainers-backed MongoDB) — no in-process shortcuts to the application layer. These
-  are the only tests exercising Application, Persistence, and Infrastructure code. One suite
+  (Testcontainers-backed MongoDB) — no in-process shortcuts to the application layer. `Then`
+  steps that assert persisted state must check **both** paths, not just one: read the data back
+  straight from the database (e.g. by resolving the read-model repository from the
+  `WebApplicationFactory`'s DI container) to confirm it actually landed in MongoDB correctly,
+  *and* read it back through the API's own GET endpoint to confirm the read path (routing,
+  controller, DTO mapping) returns it correctly too — one can be right while the other is
+  broken. These are the only tests exercising Application, Persistence, and Infrastructure
+  code. One suite
   (`ConferenceExample.AcceptanceTests`) covers the whole API rather than one project per
   bounded context — there's a single Web API deployable, so the contexts aren't visible at
   the HTTP level anyway (a scenario in one context routinely needs another, e.g. submitting a
