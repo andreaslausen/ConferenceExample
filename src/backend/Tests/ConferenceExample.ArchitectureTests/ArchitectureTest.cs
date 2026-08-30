@@ -68,53 +68,24 @@ public abstract class ArchitectureTest
     // Conference Test Assemblies
     protected static Assembly ConferenceDomainUnitTests =>
         typeof(Conference.Domain.UnitTests.ConferenceTests).Assembly;
-    protected static Assembly ConferenceApplicationUnitTests =>
-        typeof(Conference.Application.UnitTests.ConferenceServiceTests).Assembly;
-    protected static Assembly ConferencePersistenceUnitTests =>
-        typeof(Conference.Persistence.UnitTests.ConferenceRepositoryTests).Assembly;
-    protected static readonly Assembly[] ConferenceTestAssemblies =
-    [
-        ConferenceDomainUnitTests,
-        ConferenceApplicationUnitTests,
-        ConferencePersistenceUnitTests,
-    ];
+    protected static readonly Assembly[] ConferenceTestAssemblies = [ConferenceDomainUnitTests];
 
     // Talk Test Assemblies
     protected static Assembly TalkDomainUnitTests =>
         typeof(Talk.Domain.UnitTests.AbstractTests).Assembly;
-    protected static Assembly TalkApplicationUnitTests =>
-        typeof(Talk.Application.UnitTests.TalkServiceTests).Assembly;
-    protected static Assembly TalkPersistenceUnitTests =>
-        typeof(Talk.Persistence.UnitTests.TalkRepositoryTests).Assembly;
-    protected static Assembly TalkAcceptanceTests =>
-        typeof(Talk.AcceptanceTests.SetupTestDependencies).Assembly;
+    protected static readonly Assembly[] TalkTestAssemblies = [TalkDomainUnitTests];
 
-    protected static readonly Assembly[] TalkTestAssemblies =
-    [
-        TalkDomainUnitTests,
-        TalkApplicationUnitTests,
-        TalkPersistenceUnitTests,
-        TalkAcceptanceTests,
-    ];
-
-    // EventStore Test Assemblies
-    protected static Assembly EventStoreUnitTests =>
-        typeof(ConferenceExample.EventStore.UnitTests.MongoDbEventStoreTests).Assembly;
-
-    protected static readonly Assembly[] EventStoreTestAssemblies = [EventStoreUnitTests];
-
-    // Authentication Test Assemblies
-    protected static Assembly AuthenticationUnitTests =>
-        typeof(ConferenceExample.Authentication.UnitTests.AuthenticationServiceTests).Assembly;
-
-    protected static readonly Assembly[] AuthenticationTestAssemblies = [AuthenticationUnitTests];
+    // Acceptance Tests (one suite for the whole API — bounded contexts aren't visible at the
+    // HTTP level, so this isn't split per context like the Domain unit tests above)
+    protected static Assembly AcceptanceTests =>
+        typeof(ConferenceExample.AcceptanceTests.SetupTestDependencies).Assembly;
+    protected static readonly Assembly[] AcceptanceTestAssemblies = [AcceptanceTests];
 
     protected static readonly Assembly[] AllTestAssemblies =
     [
         .. ConferenceTestAssemblies,
         .. TalkTestAssemblies,
-        .. EventStoreTestAssemblies,
-        .. AuthenticationTestAssemblies,
+        .. AcceptanceTestAssemblies,
     ];
 
     // Separate architecture for test assembly dependency checks.

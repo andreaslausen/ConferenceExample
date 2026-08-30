@@ -39,7 +39,7 @@ cd src/frontend && npm run lint
 
 `backend-ci` and `frontend-ci` (`.github/workflows/`) run automatically on pull requests
 (path-filtered to `src/backend/**` / `src/frontend/**`). All other workflows
-(`backend-architecture-tests`, `backend-integration-tests`) are `workflow_dispatch`-only —
+(`backend-architecture-tests`, `backend-acceptance-tests`) are `workflow_dispatch`-only —
 triggered manually to save CI cost, not run on every PR.
 
 ## Load only when relevant
