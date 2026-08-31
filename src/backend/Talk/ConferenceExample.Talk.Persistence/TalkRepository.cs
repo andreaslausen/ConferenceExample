@@ -24,7 +24,7 @@ public class TalkRepository(ITalkEventStore eventStore) : ITalkRepository
 
         if (storedEvents.Count == 0)
         {
-            throw new InvalidOperationException($"Talk with id {id.Value} not found.");
+            throw new NotFoundException($"Talk with id {id.Value} not found.");
         }
 
         var domainEvents = storedEvents.Select(Deserialize).ToList();

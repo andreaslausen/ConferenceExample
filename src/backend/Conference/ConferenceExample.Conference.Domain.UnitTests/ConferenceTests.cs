@@ -3,6 +3,7 @@ namespace ConferenceExample.Conference.Domain.UnitTests;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.ConferenceManagement.Events;
 using ConferenceExample.Conference.Domain.RoomManagement;
+using ConferenceExample.Conference.Domain.SharedKernel;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
@@ -130,13 +131,13 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void ChangeStatus_ToCallForSpeakersWithoutTalkTypes_ThrowsInvalidOperationException()
+    public void ChangeStatus_ToCallForSpeakersWithoutTalkTypes_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.ChangeStatus(ConferenceStatus.CallForSpeakers)
         );
         Assert.Contains("cannot be changed to 'CallForSpeakers'", exception.Message);
@@ -144,7 +145,7 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void ChangeStatus_ToProgramPublishedWithoutAcceptedTalks_ThrowsInvalidOperationException()
+    public void ChangeStatus_ToProgramPublishedWithoutAcceptedTalks_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -153,7 +154,7 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.ChangeStatus(ConferenceStatus.ProgramPublished)
         );
         Assert.Contains("cannot be changed to 'ProgramPublished'", exception.Message);
@@ -161,7 +162,7 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void ChangeStatus_ToProgramPublishedWithUnscheduledTalks_ThrowsInvalidOperationException()
+    public void ChangeStatus_ToProgramPublishedWithUnscheduledTalks_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -171,7 +172,7 @@ public class ConferenceTests
         conference.AcceptTalk(talkId);
 
         // Act & Assert - Talk accepted but not scheduled
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.ChangeStatus(ConferenceStatus.ProgramPublished)
         );
         Assert.Contains("cannot be changed to 'ProgramPublished'", exception.Message);
@@ -182,7 +183,7 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void ChangeStatus_ToProgramPublishedWithoutRoomAssignment_ThrowsInvalidOperationException()
+    public void ChangeStatus_ToProgramPublishedWithoutRoomAssignment_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -199,7 +200,7 @@ public class ConferenceTests
         );
 
         // Act & Assert - Talk scheduled but no room assigned
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.ChangeStatus(ConferenceStatus.ProgramPublished)
         );
         Assert.Contains("cannot be changed to 'ProgramPublished'", exception.Message);
@@ -210,7 +211,7 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void ChangeStatus_FromProgramPublished_ThrowsInvalidOperationException()
+    public void ChangeStatus_FromProgramPublished_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -232,14 +233,14 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.ProgramPublished);
 
         // Act & Assert - Cannot rollback from ProgramPublished
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed)
         );
         Assert.Contains("cannot be changed back from 'ProgramPublished'", exception.Message);
     }
 
     [Fact]
-    public void ChangeStatus_FromCallForSpeakersToDraftWithSubmittedTalks_ThrowsInvalidOperationException()
+    public void ChangeStatus_FromCallForSpeakersToDraftWithSubmittedTalks_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -249,7 +250,7 @@ public class ConferenceTests
         conference.SubmitTalk(talkId);
 
         // Act & Assert - Cannot rollback to Draft when talks submitted
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.ChangeStatus(ConferenceStatus.Draft)
         );
         Assert.Contains("cannot be changed back to 'Draft'", exception.Message);
@@ -530,7 +531,7 @@ public class ConferenceTests
         conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), name, 45);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), name, 45)
         );
         Assert.Contains("already exists", exception.Message);
@@ -544,7 +545,7 @@ public class ConferenceTests
         conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Workshop"), 45);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("WORKSHOP"), 45)
         );
         Assert.Contains("already exists", exception.Message);
@@ -590,14 +591,14 @@ public class ConferenceTests
         var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<NotFoundException>(() =>
             conference.RemoveTalkType(talkTypeId)
         );
         Assert.Contains("does not exist", exception.Message);
     }
 
     [Fact]
-    public void DefineTalkType_WhenStatusIsCallForSpeakers_ThrowsInvalidOperationException()
+    public void DefineTalkType_WhenStatusIsCallForSpeakers_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -605,7 +606,7 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("NewTalkType"), 60)
         );
         Assert.Contains("cannot be edited", exception.Message);
@@ -613,21 +614,21 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void DefineTalkType_WhenStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    public void DefineTalkType_WhenStatusIsCallForSpeakersClosed_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
         conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("TalkType"), 45)
         );
         Assert.Contains("cannot be edited", exception.Message);
     }
 
     [Fact]
-    public void DefineTalkType_WhenStatusIsProgramPublished_ThrowsInvalidOperationException()
+    public void DefineTalkType_WhenStatusIsProgramPublished_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -652,14 +653,14 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.ProgramPublished);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("TalkType"), 45)
         );
         Assert.Contains("cannot be edited", exception.Message);
     }
 
     [Fact]
-    public void RemoveTalkType_WhenStatusIsCallForSpeakers_ThrowsInvalidOperationException()
+    public void RemoveTalkType_WhenStatusIsCallForSpeakers_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -668,15 +669,13 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
-            conference.RemoveTalkType(talkTypeId)
-        );
+        var exception = Assert.Throws<DomainException>(() => conference.RemoveTalkType(talkTypeId));
         Assert.Contains("cannot be edited", exception.Message);
         Assert.Contains("CallForSpeakers", exception.Message);
     }
 
     [Fact]
-    public void RemoveTalkType_WhenStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    public void RemoveTalkType_WhenStatusIsCallForSpeakersClosed_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -685,14 +684,12 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
-            conference.RemoveTalkType(talkTypeId)
-        );
+        var exception = Assert.Throws<DomainException>(() => conference.RemoveTalkType(talkTypeId));
         Assert.Contains("cannot be edited", exception.Message);
     }
 
     [Fact]
-    public void RemoveTalkType_WhenStatusIsProgramPublished_ThrowsInvalidOperationException()
+    public void RemoveTalkType_WhenStatusIsProgramPublished_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -718,9 +715,7 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.ProgramPublished);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
-            conference.RemoveTalkType(talkTypeId)
-        );
+        var exception = Assert.Throws<DomainException>(() => conference.RemoveTalkType(talkTypeId));
         Assert.Contains("cannot be edited", exception.Message);
     }
 
@@ -744,7 +739,7 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void Rename_WhenStatusIsCallForSpeakers_ThrowsInvalidOperationException()
+    public void Rename_WhenStatusIsCallForSpeakers_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -752,7 +747,7 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.Rename(new Text("New Name"))
         );
         Assert.Contains("cannot be edited", exception.Message);
@@ -760,21 +755,21 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void Rename_WhenStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    public void Rename_WhenStatusIsCallForSpeakersClosed_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
         conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.Rename(new Text("New Name"))
         );
         Assert.Contains("cannot be edited", exception.Message);
     }
 
     [Fact]
-    public void Rename_WhenStatusIsProgramPublished_ThrowsInvalidOperationException()
+    public void Rename_WhenStatusIsProgramPublished_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -799,7 +794,7 @@ public class ConferenceTests
         conference.ChangeStatus(ConferenceStatus.ProgramPublished);
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.Rename(new Text("New Name"))
         );
         Assert.Contains("cannot be edited", exception.Message);
@@ -830,7 +825,7 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void UpdateDetails_WhenStatusIsCallForSpeakers_ThrowsInvalidOperationException()
+    public void UpdateDetails_WhenStatusIsCallForSpeakers_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -847,7 +842,7 @@ public class ConferenceTests
         );
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.UpdateDetails(newName, newTime, newLocation)
         );
         Assert.Contains("cannot be edited", exception.Message);
@@ -855,7 +850,7 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void UpdateDetails_WhenStatusIsCallForSpeakersClosed_ThrowsInvalidOperationException()
+    public void UpdateDetails_WhenStatusIsCallForSpeakersClosed_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
@@ -871,7 +866,7 @@ public class ConferenceTests
         );
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.UpdateDetails(newName, newTime, newLocation)
         );
         Assert.Contains("cannot be edited", exception.Message);
@@ -954,14 +949,14 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void AddRoom_DuplicateName_ThrowsInvalidOperationException()
+    public void AddRoom_DuplicateName_ThrowsDomainException()
     {
         // Arrange
         var conference = CreateValidConference();
         conference.AddRoom(new RoomId(GuidV7.NewGuid()), new Text("Main Hall"));
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
+        var exception = Assert.Throws<DomainException>(() =>
             conference.AddRoom(new RoomId(GuidV7.NewGuid()), new Text("Main Hall"))
         );
         Assert.Contains("already exists", exception.Message);
@@ -986,16 +981,14 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void RemoveRoom_NonExistingRoom_ThrowsInvalidOperationException()
+    public void RemoveRoom_NonExistingRoom_ThrowsNotFoundException()
     {
         // Arrange
         var conference = CreateValidConference();
         var roomId = new RoomId(GuidV7.NewGuid());
 
         // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() =>
-            conference.RemoveRoom(roomId)
-        );
+        var exception = Assert.Throws<NotFoundException>(() => conference.RemoveRoom(roomId));
         Assert.Contains("does not exist", exception.Message);
     }
 
@@ -1018,14 +1011,14 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void AcceptTalk_UnknownTalkId_ThrowsInvalidOperationException()
+    public void AcceptTalk_UnknownTalkId_ThrowsNotFoundException()
     {
         // Arrange
         var conference = CreateValidConference();
         var unknownTalkId = new TalkId(GuidV7.NewGuid());
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => conference.AcceptTalk(unknownTalkId));
+        Assert.Throws<NotFoundException>(() => conference.AcceptTalk(unknownTalkId));
     }
 
     [Fact]

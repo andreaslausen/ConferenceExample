@@ -29,9 +29,7 @@ public class AcceptanceTestWebApplicationFactory(string mongoConnectionString)
         builder.ConfigureServices(services =>
         {
             // Replace the configured IMongoDatabase with the Testcontainers instance
-            var descriptor = services.SingleOrDefault(d =>
-                d.ServiceType == typeof(IMongoDatabase)
-            );
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase));
             if (descriptor is not null)
                 services.Remove(descriptor);
 

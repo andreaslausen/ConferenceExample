@@ -32,7 +32,7 @@ public class ConferenceRepository(IConferenceEventStore eventStore) : IConferenc
 
         if (storedEvents.Count == 0)
         {
-            throw new InvalidOperationException($"Conference with id {id.Value} not found.");
+            throw new NotFoundException($"Conference with id {id.Value} not found.");
         }
 
         var domainEvents = storedEvents.Select(Deserialize).ToList();

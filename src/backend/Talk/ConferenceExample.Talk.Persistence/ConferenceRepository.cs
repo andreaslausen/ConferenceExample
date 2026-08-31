@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ConferenceExample.EventStore;
+using ConferenceExample.Talk.Domain.SharedKernel;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.TalkManagement;
 
@@ -14,9 +15,7 @@ public class ConferenceRepository(ITalkEventStore eventStore) : IConferenceRepos
 
         if (storedEvents.Count == 0)
         {
-            throw new InvalidOperationException(
-                $"Conference with id {conferenceId.Value} does not exist."
-            );
+            throw new NotFoundException($"Conference with id {conferenceId.Value} does not exist.");
         }
 
         // Slim events: only ConferenceCreatedEvent and ConferenceStatusChangedEvent carry Status.

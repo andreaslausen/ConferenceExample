@@ -1,3 +1,4 @@
+using ConferenceExample.Talk.Domain.SharedKernel;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
@@ -18,7 +19,7 @@ public class SubmitTalkCommandHandler(
 
         if (!conference.CanAcceptTalkSubmissions())
         {
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"Talks can only be submitted when the conference is in CallForSpeakers status. Current status: {conference.Status}"
             );
         }

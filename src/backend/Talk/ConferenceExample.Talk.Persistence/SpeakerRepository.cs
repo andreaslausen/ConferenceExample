@@ -20,7 +20,7 @@ public class SpeakerRepository(ITalkEventStore eventStore) : ISpeakerRepository
         var storedEvents = await eventStore.GetEvents(speakerId.Value);
 
         if (storedEvents.Count == 0)
-            throw new InvalidOperationException($"Speaker with id {speakerId.Value} not found.");
+            throw new NotFoundException($"Speaker with id {speakerId.Value} not found.");
 
         var domainEvents = storedEvents.Select(Deserialize).ToList();
         return Speaker.LoadFromHistory(domainEvents);

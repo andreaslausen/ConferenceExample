@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.RoomManagement;
+using ConferenceExample.Conference.Domain.SharedKernel;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
@@ -31,7 +32,7 @@ public class AssignTalkToRoomCommandHandler(
         var roomId = new RoomId(new GuidV7(command.RoomId));
         var room =
             conference.Rooms.FirstOrDefault(r => r.Id == roomId)
-            ?? throw new InvalidOperationException(
+            ?? throw new NotFoundException(
                 $"Room '{command.RoomId}' does not exist in conference '{command.ConferenceId}'."
             );
 

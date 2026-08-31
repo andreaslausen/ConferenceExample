@@ -100,7 +100,7 @@ public class Conference : AggregateRoot
             {
                 if (!_talkTypes.Any())
                 {
-                    throw new InvalidOperationException(
+                    throw new DomainException(
                         "Conference cannot be changed to 'CallForSpeakers' status without defined talk types. Please define at least one talk type first."
                     );
                 }
@@ -113,7 +113,7 @@ public class Conference : AggregateRoot
 
                 if (!acceptedTalks.Any())
                 {
-                    throw new InvalidOperationException(
+                    throw new DomainException(
                         "Conference cannot be changed to 'ProgramPublished' status without at least one accepted talk."
                     );
                 }
@@ -124,7 +124,7 @@ public class Conference : AggregateRoot
 
                 if (unscheduledTalks.Any())
                 {
-                    throw new InvalidOperationException(
+                    throw new DomainException(
                         $"Conference cannot be changed to 'ProgramPublished' status. All accepted talks must have a room and time slot assigned. {unscheduledTalks.Count} talk(s) are not fully scheduled."
                     );
                 }
@@ -136,7 +136,7 @@ public class Conference : AggregateRoot
             // ProgramPublished cannot be rolled back
             if (currentStatus == ConferenceStatus.ProgramPublished)
             {
-                throw new InvalidOperationException(
+                throw new DomainException(
                     "Conference status cannot be changed back from 'ProgramPublished'. The program has been published and cannot be unpublished."
                 );
             }
@@ -149,7 +149,7 @@ public class Conference : AggregateRoot
             {
                 if (_talks.Any())
                 {
-                    throw new InvalidOperationException(
+                    throw new DomainException(
                         "Conference status cannot be changed back to 'Draft' when talks have already been submitted. Consider closing the Call for Speakers instead."
                     );
                 }
@@ -225,7 +225,7 @@ public class Conference : AggregateRoot
     {
         if (_rooms.Any(r => r.Name.Value.Equals(name.Value, StringComparison.OrdinalIgnoreCase)))
         {
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"A room with the name '{name.Value}' already exists for this conference."
             );
         }
@@ -237,7 +237,7 @@ public class Conference : AggregateRoot
     {
         if (!_rooms.Any(r => r.Id == roomId))
         {
-            throw new InvalidOperationException(
+            throw new NotFoundException(
                 $"Room with id '{roomId.Value}' does not exist for this conference."
             );
         }
@@ -255,7 +255,7 @@ public class Conference : AggregateRoot
             )
         )
         {
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"A talk type with the name '{name.Value}' already exists for this conference."
             );
         }
@@ -277,7 +277,7 @@ public class Conference : AggregateRoot
 
         if (!_talkTypes.Any(tt => tt.Id == talkTypeId))
         {
-            throw new InvalidOperationException(
+            throw new NotFoundException(
                 $"Talk type with id '{talkTypeId.Value}' does not exist for this conference."
             );
         }
@@ -357,13 +357,15 @@ public class Conference : AggregateRoot
     {
         if (Status >= ConferenceStatus.CallForSpeakers)
         {
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"Conference cannot be edited when status is '{Status}'. Only conferences in 'Draft' status can be edited."
             );
         }
     }
 
-    private Talk FindTalk(Guid talkId) => _talks.First(s => s.Id.Value == (GuidV7)talkId);
+    private Talk FindTalk(Guid talkId) =>
+        _talks.FirstOrDefault(s => s.Id.Value == (GuidV7)talkId)
+        ?? throw new NotFoundException($"Talk '{talkId}' is not part of this conference.");
 
     private TalkType FindTalkType(Guid talkTypeId) =>
         _talkTypes.First(tt => tt.Id.Value == (GuidV7)talkTypeId);

@@ -12,6 +12,7 @@ using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Application.CreateSpeakerProfile;
 using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.SubmitTalk;
+using ConferenceExample.Talk.Domain.SharedKernel;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,7 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     private string _submittedTitle = string.Empty;
     private string _submittedAbstract = string.Empty;
     private string _organizerToken = string.Empty;
+    private HttpResponseMessage _submitResponse = null!;
 
     [Given("a conference exists")]
     public async Task GivenAConferenceExists()
@@ -86,6 +88,68 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         await WaitForConferenceReadyForSubmissions();
 
         ClearBearerToken();
+    }
+
+    [Given("a conference exists that is not yet accepting submissions")]
+    public async Task GivenAConferenceExistsThatIsNotYetAcceptingSubmissions()
+    {
+        _organizerToken = await Register(UserRole.Organizer);
+        SetBearerToken(_organizerToken);
+
+        var createResponse = await httpClient.PostAsJsonAsync(
+            "/api/conferences",
+            new CreateConferenceDto
+            {
+                Name = "Test Conference",
+                Start = DateTimeOffset.UtcNow.AddMonths(1),
+                End = DateTimeOffset.UtcNow.AddMonths(1).AddDays(2),
+                LocationName = "Test Location",
+                Street = "123 Test St",
+                City = "Test City",
+                State = "Test State",
+                PostalCode = "12345",
+                Country = "Test Country",
+            }
+        );
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var conference = await createResponse.Content.ReadFromJsonAsync<ConferenceCreatedDto>(
+            ResponseJsonOptions
+        );
+        Assert.NotNull(conference);
+        _conferenceId = conference.Id;
+
+        var talkTypeResponse = await httpClient.PostAsJsonAsync(
+            $"/api/conferences/{_conferenceId}/talk-types",
+            new DefineTalkTypeDto("Session", 30)
+        );
+        Assert.Equal(HttpStatusCode.Created, talkTypeResponse.StatusCode);
+        var talkType = await talkTypeResponse.Content.ReadFromJsonAsync<TalkTypeDefinedDto>(
+            ResponseJsonOptions
+        );
+        Assert.NotNull(talkType);
+        _talkTypeId = talkType.TalkTypeId;
+
+        // Left in Draft status on purpose — the conference exists but isn't accepting talk
+        // submissions yet. Still wait for it to be replicated into the Talk BC's local event
+        // store, same reason as WaitForConferenceReadyForSubmissions, just without requiring
+        // CanAcceptTalkSubmissions() to be true.
+        await WaitForConferenceToExist();
+
+        ClearBearerToken();
+    }
+
+    [When("a speaker submits a talk for a nonexistent conference")]
+    public async Task WhenASpeakerSubmitsATalkForANonexistentConference()
+    {
+        _conferenceId = Guid.CreateVersion7();
+        _talkTypeId = Guid.CreateVersion7();
+        await SubmitTalk("Introduction to DDD", "An overview of Domain-Driven Design", []);
+    }
+
+    [Then("the submission is rejected with status {int}")]
+    public void ThenTheSubmissionIsRejectedWithStatus(int expectedStatusCode)
+    {
+        Assert.Equal(expectedStatusCode, (int)_submitResponse.StatusCode);
     }
 
     [When("a speaker submits a talk titled {string} with abstract {string}")]
@@ -183,7 +247,7 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         );
         Assert.Equal(HttpStatusCode.Created, profileResponse.StatusCode);
 
-        var submitResponse = await httpClient.PostAsJsonAsync(
+        _submitResponse = await httpClient.PostAsJsonAsync(
             "/api/talks",
             new SubmitTalkDto
             {
@@ -194,10 +258,14 @@ public class TalkSubmissionSteps(HttpClient httpClient)
                 TalkTypeId = _talkTypeId,
             }
         );
-        Assert.Equal(HttpStatusCode.Created, submitResponse.StatusCode);
+
+        if (_submitResponse.StatusCode != HttpStatusCode.Created)
+        {
+            return;
+        }
 
         var location =
-            submitResponse.Headers.Location?.ToString()
+            _submitResponse.Headers.Location?.ToString()
             ?? throw new InvalidOperationException(
                 "Talk submission response did not include a Location header."
             );
@@ -273,7 +341,7 @@ public class TalkSubmissionSteps(HttpClient httpClient)
                 if (conference.CanAcceptTalkSubmissions())
                     return;
             }
-            catch (InvalidOperationException)
+            catch (NotFoundException)
             {
                 // Not yet replicated into the Talk BC's local event store.
             }
@@ -283,6 +351,36 @@ public class TalkSubmissionSteps(HttpClient httpClient)
 
         throw new TimeoutException(
             $"Conference {_conferenceId} did not become ready for talk submissions within the timeout."
+        );
+    }
+
+    private async Task WaitForConferenceToExist()
+    {
+        using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
+        var repository =
+            scope.ServiceProvider.GetRequiredService<ConferenceExample.Talk.Domain.TalkManagement.IConferenceRepository>();
+        var conferenceId = new ConferenceExample.Talk.Domain.TalkManagement.ConferenceId(
+            new GuidV7(_conferenceId)
+        );
+
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            try
+            {
+                await repository.GetById(conferenceId);
+                return;
+            }
+            catch (NotFoundException)
+            {
+                // Not yet replicated into the Talk BC's local event store.
+            }
+
+            await Task.Delay(50);
+        }
+
+        throw new TimeoutException(
+            $"Conference {_conferenceId} did not appear in the Talk BC's local event store within the timeout."
         );
     }
 
