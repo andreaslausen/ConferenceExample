@@ -55,4 +55,24 @@ public class SpeakerTests
         Assert.Equal("Smith", speaker.Name.LastName);
         Assert.Equal("New bio", speaker.Biography.Content);
     }
+
+    [Fact]
+    public void LoadFromHistory_RestoresState()
+    {
+        // Arrange
+        var id = new SpeakerId(GuidV7.NewGuid());
+        var speaker = Speaker.Create(id, new Name("John", "Doe"), new SpeakerBiography("Old bio"));
+        speaker.UpdateProfile(new Name("Jane", "Smith"), new SpeakerBiography("New bio"));
+        var events = speaker.GetUncommittedEvents().ToList();
+
+        // Act
+        var replayedSpeaker = Speaker.LoadFromHistory(events);
+
+        // Assert
+        Assert.Equal(id, replayedSpeaker.Id);
+        Assert.Equal("Jane", replayedSpeaker.Name.FirstName);
+        Assert.Equal("Smith", replayedSpeaker.Name.LastName);
+        Assert.Equal("New bio", replayedSpeaker.Biography.Content);
+        Assert.Equal(1, replayedSpeaker.Version);
+    }
 }

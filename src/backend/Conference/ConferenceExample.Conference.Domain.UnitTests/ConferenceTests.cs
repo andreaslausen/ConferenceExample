@@ -877,6 +877,195 @@ public class ConferenceTests
         Assert.Contains("cannot be edited", exception.Message);
     }
 
+    [Fact]
+    public void ChangeStatus_SameStatusAsCurrentProgramPublished_Succeeds()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var roomId = new RoomId(GuidV7.NewGuid());
+        conference.AddRoom(roomId, new Text("Main Hall"));
+        conference.SubmitTalk(talkId);
+        conference.AcceptTalk(talkId);
+        conference.ScheduleTalk(
+            talkId,
+            new Time(
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(9),
+                DateTimeOffset.UtcNow.AddDays(30).AddHours(10)
+            )
+        );
+        var room = conference.Rooms.First(r => r.Id == roomId);
+        conference.AssignTalkToRoom(talkId, room);
+        conference.ChangeStatus(ConferenceStatus.ProgramPublished);
+
+        // Act - changing to the same status is always a no-op, even from ProgramPublished
+        conference.ChangeStatus(ConferenceStatus.ProgramPublished);
+
+        // Assert
+        Assert.Equal(ConferenceStatus.ProgramPublished, conference.Status);
+    }
+
+    [Fact]
+    public void ChangeStatus_SameStatusOnReconstructedProgramPublishedWithoutTalks_Succeeds()
+    {
+        // Arrange - reconstruct a conference directly in ProgramPublished status without ever
+        // satisfying the accepted/scheduled-talks invariant that normally guards that transition.
+        var createdEvent = new ConferenceCreatedEvent(
+            GuidV7.NewGuid(),
+            DateTimeOffset.UtcNow,
+            "Test Conference",
+            DateTimeOffset.UtcNow.AddDays(30),
+            DateTimeOffset.UtcNow.AddDays(32),
+            "Test Venue",
+            "123 Main St",
+            "Springfield",
+            "IL",
+            "62701",
+            "US",
+            GuidV7.NewGuid(),
+            ConferenceStatus.ProgramPublished.ToString()
+        );
+        var conference = ConferenceAggregate.LoadFromHistory([createdEvent]);
+
+        // Act - changing to the same status must remain a no-op and must not re-validate
+        // invariants that only apply to actual forward transitions.
+        conference.ChangeStatus(ConferenceStatus.ProgramPublished);
+
+        // Assert
+        Assert.Equal(ConferenceStatus.ProgramPublished, conference.Status);
+    }
+
+    [Fact]
+    public void ChangeStatus_FromCallForSpeakersClosedToDraftWithSubmittedTalks_Succeeds()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        conference.SubmitTalk(new TalkId(GuidV7.NewGuid()));
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
+
+        // Act - only CallForSpeakers -> Draft checks for submitted talks, not CallForSpeakersClosed -> Draft
+        conference.ChangeStatus(ConferenceStatus.Draft);
+
+        // Assert
+        Assert.Equal(ConferenceStatus.Draft, conference.Status);
+    }
+
+    [Fact]
+    public void AddRoom_DuplicateName_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        conference.AddRoom(new RoomId(GuidV7.NewGuid()), new Text("Main Hall"));
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.AddRoom(new RoomId(GuidV7.NewGuid()), new Text("Main Hall"))
+        );
+        Assert.Contains("already exists", exception.Message);
+    }
+
+    [Fact]
+    public void RemoveRoom_TwoRoomsRemoveSecond_RemovesCorrectRoom()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var roomAId = new RoomId(GuidV7.NewGuid());
+        var roomBId = new RoomId(GuidV7.NewGuid());
+        conference.AddRoom(roomAId, new Text("Room A"));
+        conference.AddRoom(roomBId, new Text("Room B"));
+
+        // Act
+        conference.RemoveRoom(roomBId);
+
+        // Assert
+        var remainingRoom = Assert.Single(conference.Rooms);
+        Assert.Equal(roomAId, remainingRoom.Id);
+    }
+
+    [Fact]
+    public void RemoveRoom_NonExistingRoom_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var roomId = new RoomId(GuidV7.NewGuid());
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            conference.RemoveRoom(roomId)
+        );
+        Assert.Contains("does not exist", exception.Message);
+    }
+
+    [Fact]
+    public void RemoveRoom_RaisesRoomRemovedEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var roomId = new RoomId(GuidV7.NewGuid());
+        conference.AddRoom(roomId, new Text("Main Hall"));
+        conference.ClearUncommittedEvents();
+
+        // Act
+        conference.RemoveRoom(roomId);
+
+        // Assert
+        var events = conference.GetUncommittedEvents();
+        var single = Assert.Single(events);
+        Assert.IsType<RoomRemovedEvent>(single);
+    }
+
+    [Fact]
+    public void AcceptTalk_UnknownTalkId_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var unknownTalkId = new TalkId(GuidV7.NewGuid());
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => conference.AcceptTalk(unknownTalkId));
+    }
+
+    [Fact]
+    public void LoadFromHistory_RoomRemovedEventForUnknownRoom_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var createdEvent = Assert.Single(conference.GetUncommittedEvents());
+        var roomRemovedEvent = new RoomRemovedEvent(
+            createdEvent.AggregateId,
+            DateTimeOffset.UtcNow,
+            GuidV7.NewGuid()
+        );
+
+        // Act & Assert - replaying a removal for a room that was never added is an inconsistent
+        // event stream and must fail loudly rather than silently do nothing.
+        Assert.Throws<InvalidOperationException>(() =>
+            ConferenceAggregate.LoadFromHistory([createdEvent, roomRemovedEvent])
+        );
+    }
+
+    [Fact]
+    public void LoadFromHistory_TalkTypeRemovedEventForUnknownTalkType_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var createdEvent = Assert.Single(conference.GetUncommittedEvents());
+        var talkTypeRemovedEvent = new TalkTypeRemovedEvent(
+            createdEvent.AggregateId,
+            DateTimeOffset.UtcNow,
+            GuidV7.NewGuid()
+        );
+
+        // Act & Assert - replaying a removal for a talk type that was never defined is an
+        // inconsistent event stream and must fail loudly rather than silently do nothing.
+        Assert.Throws<InvalidOperationException>(() =>
+            ConferenceAggregate.LoadFromHistory([createdEvent, talkTypeRemovedEvent])
+        );
+    }
+
     private static ConferenceAggregate CreateValidConference()
     {
         var id = new ConferenceId(GuidV7.NewGuid());

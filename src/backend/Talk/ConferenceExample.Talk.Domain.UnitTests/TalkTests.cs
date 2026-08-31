@@ -61,7 +61,7 @@ public class TalkTests
         var conferenceId = new ConferenceId(GuidV7.NewGuid());
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
+        var exception = Assert.Throws<ArgumentNullException>(() =>
             TalkAggregate.Submit(
                 id,
                 title,
@@ -75,6 +75,7 @@ public class TalkTests
                 conferenceId
             )
         );
+        Assert.Equal("tags", exception.ParamName);
     }
 
     [Fact]
@@ -223,6 +224,38 @@ public class TalkTests
         Assert.Equal(talk.SpeakerId, replayedTalk.SpeakerId);
         Assert.Equal(talk.Tags, replayedTalk.Tags);
         Assert.Equal(1, replayedTalk.Version);
+    }
+
+    [Fact]
+    public void ApplyEvent_TalkSubmittedEventReplayedTwice_ReplacesTagsInsteadOfAccumulating()
+    {
+        // Arrange
+        var talkId = GuidV7.NewGuid();
+        var speakerId = GuidV7.NewGuid();
+        var talkTypeId = GuidV7.NewGuid();
+        var conferenceId = GuidV7.NewGuid();
+        var firstSubmission = new TalkSubmittedEvent(
+            talkId,
+            DateTimeOffset.UtcNow,
+            "First Title",
+            "First Abstract",
+            speakerId,
+            "Jane",
+            "Doe",
+            "Speaker bio",
+            ["Tag1", "Tag2"],
+            talkTypeId,
+            conferenceId,
+            TalkStatus.Submitted.ToString()
+        );
+        var secondSubmission = firstSubmission with { Tags = ["Tag3"] };
+
+        // Act
+        var talk = TalkAggregate.LoadFromHistory([firstSubmission, secondSubmission]);
+
+        // Assert
+        var tag = Assert.Single(talk.Tags);
+        Assert.Equal("Tag3", tag.Tag);
     }
 
     private static TalkAggregate CreateValidTalk()

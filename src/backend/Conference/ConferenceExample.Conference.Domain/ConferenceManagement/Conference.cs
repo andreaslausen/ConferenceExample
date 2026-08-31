@@ -83,15 +83,15 @@ public class Conference : AggregateRoot
         ConferenceStatus newStatus
     )
     {
-        // No change is always allowed
-        if (currentStatus == newStatus)
+        // Forward transitions (or no change)
+        if (newStatus >= currentStatus)
         {
-            return;
-        }
+            // No change is always allowed
+            if (currentStatus == newStatus)
+            {
+                return;
+            }
 
-        // Forward transitions
-        if (newStatus > currentStatus)
-        {
             // Draft -> CallForSpeakers requires talk types
             if (
                 currentStatus == ConferenceStatus.Draft
