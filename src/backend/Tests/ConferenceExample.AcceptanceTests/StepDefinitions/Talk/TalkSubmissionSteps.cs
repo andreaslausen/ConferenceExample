@@ -35,12 +35,31 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     private string _submittedTitle = string.Empty;
     private string _submittedAbstract = string.Empty;
     private string _organizerToken = string.Empty;
+    private string _speakerToken = string.Empty;
+    private string _otherSpeakerToken = string.Empty;
     private HttpResponseMessage _submitResponse = null!;
+
+    [Given("an organizer is registered")]
+    public async Task GivenAnOrganizerIsRegistered()
+    {
+        _organizerToken = await Register(UserRole.Organizer);
+    }
+
+    [Given("a speaker is registered")]
+    public async Task GivenASpeakerIsRegistered()
+    {
+        _speakerToken = await Register(UserRole.Speaker);
+    }
+
+    [Given("another speaker is registered")]
+    public async Task GivenAnotherSpeakerIsRegistered()
+    {
+        _otherSpeakerToken = await Register(UserRole.Speaker);
+    }
 
     [Given("a conference exists")]
     public async Task GivenAConferenceExists()
     {
-        _organizerToken = await Register(UserRole.Organizer);
         SetBearerToken(_organizerToken);
 
         var createResponse = await httpClient.PostAsJsonAsync(
@@ -93,7 +112,6 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     [Given("a conference exists that is not yet accepting submissions")]
     public async Task GivenAConferenceExistsThatIsNotYetAcceptingSubmissions()
     {
-        _organizerToken = await Register(UserRole.Organizer);
         SetBearerToken(_organizerToken);
 
         var createResponse = await httpClient.PostAsJsonAsync(
@@ -138,8 +156,8 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         ClearBearerToken();
     }
 
-    [When("a speaker submits a talk for a nonexistent conference")]
-    public async Task WhenASpeakerSubmitsATalkForANonexistentConference()
+    [When("the speaker submits a talk for a nonexistent conference")]
+    public async Task WhenTheSpeakerSubmitsATalkForANonexistentConference()
     {
         _conferenceId = Guid.CreateVersion7();
         _talkTypeId = Guid.CreateVersion7();
@@ -152,16 +170,16 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         Assert.Equal(expectedStatusCode, (int)_submitResponse.StatusCode);
     }
 
-    [When("a speaker submits a talk titled {string} with abstract {string}")]
-    public async Task WhenASpeakerSubmitsATalk(string title, string @abstract)
+    [When("the speaker submits a talk titled {string} with abstract {string}")]
+    public async Task WhenTheSpeakerSubmitsATalk(string title, string @abstract)
     {
         await SubmitTalk(title, @abstract, []);
     }
 
     [When(
-        "a speaker submits a talk titled {string} with abstract {string} tagged {string} and {string}"
+        "the speaker submits a talk titled {string} with abstract {string} tagged {string} and {string}"
     )]
-    public async Task WhenASpeakerSubmitsATalkWithTags(
+    public async Task WhenTheSpeakerSubmitsATalkWithTags(
         string title,
         string @abstract,
         string tag1,
@@ -208,12 +226,12 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-    [Then("an unrelated user cannot view the talk")]
-    public async Task ThenAnUnrelatedUserCannotViewTheTalk()
+    [Then("the other speaker cannot view the talk")]
+    public async Task ThenTheOtherSpeakerCannotViewTheTalk()
     {
         await WaitForTalkDocument();
 
-        SetBearerToken(await Register(UserRole.Speaker));
+        SetBearerToken(_otherSpeakerToken);
 
         var response = await httpClient.GetAsync($"/api/talks/{_talkId}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -234,7 +252,7 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         _submittedTitle = title;
         _submittedAbstract = @abstract;
 
-        SetBearerToken(await Register(UserRole.Speaker));
+        SetBearerToken(_speakerToken);
 
         var profileResponse = await httpClient.PostAsJsonAsync(
             "/api/speakers/profile",

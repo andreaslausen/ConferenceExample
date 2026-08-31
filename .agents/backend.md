@@ -32,7 +32,12 @@ Two kinds of backend tests, nothing in between:
   the HTTP level anyway (a scenario in one context routinely needs another, e.g. submitting a
   talk needs a conference and a talk type to exist first). `.feature` files and step
   definitions are organized into subfolders per bounded context for readability
-  (`Features/Talk/`, `StepDefinitions/Talk/`, ...).
+  (`Features/Talk/`, `StepDefinitions/Talk/`, ...). Preconditions such as user registration
+  must be their own explicit `Given` step (e.g. `Given a speaker is registered`) — never a
+  side effect hidden inside a step bound to unrelated Gherkin text (e.g. registering a user
+  inside a `Given a conference exists` or `Then ... cannot view ...` step). A reader of the
+  `.feature` file must be able to see every precondition without opening the step
+  definitions.
 
 Do not add new `*.Application.UnitTests` / `*.Persistence.UnitTests` projects, and don't add
 scenarios to an acceptance suite that bypass HTTP — write an HTTP-driven Gherkin scenario
