@@ -12,6 +12,7 @@ using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Application.CreateSpeakerProfile;
 using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.SubmitTalk;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
@@ -32,11 +33,13 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     private Guid _talkId;
     private string _submittedTitle = string.Empty;
     private string _submittedAbstract = string.Empty;
+    private string _organizerToken = string.Empty;
 
     [Given("a conference exists")]
     public async Task GivenAConferenceExists()
     {
-        SetBearerToken(await Register(UserRole.Organizer));
+        _organizerToken = await Register(UserRole.Organizer);
+        SetBearerToken(_organizerToken);
 
         var createResponse = await httpClient.PostAsJsonAsync(
             "/api/conferences",
@@ -77,6 +80,11 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         );
         Assert.Equal(HttpStatusCode.NoContent, statusResponse.StatusCode);
 
+        // The Talk BC only learns about the status change once ConferenceStatusChangedEvent is
+        // replicated into its local event store via the event bus — poll rather than assume it
+        // has landed by the time this method returns.
+        await WaitForConferenceReadyForSubmissions();
+
         ClearBearerToken();
     }
 
@@ -111,6 +119,40 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         Assert.Equal("Submitted", response.Status);
         Assert.Equal(_submittedTitle, response.Title);
         Assert.Equal(_submittedAbstract, response.Abstract);
+    }
+
+    [Then("the organizer can view the talk")]
+    public async Task ThenTheOrganizerCanViewTheTalk()
+    {
+        await WaitForTalkDocument();
+
+        SetBearerToken(_organizerToken);
+
+        // The ConferenceId -> OrganizerId projection used to authorize this is populated
+        // asynchronously from a separate event subscription, so poll rather than assert once.
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
+        HttpResponseMessage response;
+        do
+        {
+            response = await httpClient.GetAsync($"/api/talks/{_talkId}");
+            if (response.StatusCode == HttpStatusCode.OK)
+                return;
+
+            await Task.Delay(50);
+        } while (DateTimeOffset.UtcNow < deadline);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Then("an unrelated user cannot view the talk")]
+    public async Task ThenAnUnrelatedUserCannotViewTheTalk()
+    {
+        await WaitForTalkDocument();
+
+        SetBearerToken(await Register(UserRole.Speaker));
+
+        var response = await httpClient.GetAsync($"/api/talks/{_talkId}");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Then("the talk has the tag {string}")]
@@ -160,8 +202,6 @@ public class TalkSubmissionSteps(HttpClient httpClient)
                 "Talk submission response did not include a Location header."
             );
         _talkId = Guid.Parse(location.Split('/').Last());
-
-        ClearBearerToken();
     }
 
     // Talk read models are projected asynchronously from stored events (see InMemoryEventBus),
@@ -212,6 +252,37 @@ public class TalkSubmissionSteps(HttpClient httpClient)
 
         throw new TimeoutException(
             $"Talk {_talkId} did not appear in the read model within the timeout."
+        );
+    }
+
+    private async Task WaitForConferenceReadyForSubmissions()
+    {
+        using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
+        var repository =
+            scope.ServiceProvider.GetRequiredService<ConferenceExample.Talk.Domain.TalkManagement.IConferenceRepository>();
+        var conferenceId = new ConferenceExample.Talk.Domain.TalkManagement.ConferenceId(
+            new GuidV7(_conferenceId)
+        );
+
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            try
+            {
+                var conference = await repository.GetById(conferenceId);
+                if (conference.CanAcceptTalkSubmissions())
+                    return;
+            }
+            catch (InvalidOperationException)
+            {
+                // Not yet replicated into the Talk BC's local event store.
+            }
+
+            await Task.Delay(50);
+        }
+
+        throw new TimeoutException(
+            $"Conference {_conferenceId} did not become ready for talk submissions within the timeout."
         );
     }
 

@@ -6,8 +6,8 @@
 - [ ] Commands, die mehr als ein Event auslösen (z.B. EditTalk), hinterfragen.
 - [ ] Ein ReadModel einführen, das nur für eine spezielle Ansicht da ist.
 - [ ] Paging überarbeiten: Services laden aktuell immer alles
-- [ ] Mutation Scores auf 100% bringen
-
+- [x] Mutation Scores auf 100% bringen
+- [ ] Exception Handling implementieren
 
 ## Product
 - [ ] Testen und Ist-Stand aufnehmen. Danach weitere Features planen.

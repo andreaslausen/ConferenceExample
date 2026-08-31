@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddExceptionHandler<AuthorizationExceptionHandler>();
+builder.Services.AddProblemDetails();
 builder.Services.AddEventStore(builder.Configuration);
 builder.Services.AddAuthenticationServices(builder.Configuration);
 builder.Services.AddConferencePersistence();
@@ -42,6 +44,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors();
 
@@ -49,6 +52,18 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+if (
+    !app.Environment.IsDevelopment()
+    && builder.Configuration["Jwt:Secret"]
+        == ConferenceExample.Authentication.ServiceCollectionExtensions.DefaultDemoJwtSecret
+)
+{
+    app.Logger.LogWarning(
+        "Jwt:Secret is still set to the default demo value. Configure a unique secret "
+            + "(e.g. via the Jwt__Secret environment variable) before exposing this to real users."
+    );
+}
 
 app.Run();
 

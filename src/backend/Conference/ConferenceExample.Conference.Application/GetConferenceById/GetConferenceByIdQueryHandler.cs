@@ -3,14 +3,21 @@ using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Application.GetConferenceById;
 
-public class GetConferenceByIdQueryHandler(IConferenceRepository conferenceRepository)
-    : IGetConferenceByIdQueryHandler
+public class GetConferenceByIdQueryHandler(
+    IConferenceRepository conferenceRepository,
+    ICurrentUserService currentUserService
+) : IGetConferenceByIdQueryHandler
 {
-    public async Task<GetConferenceByIdDto> Handle(GetConferenceByIdQuery query)
+    public async Task<GetConferenceByIdDto?> Handle(GetConferenceByIdQuery query)
     {
         var conference = await conferenceRepository.GetById(
             new ConferenceId(new GuidV7(query.ConferenceId))
         );
+
+        if (conference.Status == ConferenceStatus.Draft && !IsOrganizer(conference))
+        {
+            return null;
+        }
 
         var talkTypesCount = conference.TalkTypes.Count;
         var talksCount = conference.Talks.Count;
@@ -41,5 +48,20 @@ public class GetConferenceByIdQueryHandler(IConferenceRepository conferenceRepos
             AcceptedTalksCount = acceptedTalksCount,
             UnscheduledAcceptedTalksCount = unscheduledAcceptedTalksCount,
         };
+    }
+
+    private bool IsOrganizer(Domain.ConferenceManagement.Conference conference)
+    {
+        try
+        {
+            var currentOrganizerId = new OrganizerId(
+                new GuidV7(currentUserService.GetCurrentUserId())
+            );
+            return conference.OrganizerId.Value == currentOrganizerId.Value;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 }

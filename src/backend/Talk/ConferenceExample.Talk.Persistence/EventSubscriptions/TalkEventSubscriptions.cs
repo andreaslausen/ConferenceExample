@@ -44,6 +44,17 @@ public static class TalkEventSubscriptions
             );
         }
 
+        eventBus.Subscribe(
+            "ConferenceCreatedEvent",
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler =
+                    scope.ServiceProvider.GetRequiredService<ConferenceOrganizerEventHandler>();
+                await handler.HandleConferenceCreated(storedEvent);
+            }
+        );
+
         SubscribeTalkHandler(
             eventBus,
             scopeFactory,

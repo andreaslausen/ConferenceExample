@@ -11,6 +11,7 @@ public class GetAllConferencesQueryHandler(
         var conferences = await conferenceReadModelRepository.GetAll();
 
         return conferences
+            .Where(c => c.Status != ConferenceStatus.Draft.ToString())
             .Select(c => new GetAllConferencesDto(
                 c.Id,
                 c.Name,

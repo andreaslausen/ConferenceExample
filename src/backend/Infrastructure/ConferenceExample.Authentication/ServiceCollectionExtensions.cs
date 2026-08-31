@@ -8,6 +8,9 @@ namespace ConferenceExample.Authentication;
 
 public static class ServiceCollectionExtensions
 {
+    public const string DefaultDemoJwtSecret =
+        "YourSecretKeyHereMinimum32CharactersLongForHS256Algorithm";
+
     public static IServiceCollection AddAuthenticationServices(
         this IServiceCollection services,
         IConfiguration configuration

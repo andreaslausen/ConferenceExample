@@ -11,3 +11,13 @@ Feature: Talk Submission
     Then the talk is stored with status Submitted
     And the talk has the tag "Architecture"
     And the talk has the tag "CQRS"
+
+  Scenario: The organizer can view a submitted talk
+    Given a conference exists
+    When a speaker submits a talk titled "Introduction to DDD" with abstract "An overview of Domain-Driven Design"
+    Then the organizer can view the talk
+
+  Scenario: An unrelated user cannot view a submitted talk
+    Given a conference exists
+    When a speaker submits a talk titled "Introduction to DDD" with abstract "An overview of Domain-Driven Design"
+    Then an unrelated user cannot view the talk

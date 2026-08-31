@@ -28,7 +28,7 @@ public interface IConferenceService
     Task ChangeConferenceStatus(Guid id, ChangeConferenceStatusDto dto);
     Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences();
     Task<IReadOnlyList<GetMyConferencesDto>> GetMyConferences();
-    Task<GetConferenceByIdDto> GetConferenceById(Guid conferenceId);
+    Task<GetConferenceByIdDto?> GetConferenceById(Guid conferenceId);
     Task<IReadOnlyList<GetConferenceScheduleDto>> GetConferenceSchedule(Guid conferenceId);
     Task<IReadOnlyList<GetConferenceTalksDto>> GetConferenceTalks(Guid conferenceId);
     Task AcceptTalk(Guid conferenceId, Guid talkId);

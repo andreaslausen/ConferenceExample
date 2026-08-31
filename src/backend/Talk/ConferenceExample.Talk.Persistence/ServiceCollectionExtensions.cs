@@ -1,3 +1,4 @@
+using ConferenceExample.Talk.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence.EventHandlers;
@@ -35,10 +36,20 @@ public static class ServiceCollectionExtensions
             sp.GetRequiredService<MongoDbSpeakerReadModelRepository>()
         );
 
+        // Conference Organizer Read Model Repository (cross-BC ACL projection)
+        services.AddScoped<MongoDbConferenceOrganizerReadModelRepository>();
+        services.AddScoped<IConferenceOrganizerDocumentRepository>(sp =>
+            sp.GetRequiredService<MongoDbConferenceOrganizerReadModelRepository>()
+        );
+        services.AddScoped<IConferenceOrganizerReadModelRepository>(sp =>
+            sp.GetRequiredService<MongoDbConferenceOrganizerReadModelRepository>()
+        );
+
         // Event Handlers
         services.AddScoped<TalkEventHandler>();
         services.AddScoped<SpeakerEventHandler>();
         services.AddScoped<ConferenceEventReplicationHandler>();
+        services.AddScoped<ConferenceOrganizerEventHandler>();
 
         return services;
     }

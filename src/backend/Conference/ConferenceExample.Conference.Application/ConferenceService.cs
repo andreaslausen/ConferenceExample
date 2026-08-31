@@ -102,7 +102,7 @@ public class ConferenceService(
         return await getMyConferencesQueryHandler.Handle(query);
     }
 
-    public async Task<GetConferenceByIdDto> GetConferenceById(Guid conferenceId)
+    public async Task<GetConferenceByIdDto?> GetConferenceById(Guid conferenceId)
     {
         var query = new GetConferenceByIdQuery(conferenceId);
         return await getConferenceByIdQueryHandler.Handle(query);

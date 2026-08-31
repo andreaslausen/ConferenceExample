@@ -60,6 +60,8 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     public async Task<ActionResult<GetConferenceByIdDto>> GetById(Guid id)
     {
         var conference = await conferenceService.GetConferenceById(id);
+        if (conference is null)
+            return NotFound();
         return Ok(conference);
     }
 
