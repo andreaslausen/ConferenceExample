@@ -16,15 +16,31 @@ a subdomain has no home.
 
 ## Authentication & authorization
 
-Authentication is currently a self-built construct (`ConferenceExample.Authentication`
-under `src/backend/Infrastructure/`) — not a bounded context, just cross-cutting
-infrastructure. Per the arc42 solution strategy, it's planned to be replaced later by an
-external identity provider (e.g. Keycloak), at which point Identity becomes its own bounded
-context with an anti-corruption layer at the boundary. Don't build toward that migration
-preemptively — work with the current construct as-is.
+Authentication is delegated to **Keycloak** (local dev instance via Docker Compose, see
+`.agents/infrastructure.md`). `ConferenceExample.Authentication` under
+`src/backend/Infrastructure/` is not a bounded context, just cross-cutting infrastructure —
+it validates Keycloak-issued JWTs (`ServiceCollectionExtensions`, JWKS-based, no shared
+secret) and exposes `ICurrentUserService`/`CurrentUserService` to the Conference and Talk
+Application layers. There is no `/api/auth/*` endpoint anymore; the frontend redirects to
+Keycloak's own login/registration pages (Authorization Code + PKCE, see
+`.agents/frontend.md`).
 
-Authorization is role-based, with roles defined in code (not yet coming from claims/an IdP).
-That's expected to stay as-is for now.
+Authorization is still role-based (`UserRole`: `Speaker`/`Organizer`/`Attendee`), but the
+roles now come from the token's `realm_access.roles` claim rather than being defined at
+registration time in code — `RealmRoleClaimsTransformation` flattens that Keycloak-specific
+claim shape into standard `ClaimTypes.Role` claims, ignoring Keycloak's own default roles
+(`offline_access`, `uma_authorization`, `default-roles-*`). A user is expected to carry
+exactly one of the three app roles; self-registered users default to `Attendee` via a
+Keycloak default group, and `Speaker`/`Organizer` are granted by an organizer/admin.
+
+Keycloak's `sub` claim (the external identity) is a plain UUID, not the app-minted `GuidV7`
+used elsewhere for internally-created ids. Rather than building the full anti-corruption
+layer with a local identity-mapping store that a stricter reading of "Identity becomes its
+own bounded context" might suggest, this migration took the smaller, pragmatic step:
+`OrganizerId` (Conference.Domain) and `SpeakerId` (Talk.Domain) now wrap a plain `Guid`
+instead of `GuidV7`, since they represent an externally-issued identity, not something the
+app itself generates. IDs the app does mint (`TalkId`, `ConferenceId`, `RoomId`, `TalkTypeId`,
+...) are unaffected and still use `GuidV7`.
 
 ## Layers (per bounded context)
 

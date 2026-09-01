@@ -15,7 +15,7 @@ public class SpeakerIdTests
         var speakerId = new SpeakerId(guidV7);
 
         // Assert
-        Assert.Equal(guidV7, speakerId.Value);
+        Assert.Equal(guidV7.Value, speakerId.Value);
     }
 
     [Fact]

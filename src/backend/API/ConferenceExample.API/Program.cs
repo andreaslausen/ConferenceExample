@@ -17,7 +17,7 @@ builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<ConcurrencyExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEventStore(builder.Configuration);
-builder.Services.AddAuthenticationServices(builder.Configuration);
+builder.Services.AddAuthenticationServices(builder.Configuration, builder.Environment);
 builder.Services.AddConferencePersistence();
 builder.Services.AddConferenceApplication();
 builder.Services.AddTalkPersistence();
@@ -56,18 +56,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-if (
-    !app.Environment.IsDevelopment()
-    && builder.Configuration["Jwt:Secret"]
-        == ConferenceExample.Authentication.ServiceCollectionExtensions.DefaultDemoJwtSecret
-)
-{
-    app.Logger.LogWarning(
-        "Jwt:Secret is still set to the default demo value. Configure a unique secret "
-            + "(e.g. via the Jwt__Secret environment variable) before exposing this to real users."
-    );
-}
 
 app.Run();
 

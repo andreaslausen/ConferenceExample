@@ -95,6 +95,14 @@ This will delete:
 - **URL:** http://localhost:8081
 - **Purpose:** Browse MongoDB data, debug events, inspect collections
 
+### Keycloak
+- **Port:** 8080
+- **URL:** http://localhost:8080, admin console at http://localhost:8080/admin (`admin`/`admin`)
+- **Realm:** `conference-example`, imported from `scripts/keycloak/realm-export.json` on
+  every container start (edit that file, not the Admin Console, for changes that should
+  persist across `dev-reset.sh`)
+- **Purpose:** Authentication/authorization identity provider (see `.agents/architecture.md`)
+
 ---
 
 ## Troubleshooting

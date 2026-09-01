@@ -63,7 +63,7 @@ public class MongoDbConferenceReadModelRepository
     {
         var filter = Builders<ConferenceDocument>.Filter.Eq(
             c => c.OrganizerId,
-            organizerId.Value.Value.ToString()
+            organizerId.Value.ToString()
         );
         var documents = await _collection.Find(filter).ToListAsync();
 

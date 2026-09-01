@@ -93,7 +93,7 @@ public class Talk : AggregateRoot
             case TalkSubmittedEvent e:
                 Id = new TalkId(new GuidV7(e.AggregateId));
                 Title = new TalkTitle(e.Title);
-                SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
+                SpeakerId = new SpeakerId(e.SpeakerId);
                 SpeakerFirstName = e.SpeakerFirstName;
                 SpeakerLastName = e.SpeakerLastName;
                 SpeakerBiography = e.SpeakerBiography;

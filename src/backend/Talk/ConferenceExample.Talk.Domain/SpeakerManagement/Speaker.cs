@@ -53,7 +53,7 @@ public class Speaker : AggregateRoot
         switch (@event)
         {
             case SpeakerProfileCreatedEvent e:
-                Id = new SpeakerId(new GuidV7(e.AggregateId));
+                Id = new SpeakerId(e.AggregateId);
                 Name = new Name(e.FirstName, e.LastName);
                 Biography = new SpeakerBiography(e.Biography);
                 break;

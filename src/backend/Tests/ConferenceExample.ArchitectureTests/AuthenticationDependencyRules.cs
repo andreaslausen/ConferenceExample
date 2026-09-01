@@ -9,7 +9,6 @@ public class AuthenticationDependencyRules : ArchitectureTest
             Authentication,
             [ConferenceApplication, TalkApplication],
             "System",
-            "MongoDB",
             "Microsoft.Extensions",
             "Microsoft.AspNetCore",
             "Microsoft.IdentityModel"

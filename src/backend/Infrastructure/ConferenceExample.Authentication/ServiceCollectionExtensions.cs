@@ -1,28 +1,25 @@
-using System.Text;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Hosting;
 
 namespace ConferenceExample.Authentication;
 
 public static class ServiceCollectionExtensions
 {
-    public const string DefaultDemoJwtSecret =
-        "YourSecretKeyHereMinimum32CharactersLongForHS256Algorithm";
-
     public static IServiceCollection AddAuthenticationServices(
         this IServiceCollection services,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IHostEnvironment environment
     )
     {
-        var jwtSettings =
-            configuration.GetSection("Jwt").Get<JwtSettings>()
-            ?? throw new InvalidOperationException("JWT settings not found in configuration");
+        var keycloakSettings =
+            configuration.GetSection("Keycloak").Get<KeycloakSettings>()
+            ?? throw new InvalidOperationException("Keycloak settings not found in configuration");
 
-        services.AddSingleton(jwtSettings);
-        services.AddScoped<IUserRepository, MongoDbUserRepository>();
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddSingleton(keycloakSettings);
         services.AddHttpContextAccessor();
         services.AddScoped<CurrentUserService>();
         services.AddScoped<Conference.Application.ICurrentUserService>(sp =>
@@ -31,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Talk.Application.ICurrentUserService>(sp =>
             sp.GetRequiredService<CurrentUserService>()
         );
+        services.AddTransient<IClaimsTransformation, RealmRoleClaimsTransformation>();
 
         services
             .AddAuthentication(options =>
@@ -40,23 +38,16 @@ public static class ServiceCollectionExtensions
             })
             .AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtSettings.Secret)
-                    ),
-                    // Prevent claim type mapping (e.g., 'sub' -> 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier')
-                    NameClaimType = "sub",
-                    RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
-                };
+                options.Authority = keycloakSettings.Authority;
+                options.Audience = keycloakSettings.Audience;
+                // Keycloak runs over plain HTTP in local development.
+                options.RequireHttpsMetadata = !environment.IsDevelopment();
 
-                // Disable default claim mapping to preserve JWT standard claim names
+                options.TokenValidationParameters.ValidIssuer = keycloakSettings.Authority;
+                options.TokenValidationParameters.NameClaimType = "sub";
+                options.TokenValidationParameters.RoleClaimType = ClaimTypes.Role;
+
+                // Disable default claim mapping to preserve JWT standard claim names (e.g. "sub").
                 options.MapInboundClaims = false;
             });
 

@@ -11,7 +11,7 @@ public class GetMyConferencesQueryHandler(
     public async Task<IReadOnlyList<GetMyConferencesDto>> Handle(GetMyConferencesQuery query)
     {
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId));
+        var currentOrganizerId = new OrganizerId(currentUserId);
 
         var conferences = await conferenceReadModelRepository.GetByOrganizerId(currentOrganizerId);
 

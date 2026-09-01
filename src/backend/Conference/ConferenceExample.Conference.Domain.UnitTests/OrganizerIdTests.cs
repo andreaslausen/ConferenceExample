@@ -15,7 +15,7 @@ public class OrganizerIdTests
         var organizerId = new OrganizerId(guidV7);
 
         // Assert
-        Assert.Equal(guidV7, organizerId.Value);
+        Assert.Equal(guidV7.Value, organizerId.Value);
     }
 
     [Fact]

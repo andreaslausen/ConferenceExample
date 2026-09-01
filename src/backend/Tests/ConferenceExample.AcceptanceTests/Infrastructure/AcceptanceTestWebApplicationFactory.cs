@@ -1,30 +1,26 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
 namespace ConferenceExample.AcceptanceTests.Infrastructure;
 
-public class AcceptanceTestWebApplicationFactory(string mongoConnectionString)
-    : WebApplicationFactory<Program>
+public class AcceptanceTestWebApplicationFactory(
+    string mongoConnectionString,
+    string keycloakAuthority
+) : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureAppConfiguration(
-            (_, config) =>
-            {
-                config.AddInMemoryCollection(
-                    new Dictionary<string, string?>
-                    {
-                        ["Jwt:Secret"] = "TestSecretKeyMinimum32CharactersLongForHS256Algorithm",
-                        ["Jwt:Issuer"] = "ConferenceExample.Tests",
-                        ["Jwt:Audience"] = "ConferenceExample.AcceptanceTests",
-                        ["Jwt:ExpirationHours"] = "24",
-                    }
-                );
-            }
-        );
+        // Keycloak's test container serves plain HTTP — RequireHttpsMetadata must be off,
+        // which the app only does in Development.
+        builder.UseEnvironment("Development");
+
+        // UseSetting (not ConfigureAppConfiguration) — with the minimal hosting model,
+        // Program.cs reads builder.Configuration before ConfigureAppConfiguration callbacks
+        // are merged in, so a later override there would be too late for AddAuthenticationServices.
+        builder.UseSetting("Keycloak:Authority", keycloakAuthority);
+        builder.UseSetting("Keycloak:Audience", "conference-example-api");
 
         builder.ConfigureServices(services =>
         {

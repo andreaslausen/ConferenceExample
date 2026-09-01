@@ -42,7 +42,7 @@ public abstract class ArchitectureTest
 
     // Authentication
     protected static Assembly Authentication =>
-        typeof(ConferenceExample.Authentication.IAuthenticationService).Assembly;
+        typeof(ConferenceExample.Authentication.CurrentUserService).Assembly;
 
     protected static readonly Assembly[] AuthenticationAssemblies = [Authentication];
 

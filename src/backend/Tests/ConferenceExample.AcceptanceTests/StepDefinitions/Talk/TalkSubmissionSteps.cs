@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ConferenceExample.AcceptanceTests.Infrastructure;
-using ConferenceExample.API.Controllers;
 using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application.ChangeConferenceStatus;
 using ConferenceExample.Conference.Application.CreateConference;
@@ -402,19 +401,8 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         );
     }
 
-    private async Task<string> Register(UserRole role)
-    {
-        var response = await httpClient.PostAsJsonAsync(
-            "/api/auth/register",
-            new RegisterRequestDto($"{Guid.CreateVersion7():N}@test.com", "Passw0rd!1", role)
-        );
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadFromJsonAsync<RegisterResponseDto>(
-            ResponseJsonOptions
-        );
-        Assert.NotNull(result);
-        return result.Token;
-    }
+    private static Task<string> Register(UserRole role) =>
+        AcceptanceTestEnvironment.KeycloakTestUsers.CreateUserAndGetToken(role);
 
     private void SetBearerToken(string token)
     {
