@@ -8,14 +8,19 @@ public class GetMyConferencesQueryHandler(
     ICurrentUserService currentUserService
 ) : IGetMyConferencesQueryHandler
 {
-    public async Task<IReadOnlyList<GetMyConferencesDto>> Handle(GetMyConferencesQuery query)
+    public async Task<(IReadOnlyList<GetMyConferencesDto> Items, int TotalCount)> Handle(
+        GetMyConferencesQuery query
+    )
     {
         var currentUserId = currentUserService.GetCurrentUserId();
         var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId));
 
-        var conferences = await conferenceReadModelRepository.GetByOrganizerId(currentOrganizerId);
+        var (conferences, totalCount) = await conferenceReadModelRepository.GetByOrganizerId(
+            currentOrganizerId,
+            query.PageRequest
+        );
 
-        return conferences
+        var items = conferences
             .Select(c => new GetMyConferencesDto(
                 c.Id,
                 c.Name,
@@ -28,5 +33,7 @@ public class GetMyConferencesQueryHandler(
                 c.Status
             ))
             .ToList();
+
+        return (items, totalCount);
     }
 }

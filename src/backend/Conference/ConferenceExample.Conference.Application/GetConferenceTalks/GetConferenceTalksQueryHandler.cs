@@ -10,7 +10,9 @@ public class GetConferenceTalksQueryHandler(
     ICurrentUserService currentUserService
 ) : IGetConferenceTalksQueryHandler
 {
-    public async Task<IReadOnlyList<GetConferenceTalksDto>> Handle(GetConferenceTalksQuery query)
+    public async Task<(IReadOnlyList<GetConferenceTalksDto> Items, int TotalCount)> Handle(
+        GetConferenceTalksQuery query
+    )
     {
         var conferenceId = new ConferenceId(new GuidV7(query.ConferenceId));
         var conference = await conferenceRepository.GetById(conferenceId);
@@ -25,9 +27,12 @@ public class GetConferenceTalksQueryHandler(
             );
         }
 
-        var talks = await talkReadModelRepository.GetByConferenceId(conference.Id);
+        var (talks, totalCount) = await talkReadModelRepository.GetByConferenceId(
+            conference.Id,
+            query.PageRequest
+        );
 
-        return talks
+        var items = talks
             .Select(talk => new GetConferenceTalksDto(
                 talk.Id,
                 talk.Title,
@@ -39,5 +44,7 @@ public class GetConferenceTalksQueryHandler(
                 talk.TalkTypeId
             ))
             .ToList();
+
+        return (items, totalCount);
     }
 }

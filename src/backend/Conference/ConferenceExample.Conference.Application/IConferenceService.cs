@@ -26,11 +26,21 @@ public interface IConferenceService
     Task RenameConference(Guid id, RenameConferenceDto dto);
     Task UpdateConferenceDetails(Guid id, UpdateConferenceDetailsDto dto);
     Task ChangeConferenceStatus(Guid id, ChangeConferenceStatusDto dto);
-    Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences();
-    Task<IReadOnlyList<GetMyConferencesDto>> GetMyConferences();
+    Task<(IReadOnlyList<GetAllConferencesDto> Items, int TotalCount)> GetAllConferences(
+        int page,
+        int pageSize
+    );
+    Task<(IReadOnlyList<GetMyConferencesDto> Items, int TotalCount)> GetMyConferences(
+        int page,
+        int pageSize
+    );
     Task<GetConferenceByIdDto?> GetConferenceById(Guid conferenceId);
     Task<IReadOnlyList<GetConferenceScheduleDto>> GetConferenceSchedule(Guid conferenceId);
-    Task<IReadOnlyList<GetConferenceTalksDto>> GetConferenceTalks(Guid conferenceId);
+    Task<(IReadOnlyList<GetConferenceTalksDto> Items, int TotalCount)> GetConferenceTalks(
+        Guid conferenceId,
+        int page,
+        int pageSize
+    );
     Task AcceptTalk(Guid conferenceId, Guid talkId);
     Task RejectTalk(Guid conferenceId, Guid talkId);
     Task ScheduleTalk(Guid conferenceId, Guid talkId, ScheduleTalkDto dto);

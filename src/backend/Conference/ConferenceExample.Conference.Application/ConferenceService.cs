@@ -18,6 +18,7 @@ using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
 using ConferenceExample.Conference.Application.UpdateConferenceDetails;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 
 namespace ConferenceExample.Conference.Application;
 
@@ -90,15 +91,21 @@ public class ConferenceService(
         await changeConferenceStatusCommandHandler.Handle(command);
     }
 
-    public async Task<IReadOnlyList<GetAllConferencesDto>> GetAllConferences()
+    public async Task<(
+        IReadOnlyList<GetAllConferencesDto> Items,
+        int TotalCount
+    )> GetAllConferences(int page, int pageSize)
     {
-        var query = new GetAllConferencesQuery();
+        var query = new GetAllConferencesQuery(new PageRequest(page, pageSize));
         return await getAllConferencesQueryHandler.Handle(query);
     }
 
-    public async Task<IReadOnlyList<GetMyConferencesDto>> GetMyConferences()
+    public async Task<(IReadOnlyList<GetMyConferencesDto> Items, int TotalCount)> GetMyConferences(
+        int page,
+        int pageSize
+    )
     {
-        var query = new GetMyConferencesQuery();
+        var query = new GetMyConferencesQuery(new PageRequest(page, pageSize));
         return await getMyConferencesQueryHandler.Handle(query);
     }
 
@@ -116,9 +123,12 @@ public class ConferenceService(
         return await getConferenceScheduleQueryHandler.Handle(query);
     }
 
-    public async Task<IReadOnlyList<GetConferenceTalksDto>> GetConferenceTalks(Guid conferenceId)
+    public async Task<(
+        IReadOnlyList<GetConferenceTalksDto> Items,
+        int TotalCount
+    )> GetConferenceTalks(Guid conferenceId, int page, int pageSize)
     {
-        var query = new GetConferenceTalksQuery(conferenceId);
+        var query = new GetConferenceTalksQuery(conferenceId, new PageRequest(page, pageSize));
         return await getConferenceTalksQueryHandler.Handle(query);
     }
 

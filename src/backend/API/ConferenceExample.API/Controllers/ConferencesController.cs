@@ -33,9 +33,8 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         [FromQuery] int pageSize = 20
     )
     {
-        var conferences = await conferenceService.GetAllConferences();
-        var items = conferences.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-        return Ok(new PagedResult<GetAllConferencesDto>(items, conferences.Count, page, pageSize));
+        var (items, totalCount) = await conferenceService.GetAllConferences(page, pageSize);
+        return Ok(new PagedResult<GetAllConferencesDto>(items, totalCount, page, pageSize));
     }
 
     [HttpGet("my", Name = "GetMyConferences")]
@@ -48,9 +47,8 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         [FromQuery] int pageSize = 20
     )
     {
-        var conferences = await conferenceService.GetMyConferences();
-        var items = conferences.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-        return Ok(new PagedResult<GetMyConferencesDto>(items, conferences.Count, page, pageSize));
+        var (items, totalCount) = await conferenceService.GetMyConferences(page, pageSize);
+        return Ok(new PagedResult<GetMyConferencesDto>(items, totalCount, page, pageSize));
     }
 
     [HttpGet("{id:guid}", Name = "GetConferenceById")]
@@ -150,9 +148,8 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
         [FromQuery] int pageSize = 20
     )
     {
-        var talks = await conferenceService.GetConferenceTalks(id);
-        var items = talks.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-        return Ok(new PagedResult<GetConferenceTalksDto>(items, talks.Count, page, pageSize));
+        var (items, totalCount) = await conferenceService.GetConferenceTalks(id, page, pageSize);
+        return Ok(new PagedResult<GetConferenceTalksDto>(items, totalCount, page, pageSize));
     }
 
     [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/accept", Name = "AcceptTalk")]

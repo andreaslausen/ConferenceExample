@@ -2,6 +2,7 @@ using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.SubmitTalk;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
 
 namespace ConferenceExample.Talk.Application;
 
@@ -25,9 +26,12 @@ public class TalkService(
         return await submitTalkCommandHandler.Handle(command);
     }
 
-    public async Task<IReadOnlyList<GetMyTalksDto>> GetMyTalks()
+    public async Task<(IReadOnlyList<GetMyTalksDto> Items, int TotalCount)> GetMyTalks(
+        int page,
+        int pageSize
+    )
     {
-        var query = new GetMyTalksQuery();
+        var query = new GetMyTalksQuery(new PageRequest(page, pageSize));
         return await getMyTalksQueryHandler.Handle(query);
     }
 

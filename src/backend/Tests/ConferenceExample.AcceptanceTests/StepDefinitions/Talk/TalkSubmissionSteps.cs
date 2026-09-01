@@ -39,6 +39,14 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     private string _otherSpeakerToken = string.Empty;
     private HttpResponseMessage _submitResponse = null!;
 
+    // Exposed so other step classes (e.g. TalkPaginationSteps) can reuse the setup performed by
+    // the "an organizer is registered" / "a conference exists" / "a speaker is registered" steps
+    // above instead of duplicating it — Reqnroll resolves one shared instance of this class per
+    // scenario via DI, so injecting it into another binding class gives access to this state.
+    internal string SpeakerToken => _speakerToken;
+    internal Guid ConferenceId => _conferenceId;
+    internal Guid TalkTypeId => _talkTypeId;
+
     [Given("an organizer is registered")]
     public async Task GivenAnOrganizerIsRegistered()
     {

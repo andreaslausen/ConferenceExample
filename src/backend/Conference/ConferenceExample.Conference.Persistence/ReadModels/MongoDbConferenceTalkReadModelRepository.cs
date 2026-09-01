@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.Extensions;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.TalkManagement;
 using MongoDB.Driver;
 
@@ -55,25 +56,52 @@ public class MongoDbConferenceTalkReadModelRepository
         );
         var documents = await _collection.Find(filter).ToListAsync();
 
-        return documents
-            .Select(d => new ConferenceTalkReadModel(
-                d.Id.ToGuid(),
-                d.Title,
-                d.Abstract,
-                d.SpeakerId.ToGuid(),
-                d.SpeakerFirstName,
-                d.SpeakerLastName,
-                d.SpeakerBiography,
-                d.Status,
-                d.Tags,
-                d.TalkTypeId.ToGuid(),
-                d.SlotStart,
-                d.SlotEnd,
-                d.RoomId != null ? (Guid?)d.RoomId.ToGuid() : null,
-                d.RoomName
-            ))
-            .ToList();
+        return documents.Select(ToReadModel).ToList();
     }
+
+    async Task<(
+        IReadOnlyList<ConferenceTalkReadModel> Items,
+        int TotalCount
+    )> IConferenceTalkReadModelRepository.GetByConferenceId(
+        ConferenceId conferenceId,
+        PageRequest pageRequest
+    )
+    {
+        var filter = Builders<ConferenceTalkDocument>.Filter.Eq(
+            t => t.ConferenceId,
+            conferenceId.Value.Value.ToString()
+        );
+
+        var countTask = _collection.CountDocumentsAsync(filter);
+        var documentsTask = _collection
+            .Find(filter)
+            .Skip(pageRequest.Skip)
+            .Limit(pageRequest.PageSize)
+            .ToListAsync();
+        await Task.WhenAll(countTask, documentsTask);
+
+        var items = documentsTask.Result.Select(ToReadModel).ToList();
+
+        return (items, (int)countTask.Result);
+    }
+
+    private static ConferenceTalkReadModel ToReadModel(ConferenceTalkDocument d) =>
+        new(
+            d.Id.ToGuid(),
+            d.Title,
+            d.Abstract,
+            d.SpeakerId.ToGuid(),
+            d.SpeakerFirstName,
+            d.SpeakerLastName,
+            d.SpeakerBiography,
+            d.Status,
+            d.Tags,
+            d.TalkTypeId.ToGuid(),
+            d.SlotStart,
+            d.SlotEnd,
+            d.RoomId != null ? (Guid?)d.RoomId.ToGuid() : null,
+            d.RoomName
+        );
 
     public async Task Save(ConferenceTalkDocument talkDocument)
     {

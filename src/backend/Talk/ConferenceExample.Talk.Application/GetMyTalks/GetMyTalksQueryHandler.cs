@@ -9,14 +9,19 @@ public class GetMyTalksQueryHandler(
     ICurrentUserService currentUserService
 ) : IGetMyTalksQueryHandler
 {
-    public async Task<IReadOnlyList<GetMyTalksDto>> Handle(GetMyTalksQuery query)
+    public async Task<(IReadOnlyList<GetMyTalksDto> Items, int TotalCount)> Handle(
+        GetMyTalksQuery query
+    )
     {
         var currentUserId = currentUserService.GetCurrentUserId();
         var speakerId = new SpeakerId(new GuidV7(currentUserId));
 
-        var talks = await talkReadModelRepository.GetBySpeakerId(speakerId);
+        var (talks, totalCount) = await talkReadModelRepository.GetBySpeakerId(
+            speakerId,
+            query.PageRequest
+        );
 
-        return talks
+        var items = talks
             .Select(talk => new GetMyTalksDto(
                 talk.Id,
                 talk.Title,
@@ -26,5 +31,7 @@ public class GetMyTalksQueryHandler(
                 talk.Tags.ToList()
             ))
             .ToList();
+
+        return (items, totalCount);
     }
 }

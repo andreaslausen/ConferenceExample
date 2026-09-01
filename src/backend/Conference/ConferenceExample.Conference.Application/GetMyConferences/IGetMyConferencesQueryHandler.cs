@@ -2,5 +2,7 @@ namespace ConferenceExample.Conference.Application.GetMyConferences;
 
 public interface IGetMyConferencesQueryHandler
 {
-    Task<IReadOnlyList<GetMyConferencesDto>> Handle(GetMyConferencesQuery query);
+    Task<(IReadOnlyList<GetMyConferencesDto> Items, int TotalCount)> Handle(
+        GetMyConferencesQuery query
+    );
 }

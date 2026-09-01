@@ -6,11 +6,15 @@ public class GetAllConferencesQueryHandler(
     IConferenceReadModelRepository conferenceReadModelRepository
 ) : IGetAllConferencesQueryHandler
 {
-    public async Task<IReadOnlyList<GetAllConferencesDto>> Handle(GetAllConferencesQuery query)
+    public async Task<(IReadOnlyList<GetAllConferencesDto> Items, int TotalCount)> Handle(
+        GetAllConferencesQuery query
+    )
     {
-        var conferences = await conferenceReadModelRepository.GetAll();
+        var (conferences, totalCount) = await conferenceReadModelRepository.GetAll(
+            query.PageRequest
+        );
 
-        return conferences
+        var items = conferences
             .Where(c => c.Status != ConferenceStatus.Draft.ToString())
             .Select(c => new GetAllConferencesDto(
                 c.Id,
@@ -24,5 +28,7 @@ public class GetAllConferencesQueryHandler(
                 c.Status
             ))
             .ToList();
+
+        return (items, totalCount);
     }
 }

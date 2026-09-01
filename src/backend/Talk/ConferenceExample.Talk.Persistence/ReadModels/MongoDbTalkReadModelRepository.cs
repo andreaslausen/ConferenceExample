@@ -1,4 +1,5 @@
 using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
+using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using MongoDB.Driver;
@@ -70,18 +71,26 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
         );
     }
 
-    async Task<IReadOnlyList<TalkReadModel>> ITalkReadModelRepository.GetBySpeakerId(
-        SpeakerId speakerId
-    )
+    async Task<(
+        IReadOnlyList<TalkReadModel> Items,
+        int TotalCount
+    )> ITalkReadModelRepository.GetBySpeakerId(SpeakerId speakerId, PageRequest pageRequest)
     {
         var filter = Builders<TalkDocument>.Filter.Eq(
             t => t.SpeakerId,
             speakerId.Value.Value.ToString()
         );
-        var documents = await _collection.Find(filter).ToListAsync();
 
-        return documents
-            .Select(d => new TalkReadModel(
+        var countTask = _collection.CountDocumentsAsync(filter);
+        var documentsTask = _collection
+            .Find(filter)
+            .Skip(pageRequest.Skip)
+            .Limit(pageRequest.PageSize)
+            .ToListAsync();
+        await Task.WhenAll(countTask, documentsTask);
+
+        var items = documentsTask
+            .Result.Select(d => new TalkReadModel(
                 d.Id.ToGuid(),
                 d.Title,
                 d.Abstract,
@@ -92,6 +101,8 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
                 $"{d.SpeakerFirstName} {d.SpeakerLastName}".Trim()
             ))
             .ToList();
+
+        return (items, (int)countTask.Result);
     }
 
     public async Task Save(TalkDocument talkDocument)

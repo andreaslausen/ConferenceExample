@@ -47,9 +47,8 @@ public class TalksController(ITalkService talkService) : ControllerBase
         [FromQuery] int pageSize = 20
     )
     {
-        var talks = await talkService.GetMyTalks();
-        var items = talks.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-        return Ok(new PagedResult<GetMyTalksDto>(items, talks.Count, page, pageSize));
+        var (items, totalCount) = await talkService.GetMyTalks(page, pageSize);
+        return Ok(new PagedResult<GetMyTalksDto>(items, totalCount, page, pageSize));
     }
 
     [HttpPut("{id:guid}", Name = "EditTalk")]

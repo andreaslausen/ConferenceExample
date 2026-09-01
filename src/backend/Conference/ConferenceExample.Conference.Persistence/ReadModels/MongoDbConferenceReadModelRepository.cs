@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.Extensions;
+using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using MongoDB.Driver;
 
@@ -34,16 +35,26 @@ public class MongoDbConferenceReadModelRepository
         return await _collection.Find(FilterDefinition<ConferenceDocument>.Empty).ToListAsync();
     }
 
-    async Task<IReadOnlyList<ConferenceReadModel>> IConferenceReadModelRepository.GetAll()
+    async Task<(
+        IReadOnlyList<ConferenceReadModel> Items,
+        int TotalCount
+    )> IConferenceReadModelRepository.GetAll(PageRequest pageRequest)
     {
         var filter = Builders<ConferenceDocument>.Filter.In(
             c => c.Status,
             PublicConferenceStatuses
         );
-        var documents = await _collection.Find(filter).ToListAsync();
 
-        return documents
-            .Select(d => new ConferenceReadModel(
+        var countTask = _collection.CountDocumentsAsync(filter);
+        var documentsTask = _collection
+            .Find(filter)
+            .Skip(pageRequest.Skip)
+            .Limit(pageRequest.PageSize)
+            .ToListAsync();
+        await Task.WhenAll(countTask, documentsTask);
+
+        var items = documentsTask
+            .Result.Select(d => new ConferenceReadModel(
                 d.Id.ToGuid(),
                 d.Name,
                 d.Start,
@@ -55,20 +66,33 @@ public class MongoDbConferenceReadModelRepository
                 d.Status
             ))
             .ToList();
+
+        return (items, (int)countTask.Result);
     }
 
-    async Task<IReadOnlyList<ConferenceReadModel>> IConferenceReadModelRepository.GetByOrganizerId(
-        OrganizerId organizerId
+    async Task<(
+        IReadOnlyList<ConferenceReadModel> Items,
+        int TotalCount
+    )> IConferenceReadModelRepository.GetByOrganizerId(
+        OrganizerId organizerId,
+        PageRequest pageRequest
     )
     {
         var filter = Builders<ConferenceDocument>.Filter.Eq(
             c => c.OrganizerId,
             organizerId.Value.Value.ToString()
         );
-        var documents = await _collection.Find(filter).ToListAsync();
 
-        return documents
-            .Select(d => new ConferenceReadModel(
+        var countTask = _collection.CountDocumentsAsync(filter);
+        var documentsTask = _collection
+            .Find(filter)
+            .Skip(pageRequest.Skip)
+            .Limit(pageRequest.PageSize)
+            .ToListAsync();
+        await Task.WhenAll(countTask, documentsTask);
+
+        var items = documentsTask
+            .Result.Select(d => new ConferenceReadModel(
                 d.Id.ToGuid(),
                 d.Name,
                 d.Start,
@@ -80,6 +104,8 @@ public class MongoDbConferenceReadModelRepository
                 d.Status
             ))
             .ToList();
+
+        return (items, (int)countTask.Result);
     }
 
     public async Task Save(ConferenceDocument conferenceDocument)
