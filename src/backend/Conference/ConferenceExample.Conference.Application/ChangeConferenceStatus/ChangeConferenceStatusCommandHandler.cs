@@ -16,9 +16,9 @@ public class ChangeConferenceStatusCommandHandler(
 
         // Check ownership: Only the organizer who created the conference can change its status
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId));
+        var currentOrganizerId = new OrganizerId(currentUserId);
 
-        if (conference.OrganizerId.Value != currentOrganizerId.Value)
+        if (conference.OrganizerId != currentOrganizerId)
         {
             throw new UnauthorizedAccessException(
                 $"User {currentUserId} is not authorized to change the status of conference {conference.Id.Value}. Only the organizer who created the conference can change its status."

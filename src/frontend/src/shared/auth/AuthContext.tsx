@@ -3,9 +3,10 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   type ReactNode,
 } from "react";
-import apiClient, { getToken, setToken, clearToken } from "../api/client";
+import keycloak from "./keycloak";
 
 export type UserRole = "Speaker" | "Organizer" | "Attendee";
 
@@ -18,86 +19,75 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  isLoading: boolean;
+  login: () => void;
   logout: () => void;
-  register: (
-    email: string,
-    password: string,
-    role: number,
-  ) => Promise<void>;
+  register: () => void;
 }
 
-function decodeJwt(token: string): AuthUser {
-  const payload = JSON.parse(atob(token.split(".")[1])) as Record<
-    string,
-    string
-  >;
+const APP_ROLES: UserRole[] = ["Speaker", "Organizer", "Attendee"];
+
+function toAuthUser(): AuthUser | null {
+  const parsed = keycloak.tokenParsed;
+  if (!keycloak.authenticated || !parsed?.sub) return null;
+
+  const role = parsed.realm_access?.roles.find(
+    (r: string): r is UserRole => (APP_ROLES as string[]).includes(r),
+  );
+
   return {
-    id: payload["sub"],
-    email: payload["email"],
-    role: payload[
-      "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-    ] as UserRole ?? payload["role"] as UserRole,
+    id: parsed.sub,
+    email: parsed.email ?? "",
+    role: role ?? "Attendee",
   };
-}
-
-function restoreUser(): { token: string; user: AuthUser } | null {
-  const token = getToken();
-  if (!token) return null;
-  try {
-    return { token, user: decodeJwt(token) };
-  } catch {
-    clearToken();
-    return null;
-  }
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const restored = restoreUser();
-  const [token, setTokenState] = useState<string | null>(
-    restored?.token ?? null,
-  );
-  const [user, setUser] = useState<AuthUser | null>(restored?.user ?? null);
+// Module-scoped so React StrictMode's double-invoked effect (mount → cleanup → mount) reuses
+// the same in-flight init instead of calling keycloak.init() twice, which keycloak-js rejects.
+let keycloakInit: Promise<boolean> | null = null;
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { data, error } = await apiClient.POST("/api/Auth/login", {
-      body: { email, password },
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    keycloak.onTokenExpired = () => {
+      keycloak.updateToken(30).catch(() => keycloak.login());
+    };
+
+    keycloakInit ??= keycloak.init({
+      onLoad: "check-sso",
+      pkceMethod: "S256",
+      silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
     });
-    if (error || !data) {
-      throw new Error("Ungültige Anmeldedaten");
-    }
-    const jwt = data.token;
-    setToken(jwt);
-    setTokenState(jwt);
-    setUser(decodeJwt(jwt));
+
+    keycloakInit
+      .then(() => {
+        setUser(toAuthUser());
+        setToken(keycloak.token ?? null);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const login = useCallback(() => {
+    keycloak.login();
   }, []);
 
   const logout = useCallback(() => {
-    clearToken();
-    setTokenState(null);
-    setUser(null);
+    keycloak.logout({ redirectUri: window.location.origin });
   }, []);
 
-  const register = useCallback(
-    async (email: string, password: string, role: number) => {
-      const { data, error } = await apiClient.POST("/api/Auth/register", {
-        body: { email, password, role },
-      });
-      if (error || !data) {
-        throw new Error("Registrierung fehlgeschlagen");
-      }
-      const jwt = data.token;
-      setToken(jwt);
-      setTokenState(jwt);
-      setUser(decodeJwt(jwt));
-    },
-    [],
-  );
+  const register = useCallback(() => {
+    keycloak.register();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, register }}>
+    <AuthContext.Provider
+      value={{ user, token, isLoading, login, logout, register }}
+    >
       {children}
     </AuthContext.Provider>
   );

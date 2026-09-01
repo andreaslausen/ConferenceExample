@@ -24,8 +24,6 @@ public class ClassRules : ArchitectureTest
             .And()
             .AreNot(typeof(Conference.Domain.SharedKernel.ValueObjects.Ids.GuidV7))
             .And()
-            .AreNot(typeof(Authentication.SharedKernel.ValueObjects.Ids.GuidV7))
-            .And()
             .AreNot(typeof(GuidExtensions))
             .And()
             .AreNot(typeof(StringExtensions))
@@ -34,9 +32,15 @@ public class ClassRules : ArchitectureTest
             .And()
             .AreNot(typeof(Conference.Domain.SharedKernel.Extensions.StringExtensions))
             .And()
-            .AreNot(typeof(Authentication.SharedKernel.Extensions.GuidExtensions))
+            // These wrap a raw, externally-issued (Keycloak) identity Guid with no version
+            // invariant to protect, unlike GuidV7 — legitimate to touch Guid directly.
+            .AreNot(typeof(Conference.Domain.ConferenceManagement.OrganizerId))
             .And()
-            .AreNot(typeof(Authentication.SharedKernel.Extensions.StringExtensions))
+            .AreNot(typeof(Talk.Domain.SpeakerManagement.SpeakerId))
+            .And()
+            .AreNot(typeof(Authentication.CurrentUserService))
+            .And()
+            .AreNot(typeof(Talk.Application.GetTalkById.GetTalkByIdQueryHandler))
             .Should()
             .NotCallAny(MethodMembers().That().AreDeclaredIn(typeof(Guid)))
             .WithoutRequiringPositiveResults();

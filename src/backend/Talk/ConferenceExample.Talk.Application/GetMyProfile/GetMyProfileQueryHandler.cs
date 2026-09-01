@@ -11,7 +11,7 @@ public class GetMyProfileQueryHandler(
     public async Task<GetMyProfileDto?> Handle(GetMyProfileQuery query)
     {
         var currentUserId = currentUserService.GetCurrentUserId();
-        var speakerId = new SpeakerId(new GuidV7(currentUserId));
+        var speakerId = new SpeakerId(currentUserId);
 
         var profile = await speakerReadModelRepository.GetById(speakerId);
 

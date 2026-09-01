@@ -18,9 +18,9 @@ public class ScheduleTalkCommandHandler(
 
         // Check ownership: Only the organizer who created the conference can schedule talks
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId));
+        var currentOrganizerId = new OrganizerId(currentUserId);
 
-        if (conference.OrganizerId.Value != currentOrganizerId.Value)
+        if (conference.OrganizerId != currentOrganizerId)
         {
             throw new UnauthorizedAccessException(
                 $"User {currentUserId} is not authorized to schedule talks for conference {conference.Id.Value}. Only the organizer who created the conference can schedule talks."

@@ -56,11 +56,33 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
 done
 
 echo ""
+echo "⏳ Waiting for Keycloak to be ready..."
+
+RETRY_COUNT=0
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    if [ "$(docker inspect --format='{{.State.Health.Status}}' conference-keycloak 2>/dev/null)" = "healthy" ]; then
+        echo "✅ Keycloak is ready!"
+        break
+    fi
+
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+        echo "⚠️  Keycloak did not respond in time, but containers are running."
+        echo "   You can check logs with: docker logs conference-keycloak"
+        break
+    fi
+
+    echo "   Waiting... ($RETRY_COUNT/$MAX_RETRIES)"
+    sleep 2
+done
+
+echo ""
 echo "✅ Development infrastructure has been reset!"
 echo ""
 echo "📊 Services:"
 echo "   - MongoDB:        mongodb://localhost:27017"
 echo "   - Mongo Express:  http://localhost:8081"
+echo "   - Keycloak:       http://localhost:8080 (realm: conference-example)"
 echo ""
 echo "💡 All data has been wiped. You're starting fresh!"
 echo ""

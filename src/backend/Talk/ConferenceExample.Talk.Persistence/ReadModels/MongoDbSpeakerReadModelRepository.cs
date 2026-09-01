@@ -23,10 +23,7 @@ public class MongoDbSpeakerReadModelRepository
 
     async Task<SpeakerReadModel?> ISpeakerReadModelRepository.GetById(SpeakerId speakerId)
     {
-        var filter = Builders<SpeakerDocument>.Filter.Eq(
-            s => s.Id,
-            speakerId.Value.Value.ToString()
-        );
+        var filter = Builders<SpeakerDocument>.Filter.Eq(s => s.Id, speakerId.Value.ToString());
         var document = await _collection.Find(filter).FirstOrDefaultAsync();
 
         if (document is null)

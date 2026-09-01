@@ -35,22 +35,22 @@ public class GetTalkByIdQueryHandler(
 
     private async Task<bool> IsAuthorized(TalkReadModel talk)
     {
-        GuidV7 currentUserId;
+        Guid currentUserId;
         try
         {
-            currentUserId = new GuidV7(currentUserService.GetCurrentUserId());
+            currentUserId = currentUserService.GetCurrentUserId();
         }
         catch (UnauthorizedAccessException)
         {
             return false;
         }
 
-        if (new GuidV7(talk.SpeakerId) == currentUserId)
+        if (talk.SpeakerId == currentUserId)
             return true;
 
         var organizer = await conferenceOrganizerReadModelRepository.GetByConferenceId(
             talk.ConferenceId
         );
-        return organizer is not null && new GuidV7(organizer.OrganizerId) == currentUserId;
+        return organizer is not null && organizer.OrganizerId == currentUserId;
     }
 }

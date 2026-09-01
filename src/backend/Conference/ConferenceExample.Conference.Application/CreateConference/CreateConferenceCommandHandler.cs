@@ -13,7 +13,7 @@ public class CreateConferenceCommandHandler(
     public async Task<ConferenceCreatedDto> Handle(CreateConferenceCommand command)
     {
         var currentUserId = currentUserService.GetCurrentUserId();
-        var organizerId = new OrganizerId(new GuidV7(currentUserId));
+        var organizerId = new OrganizerId(currentUserId);
 
         var conference = ConferenceAggregate.Create(
             new ConferenceId(GuidV7.NewGuid()),

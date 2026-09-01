@@ -8,7 +8,7 @@ public class GetSpeakerByIdQueryHandler(ISpeakerReadModelRepository speakerReadM
 {
     public async Task<GetSpeakerByIdDto?> Handle(GetSpeakerByIdQuery query)
     {
-        var speakerId = new SpeakerId(new GuidV7(query.SpeakerId));
+        var speakerId = new SpeakerId(query.SpeakerId);
         var profile = await speakerReadModelRepository.GetById(speakerId);
 
         if (profile is null)

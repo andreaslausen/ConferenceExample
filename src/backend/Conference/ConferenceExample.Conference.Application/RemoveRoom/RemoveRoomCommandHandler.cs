@@ -16,9 +16,9 @@ public class RemoveRoomCommandHandler(
         );
 
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentOrganizerId = new OrganizerId(new GuidV7(currentUserId));
+        var currentOrganizerId = new OrganizerId(currentUserId);
 
-        if (conference.OrganizerId.Value != currentOrganizerId.Value)
+        if (conference.OrganizerId != currentOrganizerId)
         {
             throw new UnauthorizedAccessException(
                 $"User {currentUserId} is not authorized to remove rooms from conference {conference.Id.Value}."

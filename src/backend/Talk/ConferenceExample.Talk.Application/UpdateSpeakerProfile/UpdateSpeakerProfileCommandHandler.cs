@@ -12,7 +12,7 @@ public class UpdateSpeakerProfileCommandHandler(
     public async Task Handle(UpdateSpeakerProfileCommand command)
     {
         var currentUserId = currentUserService.GetCurrentUserId();
-        var speakerId = new SpeakerId(new GuidV7(currentUserId));
+        var speakerId = new SpeakerId(currentUserId);
 
         var speaker = await speakerRepository.GetSpeaker(speakerId);
 

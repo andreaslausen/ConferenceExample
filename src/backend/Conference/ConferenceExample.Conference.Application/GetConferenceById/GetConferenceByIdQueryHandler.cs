@@ -41,7 +41,7 @@ public class GetConferenceByIdQueryHandler(
             State = conference.Location.Address.State,
             PostalCode = conference.Location.Address.PostalCode,
             Country = conference.Location.Address.Country,
-            OrganizerId = conference.OrganizerId.Value.Value,
+            OrganizerId = conference.OrganizerId.Value,
             Status = conference.Status.ToString(),
             TalkTypesCount = talkTypesCount,
             TalksCount = talksCount,
@@ -54,10 +54,8 @@ public class GetConferenceByIdQueryHandler(
     {
         try
         {
-            var currentOrganizerId = new OrganizerId(
-                new GuidV7(currentUserService.GetCurrentUserId())
-            );
-            return conference.OrganizerId.Value == currentOrganizerId.Value;
+            var currentOrganizerId = new OrganizerId(currentUserService.GetCurrentUserId());
+            return conference.OrganizerId == currentOrganizerId;
         }
         catch (UnauthorizedAccessException)
         {

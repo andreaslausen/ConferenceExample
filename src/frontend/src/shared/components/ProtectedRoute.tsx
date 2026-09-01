@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { useAuth } from "../auth/AuthContext";
 import type { ReactNode } from "react";
 
@@ -7,11 +7,16 @@ interface Props {
 }
 
 export function ProtectedRoute({ children }: Props) {
-  const { token } = useAuth();
-  const location = useLocation();
+  const { user, isLoading, login } = useAuth();
 
-  if (!token) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  useEffect(() => {
+    if (!isLoading && !user) {
+      login();
+    }
+  }, [isLoading, user, login]);
+
+  if (isLoading || !user) {
+    return null;
   }
 
   return <>{children}</>;

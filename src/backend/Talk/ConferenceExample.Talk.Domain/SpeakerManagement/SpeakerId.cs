@@ -1,5 +1,5 @@
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
-
 namespace ConferenceExample.Talk.Domain.SpeakerManagement;
 
-public record SpeakerId(GuidV7 Value);
+// The speaker's identity comes from an external identity provider (Keycloak), whose
+// subject ids are plain UUIDs, not the app-minted GuidV7 that other identifiers use.
+public record SpeakerId(Guid Value);

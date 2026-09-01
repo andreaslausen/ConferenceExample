@@ -1,0 +1,34 @@
+{
+  "realm": "conference-example-test",
+  "enabled": true,
+  "sslRequired": "none",
+  "roles": {
+    "realm": [
+      { "name": "Speaker" },
+      { "name": "Organizer" },
+      { "name": "Attendee" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "conference-example-tests",
+      "publicClient": true,
+      "enabled": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "audience-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "conference-example-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ]
+}

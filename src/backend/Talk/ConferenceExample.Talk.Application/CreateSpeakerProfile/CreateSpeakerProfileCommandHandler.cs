@@ -12,7 +12,7 @@ public class CreateSpeakerProfileCommandHandler(
     public async Task<SpeakerProfileCreatedDto> Handle(CreateSpeakerProfileCommand command)
     {
         var currentUserId = currentUserService.GetCurrentUserId();
-        var speakerId = new SpeakerId(new GuidV7(currentUserId));
+        var speakerId = new SpeakerId(currentUserId);
 
         var speaker = Speaker.Create(
             speakerId,
@@ -22,6 +22,6 @@ public class CreateSpeakerProfileCommandHandler(
 
         await speakerRepository.Save(speaker);
 
-        return new SpeakerProfileCreatedDto(speakerId.Value.Value);
+        return new SpeakerProfileCreatedDto(speakerId.Value);
     }
 }

@@ -49,7 +49,7 @@ function ThemeSwitcher() {
 }
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, login, logout, register } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -122,19 +122,19 @@ export function Header() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link
-                to="/login"
+              <button
+                onClick={() => login()}
                 className="inline-flex h-8 items-center rounded-md bg-white/15 px-3 text-sm text-white transition-colors hover:bg-white/25"
               >
                 Anmelden
-              </Link>
-              <Link
-                to="/register"
+              </button>
+              <button
+                onClick={() => register()}
                 className="inline-flex h-8 items-center rounded-md bg-white px-3 text-sm font-semibold transition-colors hover:bg-white/90"
                 style={{ color: "var(--primary)" }}
               >
                 Registrieren
-              </Link>
+              </button>
             </div>
           )}
 

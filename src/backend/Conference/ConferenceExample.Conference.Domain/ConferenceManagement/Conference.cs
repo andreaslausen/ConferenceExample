@@ -297,7 +297,7 @@ public class Conference : AggregateRoot
                     new Text(e.LocationName),
                     new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
                 );
-                OrganizerId = new OrganizerId(new GuidV7(e.OrganizerId));
+                OrganizerId = new OrganizerId(e.OrganizerId);
                 Status = Enum.Parse<ConferenceStatus>(e.Status);
                 break;
             case ConferenceRenamedEvent e:

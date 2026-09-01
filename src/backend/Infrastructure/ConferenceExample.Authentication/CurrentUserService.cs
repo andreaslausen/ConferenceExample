@@ -1,7 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using ConferenceExample.Authentication.SharedKernel.Extensions;
-using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
 using Microsoft.AspNetCore.Http;
 
 namespace ConferenceExample.Authentication;
@@ -14,23 +12,21 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     private const string EmailClaimType = JwtRegisteredClaimNames.Email;
     private const string RoleClaimType = ClaimTypes.Role;
 
-    private UserId GetCurrentUserIdAsUserId()
+    private Guid GetCurrentUserIdAsGuid()
     {
         var userIdClaim = GetClaim(UserIdClaimType);
 
-        if (!userIdClaim.IsGuidV7())
+        if (!Guid.TryParse(userIdClaim, out var userId))
         {
             throw new UnauthorizedAccessException("Invalid user ID in token.");
         }
 
-        return new UserId(GuidV7.Parse(userIdClaim));
+        return userId;
     }
 
-    Guid Conference.Application.ICurrentUserService.GetCurrentUserId() =>
-        GetCurrentUserIdAsUserId().Value.Value;
+    Guid Conference.Application.ICurrentUserService.GetCurrentUserId() => GetCurrentUserIdAsGuid();
 
-    Guid Talk.Application.ICurrentUserService.GetCurrentUserId() =>
-        GetCurrentUserIdAsUserId().Value.Value;
+    Guid Talk.Application.ICurrentUserService.GetCurrentUserId() => GetCurrentUserIdAsGuid();
 
     public UserRole GetCurrentUserRole()
     {

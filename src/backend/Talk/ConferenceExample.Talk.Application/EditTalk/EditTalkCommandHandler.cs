@@ -17,7 +17,7 @@ public class EditTalkCommandHandler(
 
         // Check ownership: Only the speaker who created the talk can edit it
         var currentUserId = currentUserService.GetCurrentUserId();
-        var currentSpeakerId = new SpeakerId(new GuidV7(currentUserId));
+        var currentSpeakerId = new SpeakerId(currentUserId);
 
         if (talk.SpeakerId != currentSpeakerId)
         {

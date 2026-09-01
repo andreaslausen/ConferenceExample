@@ -496,13 +496,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_adr_2_event_sourcing_and_cqrs">9.1.2. ADR-2: Event Sourcing and CQRS</a></li>
 <li><a href="#_adr_3_frontend_technology_react_with_vite_and_typescript">9.1.3. ADR-3: Frontend Technology — React with Vite and TypeScript</a></li>
 <li><a href="#_adr_4_frontend_boundary_single_shared_application">9.1.4. ADR-4: Frontend Boundary — Single Shared Application</a></li>
+<li><a href="#_adr_5_identity_provider_keycloak">9.1.5. ADR-5: Identity Provider — Keycloak</a></li>
 </ul>
 </li>
 <li><a href="#_open_decisions">9.2. Open Decisions</a>
 <ul class="sectlevel3">
 <li><a href="#_od_3_event_store_persistence_technology">9.2.1. OD-3: Event Store Persistence Technology</a></li>
 <li><a href="#_od_4_read_model_persistence_technology">9.2.2. OD-4: Read Model Persistence Technology</a></li>
-<li><a href="#_od_5_identity_provider">9.2.3. OD-5: Identity Provider</a></li>
 </ul>
 </li>
 </ul>
@@ -1348,6 +1348,67 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tbody>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_adr_5_identity_provider_keycloak">9.1.5. ADR-5: Identity Provider — Keycloak</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication started as a self-built construct (custom <code>/api/auth/register</code> and <code>/api/auth/login</code> endpoints, self-issued JWTs signed with a shared symmetric secret, passwords hashed and stored in MongoDB) — explicitly a placeholder until an external identity provider was adopted. A decision was needed on which identity provider to use for authentication and role management (see the options previously listed under this entry as an Open Decision: Keycloak, Auth0, Microsoft Entra ID).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Adopt <strong>Keycloak</strong> as the identity provider. The backend validates Keycloak-issued JWTs (JWKS-based, <code>Microsoft.AspNetCore.Authentication.JwtBearer</code> configured with <code>Authority</code>/<code>Audience</code>, no shared secret) instead of issuing its own tokens. The frontend authenticates via the OIDC <strong>Authorization Code flow with PKCE</strong> (<code>keycloak-js</code>), redirecting to Keycloak&#8217;s own login and self-registration pages rather than rendering custom login/register forms. Keycloak runs locally via Docker Compose, alongside MongoDB, with realm configuration checked into the repository (<code>scripts/keycloak/realm-export.json</code>) and imported on container start.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rationale</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Ease of local development</strong> — Keycloak&#8217;s official Docker image with <code>start-dev --import-realm</code> matches this project&#8217;s existing Docker-Compose-based local infrastructure (MongoDB, Mongo Express), needing no external account or network dependency to develop against.</p>
+</li>
+<li>
+<p><strong>Operational simplicity vs. managed alternatives</strong> — self-hosting avoids a vendor dependency and recurring cost (unlike Auth0) and avoids tying the project to a specific cloud platform (unlike Microsoft Entra ID), while still being realistic to run for a demonstration project.</p>
+</li>
+<li>
+<p><strong>Feature completeness</strong> — SSO, fine-grained realm/client roles, and self-registration out of the box remove the need to maintain custom registration/login/password-hashing code that was never meant to be production-grade.</p>
+</li>
+<li>
+<p><strong>Standard protocols</strong> — OIDC/OAuth2 with JWKS-based validation is a well-understood, framework-supported integration (<code>AddJwtBearer</code> with <code>Authority</code> needs no manual key management), and Authorization Code + PKCE is the current recommended browser-based flow (as opposed to the deprecated Resource Owner Password Credentials grant).</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Consequences</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Positive:</strong> No more custom password storage/hashing in application code; role management, self-registration, and token issuance/rotation are handled by Keycloak; local dev setup stays Docker-Compose-based and consistent with the rest of the infrastructure.</p>
+</li>
+<li>
+<p><strong>Negative / trade-offs:</strong> Keycloak&#8217;s <code>sub</code> claim is a plain UUID, not the app-minted <code>GuidV7</code> used for internally-generated ids elsewhere in the domain — <code>OrganizerId</code> (Conference.Domain) and <code>SpeakerId</code> (Talk.Domain), which represent externally-issued identities, now wrap a plain <code>Guid</code> instead of <code>GuidV7</code> to accommodate this, a narrower and more pragmatic step than building a full anti-corruption-layer identity-mapping store. Self-registered users default to the <code>Attendee</code> role via a Keycloak default group; granting <code>Speaker</code>/<code>Organizer</code> today requires an organizer or admin to assign the role manually (no in-app role request flow yet). Acceptance tests provision throwaway Keycloak users via the Admin REST API against a dedicated Testcontainers-started Keycloak instance, adding a second container (alongside MongoDB) to the test and local-dev infrastructure.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_open_decisions">9.2. Open Decisions</h3>
@@ -1456,51 +1517,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tbody>
 </table>
 </div>
-<div class="sect3">
-<h4 id="_od_5_identity_provider">9.2.3. OD-5: Identity Provider</h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Attribute</th>
-<th class="tableblock halign-left valign-top">Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Open</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Question</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Which identity provider should be used for authentication and role management?</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Options Considered</p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
-<ul>
-<li>
-<p><strong>Keycloak</strong> — open-source, self-hosted, feature-rich (SSO, social login, fine-grained roles). Requires operational effort for hosting and maintenance.</p>
-</li>
-<li>
-<p><strong>Auth0</strong> — managed SaaS identity platform. Low operational effort, but introduces a vendor dependency and recurring costs.</p>
-</li>
-<li>
-<p><strong>Microsoft Entra ID (formerly Azure AD)</strong> — managed identity service, strong integration with the Microsoft/.NET ecosystem. Ties the system to the Azure platform.</p>
-</li>
-</ul>
-</div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Decision Criteria</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Operational simplicity (self-hosted vs. managed), cost, alignment with the .NET ecosystem, ease of local development (Docker-based setup), and suitability as a demonstration technology.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
 </div>
 </div>
 </div>
@@ -1569,7 +1585,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-04-07 06:50:23 UTC
+Last updated 2026-05-11 19:24:22 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

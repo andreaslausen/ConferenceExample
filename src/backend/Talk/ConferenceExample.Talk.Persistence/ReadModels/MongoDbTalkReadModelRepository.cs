@@ -74,10 +74,7 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
         SpeakerId speakerId
     )
     {
-        var filter = Builders<TalkDocument>.Filter.Eq(
-            t => t.SpeakerId,
-            speakerId.Value.Value.ToString()
-        );
+        var filter = Builders<TalkDocument>.Filter.Eq(t => t.SpeakerId, speakerId.Value.ToString());
         var documents = await _collection.Find(filter).ToListAsync();
 
         return documents

@@ -6,8 +6,6 @@ import { RoleGuard } from "./shared/components/RoleGuard";
 import ConferenceListPage from "./pages/ConferenceListPage";
 import ConferenceProgramPage from "./pages/ConferenceProgramPage";
 import TalkDetailPage from "./pages/TalkDetailPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
 import SpeakerProfilePage from "./pages/SpeakerProfilePage";
 import MyTalksPage from "./pages/MyTalksPage";
 import SubmitTalkPage from "./pages/SubmitTalkPage";
@@ -34,10 +32,6 @@ export default function App() {
           <Route path="/" element={<ConferenceListPage />} />
           <Route path="/conferences/:id" element={<ConferenceProgramPage />} />
           <Route path="/talks/:id" element={<TalkDetailPage />} />
-
-          {/* Auth */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
 
           {/* Speaker */}
           <Route

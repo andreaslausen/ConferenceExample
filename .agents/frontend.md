@@ -25,7 +25,12 @@ npm run dev
 ```
 
 App runs at http://localhost:5173. Requests to `/api/*` are proxied to the backend at
-http://localhost:5185.
+http://localhost:5185. Also needs Keycloak running (see `.agents/infrastructure.md`) —
+login/registration redirect to Keycloak's own pages (Authorization Code + PKCE via
+`keycloak-js`, wired up in `shared/auth/keycloak.ts` and `shared/auth/AuthContext.tsx`);
+there is no in-app login/register form. The Keycloak URL is a constant in `keycloak.ts`
+(defaults to `http://localhost:8080`, matching the Docker Compose service) — edit it there
+for other environments.
 
 ## Other commands
 
