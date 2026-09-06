@@ -6,6 +6,7 @@ using ConferenceExample.Conference.Domain.TalkManagement;
 using ConferenceExample.Conference.Domain.TalkManagement.Events;
 using ConferenceExample.Conference.Persistence.ReadModels;
 using ConferenceExample.EventStore;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 namespace ConferenceExample.Conference.Persistence.EventHandlers;
 
@@ -27,7 +28,7 @@ public class TalkEventHandler(
             return;
 
         var conferenceId = new ConferenceId(new GuidV7(payload.ConferenceId));
-        Conference conference;
+        ConferenceAggregate conference;
         try
         {
             conference = await conferenceRepository.GetById(conferenceId);
@@ -228,7 +229,7 @@ public class TalkEventHandler(
     {
         eventBus.Publish(
             new StoredEvent(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 conferenceId,
                 nameof(TalkSubmissionRejectedEvent),
                 JsonSerializer.Serialize(new { TalkId = talkId, Reason = reason }),
