@@ -116,6 +116,50 @@ public class TalkEventHandler
         await _readModelRepository.Update(readModel);
     }
 
+    // Both of these are raised by the Conference BC (not Talk's own event store), so
+    // storedEvent.AggregateId is the ConferenceId, not this talk's id — look the talk up by
+    // payload.TalkId instead. Also don't stamp readModel.Version from storedEvent.Version: that
+    // version belongs to Conference's event stream, not this talk's.
+    public async Task HandleTalkSubmissionConfirmed(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TalkSubmissionConfirmedPayload>(
+            storedEvent.Payload
+        );
+        if (payload is null)
+            return;
+
+        var readModel = await _readModelRepository.GetById(payload.TalkId);
+        if (readModel is null)
+            return;
+
+        readModel.Status = "Submitted";
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+
+        await _readModelRepository.Update(readModel);
+    }
+
+    public async Task HandleTalkSubmissionRejected(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TalkSubmissionRejectedPayload>(
+            storedEvent.Payload
+        );
+        if (payload is null)
+            return;
+
+        var readModel = await _readModelRepository.GetById(payload.TalkId);
+        if (readModel is null)
+            return;
+
+        readModel.Status = "Rejected";
+        readModel.LastModifiedAt = storedEvent.OccurredAt;
+
+        await _readModelRepository.Update(readModel);
+    }
+
+    private record TalkSubmissionConfirmedPayload(Guid TalkId);
+
+    private record TalkSubmissionRejectedPayload(Guid TalkId, string Reason);
+
     private record TalkSubmittedPayload(
         string Title,
         string Abstract,

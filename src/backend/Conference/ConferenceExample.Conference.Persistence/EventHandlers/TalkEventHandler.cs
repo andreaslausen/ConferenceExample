@@ -1,9 +1,12 @@
 using System.Text.Json;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
+using ConferenceExample.Conference.Domain.SharedKernel;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
+using ConferenceExample.Conference.Domain.TalkManagement.Events;
 using ConferenceExample.Conference.Persistence.ReadModels;
 using ConferenceExample.EventStore;
+using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 namespace ConferenceExample.Conference.Persistence.EventHandlers;
 
@@ -14,13 +17,44 @@ namespace ConferenceExample.Conference.Persistence.EventHandlers;
 /// </summary>
 public class TalkEventHandler(
     IConferenceTalkDocumentRepository readModelRepository,
-    IConferenceRepository conferenceRepository
+    IConferenceRepository conferenceRepository,
+    IEventBus eventBus
 )
 {
     public async Task HandleTalkSubmitted(StoredEvent storedEvent)
     {
         var payload = JsonSerializer.Deserialize<TalkSubmittedPayload>(storedEvent.Payload);
         if (payload is null)
+            return;
+
+        var conferenceId = new ConferenceId(new GuidV7(payload.ConferenceId));
+        ConferenceAggregate conference;
+        try
+        {
+            conference = await conferenceRepository.GetById(conferenceId);
+        }
+        catch (NotFoundException)
+        {
+            // No Conference aggregate exists to raise a domain event from, so this isn't a fact
+            // about Conference's own history — it's purely an integration notification back to
+            // Talk, published directly rather than persisted to Conference's event store.
+            PublishSubmissionRejected(
+                payload.ConferenceId,
+                storedEvent.AggregateId,
+                $"Conference {payload.ConferenceId} does not exist."
+            );
+            return;
+        }
+
+        var wasAcceptingSubmissions = conference.IsAcceptingTalkSubmissions();
+
+        conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
+        await conferenceRepository.Save(conference);
+
+        // Conference.SubmitTalk rejects the submission internally (TalkSubmissionRejectedEvent)
+        // when the conference isn't accepting submissions, in which case the talk was never
+        // added to Conference.Talks — mirror that here by not creating a read model for it either.
+        if (!wasAcceptingSubmissions)
             return;
 
         var newReadModel = new ConferenceTalkDocument
@@ -42,12 +76,6 @@ public class TalkEventHandler(
         };
 
         await readModelRepository.Save(newReadModel);
-
-        var conference = await conferenceRepository.GetById(
-            new ConferenceId(new GuidV7(payload.ConferenceId))
-        );
-        conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
-        await conferenceRepository.Save(conference);
     }
 
     public async Task HandleTalkTitleEdited(StoredEvent storedEvent)
@@ -190,6 +218,25 @@ public class TalkEventHandler(
         readModel.Version = storedEvent.Version;
 
         await readModelRepository.Update(readModel);
+    }
+
+    // Constructs and publishes a TalkSubmissionRejectedEvent directly on the bus, bypassing the
+    // event store entirely — there is no Conference aggregate instance to raise it from, so
+    // nothing is (or should be) persisted. Talk's own TalkEventHandler.HandleTalkSubmissionRejected
+    // reads only payload.TalkId and payload.Reason, so the exact AggregateId/Version here are
+    // never observed downstream.
+    private void PublishSubmissionRejected(Guid conferenceId, Guid talkId, string reason)
+    {
+        eventBus.Publish(
+            new StoredEvent(
+                Guid.CreateVersion7(),
+                conferenceId,
+                nameof(TalkSubmissionRejectedEvent),
+                JsonSerializer.Serialize(new { TalkId = talkId, Reason = reason }),
+                DateTimeOffset.UtcNow,
+                -1
+            )
+        );
     }
 
     private record TalkSubmittedPayload(

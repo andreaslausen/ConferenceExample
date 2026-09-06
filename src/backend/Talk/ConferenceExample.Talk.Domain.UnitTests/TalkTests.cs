@@ -45,7 +45,7 @@ public class TalkTests
         Assert.Equal(talkTypeId, talk.TalkTypeId);
         Assert.Equal(@abstract, talk.Abstract);
         Assert.Equal(conferenceId, talk.ConferenceId);
-        Assert.Equal(TalkStatus.Submitted, talk.Status);
+        Assert.Equal(TalkStatus.Pending, talk.Status);
         Assert.Equal(tags, talk.Tags);
     }
 
@@ -246,7 +246,7 @@ public class TalkTests
             ["Tag1", "Tag2"],
             talkTypeId,
             conferenceId,
-            TalkStatus.Submitted.ToString()
+            TalkStatus.Pending.ToString()
         );
         var secondSubmission = firstSubmission with { Tags = ["Tag3"] };
 

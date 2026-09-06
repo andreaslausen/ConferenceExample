@@ -2,7 +2,8 @@ namespace ConferenceExample.Talk.Domain.TalkManagement;
 
 public enum TalkStatus
 {
-    Submitted = 0,
-    Accepted = 1,
-    Rejected = 2,
+    Pending = 0,
+    Submitted = 1,
+    Accepted = 2,
+    Rejected = 3,
 }

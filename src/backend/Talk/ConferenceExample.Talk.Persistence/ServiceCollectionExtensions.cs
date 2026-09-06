@@ -14,9 +14,8 @@ public static class ServiceCollectionExtensions
     {
         services.TryAddSingleton<ITalkEventStore, TalkEventStore>();
 
-        // Talk Aggregate Repositories
+        // Talk Aggregate Repository
         services.AddScoped<ITalkRepository, TalkRepository>();
-        services.AddScoped<IConferenceRepository, ConferenceRepository>();
 
         // Talk Read Model Repositories
         services.AddScoped<ITalkDocumentRepository, MongoDbTalkReadModelRepository>();
@@ -48,7 +47,6 @@ public static class ServiceCollectionExtensions
         // Event Handlers
         services.AddScoped<TalkEventHandler>();
         services.AddScoped<SpeakerEventHandler>();
-        services.AddScoped<ConferenceEventReplicationHandler>();
         services.AddScoped<ConferenceOrganizerEventHandler>();
 
         return services;

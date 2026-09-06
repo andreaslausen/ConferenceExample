@@ -12,8 +12,6 @@ using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Application.CreateSpeakerProfile;
 using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.SubmitTalk;
-using ConferenceExample.Talk.Domain.SharedKernel;
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
@@ -109,11 +107,6 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         );
         Assert.Equal(HttpStatusCode.NoContent, statusResponse.StatusCode);
 
-        // The Talk BC only learns about the status change once ConferenceStatusChangedEvent is
-        // replicated into its local event store via the event bus — poll rather than assume it
-        // has landed by the time this method returns.
-        await WaitForConferenceReadyForSubmissions();
-
         ClearBearerToken();
     }
 
@@ -156,11 +149,7 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         _talkTypeId = talkType.TalkTypeId;
 
         // Left in Draft status on purpose — the conference exists but isn't accepting talk
-        // submissions yet. Still wait for it to be replicated into the Talk BC's local event
-        // store, same reason as WaitForConferenceReadyForSubmissions, just without requiring
-        // CanAcceptTalkSubmissions() to be true.
-        await WaitForConferenceToExist();
-
+        // submissions yet.
         ClearBearerToken();
     }
 
@@ -174,6 +163,12 @@ public class TalkSubmissionSteps(HttpClient httpClient)
 
     [Then("the submission is rejected with status {int}")]
     public void ThenTheSubmissionIsRejectedWithStatus(int expectedStatusCode)
+    {
+        Assert.Equal(expectedStatusCode, (int)_submitResponse.StatusCode);
+    }
+
+    [Then("the submission is accepted with status {int}")]
+    public void ThenTheSubmissionIsAcceptedWithStatus(int expectedStatusCode)
     {
         Assert.Equal(expectedStatusCode, (int)_submitResponse.StatusCode);
     }
@@ -200,8 +195,10 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     [Then("the talk is stored with status Submitted")]
     public async Task ThenTheTalkIsStoredWithStatusSubmitted()
     {
-        var document = await WaitForTalkDocument();
-        Assert.Equal("Submitted", document.Status);
+        // A talk starts Pending and only becomes Submitted once Conference has confirmed it via
+        // TalkSubmittedToConferenceEvent — poll for that, rather than assuming the round trip to
+        // Conference and back has completed by the time this step runs.
+        var document = await WaitForTalkDocumentWithStatus("Submitted");
         Assert.Equal(_submittedTitle, document.Title);
         Assert.Equal(_submittedAbstract, document.Abstract);
 
@@ -243,6 +240,13 @@ public class TalkSubmissionSteps(HttpClient httpClient)
 
         var response = await httpClient.GetAsync($"/api/talks/{_talkId}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Then("the talk is eventually stored with status Rejected")]
+    public async Task ThenTheTalkIsEventuallyStoredWithStatusRejected()
+    {
+        var document = await WaitForTalkDocumentWithStatus("Rejected");
+        Assert.Equal("Rejected", document.Status);
     }
 
     [Then("the talk has the tag {string}")]
@@ -349,64 +353,27 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         );
     }
 
-    private async Task WaitForConferenceReadyForSubmissions()
+    // A talk starts Pending and only reaches its final status (Submitted or Rejected) once
+    // Conference has processed it asynchronously — poll rather than assert immediately after the
+    // 201 response.
+    private async Task<TalkDocument> WaitForTalkDocumentWithStatus(string expectedStatus)
     {
         using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
-        var repository =
-            scope.ServiceProvider.GetRequiredService<ConferenceExample.Talk.Domain.TalkManagement.IConferenceRepository>();
-        var conferenceId = new ConferenceExample.Talk.Domain.TalkManagement.ConferenceId(
-            new GuidV7(_conferenceId)
-        );
+        var repository = scope.ServiceProvider.GetRequiredService<ITalkDocumentRepository>();
 
         var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
+        TalkDocument? lastSeen = null;
         while (DateTimeOffset.UtcNow < deadline)
         {
-            try
-            {
-                var conference = await repository.GetById(conferenceId);
-                if (conference.CanAcceptTalkSubmissions())
-                    return;
-            }
-            catch (NotFoundException)
-            {
-                // Not yet replicated into the Talk BC's local event store.
-            }
+            lastSeen = await repository.GetById(_talkId);
+            if (lastSeen?.Status == expectedStatus)
+                return lastSeen;
 
             await Task.Delay(50);
         }
 
         throw new TimeoutException(
-            $"Conference {_conferenceId} did not become ready for talk submissions within the timeout."
-        );
-    }
-
-    private async Task WaitForConferenceToExist()
-    {
-        using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
-        var repository =
-            scope.ServiceProvider.GetRequiredService<ConferenceExample.Talk.Domain.TalkManagement.IConferenceRepository>();
-        var conferenceId = new ConferenceExample.Talk.Domain.TalkManagement.ConferenceId(
-            new GuidV7(_conferenceId)
-        );
-
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
-        while (DateTimeOffset.UtcNow < deadline)
-        {
-            try
-            {
-                await repository.GetById(conferenceId);
-                return;
-            }
-            catch (NotFoundException)
-            {
-                // Not yet replicated into the Talk BC's local event store.
-            }
-
-            await Task.Delay(50);
-        }
-
-        throw new TimeoutException(
-            $"Conference {_conferenceId} did not appear in the Talk BC's local event store within the timeout."
+            $"Talk {_talkId} did not reach status {expectedStatus} within the timeout (last seen: {lastSeen?.Status ?? "not found"})."
         );
     }
 
