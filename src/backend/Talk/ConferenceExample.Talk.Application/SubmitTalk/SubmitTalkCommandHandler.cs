@@ -1,4 +1,3 @@
-using ConferenceExample.Talk.Domain.SharedKernel;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
@@ -15,14 +14,10 @@ public class SubmitTalkCommandHandler(
     public async Task<Guid> Handle(SubmitTalkCommand command)
     {
         var conferenceId = new ConferenceId(new GuidV7(command.ConferenceId));
-        var conference = await conferenceRepository.GetById(conferenceId);
-
-        if (!conference.CanAcceptTalkSubmissions())
-        {
-            throw new DomainException(
-                $"Talks can only be submitted when the conference is in CallForSpeakers status. Current status: {conference.Status}"
-            );
-        }
+        // Only confirms the conference exists (404 if not) — whether it's currently accepting
+        // submissions is Conference's own invariant, enforced asynchronously by
+        // Conference.SubmitTalk once this talk's TalkSubmittedEvent reaches the Conference BC.
+        await conferenceRepository.GetById(conferenceId);
 
         var currentUserId = currentUserService.GetCurrentUserId();
         var speakerId = new SpeakerId(new GuidV7(currentUserId));

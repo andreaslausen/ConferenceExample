@@ -178,8 +178,23 @@ public class Conference : AggregateRoot
         );
     }
 
+    public bool IsAcceptingTalkSubmissions() => Status == ConferenceStatus.CallForSpeakers;
+
     public void SubmitTalk(TalkId talkId)
     {
+        if (!IsAcceptingTalkSubmissions())
+        {
+            RaiseEvent(
+                new TalkSubmissionRejectedEvent(
+                    Id.Value,
+                    DateTimeOffset.UtcNow,
+                    talkId.Value,
+                    $"Conference is not accepting talk submissions. Current status: {Status}."
+                )
+            );
+            return;
+        }
+
         RaiseEvent(
             new TalkSubmittedToConferenceEvent(Id.Value, DateTimeOffset.UtcNow, talkId.Value)
         );

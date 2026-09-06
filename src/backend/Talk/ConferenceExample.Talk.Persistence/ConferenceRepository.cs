@@ -18,6 +18,6 @@ public class ConferenceRepository(IConferenceStatusDocumentRepository statusDocu
             throw new NotFoundException($"Conference with id {conferenceId.Value} does not exist.");
         }
 
-        return Conference.FromEvents(conferenceId, document.Status);
+        return Conference.FromEvents(conferenceId);
     }
 }

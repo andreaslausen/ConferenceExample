@@ -23,6 +23,20 @@ public class TalkEventHandler(
         if (payload is null)
             return;
 
+        var conference = await conferenceRepository.GetById(
+            new ConferenceId(new GuidV7(payload.ConferenceId))
+        );
+        var wasAcceptingSubmissions = conference.IsAcceptingTalkSubmissions();
+
+        conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
+        await conferenceRepository.Save(conference);
+
+        // Conference.SubmitTalk rejects the submission internally (TalkSubmissionRejectedEvent)
+        // when the conference isn't accepting submissions, in which case the talk was never
+        // added to Conference.Talks — mirror that here by not creating a read model for it either.
+        if (!wasAcceptingSubmissions)
+            return;
+
         var newReadModel = new ConferenceTalkDocument
         {
             Id = storedEvent.AggregateId.ToString(),
@@ -42,12 +56,6 @@ public class TalkEventHandler(
         };
 
         await readModelRepository.Save(newReadModel);
-
-        var conference = await conferenceRepository.GetById(
-            new ConferenceId(new GuidV7(payload.ConferenceId))
-        );
-        conference.SubmitTalk(new TalkId(new GuidV7(storedEvent.AggregateId)));
-        await conferenceRepository.Save(conference);
     }
 
     public async Task HandleTalkTitleEdited(StoredEvent storedEvent)

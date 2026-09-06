@@ -14,33 +14,9 @@ public class ConferenceTests
         var id = new ConferenceId(GuidV7.NewGuid());
 
         // Act
-        var conference = ConferenceEntity.FromEvents(id, "CallForSpeakers");
+        var conference = ConferenceEntity.FromEvents(id);
 
         // Assert
         Assert.Equal(id, conference.Id);
-        Assert.Equal("CallForSpeakers", conference.Status);
-    }
-
-    [Fact]
-    public void CanAcceptTalkSubmissions_StatusIsCallForSpeakers_ReturnsTrue()
-    {
-        // Arrange
-        var conference = ConferenceEntity.FromEvents(
-            new ConferenceId(GuidV7.NewGuid()),
-            "CallForSpeakers"
-        );
-
-        // Act & Assert
-        Assert.True(conference.CanAcceptTalkSubmissions());
-    }
-
-    [Fact]
-    public void CanAcceptTalkSubmissions_StatusIsNotCallForSpeakers_ReturnsFalse()
-    {
-        // Arrange
-        var conference = ConferenceEntity.FromEvents(new ConferenceId(GuidV7.NewGuid()), "Draft");
-
-        // Act & Assert
-        Assert.False(conference.CanAcceptTalkSubmissions());
     }
 }
