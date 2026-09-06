@@ -12,8 +12,6 @@ using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Application.CreateSpeakerProfile;
 using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.SubmitTalk;
-using ConferenceExample.Talk.Domain.SharedKernel;
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
@@ -109,13 +107,6 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         );
         Assert.Equal(HttpStatusCode.NoContent, statusResponse.StatusCode);
 
-        // The Talk BC only learns the conference exists once ConferenceCreatedEvent is projected
-        // into its local ConferenceStatusDocument via the event bus — poll rather than assume it
-        // has landed by the time this method returns. Whether the conference is accepting
-        // submissions is no longer checked here — SubmitTalk only needs the conference to exist;
-        // Conference itself enforces the CallForSpeakers invariant asynchronously.
-        await WaitForConferenceToExist();
-
         ClearBearerToken();
     }
 
@@ -158,10 +149,7 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         _talkTypeId = talkType.TalkTypeId;
 
         // Left in Draft status on purpose — the conference exists but isn't accepting talk
-        // submissions yet. Still wait for it to be projected into the Talk BC's local
-        // ConferenceStatusDocument before submitting, same as GivenAConferenceExists above.
-        await WaitForConferenceToExist();
-
+        // submissions yet.
         ClearBearerToken();
     }
 
@@ -385,36 +373,6 @@ public class TalkSubmissionSteps(HttpClient httpClient)
 
         throw new TimeoutException(
             $"Talk {_talkId} did not reach status {expectedStatus} within the timeout (last seen: {lastSeen?.Status ?? "not found"})."
-        );
-    }
-
-    private async Task WaitForConferenceToExist()
-    {
-        using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
-        var repository =
-            scope.ServiceProvider.GetRequiredService<ConferenceExample.Talk.Domain.TalkManagement.IConferenceRepository>();
-        var conferenceId = new ConferenceExample.Talk.Domain.TalkManagement.ConferenceId(
-            new GuidV7(_conferenceId)
-        );
-
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
-        while (DateTimeOffset.UtcNow < deadline)
-        {
-            try
-            {
-                await repository.GetById(conferenceId);
-                return;
-            }
-            catch (NotFoundException)
-            {
-                // Not yet projected into the Talk BC's local ConferenceStatusDocument.
-            }
-
-            await Task.Delay(50);
-        }
-
-        throw new TimeoutException(
-            $"Conference {_conferenceId} did not appear in the Talk BC's local ConferenceStatusDocument within the timeout."
         );
     }
 

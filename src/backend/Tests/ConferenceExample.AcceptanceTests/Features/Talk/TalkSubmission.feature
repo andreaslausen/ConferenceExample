@@ -31,10 +31,11 @@ Feature: Talk Submission
     When the speaker submits a talk titled "Introduction to DDD" with abstract "An overview of Domain-Driven Design"
     Then the other speaker cannot view the talk
 
-  Scenario: Submitting a talk for a nonexistent conference is rejected
+  Scenario: Submitting a talk for a nonexistent conference is rejected asynchronously
     Given a speaker is registered
     When the speaker submits a talk for a nonexistent conference
-    Then the submission is rejected with status 404
+    Then the submission is accepted with status 201
+    And the talk is eventually stored with status Rejected
 
   Scenario: Submitting a talk while the conference is not accepting submissions is rejected asynchronously
     Given an organizer is registered

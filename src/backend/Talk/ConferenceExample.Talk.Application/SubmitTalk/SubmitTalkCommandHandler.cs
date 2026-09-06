@@ -7,18 +7,16 @@ namespace ConferenceExample.Talk.Application.SubmitTalk;
 public class SubmitTalkCommandHandler(
     ITalkRepository talkRepository,
     ICurrentUserService currentUserService,
-    IConferenceRepository conferenceRepository,
     ISpeakerRepository speakerRepository
 ) : ISubmitTalkCommandHandler
 {
     public async Task<Guid> Handle(SubmitTalkCommand command)
     {
-        var conferenceId = new ConferenceId(new GuidV7(command.ConferenceId));
-        // Only confirms the conference exists (404 if not) — whether it's currently accepting
-        // submissions is Conference's own invariant, enforced asynchronously by
-        // Conference.SubmitTalk once this talk's TalkSubmittedEvent reaches the Conference BC.
-        await conferenceRepository.GetById(conferenceId);
-
+        // Whether the referenced conference exists, and whether it's accepting submissions, are
+        // both Conference's own concerns — Talk doesn't keep a local copy of Conference state to
+        // check synchronously. Both are enforced asynchronously by Conference.SubmitTalk (or, for
+        // a conference that doesn't exist at all, by the handler that reacts to TalkSubmittedEvent
+        // on the Conference side) once this talk's TalkSubmittedEvent reaches the Conference BC.
         var currentUserId = currentUserService.GetCurrentUserId();
         var speakerId = new SpeakerId(new GuidV7(currentUserId));
 

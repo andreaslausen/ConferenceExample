@@ -14,9 +14,8 @@ public static class ServiceCollectionExtensions
     {
         services.TryAddSingleton<ITalkEventStore, TalkEventStore>();
 
-        // Talk Aggregate Repositories
+        // Talk Aggregate Repository
         services.AddScoped<ITalkRepository, TalkRepository>();
-        services.AddScoped<IConferenceRepository, ConferenceRepository>();
 
         // Talk Read Model Repositories
         services.AddScoped<ITalkDocumentRepository, MongoDbTalkReadModelRepository>();
@@ -45,16 +44,9 @@ public static class ServiceCollectionExtensions
             sp.GetRequiredService<MongoDbConferenceOrganizerReadModelRepository>()
         );
 
-        // Conference Status Document Repository (cross-BC projection used by command validation)
-        services.AddScoped<
-            IConferenceStatusDocumentRepository,
-            MongoDbConferenceStatusDocumentRepository
-        >();
-
         // Event Handlers
         services.AddScoped<TalkEventHandler>();
         services.AddScoped<SpeakerEventHandler>();
-        services.AddScoped<ConferenceStatusEventHandler>();
         services.AddScoped<ConferenceOrganizerEventHandler>();
 
         return services;

@@ -6,36 +6,14 @@ namespace ConferenceExample.Talk.Persistence.EventSubscriptions;
 
 /// <summary>
 /// Wires Talk BC read-model handlers to the in-memory event bus.
-/// Conference BC status events are also projected into a minimal local
-/// ConferenceStatusDocument so the Talk BC can validate conference existence in command handlers.
-/// TalkSubmissionRejectedEvent (raised by Conference when it isn't accepting submissions) updates
-/// the submitting talk's own read model to Rejected.
+/// TalkSubmissionRejectedEvent (raised by Conference — either because it isn't accepting
+/// submissions, or because it doesn't exist at all) updates the submitting talk's own read model
+/// to Rejected. Talk keeps no other local knowledge of Conference state.
 /// </summary>
 public static class TalkEventSubscriptions
 {
     public static void Subscribe(IEventBus eventBus, IServiceScopeFactory scopeFactory)
     {
-        eventBus.Subscribe(
-            "ConferenceCreatedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler =
-                    scope.ServiceProvider.GetRequiredService<ConferenceStatusEventHandler>();
-                await handler.HandleConferenceCreated(storedEvent);
-            }
-        );
-        eventBus.Subscribe(
-            "ConferenceStatusChangedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler =
-                    scope.ServiceProvider.GetRequiredService<ConferenceStatusEventHandler>();
-                await handler.HandleConferenceStatusChanged(storedEvent);
-            }
-        );
-
         eventBus.Subscribe(
             "ConferenceCreatedEvent",
             async storedEvent =>
