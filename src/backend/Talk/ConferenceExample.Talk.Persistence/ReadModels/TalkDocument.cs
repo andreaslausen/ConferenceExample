@@ -42,7 +42,7 @@ public class TalkDocument
 
     [BsonElement("status")]
     [BsonRepresentation(BsonType.String)]
-    public string Status { get; set; } = "Submitted";
+    public string Status { get; set; } = "Pending";
 
     [BsonElement("submittedAt")]
     public DateTimeOffset SubmittedAt { get; set; }

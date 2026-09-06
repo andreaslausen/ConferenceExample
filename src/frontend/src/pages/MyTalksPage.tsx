@@ -8,15 +8,18 @@ import { PageLayout } from "../shared/components/Layout";
 type MyTalk = components["schemas"]["GetMyTalksDto"];
 
 const PAGE_SIZE = 10;
+const POLL_INTERVAL_MS = 3000;
 
 const STATUS_LABELS: Record<string, string> = {
   Pending: "Ausstehend",
+  Submitted: "Eingereicht",
   Accepted: "Angenommen",
   Rejected: "Abgelehnt",
 };
 
 const STATUS_COLORS: Record<string, string> = {
   Pending: "bg-muted text-muted-foreground",
+  Submitted: "bg-secondary text-secondary-foreground",
   Accepted: "bg-primary/10 text-primary",
   Rejected: "bg-destructive/10 text-destructive",
 };
@@ -39,19 +42,34 @@ export default function MyTalksPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    apiClient
-      .GET("/api/Talks/my-talks", {
+    let pollTimeout: ReturnType<typeof setTimeout> | undefined;
+
+    async function load(showSkeleton: boolean) {
+      if (showSkeleton) setLoading(true);
+
+      const { data } = await apiClient.GET("/api/Talks/my-talks", {
         params: { query: { page, pageSize: PAGE_SIZE } },
-      })
-      .then(({ data }) => {
-        if (cancelled) return;
-        setTalks(data?.items ?? []);
-        setTotalCount(Number(data?.totalCount ?? 0));
-        setLoading(false);
       });
+      if (cancelled) return;
+
+      const items = data?.items ?? [];
+      setTalks(items);
+      setTotalCount(Number(data?.totalCount ?? 0));
+      setLoading(false);
+
+      // A submitted talk starts Pending until Conference confirms or rejects it
+      // asynchronously — poll quietly (no skeleton) until none are left pending, so the status
+      // badge updates on its own without the user having to reload the page.
+      if (items.some((talk) => talk.status === "Pending")) {
+        pollTimeout = setTimeout(() => load(false), POLL_INTERVAL_MS);
+      }
+    }
+
+    load(true);
+
     return () => {
       cancelled = true;
+      if (pollTimeout) clearTimeout(pollTimeout);
     };
   }, [page]);
 

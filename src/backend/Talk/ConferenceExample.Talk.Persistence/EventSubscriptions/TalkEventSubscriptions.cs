@@ -6,9 +6,10 @@ namespace ConferenceExample.Talk.Persistence.EventSubscriptions;
 
 /// <summary>
 /// Wires Talk BC read-model handlers to the in-memory event bus.
-/// TalkSubmissionRejectedEvent (raised by Conference — either because it isn't accepting
-/// submissions, or because it doesn't exist at all) updates the submitting talk's own read model
-/// to Rejected. Talk keeps no other local knowledge of Conference state.
+/// A submitted talk starts out Pending and is only moved to Submitted or Rejected once Conference
+/// has processed it — TalkSubmittedToConferenceEvent (accepted) and TalkSubmissionRejectedEvent
+/// (not accepting submissions, or doesn't exist at all) update the submitting talk's own read
+/// model accordingly. Talk keeps no other local knowledge of Conference state.
 /// </summary>
 public static class TalkEventSubscriptions
 {
@@ -22,6 +23,16 @@ public static class TalkEventSubscriptions
                 var handler =
                     scope.ServiceProvider.GetRequiredService<ConferenceOrganizerEventHandler>();
                 await handler.HandleConferenceCreated(storedEvent);
+            }
+        );
+
+        eventBus.Subscribe(
+            "TalkSubmittedToConferenceEvent",
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
+                await handler.HandleTalkSubmissionConfirmed(storedEvent);
             }
         );
 

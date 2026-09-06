@@ -73,7 +73,7 @@ export default function SubmitTalkPage() {
       setSubmitting(false);
       return;
     }
-    toast({ title: "Talk erfolgreich eingereicht." });
+    toast({ title: "Talk eingereicht — wird geprüft." });
     navigate("/my-talks");
   }
 

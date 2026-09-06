@@ -15,6 +15,13 @@ public class Talk : AggregateRoot
     public string SpeakerFirstName { get; private set; } = string.Empty;
     public string SpeakerLastName { get; private set; } = string.Empty;
     public string SpeakerBiography { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Set once, at submission time (Pending), and never updated afterward by this aggregate.
+    /// Conference confirms or rejects the submission asynchronously; that outcome (Submitted /
+    /// Rejected) is reflected only in the read model (see Talk.Persistence's TalkEventHandler),
+    /// not replayed back into this in-memory Status.
+    /// </summary>
     public TalkStatus Status { get; private set; }
     public TalkTypeId TalkTypeId { get; private set; } = null!;
     public Abstract Abstract { get; private set; } = null!;
@@ -60,7 +67,7 @@ public class Talk : AggregateRoot
                 tagList,
                 talkTypeId.Value,
                 conferenceId.Value,
-                TalkStatus.Submitted.ToString()
+                TalkStatus.Pending.ToString()
             )
         );
         return talk;

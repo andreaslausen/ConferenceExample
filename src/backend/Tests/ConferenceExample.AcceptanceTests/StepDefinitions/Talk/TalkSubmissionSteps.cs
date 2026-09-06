@@ -195,8 +195,10 @@ public class TalkSubmissionSteps(HttpClient httpClient)
     [Then("the talk is stored with status Submitted")]
     public async Task ThenTheTalkIsStoredWithStatusSubmitted()
     {
-        var document = await WaitForTalkDocument();
-        Assert.Equal("Submitted", document.Status);
+        // A talk starts Pending and only becomes Submitted once Conference has confirmed it via
+        // TalkSubmittedToConferenceEvent — poll for that, rather than assuming the round trip to
+        // Conference and back has completed by the time this step runs.
+        var document = await WaitForTalkDocumentWithStatus("Submitted");
         Assert.Equal(_submittedTitle, document.Title);
         Assert.Equal(_submittedAbstract, document.Abstract);
 
@@ -351,10 +353,9 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         );
     }
 
-    // Conference rejects submissions asynchronously (via TalkSubmissionRejectedEvent) when it
-    // isn't accepting them at intake time, so the talk's Status only flips from Submitted to
-    // Rejected once that event has been processed — poll rather than assert immediately after
-    // the 201 response.
+    // A talk starts Pending and only reaches its final status (Submitted or Rejected) once
+    // Conference has processed it asynchronously — poll rather than assert immediately after the
+    // 201 response.
     private async Task<TalkDocument> WaitForTalkDocumentWithStatus(string expectedStatus)
     {
         using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
