@@ -1,50 +1,23 @@
-using System.Text.Json;
-using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Domain.SharedKernel;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.TalkManagement;
+using ConferenceExample.Talk.Persistence.ReadModels;
 
 namespace ConferenceExample.Talk.Persistence;
 
-public class ConferenceRepository(ITalkEventStore eventStore) : IConferenceRepository
+public class ConferenceRepository(IConferenceStatusDocumentRepository statusDocumentRepository)
+    : IConferenceRepository
 {
     public async Task<Conference> GetById(ConferenceId conferenceId)
     {
         var aggregateId = conferenceId.Value.Value;
-        var storedEvents = await eventStore.GetEvents(aggregateId);
+        var document = await statusDocumentRepository.GetById(aggregateId.ToString());
 
-        if (storedEvents.Count == 0)
+        if (document is null)
         {
             throw new NotFoundException($"Conference with id {conferenceId.Value} does not exist.");
         }
 
-        // Slim events: only ConferenceCreatedEvent and ConferenceStatusChangedEvent carry Status.
-        // Pick the latest of those by version to get the current Status.
-        var latestStatusEvent = storedEvents
-            .Where(e =>
-                e.EventType == "ConferenceCreatedEvent"
-                || e.EventType == "ConferenceStatusChangedEvent"
-            )
-            .OrderByDescending(e => e.Version)
-            .FirstOrDefault();
-
-        if (latestStatusEvent is null)
-        {
-            throw new InvalidOperationException(
-                $"No status-bearing event found for Conference {conferenceId.Value}."
-            );
-        }
-
-        var payload = JsonSerializer.Deserialize<StatusPayload>(latestStatusEvent.Payload);
-        if (payload is null)
-        {
-            throw new InvalidOperationException(
-                $"Failed to deserialize Conference event for {conferenceId.Value}."
-            );
-        }
-
-        return Conference.FromEvents(conferenceId, payload.Status);
+        return Conference.FromEvents(conferenceId, document.Status);
     }
-
-    private record StatusPayload(string Status);
 }

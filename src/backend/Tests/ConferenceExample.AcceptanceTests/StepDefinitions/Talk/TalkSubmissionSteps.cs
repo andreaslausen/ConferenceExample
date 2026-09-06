@@ -110,8 +110,8 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         Assert.Equal(HttpStatusCode.NoContent, statusResponse.StatusCode);
 
         // The Talk BC only learns about the status change once ConferenceStatusChangedEvent is
-        // replicated into its local event store via the event bus — poll rather than assume it
-        // has landed by the time this method returns.
+        // projected into its local ConferenceStatusDocument via the event bus — poll rather than
+        // assume it has landed by the time this method returns.
         await WaitForConferenceReadyForSubmissions();
 
         ClearBearerToken();
@@ -156,9 +156,9 @@ public class TalkSubmissionSteps(HttpClient httpClient)
         _talkTypeId = talkType.TalkTypeId;
 
         // Left in Draft status on purpose — the conference exists but isn't accepting talk
-        // submissions yet. Still wait for it to be replicated into the Talk BC's local event
-        // store, same reason as WaitForConferenceReadyForSubmissions, just without requiring
-        // CanAcceptTalkSubmissions() to be true.
+        // submissions yet. Still wait for it to be projected into the Talk BC's local
+        // ConferenceStatusDocument, same reason as WaitForConferenceReadyForSubmissions, just
+        // without requiring CanAcceptTalkSubmissions() to be true.
         await WaitForConferenceToExist();
 
         ClearBearerToken();
@@ -369,7 +369,7 @@ public class TalkSubmissionSteps(HttpClient httpClient)
             }
             catch (NotFoundException)
             {
-                // Not yet replicated into the Talk BC's local event store.
+                // Not yet projected into the Talk BC's local ConferenceStatusDocument.
             }
 
             await Task.Delay(50);
@@ -399,14 +399,14 @@ public class TalkSubmissionSteps(HttpClient httpClient)
             }
             catch (NotFoundException)
             {
-                // Not yet replicated into the Talk BC's local event store.
+                // Not yet projected into the Talk BC's local ConferenceStatusDocument.
             }
 
             await Task.Delay(50);
         }
 
         throw new TimeoutException(
-            $"Conference {_conferenceId} did not appear in the Talk BC's local event store within the timeout."
+            $"Conference {_conferenceId} did not appear in the Talk BC's local ConferenceStatusDocument within the timeout."
         );
     }
 

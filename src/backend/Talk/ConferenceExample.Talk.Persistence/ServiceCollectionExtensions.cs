@@ -45,10 +45,16 @@ public static class ServiceCollectionExtensions
             sp.GetRequiredService<MongoDbConferenceOrganizerReadModelRepository>()
         );
 
+        // Conference Status Document Repository (cross-BC projection used by command validation)
+        services.AddScoped<
+            IConferenceStatusDocumentRepository,
+            MongoDbConferenceStatusDocumentRepository
+        >();
+
         // Event Handlers
         services.AddScoped<TalkEventHandler>();
         services.AddScoped<SpeakerEventHandler>();
-        services.AddScoped<ConferenceEventReplicationHandler>();
+        services.AddScoped<ConferenceStatusEventHandler>();
         services.AddScoped<ConferenceOrganizerEventHandler>();
 
         return services;

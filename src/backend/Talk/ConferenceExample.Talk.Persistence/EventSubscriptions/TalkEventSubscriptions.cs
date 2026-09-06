@@ -6,43 +6,33 @@ namespace ConferenceExample.Talk.Persistence.EventSubscriptions;
 
 /// <summary>
 /// Wires Talk BC read-model handlers to the in-memory event bus.
-/// Conference BC events are also replicated into the Talk event store
-/// so the Talk BC can derive minimal Conference state.
+/// Conference BC status events are also projected into a minimal local
+/// ConferenceStatusDocument so the Talk BC can validate conference status in command handlers.
 /// </summary>
 public static class TalkEventSubscriptions
 {
-    private static readonly string[] ConferenceEvents =
-    [
-        "ConferenceCreatedEvent",
-        "ConferenceRenamedEvent",
-        "ConferenceDetailsUpdatedEvent",
-        "ConferenceStatusChangedEvent",
-        "TalkTypeDefinedEvent",
-        "TalkTypeRemovedEvent",
-        "RoomAddedEvent",
-        "RoomRemovedEvent",
-        "TalkSubmittedToConferenceEvent",
-        "TalkAcceptedEvent",
-        "TalkRejectedEvent",
-        "TalkScheduledEvent",
-        "TalkAssignedToRoomEvent",
-    ];
-
     public static void Subscribe(IEventBus eventBus, IServiceScopeFactory scopeFactory)
     {
-        foreach (var eventType in ConferenceEvents)
-        {
-            eventBus.Subscribe(
-                eventType,
-                async storedEvent =>
-                {
-                    using var scope = scopeFactory.CreateScope();
-                    var handler =
-                        scope.ServiceProvider.GetRequiredService<ConferenceEventReplicationHandler>();
-                    await handler.ReplicateEvent(storedEvent);
-                }
-            );
-        }
+        eventBus.Subscribe(
+            "ConferenceCreatedEvent",
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler =
+                    scope.ServiceProvider.GetRequiredService<ConferenceStatusEventHandler>();
+                await handler.HandleConferenceCreated(storedEvent);
+            }
+        );
+        eventBus.Subscribe(
+            "ConferenceStatusChangedEvent",
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler =
+                    scope.ServiceProvider.GetRequiredService<ConferenceStatusEventHandler>();
+                await handler.HandleConferenceStatusChanged(storedEvent);
+            }
+        );
 
         eventBus.Subscribe(
             "ConferenceCreatedEvent",
