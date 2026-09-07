@@ -73,7 +73,8 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
 
         // Act
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
@@ -87,7 +88,8 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
 
         // Act
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
@@ -103,14 +105,15 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Add and accept a talk, schedule it
         var talkId = new TalkId(GuidV7.NewGuid());
         var roomId = new RoomId(GuidV7.NewGuid());
         conference.AddRoom(roomId, new Text("Main Hall"));
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ScheduleTalk(
             talkId,
@@ -151,7 +154,8 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
 
@@ -168,10 +172,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
 
         // Act & Assert - Talk accepted but not scheduled
@@ -190,10 +195,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ScheduleTalk(
             talkId,
@@ -219,12 +225,13 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
         var roomId = new RoomId(GuidV7.NewGuid());
         conference.AddRoom(roomId, new Text("Main Hall"));
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ScheduleTalk(
             talkId,
@@ -249,10 +256,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
 
         // Act & Assert - Cannot rollback to Draft when talks submitted
         var exception = Assert.Throws<DomainException>(() =>
@@ -267,7 +275,8 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Act - Rollback to Draft is allowed when no talks submitted
@@ -282,7 +291,8 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
 
@@ -308,7 +318,8 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Act & Assert
@@ -320,12 +331,13 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
 
         // Act
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
 
         // Assert
         var talk = Assert.Single(conference.Talks);
@@ -334,21 +346,22 @@ public class ConferenceTests
     }
 
     [Fact]
-    public void SubmitTalk_RaisesTalkSubmittedToConferenceEvent()
+    public void SubmitTalk_RaisesTalkSubmissionRegisteredEvent()
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
         conference.ClearUncommittedEvents();
 
         // Act
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
 
         // Assert
         var events = conference.GetUncommittedEvents();
-        Assert.IsType<TalkSubmittedToConferenceEvent>(Assert.Single(events));
+        Assert.IsType<TalkSubmissionRegisteredEvent>(Assert.Single(events));
     }
 
     [Fact]
@@ -357,9 +370,10 @@ public class ConferenceTests
         // Arrange - conference is still in Draft status
         var conference = CreateValidConference();
         var talkId = new TalkId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
 
         // Act
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
 
         // Assert
         Assert.Empty(conference.Talks);
@@ -371,10 +385,11 @@ public class ConferenceTests
         // Arrange - conference is still in Draft status
         var conference = CreateValidConference();
         var talkId = new TalkId(GuidV7.NewGuid());
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
         conference.ClearUncommittedEvents();
 
         // Act
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
 
         // Assert
         var events = conference.GetUncommittedEvents();
@@ -384,14 +399,110 @@ public class ConferenceTests
     }
 
     [Fact]
+    public void SubmitTalk_UnknownTalkType_RaisesTalkSubmissionRejectedEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        var unknownTalkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.ClearUncommittedEvents();
+
+        // Act - talk types belong to the conference, so it is the conference that rejects one
+        // it does not offer.
+        conference.SubmitTalk(talkId, unknownTalkTypeId);
+
+        // Assert
+        var rejectedEvent = Assert.IsType<TalkSubmissionRejectedEvent>(
+            Assert.Single(conference.GetUncommittedEvents())
+        );
+        Assert.Equal(talkId.Value.Value, rejectedEvent.TalkId);
+        Assert.Contains("not offered", rejectedEvent.Reason);
+        Assert.Empty(conference.Talks);
+    }
+
+    [Fact]
+    public void SubmitTalk_SameTalkTwice_RaisesTalkSubmissionRejectedEvent()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.SubmitTalk(talkId, talkTypeId);
+        conference.ClearUncommittedEvents();
+
+        // Act
+        conference.SubmitTalk(talkId, talkTypeId);
+
+        // Assert
+        var rejectedEvent = Assert.IsType<TalkSubmissionRejectedEvent>(
+            Assert.Single(conference.GetUncommittedEvents())
+        );
+        Assert.Contains("already been submitted", rejectedEvent.Reason);
+        Assert.Single(conference.Talks);
+    }
+
+    [Fact]
+    public void SubmitTalk_WithOneOfSeveralTalkTypes_RegistersTheSubmission()
+    {
+        // Arrange - a conference usually offers more than one format, and a submission only has
+        // to match one of them.
+        var conference = CreateValidConference();
+        var shortTalkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        var longTalkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(shortTalkTypeId, new Text("Lightning Talk"), 15);
+        conference.DefineTalkType(longTalkTypeId, new Text("Deep Dive"), 90);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.ClearUncommittedEvents();
+
+        // Act
+        conference.SubmitTalk(talkId, longTalkTypeId);
+
+        // Assert
+        var registeredEvent = Assert.IsType<TalkSubmissionRegisteredEvent>(
+            Assert.Single(conference.GetUncommittedEvents())
+        );
+        Assert.Equal(longTalkTypeId.Value.Value, registeredEvent.TalkTypeId);
+    }
+
+    [Fact]
+    public void SubmitTalk_RecordsTheTalkTypeItWasSubmittedFor()
+    {
+        // Arrange
+        var conference = CreateValidConference();
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
+        conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
+        var talkId = new TalkId(GuidV7.NewGuid());
+        conference.ClearUncommittedEvents();
+
+        // Act
+        conference.SubmitTalk(talkId, talkTypeId);
+
+        // Assert
+        var registeredEvent = Assert.IsType<TalkSubmissionRegisteredEvent>(
+            Assert.Single(conference.GetUncommittedEvents())
+        );
+        Assert.Equal(talkId.Value.Value, registeredEvent.TalkId);
+        Assert.Equal(talkTypeId.Value.Value, registeredEvent.TalkTypeId);
+        Assert.Equal(talkTypeId, Assert.Single(conference.Talks).TalkTypeId);
+    }
+
+    [Fact]
     public void AcceptTalk_ChangesStatusToAccepted()
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
 
         // Act
         conference.AcceptTalk(talkId);
@@ -405,10 +516,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
 
         // Act
         conference.RejectTalk(talkId);
@@ -422,10 +534,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         var slot = new Time(DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddHours(2));
 
@@ -441,10 +554,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         var room = new Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
 
@@ -462,10 +576,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.ClearUncommittedEvents();
 
         // Act
@@ -482,10 +597,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.ClearUncommittedEvents();
 
         // Act
@@ -502,10 +618,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ClearUncommittedEvents();
         var slot = new Time(DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddHours(2));
@@ -524,10 +641,11 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ClearUncommittedEvents();
         var room = new Room(new RoomId(GuidV7.NewGuid()), new Text("Room A"));
@@ -548,10 +666,11 @@ public class ConferenceTests
         // then move to CallForSpeakers to submit and accept a talk.
         var conference = CreateValidConference();
         conference.Rename(new Text("Replayed Conference"));
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         var events = conference.GetUncommittedEvents().ToList();
 
@@ -714,14 +833,15 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Add and accept a talk, schedule it
         var talkId = new TalkId(GuidV7.NewGuid());
         var roomId = new RoomId(GuidV7.NewGuid());
         conference.AddRoom(roomId, new Text("Main Hall"));
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ScheduleTalk(
             talkId,
@@ -784,7 +904,7 @@ public class ConferenceTests
         var talkId = new TalkId(GuidV7.NewGuid());
         var roomId = new RoomId(GuidV7.NewGuid());
         conference.AddRoom(roomId, new Text("Main Hall"));
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ScheduleTalk(
             talkId,
@@ -827,7 +947,8 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Act & Assert
@@ -857,14 +978,15 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
 
         // Add and accept a talk, schedule it
         var talkId = new TalkId(GuidV7.NewGuid());
         var roomId = new RoomId(GuidV7.NewGuid());
         conference.AddRoom(roomId, new Text("Main Hall"));
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ScheduleTalk(
             talkId,
@@ -914,7 +1036,8 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var newName = new Text("Updated Conference");
         var newTime = new Time(
@@ -962,12 +1085,13 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
         var talkId = new TalkId(GuidV7.NewGuid());
         var roomId = new RoomId(GuidV7.NewGuid());
         conference.AddRoom(roomId, new Text("Main Hall"));
-        conference.SubmitTalk(talkId);
+        conference.SubmitTalk(talkId, talkTypeId);
         conference.AcceptTalk(talkId);
         conference.ScheduleTalk(
             talkId,
@@ -1022,9 +1146,10 @@ public class ConferenceTests
     {
         // Arrange
         var conference = CreateValidConference();
-        conference.DefineTalkType(new TalkTypeId(GuidV7.NewGuid()), new Text("Talk"), 45);
+        var talkTypeId = new TalkTypeId(GuidV7.NewGuid());
+        conference.DefineTalkType(talkTypeId, new Text("Talk"), 45);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakers);
-        conference.SubmitTalk(new TalkId(GuidV7.NewGuid()));
+        conference.SubmitTalk(new TalkId(GuidV7.NewGuid()), talkTypeId);
         conference.ChangeStatus(ConferenceStatus.CallForSpeakersClosed);
 
         // Act - only CallForSpeakers -> Draft checks for submitted talks, not CallForSpeakersClosed -> Draft

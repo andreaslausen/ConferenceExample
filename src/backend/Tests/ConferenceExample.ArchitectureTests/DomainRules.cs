@@ -10,13 +10,13 @@ public class DomainRules : ArchitectureTest
     {
         var repositoryInterfaces = Interfaces()
             .That()
-            .ResideInAssembly(ConferenceDomain, TalkDomain)
+            .ResideInAssembly(ConferenceDomain, SpeakerDomain, TalkDomain)
             .And()
             .HaveNameEndingWith("Repository");
 
         var rule = Classes()
             .That()
-            .ResideInAssembly(ConferenceDomain, TalkDomain)
+            .ResideInAssembly(ConferenceDomain, SpeakerDomain, TalkDomain)
             .Should()
             .NotCallAny(
                 MethodMembers().That().ArePublic().And().AreDeclaredIn(repositoryInterfaces)

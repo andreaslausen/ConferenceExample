@@ -1,8 +1,8 @@
-using ConferenceExample.Talk.Application;
-using ConferenceExample.Talk.Application.CreateSpeakerProfile;
-using ConferenceExample.Talk.Application.GetMyProfile;
-using ConferenceExample.Talk.Application.GetSpeakerById;
-using ConferenceExample.Talk.Application.UpdateSpeakerProfile;
+using ConferenceExample.Speaker.Application;
+using ConferenceExample.Speaker.Application.CreateSpeakerProfile;
+using ConferenceExample.Speaker.Application.GetMyProfile;
+using ConferenceExample.Speaker.Application.GetSpeakerById;
+using ConferenceExample.Speaker.Application.UpdateSpeakerProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +22,7 @@ public class SpeakersController(ISpeakerService speakerService) : ControllerBase
     public async Task<IActionResult> CreateProfile([FromBody] CreateSpeakerProfileDto dto)
     {
         var result = await speakerService.CreateProfile(dto);
-        return Created("/api/speakers/profile", result);
+        return Created($"/api/speakers/{result.SpeakerId}", result);
     }
 
     [HttpPut("profile", Name = "UpdateSpeakerProfile")]

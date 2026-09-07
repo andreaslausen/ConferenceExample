@@ -32,7 +32,11 @@ Two kinds of backend tests, nothing in between:
   the HTTP level anyway (a scenario in one context routinely needs another, e.g. submitting a
   talk needs a conference and a talk type to exist first). `.feature` files and step
   definitions are organized into subfolders per bounded context for readability
-  (`Features/Talk/`, `StepDefinitions/Talk/`, ...). Preconditions such as user registration
+  (`Features/Speaker/`, `Features/Talk/`, `StepDefinitions/Talk/`, ...). Scenario state that
+  crosses context folders (who is signed in, which conference/talk the steps are about) lives in
+  `Infrastructure/ScenarioState.cs`, injected into each binding class — step classes must not
+  reach into one another. Assertions on projected state poll via `Infrastructure/Eventually.cs`,
+  because read models and cross-context submissions are eventually consistent. Preconditions such as user registration
   must be their own explicit `Given` step (e.g. `Given a speaker is registered`) — never a
   side effect hidden inside a step bound to unrelated Gherkin text (e.g. registering a user
   inside a `Given a conference exists` or `Then ... cannot view ...` step). A reader of the
@@ -53,7 +57,8 @@ Test projects today:
 - `ConferenceExample.ArchitectureTests` — enforces layer dependency rules
 - `*.Domain.UnitTests` — unit tests for domain logic only, one project per bounded context
 - `ConferenceExample.AcceptanceTests` — the one Gherkin acceptance suite for the whole API
-  (currently only covers Talk submission; add scenarios for the other contexts the same way)
+  (currently covers speaker profiles, talk management, talk submission and pagination; add
+  scenarios for the other contexts the same way)
 
 ```bash
 # run just the acceptance suite (starts a MongoDB Testcontainer, needs Docker)

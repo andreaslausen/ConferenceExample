@@ -1,53 +1,87 @@
 Feature: Talk Submission
 
-  Scenario: Submit a talk proposal
+  A speaker submits an existing talk to a conference. The conference decides asynchronously
+  whether it takes the submission into review.
+
+  Scenario: Submit a talk to a conference
     Given an organizer is registered
     And a conference exists
     And a speaker is registered
-    When the speaker submits a talk titled "Introduction to DDD" with abstract "An overview of Domain-Driven Design"
-    Then the talk is stored with status Submitted
+    And the speaker has a profile
+    And the speaker has a talk titled "Introduction to DDD"
+    When the speaker submits the talk to the conference
+    Then the submission is accepted with status 202
+    And the submission eventually has status Submitted
+    And the submission shows the conference name "Test Conference"
 
-  Scenario: Submit a talk with tags
+  Scenario: The conference receives the talk with the speaker's details
     Given an organizer is registered
     And a conference exists
     And a speaker is registered
-    When the speaker submits a talk titled "Event Sourcing in Practice" with abstract "Learn about event sourcing" tagged "Architecture" and "CQRS"
-    Then the talk is stored with status Submitted
-    And the talk has the tag "Architecture"
-    And the talk has the tag "CQRS"
+    And the speaker has a profile
+    And the speaker has a talk titled "Introduction to DDD"
+    When the speaker submits the talk to the conference
+    Then the submission eventually has status Submitted
+    And the conference has the talk with the speaker name "Jane Doe"
 
-  Scenario: The organizer can view a submitted talk
+  Scenario: Editing a talk after submitting it leaves the submission untouched
     Given an organizer is registered
     And a conference exists
     And a speaker is registered
-    When the speaker submits a talk titled "Introduction to DDD" with abstract "An overview of Domain-Driven Design"
-    Then the organizer can view the talk
+    And the speaker has a profile
+    And the speaker has a talk titled "Introduction to DDD"
+    When the speaker submits the talk to the conference
+    Then the submission eventually has status Submitted
+    When the speaker renames the talk to "Something Else Entirely"
+    Then the submission still shows the title "Introduction to DDD"
 
-  Scenario: An unrelated user cannot view a submitted talk
-    Given an organizer is registered
-    And a conference exists
-    And a speaker is registered
-    And another speaker is registered
-    When the speaker submits a talk titled "Introduction to DDD" with abstract "An overview of Domain-Driven Design"
-    Then the other speaker cannot view the talk
-
-  Scenario: Submitting a talk for a nonexistent conference is rejected asynchronously
+  Scenario: Submitting to a nonexistent conference fails asynchronously
     Given a speaker is registered
-    When the speaker submits a talk for a nonexistent conference
-    Then the submission is accepted with status 201
-    And the talk is eventually stored with status Rejected
+    And the speaker has a profile
+    And the speaker has a talk titled "Introduction to DDD"
+    When the speaker submits the talk to a nonexistent conference
+    Then the submission is accepted with status 202
+    And the submission eventually has status Failed
 
-  Scenario: Submitting a talk while the conference is not accepting submissions is rejected asynchronously
+  Scenario: Submitting while the conference is not accepting submissions fails asynchronously
     Given an organizer is registered
     And a conference exists that is not yet accepting submissions
     And a speaker is registered
-    When the speaker submits a talk titled "Introduction to DDD" with abstract "An overview of Domain-Driven Design"
-    Then the submission is accepted with status 201
-    And the talk is eventually stored with status Rejected
+    And the speaker has a profile
+    And the speaker has a talk titled "Introduction to DDD"
+    When the speaker submits the talk to the conference
+    Then the submission is accepted with status 202
+    And the submission eventually has status Failed
 
-  Scenario: Submitting a talk with a title that is too long is rejected
+  Scenario: Submitting with a talk type the conference does not offer fails asynchronously
     Given an organizer is registered
     And a conference exists
     And a speaker is registered
-    When the speaker submits a talk titled "This title is far too long for a talk and exceeds the maximum of one hundred characters allowed by the system" with abstract "An overview of Domain-Driven Design"
-    Then the submission is rejected with status 400
+    And the speaker has a profile
+    And the speaker has a talk titled "Introduction to DDD"
+    When the speaker submits the talk with a talk type the conference does not offer
+    Then the submission is accepted with status 202
+    And the submission eventually has status Failed
+
+  Scenario: The same talk cannot be submitted to the same conference twice
+    Given an organizer is registered
+    And a conference exists
+    And a speaker is registered
+    And the speaker has a profile
+    And the speaker has a talk titled "Introduction to DDD"
+    When the speaker submits the talk to the conference
+    Then the submission eventually has status Submitted
+    When the speaker submits the talk to the conference again
+    Then the submission is rejected with status 409
+    And the talk has 1 submission
+
+  Scenario: A deleted talk keeps the submissions the conference already received
+    Given an organizer is registered
+    And a conference exists
+    And a speaker is registered
+    And the speaker has a profile
+    And the speaker has a talk titled "Introduction to DDD"
+    When the speaker submits the talk to the conference
+    Then the submission eventually has status Submitted
+    When the speaker deletes the talk
+    Then the conference has the talk with the speaker name "Jane Doe"

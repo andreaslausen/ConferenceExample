@@ -1,66 +1,31 @@
+using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.RoomManagement;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Domain.TalkManagement;
 
 /// <summary>
-/// Read Model: Represents a Talk from the perspective of the Conference bounded context.
-/// This is NOT the Talk aggregate from the Talk bounded context.
-/// Data will be synchronized via events from the Talk BC (later via Read Model projections).
+/// A talk submitted to this conference, as the conference tracks it: which talk, in which format,
+/// where it stands in review, and when and where it is scheduled.
+///
+/// This is not the Talk aggregate from the Talk bounded context. What the talk actually says —
+/// title, abstract, tags, and who is speaking — is a snapshot taken when the submission was
+/// registered and lives in the ConferenceTalk read model; the conference deliberately does not
+/// follow later edits the speaker makes to their talk.
 /// </summary>
 public class Talk
 {
-    // Original fields managed by Conference aggregate
     public TalkId Id { get; }
+    public TalkTypeId TalkTypeId { get; }
     public TalkStatus Status { get; private set; }
     public Time? Slot { get; private set; }
     public Room? Room { get; private set; }
 
-    // Read Model fields - replicated from Talk BC
-    public Text? Title { get; private set; }
-    public Text? Abstract { get; private set; }
-    public GuidV7? SpeakerId { get; private set; }
-    public string SpeakerFirstName { get; private set; } = string.Empty;
-    public string SpeakerLastName { get; private set; } = string.Empty;
-    public string SpeakerBiography { get; private set; } = string.Empty;
-    public GuidV7? TalkTypeId { get; private set; }
-    public IReadOnlyList<string> Tags { get; private set; } = new List<string>();
-
-    internal Talk(TalkId id)
+    internal Talk(TalkId id, TalkTypeId talkTypeId)
     {
         Id = id;
-        Status = TalkStatus.Submitted;
-    }
-
-    // Constructor for read model (used by repository when loading from events)
-    public Talk(
-        TalkId id,
-        Text? title,
-        Text? @abstract,
-        GuidV7? speakerId,
-        string speakerFirstName,
-        string speakerLastName,
-        string speakerBiography,
-        GuidV7? talkTypeId,
-        IReadOnlyList<string> tags,
-        TalkStatus status,
-        Time? slot = null,
-        Room? room = null
-    )
-    {
-        Id = id;
-        Title = title;
-        Abstract = @abstract;
-        SpeakerId = speakerId;
-        SpeakerFirstName = speakerFirstName;
-        SpeakerLastName = speakerLastName;
-        SpeakerBiography = speakerBiography;
         TalkTypeId = talkTypeId;
-        Tags = tags;
-        Status = status;
-        Slot = slot;
-        Room = room;
+        Status = TalkStatus.Submitted;
     }
 
     internal void Accept() => Status = TalkStatus.Accepted;

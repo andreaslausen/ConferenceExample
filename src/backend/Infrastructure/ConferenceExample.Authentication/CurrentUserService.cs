@@ -8,6 +8,7 @@ namespace ConferenceExample.Authentication;
 
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     : Conference.Application.ICurrentUserService,
+        Speaker.Application.ICurrentUserService,
         Talk.Application.ICurrentUserService
 {
     private const string UserIdClaimType = JwtRegisteredClaimNames.Sub;
@@ -27,6 +28,9 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     }
 
     Guid Conference.Application.ICurrentUserService.GetCurrentUserId() =>
+        GetCurrentUserIdAsUserId().Value.Value;
+
+    Guid Speaker.Application.ICurrentUserService.GetCurrentUserId() =>
         GetCurrentUserIdAsUserId().Value.Value;
 
     Guid Talk.Application.ICurrentUserService.GetCurrentUserId() =>

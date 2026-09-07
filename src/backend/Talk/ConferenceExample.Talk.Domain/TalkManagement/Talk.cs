@@ -1,3 +1,4 @@
+using ConferenceExample.Talk.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Domain.SharedKernel;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
@@ -5,28 +6,23 @@ using ConferenceExample.Talk.Domain.TalkManagement.Events;
 
 namespace ConferenceExample.Talk.Domain.TalkManagement;
 
+/// <summary>
+/// A talk owned by one speaker, independent of any conference. It is created, edited and deleted
+/// on its own, and can be submitted to any number of conferences; each submission freezes the
+/// talk's content at that moment.
+/// </summary>
 public class Talk : AggregateRoot
 {
     private readonly List<TalkTag> _tags = [];
+    private readonly List<TalkSubmission> _submissions = [];
 
     public TalkId Id { get; private set; } = null!;
     public TalkTitle Title { get; private set; } = null!;
-    public SpeakerId SpeakerId { get; private set; } = null!;
-    public string SpeakerFirstName { get; private set; } = string.Empty;
-    public string SpeakerLastName { get; private set; } = string.Empty;
-    public string SpeakerBiography { get; private set; } = string.Empty;
-
-    /// <summary>
-    /// Set once, at submission time (Pending), and never updated afterward by this aggregate.
-    /// Conference confirms or rejects the submission asynchronously; that outcome (Submitted /
-    /// Rejected) is reflected only in the read model (see Talk.Persistence's TalkEventHandler),
-    /// not replayed back into this in-memory Status.
-    /// </summary>
-    public TalkStatus Status { get; private set; }
-    public TalkTypeId TalkTypeId { get; private set; } = null!;
     public Abstract Abstract { get; private set; } = null!;
+    public SpeakerId SpeakerId { get; private set; } = null!;
+    public bool IsDeleted { get; private set; }
     public IReadOnlyList<TalkTag> Tags => _tags;
-    public ConferenceId ConferenceId { get; private set; } = null!;
+    public IReadOnlyList<TalkSubmission> Submissions => _submissions;
 
     private Talk() { }
 
@@ -37,37 +33,25 @@ public class Talk : AggregateRoot
         return talk;
     }
 
-    public static Talk Submit(
+    public static Talk Create(
         TalkId id,
         TalkTitle title,
-        SpeakerId speakerId,
-        string speakerFirstName,
-        string speakerLastName,
-        string speakerBiography,
-        IEnumerable<TalkTag> tags,
-        TalkTypeId talkTypeId,
         Abstract @abstract,
-        ConferenceId conferenceId
+        IEnumerable<TalkTag> tags,
+        SpeakerId speakerId
     )
     {
         ArgumentNullException.ThrowIfNull(tags);
 
         var talk = new Talk();
-        var tagList = tags.Select(t => t.Tag).ToList();
         talk.RaiseEvent(
-            new TalkSubmittedEvent(
+            new TalkCreatedEvent(
                 id.Value,
                 DateTimeOffset.UtcNow,
                 title.Title,
                 @abstract.Content,
                 speakerId.Value,
-                speakerFirstName,
-                speakerLastName,
-                speakerBiography,
-                tagList,
-                talkTypeId.Value,
-                conferenceId.Value,
-                TalkStatus.Pending.ToString()
+                tags.Select(t => t.Tag).ToList()
             )
         );
         return talk;
@@ -75,40 +59,78 @@ public class Talk : AggregateRoot
 
     public void EditTitle(TalkTitle title)
     {
+        EnsureNotDeleted();
+
         RaiseEvent(new TalkTitleEditedEvent(Id.Value, DateTimeOffset.UtcNow, title.Title));
     }
 
     public void EditAbstract(Abstract @abstract)
     {
+        EnsureNotDeleted();
+
         RaiseEvent(new TalkAbstractEditedEvent(Id.Value, DateTimeOffset.UtcNow, @abstract.Content));
     }
 
     public void AddTag(TalkTag tag)
     {
+        EnsureNotDeleted();
+
         RaiseEvent(new TalkTagAddedEvent(Id.Value, DateTimeOffset.UtcNow, tag.Tag));
     }
 
     public void RemoveTag(TalkTag tag)
     {
+        EnsureNotDeleted();
+
         RaiseEvent(new TalkTagRemovedEvent(Id.Value, DateTimeOffset.UtcNow, tag.Tag));
+    }
+
+    /// <summary>
+    /// Deleting a talk withdraws it from the speaker's own list only. Conferences keep the
+    /// submissions they already registered, because those are snapshots they own — a published
+    /// program must not fall apart because a speaker tidied up their talk list.
+    /// </summary>
+    public void Delete()
+    {
+        EnsureNotDeleted();
+
+        RaiseEvent(new TalkDeletedEvent(Id.Value, DateTimeOffset.UtcNow));
+    }
+
+    public void SubmitToConference(ConferenceId conferenceId, TalkTypeId talkTypeId)
+    {
+        EnsureNotDeleted();
+
+        if (_submissions.Any(s => s.ConferenceId == conferenceId))
+        {
+            throw new DomainException(
+                $"Talk '{Id.Value}' has already been submitted to conference '{conferenceId.Value}'."
+            );
+        }
+
+        RaiseEvent(
+            new TalkSubmittedToConferenceEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                conferenceId.Value,
+                talkTypeId.Value,
+                SpeakerId.Value,
+                Title.Title,
+                Abstract.Content,
+                _tags.Select(t => t.Tag).ToList()
+            )
+        );
     }
 
     protected override void ApplyEvent(IDomainEvent @event)
     {
         switch (@event)
         {
-            case TalkSubmittedEvent e:
+            case TalkCreatedEvent e:
                 Id = new TalkId(new GuidV7(e.AggregateId));
                 Title = new TalkTitle(e.Title);
-                SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
-                SpeakerFirstName = e.SpeakerFirstName;
-                SpeakerLastName = e.SpeakerLastName;
-                SpeakerBiography = e.SpeakerBiography;
-                TalkTypeId = new TalkTypeId(new GuidV7(e.TalkTypeId));
                 Abstract = new Abstract(e.Abstract);
-                ConferenceId = new ConferenceId(new GuidV7(e.ConferenceId));
-                Status = Enum.Parse<TalkStatus>(e.Status);
-                _tags.Clear();
+                SpeakerId = new SpeakerId(new GuidV7(e.SpeakerId));
                 _tags.AddRange(e.Tags.Select(t => new TalkTag(t)));
                 break;
             case TalkTitleEditedEvent e:
@@ -123,6 +145,29 @@ public class Talk : AggregateRoot
             case TalkTagRemovedEvent e:
                 _tags.RemoveAll(t => t.Tag == e.Tag);
                 break;
+            case TalkDeletedEvent:
+                IsDeleted = true;
+                break;
+            case TalkSubmittedToConferenceEvent e:
+                _submissions.Add(
+                    new TalkSubmission(
+                        new ConferenceId(new GuidV7(e.ConferenceId)),
+                        new TalkTypeId(new GuidV7(e.TalkTypeId)),
+                        e.OccurredAt,
+                        new TalkTitle(e.Title),
+                        new Abstract(e.Abstract),
+                        e.Tags.Select(t => new TalkTag(t)).ToList()
+                    )
+                );
+                break;
+        }
+    }
+
+    private void EnsureNotDeleted()
+    {
+        if (IsDeleted)
+        {
+            throw new DomainException($"Talk '{Id.Value}' has been deleted and cannot be changed.");
         }
     }
 }

@@ -1,32 +1,28 @@
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
-using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 
 namespace ConferenceExample.Talk.Application.EditTalk;
 
 public class EditTalkCommandHandler(
     ITalkRepository talkRepository,
-    ICurrentUserService currentUserService
+    ICurrentSpeakerProvider currentSpeakerProvider
 ) : IEditTalkCommandHandler
 {
     public async Task Handle(EditTalkCommand command)
     {
-        // Get the talk
         var talk = await talkRepository.GetById(new TalkId(new GuidV7(command.TalkId)));
 
-        // Check ownership: Only the speaker who created the talk can edit it
-        var currentUserId = currentUserService.GetCurrentUserId();
-        var currentSpeakerId = new SpeakerId(new GuidV7(currentUserId));
+        // Only the speaker who owns the talk may edit it. Submissions already registered by a
+        // conference keep the content they were submitted with — see Talk.SubmitToConference.
+        var currentSpeakerId = await currentSpeakerProvider.GetCurrentSpeakerId();
 
         if (talk.SpeakerId != currentSpeakerId)
         {
             throw new UnauthorizedAccessException(
-                $"User {currentUserId} is not authorized to edit talk {talk.Id.Value}. Only the speaker who created the talk can edit it."
+                $"Speaker {currentSpeakerId.Value} is not authorized to edit talk {talk.Id.Value}."
             );
         }
 
-        // Edit the talk
         talk.EditTitle(new TalkTitle(command.Title));
         talk.EditAbstract(new Abstract(command.Abstract));
 

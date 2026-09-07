@@ -1,12 +1,10 @@
-using ConferenceExample.Talk.Application.CreateSpeakerProfile;
+using ConferenceExample.Talk.Application.CreateTalk;
+using ConferenceExample.Talk.Application.DeleteTalk;
 using ConferenceExample.Talk.Application.EditTalk;
-using ConferenceExample.Talk.Application.GetMyProfile;
 using ConferenceExample.Talk.Application.GetMyTalks;
-using ConferenceExample.Talk.Application.GetSpeakerById;
 using ConferenceExample.Talk.Application.GetTalkById;
-using ConferenceExample.Talk.Application.SubmitTalk;
-using ConferenceExample.Talk.Application.UpdateSpeakerProfile;
-using ConferenceExample.Talk.Domain.TalkManagement;
+using ConferenceExample.Talk.Application.GetTalkSubmissions;
+using ConferenceExample.Talk.Application.SubmitTalkToConference;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ConferenceExample.Talk.Application;
@@ -15,31 +13,23 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddTalkApplication(this IServiceCollection services)
     {
-        // Talk Command Handlers
-        services.AddScoped<ISubmitTalkCommandHandler, SubmitTalkCommandHandler>();
+        // Command Handlers
+        services.AddScoped<ICreateTalkCommandHandler, CreateTalkCommandHandler>();
         services.AddScoped<IEditTalkCommandHandler, EditTalkCommandHandler>();
+        services.AddScoped<IDeleteTalkCommandHandler, DeleteTalkCommandHandler>();
+        services.AddScoped<
+            ISubmitTalkToConferenceCommandHandler,
+            SubmitTalkToConferenceCommandHandler
+        >();
 
-        // Talk Query Handlers
+        // Query Handlers
         services.AddScoped<IGetMyTalksQueryHandler, GetMyTalksQueryHandler>();
         services.AddScoped<IGetTalkByIdQueryHandler, GetTalkByIdQueryHandler>();
-
-        // Speaker Command Handlers
-        services.AddScoped<
-            ICreateSpeakerProfileCommandHandler,
-            CreateSpeakerProfileCommandHandler
-        >();
-        services.AddScoped<
-            IUpdateSpeakerProfileCommandHandler,
-            UpdateSpeakerProfileCommandHandler
-        >();
-
-        // Speaker Query Handlers
-        services.AddScoped<IGetMyProfileQueryHandler, GetMyProfileQueryHandler>();
-        services.AddScoped<IGetSpeakerByIdQueryHandler, GetSpeakerByIdQueryHandler>();
+        services.AddScoped<IGetTalkSubmissionsQueryHandler, GetTalkSubmissionsQueryHandler>();
 
         // Services
+        services.AddScoped<ICurrentSpeakerProvider, CurrentSpeakerProvider>();
         services.AddScoped<ITalkService, TalkService>();
-        services.AddScoped<ISpeakerService, SpeakerService>();
 
         return services;
     }

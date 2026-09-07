@@ -10,13 +10,17 @@ The system follows a Domain-Driven Design approach. The problem space is decompo
 |===
 | Subdomain | Type | Description
 
-| Conference
+| Speaker
 | Core
-| Managing conferences, rooms, time slots, and the conference program (scheduling).
+| Speakers register and maintain their own profile (name, biography, and later a picture).
 
 | Talk
 | Core
-| Managing talks, speakers, abstracts, and tags. Talks are submitted and curated independently before being assigned to the conference program.
+| Speakers create and maintain their talks — title, abstract, tags. A talk exists on its own, before and independently of any conference, and can be edited or deleted at any time.
+
+| Conference
+| Core
+| Organizers create conferences and define their talk types, rooms and time slots. Speakers submit their existing talks to a conference, which reviews them and schedules the accepted ones into its program.
 
 | Voting
 | Supporting
@@ -47,13 +51,17 @@ Not every subdomain requires a custom-built bounded context. The following table
 |===
 | Subdomain | Bounded Context | Rationale
 
-| Conference
-| Conference
-| Custom implementation — core domain with conference-specific business rules.
+| Speaker
+| Speaker
+| Custom implementation — core domain. A speaker profile has its own identity, deliberately separate from the account it belongs to, so one account can hold several role profiles later on.
 
 | Talk
 | Talk
-| Custom implementation — core domain with its own aggregate lifecycle (submit → review → accept).
+| Custom implementation — core domain. The Talk aggregate owns the talk's content and the record of where it has been submitted; the outcome of a submission belongs to the conference and reaches the speaker as a projection.
+
+| Conference
+| Conference
+| Custom implementation — core domain with conference-specific business rules: which talk types it offers, whether it is accepting submissions, and which submissions it accepts into its program.
 
 | Voting
 | Voting

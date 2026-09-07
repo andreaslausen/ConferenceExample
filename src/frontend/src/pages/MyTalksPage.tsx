@@ -4,74 +4,59 @@ import apiClient from "../shared/api/client";
 import type { components } from "../shared/api/openapi.d";
 import { Skeleton } from "../shared/components/Skeleton";
 import { PageLayout } from "../shared/components/Layout";
+import { useToast } from "../shared/components/Toast";
 
 type MyTalk = components["schemas"]["GetMyTalksDto"];
 
 const PAGE_SIZE = 10;
-const POLL_INTERVAL_MS = 3000;
-
-const STATUS_LABELS: Record<string, string> = {
-  Pending: "Ausstehend",
-  Submitted: "Eingereicht",
-  Accepted: "Angenommen",
-  Rejected: "Abgelehnt",
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  Pending: "bg-muted text-muted-foreground",
-  Submitted: "bg-secondary text-secondary-foreground",
-  Accepted: "bg-primary/10 text-primary",
-  Rejected: "bg-destructive/10 text-destructive",
-};
-
-function StatusBadge({ status }: { status: string }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[status] ?? "bg-muted text-muted-foreground"}`}
-    >
-      {STATUS_LABELS[status] ?? status}
-    </span>
-  );
-}
 
 export default function MyTalksPage() {
+  const { toast } = useToast();
   const [talks, setTalks] = useState<MyTalk[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    let pollTimeout: ReturnType<typeof setTimeout> | undefined;
+    setLoading(true);
 
-    async function load(showSkeleton: boolean) {
-      if (showSkeleton) setLoading(true);
-
-      const { data } = await apiClient.GET("/api/Talks/my-talks", {
-        params: { query: { page, pageSize: PAGE_SIZE } },
+    apiClient
+      .GET("/api/Talks/my-talks", { params: { query: { page, pageSize: PAGE_SIZE } } })
+      .then(({ data }) => {
+        if (cancelled) return;
+        setTalks(data?.items ?? []);
+        setTotalCount(Number(data?.totalCount ?? 0));
+        setLoading(false);
       });
-      if (cancelled) return;
-
-      const items = data?.items ?? [];
-      setTalks(items);
-      setTotalCount(Number(data?.totalCount ?? 0));
-      setLoading(false);
-
-      // A submitted talk starts Pending until Conference confirms or rejects it
-      // asynchronously — poll quietly (no skeleton) until none are left pending, so the status
-      // badge updates on its own without the user having to reload the page.
-      if (items.some((talk) => talk.status === "Pending")) {
-        pollTimeout = setTimeout(() => load(false), POLL_INTERVAL_MS);
-      }
-    }
-
-    load(true);
 
     return () => {
       cancelled = true;
-      if (pollTimeout) clearTimeout(pollTimeout);
     };
-  }, [page]);
+  }, [page, reloadToken]);
+
+  async function handleDelete(talk: MyTalk) {
+    if (
+      !window.confirm(
+        `Talk „${talk.title}“ löschen? Bereits eingereichte Fassungen bleiben bei den Konferenzen erhalten.`,
+      )
+    ) {
+      return;
+    }
+
+    const { error } = await apiClient.DELETE("/api/Talks/{id}", {
+      params: { path: { id: talk.id } },
+    });
+
+    if (error) {
+      toast({ title: "Talk konnte nicht gelöscht werden.", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Talk gelöscht." });
+    setReloadToken((t) => t + 1);
+  }
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
@@ -80,10 +65,10 @@ export default function MyTalksPage() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Meine Talks</h1>
         <Link
-          to="/my-talks/submit"
+          to="/my-talks/new"
           className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-3 text-sm font-medium"
         >
-          Talk einreichen
+          Neuer Talk
         </Link>
       </div>
 
@@ -95,14 +80,9 @@ export default function MyTalksPage() {
         </div>
       ) : talks.length === 0 ? (
         <div className="py-20 text-center">
-          <p className="text-muted-foreground text-base">
-            Du hast noch keine Talks eingereicht.
-          </p>
-          <Link
-            to="/my-talks/submit"
-            className="text-primary mt-2 inline-block text-sm underline"
-          >
-            Jetzt einreichen
+          <p className="text-muted-foreground text-base">Du hast noch keine Talks angelegt.</p>
+          <Link to="/my-talks/new" className="text-primary mt-2 inline-block text-sm underline">
+            Jetzt anlegen
           </Link>
         </div>
       ) : (
@@ -113,21 +93,38 @@ export default function MyTalksPage() {
               className="border-border flex items-center justify-between rounded-lg border p-4"
             >
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{talk.title}</p>
-                {talk.tags.length > 0 && (
-                  <p className="text-muted-foreground mt-0.5 truncate text-xs">
-                    {talk.tags.join(", ")}
-                  </p>
-                )}
+                <Link
+                  to={`/my-talks/${talk.id}`}
+                  className="hover:text-primary truncate text-sm font-medium"
+                >
+                  {talk.title}
+                </Link>
+                <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                  {Number(talk.submissionCount) === 0
+                    ? "Noch nicht eingereicht"
+                    : `${talk.submissionCount} Einreichung${Number(talk.submissionCount) === 1 ? "" : "en"}`}
+                  {talk.tags.length > 0 && ` · ${talk.tags.join(", ")}`}
+                </p>
               </div>
-              <div className="ml-4 flex items-center gap-3">
-                <StatusBadge status={talk.status} />
+              <div className="ml-4 flex items-center gap-2">
+                <Link
+                  to={`/my-talks/${talk.id}/submit`}
+                  className="border-input hover:bg-accent inline-flex h-8 items-center rounded-md border px-2.5 text-xs"
+                >
+                  Einreichen
+                </Link>
                 <Link
                   to={`/my-talks/${talk.id}/edit`}
                   className="border-input hover:bg-accent inline-flex h-8 items-center rounded-md border px-2.5 text-xs"
                 >
                   Bearbeiten
                 </Link>
+                <button
+                  onClick={() => handleDelete(talk)}
+                  className="border-input text-destructive hover:bg-destructive/10 inline-flex h-8 items-center rounded-md border px-2.5 text-xs"
+                >
+                  Löschen
+                </button>
               </div>
             </div>
           ))}

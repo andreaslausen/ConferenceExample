@@ -17,7 +17,7 @@ public class ConferenceRepository(IConferenceEventStore eventStore) : IConferenc
         [nameof(ConferenceRenamedEvent)] = typeof(ConferenceRenamedEvent),
         [nameof(ConferenceStatusChangedEvent)] = typeof(ConferenceStatusChangedEvent),
         [nameof(ConferenceDetailsUpdatedEvent)] = typeof(ConferenceDetailsUpdatedEvent),
-        [nameof(TalkSubmittedToConferenceEvent)] = typeof(TalkSubmittedToConferenceEvent),
+        [nameof(TalkSubmissionRegisteredEvent)] = typeof(TalkSubmissionRegisteredEvent),
         [nameof(TalkSubmissionRejectedEvent)] = typeof(TalkSubmissionRejectedEvent),
         [nameof(TalkAcceptedEvent)] = typeof(TalkAcceptedEvent),
         [nameof(TalkRejectedEvent)] = typeof(TalkRejectedEvent),

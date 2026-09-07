@@ -49,36 +49,29 @@ public static class ConferenceEventSubscriptions
             (h, e) => h.HandleTalkTypeRemoved(e)
         );
 
+        // Talk BC: a speaker submits one of their talks here. Their later edits are deliberately
+        // not subscribed to — a registered submission keeps the content it was submitted with.
         SubscribeTalkHandler(
             eventBus,
             scopeFactory,
-            "TalkSubmittedEvent",
-            (h, e) => h.HandleTalkSubmitted(e)
+            "TalkSubmittedToConferenceEvent",
+            (h, e) => h.HandleTalkSubmittedToConference(e)
         );
-        SubscribeTalkHandler(
+
+        // Speaker BC: profile details, snapshotted into a submission when it is registered
+        SubscribeSpeakerHandler(
             eventBus,
             scopeFactory,
-            "TalkTitleEditedEvent",
-            (h, e) => h.HandleTalkTitleEdited(e)
+            "SpeakerProfileCreatedEvent",
+            (h, e) => h.HandleSpeakerProfileChanged(e)
         );
-        SubscribeTalkHandler(
+        SubscribeSpeakerHandler(
             eventBus,
             scopeFactory,
-            "TalkAbstractEditedEvent",
-            (h, e) => h.HandleTalkAbstractEdited(e)
+            "SpeakerProfileUpdatedEvent",
+            (h, e) => h.HandleSpeakerProfileChanged(e)
         );
-        SubscribeTalkHandler(
-            eventBus,
-            scopeFactory,
-            "TalkTagAddedEvent",
-            (h, e) => h.HandleTalkTagAdded(e)
-        );
-        SubscribeTalkHandler(
-            eventBus,
-            scopeFactory,
-            "TalkTagRemovedEvent",
-            (h, e) => h.HandleTalkTagRemoved(e)
-        );
+
         SubscribeTalkHandler(
             eventBus,
             scopeFactory,
@@ -118,6 +111,25 @@ public static class ConferenceEventSubscriptions
             {
                 using var scope = scopeFactory.CreateScope();
                 var handler = scope.ServiceProvider.GetRequiredService<ConferenceEventHandler>();
+                await dispatch(handler, storedEvent);
+            }
+        );
+    }
+
+    private static void SubscribeSpeakerHandler(
+        IEventBus eventBus,
+        IServiceScopeFactory scopeFactory,
+        string eventType,
+        Func<SpeakerDirectoryEventHandler, StoredEvent, Task> dispatch
+    )
+    {
+        eventBus.Subscribe(
+            eventType,
+            async storedEvent =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var handler =
+                    scope.ServiceProvider.GetRequiredService<SpeakerDirectoryEventHandler>();
                 await dispatch(handler, storedEvent);
             }
         );

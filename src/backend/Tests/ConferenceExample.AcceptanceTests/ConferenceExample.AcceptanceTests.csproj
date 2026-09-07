@@ -39,6 +39,9 @@
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj" />
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Persistence\ConferenceExample.Conference.Persistence.csproj" />
+    <ProjectReference Include="..\..\Speaker\ConferenceExample.Speaker.Application\ConferenceExample.Speaker.Application.csproj" />
+    <ProjectReference Include="..\..\Speaker\ConferenceExample.Speaker.Domain\ConferenceExample.Speaker.Domain.csproj" />
+    <ProjectReference Include="..\..\Speaker\ConferenceExample.Speaker.Persistence\ConferenceExample.Speaker.Persistence.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Domain\ConferenceExample.Talk.Domain.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Persistence\ConferenceExample.Talk.Persistence.csproj" />

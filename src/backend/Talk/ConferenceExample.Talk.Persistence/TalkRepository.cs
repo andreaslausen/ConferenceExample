@@ -11,11 +11,13 @@ public class TalkRepository(ITalkEventStore eventStore) : ITalkRepository
 {
     private static readonly Dictionary<string, Type> EventTypeMap = new()
     {
-        [nameof(TalkSubmittedEvent)] = typeof(TalkSubmittedEvent),
+        [nameof(TalkCreatedEvent)] = typeof(TalkCreatedEvent),
         [nameof(TalkTitleEditedEvent)] = typeof(TalkTitleEditedEvent),
         [nameof(TalkAbstractEditedEvent)] = typeof(TalkAbstractEditedEvent),
         [nameof(TalkTagAddedEvent)] = typeof(TalkTagAddedEvent),
         [nameof(TalkTagRemovedEvent)] = typeof(TalkTagRemovedEvent),
+        [nameof(TalkDeletedEvent)] = typeof(TalkDeletedEvent),
+        [nameof(TalkSubmittedToConferenceEvent)] = typeof(TalkSubmittedToConferenceEvent),
     };
 
     public async Task<Domain.TalkManagement.Talk> GetById(TalkId id)

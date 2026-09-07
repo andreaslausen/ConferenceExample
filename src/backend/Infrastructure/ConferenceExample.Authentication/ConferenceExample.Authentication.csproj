@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Conference\ConferenceExample.Conference.Application\ConferenceExample.Conference.Application.csproj" />
+    <ProjectReference Include="..\..\Speaker\ConferenceExample.Speaker.Application\ConferenceExample.Speaker.Application.csproj" />
     <ProjectReference Include="..\..\Talk\ConferenceExample.Talk.Application\ConferenceExample.Talk.Application.csproj" />
   </ItemGroup>
 </Project>

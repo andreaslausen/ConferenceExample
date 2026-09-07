@@ -180,7 +180,11 @@ public class Conference : AggregateRoot
 
     public bool IsAcceptingTalkSubmissions() => Status == ConferenceStatus.CallForSpeakers;
 
-    public void SubmitTalk(TalkId talkId)
+    /// <summary>
+    /// Takes a talk into review, or turns the submission away with a reason. Both outcomes are
+    /// recorded: a speaker who submitted a talk is always told what became of it.
+    /// </summary>
+    public void SubmitTalk(TalkId talkId, TalkTypeId talkTypeId)
     {
         if (!IsAcceptingTalkSubmissions())
         {
@@ -195,8 +199,39 @@ public class Conference : AggregateRoot
             return;
         }
 
+        if (!_talkTypes.Any(tt => tt.Id == talkTypeId))
+        {
+            RaiseEvent(
+                new TalkSubmissionRejectedEvent(
+                    Id.Value,
+                    DateTimeOffset.UtcNow,
+                    talkId.Value,
+                    $"Talk type '{talkTypeId.Value}' is not offered by this conference."
+                )
+            );
+            return;
+        }
+
+        if (_talks.Any(t => t.Id == talkId))
+        {
+            RaiseEvent(
+                new TalkSubmissionRejectedEvent(
+                    Id.Value,
+                    DateTimeOffset.UtcNow,
+                    talkId.Value,
+                    "This talk has already been submitted to this conference."
+                )
+            );
+            return;
+        }
+
         RaiseEvent(
-            new TalkSubmittedToConferenceEvent(Id.Value, DateTimeOffset.UtcNow, talkId.Value)
+            new TalkSubmissionRegisteredEvent(
+                Id.Value,
+                DateTimeOffset.UtcNow,
+                talkId.Value,
+                talkTypeId.Value
+            )
         );
     }
 
@@ -329,8 +364,13 @@ public class Conference : AggregateRoot
                     new Address(e.Street, e.City, e.State, e.PostalCode, e.Country)
                 );
                 break;
-            case TalkSubmittedToConferenceEvent e:
-                _talks.Add(new Talk(new TalkId(new GuidV7(e.TalkId))));
+            case TalkSubmissionRegisteredEvent e:
+                _talks.Add(
+                    new Talk(
+                        new TalkId(new GuidV7(e.TalkId)),
+                        new TalkTypeId(new GuidV7(e.TalkTypeId))
+                    )
+                );
                 break;
             case TalkAcceptedEvent e:
                 FindTalk(e.TalkId).Accept();
