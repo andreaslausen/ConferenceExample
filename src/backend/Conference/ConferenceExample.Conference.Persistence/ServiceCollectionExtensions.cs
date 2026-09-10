@@ -30,9 +30,13 @@ public static class ServiceCollectionExtensions
                 sp.GetRequiredService<IConferenceTalkDocumentRepository>()
         );
 
+        // Speaker profiles replicated from the Speaker BC (cross-BC projection)
+        services.AddScoped<ISpeakerDocumentRepository, MongoDbSpeakerDirectory>();
+
         // Event Handlers
         services.AddScoped<ConferenceEventHandler>();
         services.AddScoped<TalkEventHandler>();
+        services.AddScoped<SpeakerDirectoryEventHandler>();
 
         return services;
     }

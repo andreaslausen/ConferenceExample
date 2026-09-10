@@ -4,7 +4,6 @@ public record GetMyTalksDto(
     Guid Id,
     string Title,
     string Abstract,
-    Guid ConferenceId,
-    string Status,
-    IReadOnlyList<string> Tags
+    IReadOnlyList<string> Tags,
+    int SubmissionCount
 );

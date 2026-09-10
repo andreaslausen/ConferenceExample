@@ -496,6 +496,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_adr_2_event_sourcing_and_cqrs">9.1.2. ADR-2: Event Sourcing and CQRS</a></li>
 <li><a href="#_adr_3_frontend_technology_react_with_vite_and_typescript">9.1.3. ADR-3: Frontend Technology — React with Vite and TypeScript</a></li>
 <li><a href="#_adr_4_frontend_boundary_single_shared_application">9.1.4. ADR-4: Frontend Boundary — Single Shared Application</a></li>
+<li><a href="#_adr_5_talks_independent_of_conferences_submissions_as_snapshots">9.1.5. ADR-5: Talks Independent of Conferences, Submissions as Snapshots</a></li>
 </ul>
 </li>
 <li><a href="#_open_decisions">9.2. Open Decisions</a>
@@ -704,7 +705,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/business-context.png" alt="business context" width="542" height="369">
+<img src="images/business-context.png" alt="business context" width="542" height="368">
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -745,7 +746,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/technical-context.png" alt="technical context" width="1342" height="497">
+<img src="images/technical-context.png" alt="technical context" width="1344" height="497">
 </div>
 </div>
 </div>
@@ -776,14 +777,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Speaker</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Managing conferences, rooms, time slots, and the conference program (scheduling).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Speakers register and maintain their own profile (name, biography, and later a picture).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Talk</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Managing talks, speakers, abstracts, and tags. Talks are submitted and curated independently before being assigned to the conference program.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Speakers create and maintain their talks — title, abstract, tags. A talk exists on its own, before and independently of any conference, and can be edited or deleted at any time.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Organizers create conferences and define their talk types, rooms and time slots. Speakers submit their existing talks to a conference, which reviews them and schedules the accepted ones into its program.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
@@ -833,14 +839,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain with conference-specific business rules.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Speaker</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Speaker</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain. A speaker profile has its own identity, deliberately separate from the account it belongs to, so one account can hold several role profiles later on.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Talk</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Talk</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain with its own aggregate lifecycle (submit → review → accept).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain. The Talk aggregate owns the talk&#8217;s content and the record of where it has been submitted; the outcome of a submission belongs to the conference and reaches the speaker as a projection.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom implementation — core domain with conference-specific business rules: which talk types it offers, whether it is accepting submissions, and which submissions it accepts into its program.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
@@ -934,7 +945,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/bounded-context-map.png" alt="bounded context map" width="631" height="519">
+<img src="images/bounded-context-map.png" alt="bounded context map" width="628" height="665">
 </div>
 </div>
 <div class="sect3">
@@ -954,14 +965,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Speaker</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of talks to slots. References talks by ID only.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages speaker profiles (name, biography, and later a picture). A profile has its own identity, separate from the account it belongs to, so one account can hold several role profiles.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Talk</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Manages talks, speakers, abstracts, and tags. Talks have their own lifecycle (submit → review → accept) independent of the conference program.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages talks: a speaker creates, edits and deletes them independently of any conference. A talk records every conference it was submitted to, each submission freezing the talk&#8217;s content at that moment.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Core</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manages conferences, talk types, rooms, time slots, and the conference program. Receives talk submissions, decides whether to accept them, and schedules accepted talks. References talks by ID only.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Voting</p></td>
@@ -1002,7 +1018,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><strong>ID references</strong> — contexts reference entities from other contexts by ID only (e.g. <code>TalkId</code>, <code>AttendeeId</code>). No shared domain models.</p>
 </li>
 <li>
-<p><strong>Domain events</strong> — the Notification context subscribes to domain events from the Conference context (e.g. <code>ProgramChanged</code>) to trigger attendee notifications.</p>
+<p><strong>Domain events</strong> — contexts publish what happened and let others react. Talk publishes <code>TalkSubmittedToConferenceEvent</code>; Conference answers with <code>TalkSubmissionRegisteredEvent</code> or <code>TalkSubmissionRejectedEvent</code>, and later with <code>TalkAcceptedEvent</code> / <code>TalkRejectedEvent</code>. Notification subscribes to program changes from Conference.</p>
+</li>
+<li>
+<p><strong>Snapshots over synchronization</strong> — a submission carries the talk&#8217;s content, and the receiving conference stamps it with the speaker&#8217;s details as they were at that moment. Neither is kept in sync afterwards: editing a talk or a profile affects future submissions only, so a conference always reviews and publishes what was actually submitted.</p>
+</li>
+<li>
+<p><strong>Local projections for identity and display</strong> — a context keeps a minimal projection of another context&#8217;s data where it needs it: Talk maps accounts to speaker profiles, Conference holds speaker names for submission snapshots. These are replicas fed by domain events, never a shared model or a synchronous call across the boundary.</p>
 </li>
 <li>
 <p><strong>Anti-corruption layer (ACL)</strong> — contexts that interact with the external identity provider translate external claims into internal role/permission concepts.</p>
@@ -1063,7 +1085,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The system consists of multiple bounded contexts (Conference, Talk, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system consists of multiple bounded contexts (Speaker, Talk, Conference, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
@@ -1348,6 +1370,85 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tbody>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_adr_5_talks_independent_of_conferences_submissions_as_snapshots">9.1.5. ADR-5: Talks Independent of Conferences, Submissions as Snapshots</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Originally, creating a talk and submitting it to a conference were one and the same act: a talk could not exist without a <code>ConferenceId</code> and a <code>TalkTypeId</code>, and the Speaker aggregate lived inside the Talk bounded context. That conflated three distinct concerns — who the speaker is, what the talk is about, and where it was submitted — and made it impossible for a speaker to prepare a talk before deciding where to send it, or to send the same talk to more than one conference.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decision</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Split the domain into three bounded contexts along those lines:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Speaker</strong> — profiles. A profile has its own identity, distinct from the account it belongs to.</p>
+</li>
+<li>
+<p><strong>Talk</strong> — a speaker&#8217;s talks, created, edited and deleted independently of any conference. The Talk aggregate also records every submission it has made.</p>
+</li>
+<li>
+<p><strong>Conference</strong> — conferences, their talk types, rooms and program. A conference receives submissions, decides on them, and schedules the accepted ones.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A submission travels as a domain event from Talk to Conference and carries the talk&#8217;s content as a <strong>snapshot</strong>. The receiving conference stamps it with the speaker&#8217;s details as they stood at that moment. Neither is kept in sync afterwards. The conference&#8217;s decision travels back as a domain event and reaches the speaker through a projection in the Talk context.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rationale</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>One reason to change per context</strong> — a profile edit, a talk rewrite and a program decision are three unrelated events in the life of the system; they now sit in three aggregates that change for three different reasons.</p>
+</li>
+<li>
+<p><strong>Snapshots keep review honest</strong> — an organizer reviews and schedules what was actually submitted. Without snapshots, a speaker could silently rewrite a talk after acceptance, and a published program could change under the organizer&#8217;s feet.</p>
+</li>
+<li>
+<p><strong>The decision stays where it belongs</strong> — a submission&#8217;s outcome is the conference&#8217;s call, so the Talk aggregate never claims it as its own fact. It is projected into a read model instead, which still lets a speaker see at a glance where they submitted what, and what came of it.</p>
+</li>
+<li>
+<p><strong>Separate speaker identity</strong> — keeping <code>SpeakerId</code> distinct from the account id leaves room for an account to hold several role profiles (speaker, organizer, &#8230;&#8203;) without one role&#8217;s identity standing in for the account.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Consequences</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><strong>Positive:</strong> A talk can be prepared once and submitted to several conferences. Editing or deleting a talk never disturbs a conference&#8217;s program. Each context can be reasoned about — and tested — on its own.</p>
+</li>
+<li>
+<p><strong>Negative / trade-offs:</strong> The same content is stored more than once (the talk, plus one snapshot per submission), so a speaker&#8217;s edit is deliberately not reflected in submissions already made — which has to be visible in the UI to avoid surprising them. A submission&#8217;s outcome is eventually consistent: it stays <code>Pending</code> until the conference has processed it. Resolving the signed-in account to its speaker profile requires a small projection in the Talk context, since the two identities are no longer the same value.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_open_decisions">9.2. Open Decisions</h3>
@@ -1569,7 +1670,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-04-07 06:50:23 UTC
+Last updated 2026-09-06 09:36:28 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

@@ -8,7 +8,7 @@ public class ApiDependencyRules : ArchitectureTest
         Dependencies.Check(
             Architecture,
             "ConferenceExample.API.Controllers",
-            [ConferenceApplication, TalkApplication, Authentication],
+            [ConferenceApplication, SpeakerApplication, TalkApplication, Authentication],
             "System",
             "Microsoft"
         );

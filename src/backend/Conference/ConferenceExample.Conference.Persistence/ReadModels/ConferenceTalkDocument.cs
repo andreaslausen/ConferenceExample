@@ -3,12 +3,24 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ConferenceExample.Conference.Persistence.ReadModels;
 
+/// <summary>
+/// One talk's submission to this conference. Keyed by conference and talk together, because the
+/// same talk can be submitted to several conferences, each with its own review outcome and
+/// schedule. Title, abstract, tags and the speaker's details are the snapshot taken when the
+/// submission was registered — later edits by the speaker do not reach this document.
+/// </summary>
 public class ConferenceTalkDocument
 {
+    public static string BuildId(Guid conferenceId, Guid talkId) => $"{conferenceId}_{talkId}";
+
     [BsonId]
     [BsonRepresentation(BsonType.String)]
     [BsonElement("_id")]
     public string Id { get; set; } = string.Empty;
+
+    [BsonElement("talkId")]
+    [BsonRepresentation(BsonType.String)]
+    public string TalkId { get; set; } = string.Empty;
 
     [BsonElement("conferenceId")]
     [BsonRepresentation(BsonType.String)]

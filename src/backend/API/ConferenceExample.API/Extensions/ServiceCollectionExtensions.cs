@@ -1,5 +1,6 @@
 using ConferenceExample.Conference.Persistence.EventSubscriptions;
 using ConferenceExample.EventStore;
+using ConferenceExample.Speaker.Persistence.EventSubscriptions;
 using ConferenceExample.Talk.Persistence.EventSubscriptions;
 
 namespace ConferenceExample.API.Extensions;
@@ -15,7 +16,10 @@ public static class ServiceCollectionExtensions
         var eventBus = app.Services.GetRequiredService<IEventBus>();
         var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 
-        // Register Talk BC subscriptions
+        // Register Speaker BC subscriptions
+        SpeakerEventSubscriptions.Subscribe(eventBus, scopeFactory);
+
+        // Register Talk BC subscriptions (includes cross-BC projections of Speaker and Conference)
         TalkEventSubscriptions.Subscribe(eventBus, scopeFactory);
 
         // Register Conference BC subscriptions (includes cross-BC synchronization)

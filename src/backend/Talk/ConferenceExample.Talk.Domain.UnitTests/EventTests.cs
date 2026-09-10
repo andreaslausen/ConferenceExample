@@ -5,28 +5,20 @@ namespace ConferenceExample.Talk.Domain.UnitTests;
 public class EventTests
 {
     [Fact]
-    public void TalkSubmittedEvent_Constructor_InitializesProperties()
+    public void TalkCreatedEvent_Constructor_InitializesProperties()
     {
         var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
-        var tags = new List<string> { "tag1", "tag2" };
         var speakerId = Guid.CreateVersion7();
-        var talkTypeId = Guid.CreateVersion7();
-        var conferenceId = Guid.CreateVersion7();
+        var tags = new List<string> { "tag1", "tag2" };
 
-        var @event = new TalkSubmittedEvent(
+        var @event = new TalkCreatedEvent(
             aggregateId,
             occurredAt,
             "Test Title",
             "Test Abstract",
             speakerId,
-            "Jane",
-            "Doe",
-            "Speaker bio",
-            tags,
-            talkTypeId,
-            conferenceId,
-            "Submitted"
+            tags
         );
 
         Assert.Equal(aggregateId, @event.AggregateId);
@@ -35,51 +27,109 @@ public class EventTests
         Assert.Equal("Test Abstract", @event.Abstract);
         Assert.Equal(speakerId, @event.SpeakerId);
         Assert.Equal(tags, @event.Tags);
-        Assert.Equal(talkTypeId, @event.TalkTypeId);
-        Assert.Equal(conferenceId, @event.ConferenceId);
     }
 
     [Fact]
-    public void TalkSubmittedEvent_Equality_SameValues_ReturnsTrue()
+    public void TalkCreatedEvent_Equality_SameValues_ReturnsTrue()
     {
         var aggregateId = Guid.CreateVersion7();
         var occurredAt = DateTimeOffset.UtcNow;
-        var tags = new List<string> { "tag1", "tag2" };
         var speakerId = Guid.CreateVersion7();
-        var talkTypeId = Guid.CreateVersion7();
-        var conferenceId = Guid.CreateVersion7();
+        var tags = new List<string> { "tag1" };
 
-        var event1 = new TalkSubmittedEvent(
+        var event1 = new TalkCreatedEvent(
             aggregateId,
             occurredAt,
             "Title",
             "Abstract",
             speakerId,
-            "Jane",
-            "Doe",
-            "Speaker bio",
-            tags,
-            talkTypeId,
-            conferenceId,
-            "Submitted"
+            tags
         );
-
-        var event2 = new TalkSubmittedEvent(
+        var event2 = new TalkCreatedEvent(
             aggregateId,
             occurredAt,
             "Title",
             "Abstract",
             speakerId,
-            "Jane",
-            "Doe",
-            "Speaker bio",
-            tags,
-            talkTypeId,
-            conferenceId,
-            "Submitted"
+            tags
         );
 
         Assert.Equal(event1, event2);
+    }
+
+    [Fact]
+    public void TalkSubmittedToConferenceEvent_Constructor_InitializesProperties()
+    {
+        var aggregateId = Guid.CreateVersion7();
+        var occurredAt = DateTimeOffset.UtcNow;
+        var conferenceId = Guid.CreateVersion7();
+        var talkTypeId = Guid.CreateVersion7();
+        var speakerId = Guid.CreateVersion7();
+        var tags = new List<string> { "tag1" };
+
+        var @event = new TalkSubmittedToConferenceEvent(
+            aggregateId,
+            occurredAt,
+            conferenceId,
+            talkTypeId,
+            speakerId,
+            "Title",
+            "Abstract",
+            tags
+        );
+
+        Assert.Equal(aggregateId, @event.AggregateId);
+        Assert.Equal(occurredAt, @event.OccurredAt);
+        Assert.Equal(conferenceId, @event.ConferenceId);
+        Assert.Equal(talkTypeId, @event.TalkTypeId);
+        Assert.Equal(speakerId, @event.SpeakerId);
+        Assert.Equal("Title", @event.Title);
+        Assert.Equal("Abstract", @event.Abstract);
+        Assert.Equal(tags, @event.Tags);
+    }
+
+    [Fact]
+    public void TalkSubmittedToConferenceEvent_Equality_DifferentConference_ReturnsFalse()
+    {
+        var aggregateId = Guid.CreateVersion7();
+        var occurredAt = DateTimeOffset.UtcNow;
+        var talkTypeId = Guid.CreateVersion7();
+        var speakerId = Guid.CreateVersion7();
+
+        var event1 = new TalkSubmittedToConferenceEvent(
+            aggregateId,
+            occurredAt,
+            Guid.CreateVersion7(),
+            talkTypeId,
+            speakerId,
+            "Title",
+            "Abstract",
+            []
+        );
+        var event2 = new TalkSubmittedToConferenceEvent(
+            aggregateId,
+            occurredAt,
+            Guid.CreateVersion7(),
+            talkTypeId,
+            speakerId,
+            "Title",
+            "Abstract",
+            []
+        );
+
+        Assert.NotEqual(event1, event2);
+    }
+
+    [Fact]
+    public void TalkDeletedEvent_Constructor_InitializesProperties()
+    {
+        var aggregateId = Guid.CreateVersion7();
+        var occurredAt = DateTimeOffset.UtcNow;
+
+        var @event = new TalkDeletedEvent(aggregateId, occurredAt);
+
+        Assert.Equal(aggregateId, @event.AggregateId);
+        Assert.Equal(occurredAt, @event.OccurredAt);
     }
 
     [Fact]

@@ -28,6 +28,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Conference.Application.ICurrentUserService>(sp =>
             sp.GetRequiredService<CurrentUserService>()
         );
+        services.AddScoped<Speaker.Application.ICurrentUserService>(sp =>
+            sp.GetRequiredService<CurrentUserService>()
+        );
         services.AddScoped<Talk.Application.ICurrentUserService>(sp =>
             sp.GetRequiredService<CurrentUserService>()
         );

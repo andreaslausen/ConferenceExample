@@ -1,56 +1,38 @@
-using ConferenceExample.Talk.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 
 namespace ConferenceExample.Talk.Application.GetTalkById;
 
+/// <summary>
+/// A talk is the speaker's own working material, so only its owner can read it here. Organizers
+/// see what was submitted to their conference — a snapshot the Conference BC owns — through the
+/// conference's own endpoints, never through this one.
+/// </summary>
 public class GetTalkByIdQueryHandler(
     ITalkReadModelRepository talkReadModelRepository,
-    IConferenceOrganizerReadModelRepository conferenceOrganizerReadModelRepository,
-    ICurrentUserService currentUserService
+    ICurrentSpeakerProvider currentSpeakerProvider
 ) : IGetTalkByIdQueryHandler
 {
     public async Task<GetTalkByIdDto?> Handle(GetTalkByIdQuery query)
     {
-        var talkId = new TalkId(new GuidV7(query.TalkId));
-        var talk = await talkReadModelRepository.GetById(talkId);
+        var talk = await talkReadModelRepository.GetById(new TalkId(new GuidV7(query.TalkId)));
 
         if (talk is null)
             return null;
 
-        if (talk.Status != TalkStatus.Accepted.ToString() && !await IsAuthorized(talk))
+        var currentSpeakerId = await currentSpeakerProvider.GetCurrentSpeakerId();
+
+        if (new SpeakerId(new GuidV7(talk.SpeakerId)) != currentSpeakerId)
             return null;
 
         return new GetTalkByIdDto(
             talk.Id,
             talk.Title,
             talk.Abstract,
-            talk.ConferenceId,
-            talk.Status,
-            talk.Tags.ToList(),
             talk.SpeakerId,
-            talk.SpeakerName
+            talk.Tags.ToList(),
+            talk.SubmissionCount
         );
-    }
-
-    private async Task<bool> IsAuthorized(TalkReadModel talk)
-    {
-        GuidV7 currentUserId;
-        try
-        {
-            currentUserId = new GuidV7(currentUserService.GetCurrentUserId());
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return false;
-        }
-
-        if (new GuidV7(talk.SpeakerId) == currentUserId)
-            return true;
-
-        var organizer = await conferenceOrganizerReadModelRepository.GetByConferenceId(
-            talk.ConferenceId
-        );
-        return organizer is not null && new GuidV7(organizer.OrganizerId) == currentUserId;
     }
 }

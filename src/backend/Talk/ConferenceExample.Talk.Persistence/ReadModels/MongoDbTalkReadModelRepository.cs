@@ -18,19 +18,13 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
 
     private void CreateIndexes()
     {
-        var conferenceIndexKeys = Builders<TalkDocument>.IndexKeys.Ascending(t => t.ConferenceId);
-        var conferenceIndexModel = new CreateIndexModel<TalkDocument>(
-            conferenceIndexKeys,
-            new CreateIndexOptions { Name = "idx_conferenceId" }
-        );
-
         var speakerIndexKeys = Builders<TalkDocument>.IndexKeys.Ascending(t => t.SpeakerId);
         var speakerIndexModel = new CreateIndexModel<TalkDocument>(
             speakerIndexKeys,
             new CreateIndexOptions { Name = "idx_speakerId" }
         );
 
-        _collection.Indexes.CreateMany(new[] { conferenceIndexModel, speakerIndexModel });
+        _collection.Indexes.CreateOne(speakerIndexModel);
     }
 
     public async Task<TalkDocument?> GetById(Guid talkId)
@@ -39,36 +33,12 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
         return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<IReadOnlyList<TalkDocument>> GetByConferenceId(Guid conferenceId)
-    {
-        var filter = Builders<TalkDocument>.Filter.Eq(t => t.ConferenceId, conferenceId.ToString());
-        return await _collection.Find(filter).ToListAsync();
-    }
-
-    public async Task<IReadOnlyList<TalkDocument>> GetBySpeakerId(Guid speakerId)
-    {
-        var filter = Builders<TalkDocument>.Filter.Eq(t => t.SpeakerId, speakerId.ToString());
-        return await _collection.Find(filter).ToListAsync();
-    }
-
     async Task<TalkReadModel?> ITalkReadModelRepository.GetById(TalkId talkId)
     {
         var filter = Builders<TalkDocument>.Filter.Eq(t => t.Id, talkId.Value.Value.ToString());
         var document = await _collection.Find(filter).FirstOrDefaultAsync();
 
-        if (document is null)
-            return null;
-
-        return new TalkReadModel(
-            document.Id.ToGuid(),
-            document.Title,
-            document.Abstract,
-            document.ConferenceId.ToGuid(),
-            document.Status,
-            document.Tags,
-            document.SpeakerId.ToGuid(),
-            $"{document.SpeakerFirstName} {document.SpeakerLastName}".Trim()
-        );
+        return document is null ? null : ToReadModel(document);
     }
 
     async Task<(
@@ -89,21 +59,20 @@ public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkRead
             .ToListAsync();
         await Task.WhenAll(countTask, documentsTask);
 
-        var items = documentsTask
-            .Result.Select(d => new TalkReadModel(
-                d.Id.ToGuid(),
-                d.Title,
-                d.Abstract,
-                d.ConferenceId.ToGuid(),
-                d.Status,
-                d.Tags,
-                d.SpeakerId.ToGuid(),
-                $"{d.SpeakerFirstName} {d.SpeakerLastName}".Trim()
-            ))
-            .ToList();
+        var items = documentsTask.Result.Select(ToReadModel).ToList();
 
         return (items, (int)countTask.Result);
     }
+
+    private static TalkReadModel ToReadModel(TalkDocument document) =>
+        new(
+            document.Id.ToGuid(),
+            document.Title,
+            document.Abstract,
+            document.SpeakerId.ToGuid(),
+            document.Tags,
+            document.SubmissionCount
+        );
 
     public async Task Save(TalkDocument talkDocument)
     {

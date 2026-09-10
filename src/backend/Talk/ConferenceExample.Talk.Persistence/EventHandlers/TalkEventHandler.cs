@@ -1,25 +1,22 @@
 using System.Text.Json;
 using ConferenceExample.EventStore;
+using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence.ReadModels;
 
 namespace ConferenceExample.Talk.Persistence.EventHandlers;
 
 /// <summary>
-/// Updates Talk Read Models in response to slim Talk domain events.
-/// Each handler applies only the delta carried by its event.
+/// Updates Talk read models in response to the Talk BC's own events. Each handler applies only the
+/// delta carried by its event.
 /// </summary>
-public class TalkEventHandler
+public class TalkEventHandler(
+    ITalkDocumentRepository readModelRepository,
+    ITalkSubmissionDocumentRepository submissionRepository
+)
 {
-    private readonly ITalkDocumentRepository _readModelRepository;
-
-    public TalkEventHandler(ITalkDocumentRepository readModelRepository)
+    public async Task HandleTalkCreated(StoredEvent storedEvent)
     {
-        _readModelRepository = readModelRepository;
-    }
-
-    public async Task HandleTalkSubmitted(StoredEvent storedEvent)
-    {
-        var payload = JsonSerializer.Deserialize<TalkSubmittedPayload>(storedEvent.Payload);
+        var payload = JsonSerializer.Deserialize<TalkCreatedPayload>(storedEvent.Payload);
         if (payload is null)
             return;
 
@@ -29,19 +26,14 @@ public class TalkEventHandler
             Title = payload.Title,
             Abstract = payload.Abstract,
             SpeakerId = payload.SpeakerId.ToString(),
-            SpeakerFirstName = payload.SpeakerFirstName,
-            SpeakerLastName = payload.SpeakerLastName,
-            SpeakerBiography = payload.SpeakerBiography,
-            TalkTypeId = payload.TalkTypeId.ToString(),
-            ConferenceId = payload.ConferenceId.ToString(),
             Tags = payload.Tags,
-            Status = payload.Status,
-            SubmittedAt = storedEvent.OccurredAt,
+            SubmissionCount = 0,
+            CreatedAt = storedEvent.OccurredAt,
             LastModifiedAt = storedEvent.OccurredAt,
             Version = storedEvent.Version,
         };
 
-        await _readModelRepository.Save(newReadModel);
+        await readModelRepository.Save(newReadModel);
     }
 
     public async Task HandleTalkTitleEdited(StoredEvent storedEvent)
@@ -50,7 +42,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
@@ -58,7 +50,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkAbstractEdited(StoredEvent storedEvent)
@@ -67,7 +59,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
@@ -75,7 +67,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkTagAdded(StoredEvent storedEvent)
@@ -84,7 +76,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
@@ -96,7 +88,7 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
     public async Task HandleTalkTagRemoved(StoredEvent storedEvent)
@@ -105,7 +97,7 @@ public class TalkEventHandler
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(storedEvent.AggregateId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
@@ -113,64 +105,71 @@ public class TalkEventHandler
         readModel.LastModifiedAt = storedEvent.OccurredAt;
         readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
-    // Both of these are raised by the Conference BC (not Talk's own event store), so
-    // storedEvent.AggregateId is the ConferenceId, not this talk's id — look the talk up by
-    // payload.TalkId instead. Also don't stamp readModel.Version from storedEvent.Version: that
-    // version belongs to Conference's event stream, not this talk's.
-    public async Task HandleTalkSubmissionConfirmed(StoredEvent storedEvent)
+    /// <summary>
+    /// Drops the talk from the speaker's list. Submission documents are left in place: they carry
+    /// what the conferences received, and the conferences still hold those submissions.
+    /// </summary>
+    public async Task HandleTalkDeleted(StoredEvent storedEvent)
     {
-        var payload = JsonSerializer.Deserialize<TalkSubmissionConfirmedPayload>(
+        await readModelRepository.Delete(storedEvent.AggregateId);
+    }
+
+    /// <summary>
+    /// Records the submission as Pending. It becomes Submitted, Accepted, Rejected or Failed once
+    /// the Conference BC reports back — see <see cref="TalkSubmissionEventHandler"/>.
+    /// </summary>
+    public async Task HandleTalkSubmittedToConference(StoredEvent storedEvent)
+    {
+        var payload = JsonSerializer.Deserialize<TalkSubmittedToConferencePayload>(
             storedEvent.Payload
         );
         if (payload is null)
             return;
 
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
-        if (readModel is null)
-            return;
-
-        readModel.Status = "Submitted";
-        readModel.LastModifiedAt = storedEvent.OccurredAt;
-
-        await _readModelRepository.Update(readModel);
-    }
-
-    public async Task HandleTalkSubmissionRejected(StoredEvent storedEvent)
-    {
-        var payload = JsonSerializer.Deserialize<TalkSubmissionRejectedPayload>(
-            storedEvent.Payload
+        await submissionRepository.Save(
+            new TalkSubmissionDocument
+            {
+                Id = TalkSubmissionDocument.BuildId(storedEvent.AggregateId, payload.ConferenceId),
+                TalkId = storedEvent.AggregateId.ToString(),
+                ConferenceId = payload.ConferenceId.ToString(),
+                TalkTypeId = payload.TalkTypeId.ToString(),
+                SpeakerId = payload.SpeakerId.ToString(),
+                Status = SubmissionStatus.Pending.ToString(),
+                SubmittedAt = storedEvent.OccurredAt,
+                Title = payload.Title,
+                Abstract = payload.Abstract,
+                Tags = payload.Tags,
+            }
         );
-        if (payload is null)
-            return;
 
-        var readModel = await _readModelRepository.GetById(payload.TalkId);
+        var readModel = await readModelRepository.GetById(storedEvent.AggregateId);
         if (readModel is null)
             return;
 
-        readModel.Status = "Rejected";
+        readModel.SubmissionCount++;
         readModel.LastModifiedAt = storedEvent.OccurredAt;
+        readModel.Version = storedEvent.Version;
 
-        await _readModelRepository.Update(readModel);
+        await readModelRepository.Update(readModel);
     }
 
-    private record TalkSubmissionConfirmedPayload(Guid TalkId);
-
-    private record TalkSubmissionRejectedPayload(Guid TalkId, string Reason);
-
-    private record TalkSubmittedPayload(
+    private record TalkCreatedPayload(
         string Title,
         string Abstract,
         Guid SpeakerId,
-        string SpeakerFirstName,
-        string SpeakerLastName,
-        string SpeakerBiography,
-        List<string> Tags,
-        Guid TalkTypeId,
+        List<string> Tags
+    );
+
+    private record TalkSubmittedToConferencePayload(
         Guid ConferenceId,
-        string Status
+        Guid TalkTypeId,
+        Guid SpeakerId,
+        string Title,
+        string Abstract,
+        List<string> Tags
     );
 
     private record TitlePayload(string Title);

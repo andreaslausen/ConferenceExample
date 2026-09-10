@@ -1,12 +1,13 @@
 using ConferenceExample.Conference.Domain.SharedKernel;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using SpeakerDomainException = ConferenceExample.Speaker.Domain.SharedKernel.DomainException;
 using TalkDomainException = ConferenceExample.Talk.Domain.SharedKernel.DomainException;
 
 namespace ConferenceExample.API.Extensions;
 
 /// <summary>
-/// Maps either bounded context's <c>DomainException</c> (a business rule was violated given the
+/// Maps any bounded context's <c>DomainException</c> (a business rule was violated given the
 /// current state of the aggregate) to a 409 Conflict response.
 /// </summary>
 public class DomainExceptionHandler : IExceptionHandler
@@ -17,7 +18,7 @@ public class DomainExceptionHandler : IExceptionHandler
         CancellationToken cancellationToken
     )
     {
-        if (exception is not (DomainException or TalkDomainException))
+        if (exception is not (DomainException or SpeakerDomainException or TalkDomainException))
         {
             return false;
         }

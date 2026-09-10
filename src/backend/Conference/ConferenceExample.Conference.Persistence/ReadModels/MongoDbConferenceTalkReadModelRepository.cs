@@ -31,9 +31,12 @@ public class MongoDbConferenceTalkReadModelRepository
         _collection.Indexes.CreateOne(conferenceIndexModel);
     }
 
-    public async Task<ConferenceTalkDocument?> GetById(Guid talkId)
+    public async Task<ConferenceTalkDocument?> Get(Guid conferenceId, Guid talkId)
     {
-        var filter = Builders<ConferenceTalkDocument>.Filter.Eq(t => t.Id, talkId.ToString());
+        var filter = Builders<ConferenceTalkDocument>.Filter.Eq(
+            t => t.Id,
+            ConferenceTalkDocument.BuildId(conferenceId, talkId)
+        );
         return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
@@ -87,7 +90,7 @@ public class MongoDbConferenceTalkReadModelRepository
 
     private static ConferenceTalkReadModel ToReadModel(ConferenceTalkDocument d) =>
         new(
-            d.Id.ToGuid(),
+            d.TalkId.ToGuid(),
             d.Title,
             d.Abstract,
             d.SpeakerId.ToGuid(),
@@ -116,11 +119,5 @@ public class MongoDbConferenceTalkReadModelRepository
         );
 
         _ = await _collection.ReplaceOneAsync(filter, talkDocument);
-    }
-
-    public async Task Delete(Guid talkId)
-    {
-        var filter = Builders<ConferenceTalkDocument>.Filter.Eq(t => t.Id, talkId.ToString());
-        await _collection.DeleteOneAsync(filter);
     }
 }

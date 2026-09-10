@@ -1,406 +1,201 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ConferenceExample.AcceptanceTests.Infrastructure;
-using ConferenceExample.API.Controllers;
-using ConferenceExample.Authentication;
-using ConferenceExample.Conference.Application.ChangeConferenceStatus;
-using ConferenceExample.Conference.Application.CreateConference;
-using ConferenceExample.Conference.Application.DefineTalkType;
-using ConferenceExample.Conference.Domain.ConferenceManagement;
-using ConferenceExample.Talk.Application.CreateSpeakerProfile;
-using ConferenceExample.Talk.Application.GetTalkById;
-using ConferenceExample.Talk.Application.SubmitTalk;
+using ConferenceExample.Talk.Application.GetTalkSubmissions;
+using ConferenceExample.Talk.Application.SubmitTalkToConference;
 using ConferenceExample.Talk.Persistence.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
 using Xunit;
+using ConferenceTalkRepository = ConferenceExample.Conference.Persistence.ReadModels.IConferenceTalkDocumentRepository;
 
 namespace ConferenceExample.AcceptanceTests.StepDefinitions.Talk;
 
+/// <summary>
+/// Submitting an existing talk to a conference. The conference decides asynchronously, so the
+/// outcome steps poll for the status the speaker eventually sees.
+/// </summary>
 [Binding]
-public class TalkSubmissionSteps(HttpClient httpClient)
+public class TalkSubmissionSteps(HttpClient httpClient, ScenarioState state)
 {
     private static readonly JsonSerializerOptions ResponseJsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
     };
 
-    private Guid _conferenceId;
-    private Guid _talkTypeId;
-    private Guid _talkId;
-    private string _submittedTitle = string.Empty;
-    private string _submittedAbstract = string.Empty;
-    private string _organizerToken = string.Empty;
-    private string _speakerToken = string.Empty;
-    private string _otherSpeakerToken = string.Empty;
-    private HttpResponseMessage _submitResponse = null!;
-
-    // Exposed so other step classes (e.g. TalkPaginationSteps) can reuse the setup performed by
-    // the "an organizer is registered" / "a conference exists" / "a speaker is registered" steps
-    // above instead of duplicating it — Reqnroll resolves one shared instance of this class per
-    // scenario via DI, so injecting it into another binding class gives access to this state.
-    internal string SpeakerToken => _speakerToken;
-    internal Guid ConferenceId => _conferenceId;
-    internal Guid TalkTypeId => _talkTypeId;
-
-    [Given("an organizer is registered")]
-    public async Task GivenAnOrganizerIsRegistered()
+    [When("the speaker submits the talk to the conference")]
+    public async Task WhenTheSpeakerSubmitsTheTalkToTheConference()
     {
-        _organizerToken = await Register(UserRole.Organizer);
+        await Submit(state.ConferenceId, state.TalkTypeId);
     }
 
-    [Given("a speaker is registered")]
-    public async Task GivenASpeakerIsRegistered()
+    [When("the speaker submits the talk to a nonexistent conference")]
+    public async Task WhenTheSpeakerSubmitsTheTalkToANonexistentConference()
     {
-        _speakerToken = await Register(UserRole.Speaker);
+        state.ConferenceId = Guid.CreateVersion7();
+        await Submit(state.ConferenceId, Guid.CreateVersion7());
     }
 
-    [Given("another speaker is registered")]
-    public async Task GivenAnotherSpeakerIsRegistered()
+    [When("the speaker submits the talk with a talk type the conference does not offer")]
+    public async Task WhenTheSpeakerSubmitsTheTalkWithAnUnknownTalkType()
     {
-        _otherSpeakerToken = await Register(UserRole.Speaker);
+        await Submit(state.ConferenceId, Guid.CreateVersion7());
     }
 
-    [Given("a conference exists")]
-    public async Task GivenAConferenceExists()
+    [When("the speaker submits the talk to the conference again")]
+    public async Task WhenTheSpeakerSubmitsTheTalkToTheConferenceAgain()
     {
-        SetBearerToken(_organizerToken);
-
-        var createResponse = await httpClient.PostAsJsonAsync(
-            "/api/conferences",
-            new CreateConferenceDto
-            {
-                Name = "Test Conference",
-                Start = DateTimeOffset.UtcNow.AddMonths(1),
-                End = DateTimeOffset.UtcNow.AddMonths(1).AddDays(2),
-                LocationName = "Test Location",
-                Street = "123 Test St",
-                City = "Test City",
-                State = "Test State",
-                PostalCode = "12345",
-                Country = "Test Country",
-            }
-        );
-        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        var conference = await createResponse.Content.ReadFromJsonAsync<ConferenceCreatedDto>(
-            ResponseJsonOptions
-        );
-        Assert.NotNull(conference);
-        _conferenceId = conference.Id;
-
-        var talkTypeResponse = await httpClient.PostAsJsonAsync(
-            $"/api/conferences/{_conferenceId}/talk-types",
-            new DefineTalkTypeDto("Session", 30)
-        );
-        Assert.Equal(HttpStatusCode.Created, talkTypeResponse.StatusCode);
-        var talkType = await talkTypeResponse.Content.ReadFromJsonAsync<TalkTypeDefinedDto>(
-            ResponseJsonOptions
-        );
-        Assert.NotNull(talkType);
-        _talkTypeId = talkType.TalkTypeId;
-
-        var statusResponse = await httpClient.PutAsJsonAsync(
-            $"/api/conferences/{_conferenceId}/status",
-            new ChangeConferenceStatusDto { Status = ConferenceStatus.CallForSpeakers }
-        );
-        Assert.Equal(HttpStatusCode.NoContent, statusResponse.StatusCode);
-
-        ClearBearerToken();
-    }
-
-    [Given("a conference exists that is not yet accepting submissions")]
-    public async Task GivenAConferenceExistsThatIsNotYetAcceptingSubmissions()
-    {
-        SetBearerToken(_organizerToken);
-
-        var createResponse = await httpClient.PostAsJsonAsync(
-            "/api/conferences",
-            new CreateConferenceDto
-            {
-                Name = "Test Conference",
-                Start = DateTimeOffset.UtcNow.AddMonths(1),
-                End = DateTimeOffset.UtcNow.AddMonths(1).AddDays(2),
-                LocationName = "Test Location",
-                Street = "123 Test St",
-                City = "Test City",
-                State = "Test State",
-                PostalCode = "12345",
-                Country = "Test Country",
-            }
-        );
-        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        var conference = await createResponse.Content.ReadFromJsonAsync<ConferenceCreatedDto>(
-            ResponseJsonOptions
-        );
-        Assert.NotNull(conference);
-        _conferenceId = conference.Id;
-
-        var talkTypeResponse = await httpClient.PostAsJsonAsync(
-            $"/api/conferences/{_conferenceId}/talk-types",
-            new DefineTalkTypeDto("Session", 30)
-        );
-        Assert.Equal(HttpStatusCode.Created, talkTypeResponse.StatusCode);
-        var talkType = await talkTypeResponse.Content.ReadFromJsonAsync<TalkTypeDefinedDto>(
-            ResponseJsonOptions
-        );
-        Assert.NotNull(talkType);
-        _talkTypeId = talkType.TalkTypeId;
-
-        // Left in Draft status on purpose — the conference exists but isn't accepting talk
-        // submissions yet.
-        ClearBearerToken();
-    }
-
-    [When("the speaker submits a talk for a nonexistent conference")]
-    public async Task WhenTheSpeakerSubmitsATalkForANonexistentConference()
-    {
-        _conferenceId = Guid.CreateVersion7();
-        _talkTypeId = Guid.CreateVersion7();
-        await SubmitTalk("Introduction to DDD", "An overview of Domain-Driven Design", []);
-    }
-
-    [Then("the submission is rejected with status {int}")]
-    public void ThenTheSubmissionIsRejectedWithStatus(int expectedStatusCode)
-    {
-        Assert.Equal(expectedStatusCode, (int)_submitResponse.StatusCode);
+        await Submit(state.ConferenceId, state.TalkTypeId);
     }
 
     [Then("the submission is accepted with status {int}")]
     public void ThenTheSubmissionIsAcceptedWithStatus(int expectedStatusCode)
     {
-        Assert.Equal(expectedStatusCode, (int)_submitResponse.StatusCode);
+        Assert.Equal(expectedStatusCode, (int)state.LastResponse.StatusCode);
     }
 
-    [When("the speaker submits a talk titled {string} with abstract {string}")]
-    public async Task WhenTheSpeakerSubmitsATalk(string title, string @abstract)
+    [Then("the submission is rejected with status {int}")]
+    public void ThenTheSubmissionIsRejectedWithStatus(int expectedStatusCode)
     {
-        await SubmitTalk(title, @abstract, []);
+        Assert.Equal(expectedStatusCode, (int)state.LastResponse.StatusCode);
     }
 
-    [When(
-        "the speaker submits a talk titled {string} with abstract {string} tagged {string} and {string}"
-    )]
-    public async Task WhenTheSpeakerSubmitsATalkWithTags(
-        string title,
-        string @abstract,
-        string tag1,
-        string tag2
-    )
+    [Then("the submission eventually has status {word}")]
+    public async Task ThenTheSubmissionEventuallyHasStatus(string expectedStatus)
     {
-        await SubmitTalk(title, @abstract, [tag1, tag2]);
+        var document = await WaitForSubmissionDocument(d => d.Status == expectedStatus);
+        Assert.Equal(expectedStatus, document.Status);
+
+        var submission = await WaitForSubmissionResponse(s => s.Status == expectedStatus);
+        Assert.Equal(expectedStatus, submission.Status);
+        Assert.Equal(state.ConferenceId, submission.ConferenceId);
     }
 
-    [Then("the talk is stored with status Submitted")]
-    public async Task ThenTheTalkIsStoredWithStatusSubmitted()
+    [Then("the submission shows the conference name {string}")]
+    public async Task ThenTheSubmissionShowsTheConferenceName(string expectedName)
     {
-        // A talk starts Pending and only becomes Submitted once Conference has confirmed it via
-        // TalkSubmittedToConferenceEvent — poll for that, rather than assuming the round trip to
-        // Conference and back has completed by the time this step runs.
-        var document = await WaitForTalkDocumentWithStatus("Submitted");
-        Assert.Equal(_submittedTitle, document.Title);
-        Assert.Equal(_submittedAbstract, document.Abstract);
-
-        var response = await WaitForTalkResponse();
-        Assert.Equal("Submitted", response.Status);
-        Assert.Equal(_submittedTitle, response.Title);
-        Assert.Equal(_submittedAbstract, response.Abstract);
+        var submission = await WaitForSubmissionResponse(s => s.ConferenceName == expectedName);
+        Assert.Equal(expectedName, submission.ConferenceName);
     }
 
-    [Then("the organizer can view the talk")]
-    public async Task ThenTheOrganizerCanViewTheTalk()
+    [Then("the submission still shows the title {string}")]
+    public async Task ThenTheSubmissionStillShowsTheTitle(string expectedTitle)
     {
-        await WaitForTalkDocument();
+        // The submission is a snapshot: editing the talk afterwards must not rewrite it.
+        var document = await WaitForSubmissionDocument(_ => true);
+        Assert.Equal(expectedTitle, document.Title);
 
-        SetBearerToken(_organizerToken);
-
-        // The ConferenceId -> OrganizerId projection used to authorize this is populated
-        // asynchronously from a separate event subscription, so poll rather than assert once.
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
-        HttpResponseMessage response;
-        do
-        {
-            response = await httpClient.GetAsync($"/api/talks/{_talkId}");
-            if (response.StatusCode == HttpStatusCode.OK)
-                return;
-
-            await Task.Delay(50);
-        } while (DateTimeOffset.UtcNow < deadline);
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var submission = await WaitForSubmissionResponse(_ => true);
+        Assert.Equal(expectedTitle, submission.Title);
     }
 
-    [Then("the other speaker cannot view the talk")]
-    public async Task ThenTheOtherSpeakerCannotViewTheTalk()
+    [Then("the conference has the talk with the speaker name {string}")]
+    public async Task ThenTheConferenceHasTheTalkWithSpeakerName(string expectedSpeakerName)
     {
-        await WaitForTalkDocument();
-
-        SetBearerToken(_otherSpeakerToken);
-
-        var response = await httpClient.GetAsync($"/api/talks/{_talkId}");
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-    }
-
-    [Then("the talk is eventually stored with status Rejected")]
-    public async Task ThenTheTalkIsEventuallyStoredWithStatusRejected()
-    {
-        var document = await WaitForTalkDocumentWithStatus("Rejected");
-        Assert.Equal("Rejected", document.Status);
-    }
-
-    [Then("the talk has the tag {string}")]
-    public async Task ThenTheTalkHasTheTag(string expectedTag)
-    {
-        var document = await WaitForTalkDocument();
-        Assert.Contains(expectedTag, document.Tags);
-
-        var response = await WaitForTalkResponse();
-        Assert.Contains(expectedTag, response.Tags);
-    }
-
-    private async Task SubmitTalk(string title, string @abstract, List<string> tags)
-    {
-        _submittedTitle = title;
-        _submittedAbstract = @abstract;
-
-        SetBearerToken(_speakerToken);
-
-        var profileResponse = await httpClient.PostAsJsonAsync(
-            "/api/speakers/profile",
-            new CreateSpeakerProfileDto
+        var document = await Eventually.Succeeds(
+            async () =>
             {
-                FirstName = "Jane",
-                LastName = "Doe",
-                Biography = "Test speaker biography.",
-            }
-        );
-        Assert.Equal(HttpStatusCode.Created, profileResponse.StatusCode);
-
-        _submitResponse = await httpClient.PostAsJsonAsync(
-            "/api/talks",
-            new SubmitTalkDto
-            {
-                Title = title,
-                Abstract = @abstract,
-                ConferenceId = _conferenceId,
-                Tags = tags,
-                TalkTypeId = _talkTypeId,
-            }
+                using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
+                var repository =
+                    scope.ServiceProvider.GetRequiredService<ConferenceTalkRepository>();
+                return await repository.Get(state.ConferenceId, state.TalkId);
+            },
+            $"Talk {state.TalkId} appearing in conference {state.ConferenceId}"
         );
 
-        if (_submitResponse.StatusCode != HttpStatusCode.Created)
-        {
-            return;
-        }
-
-        var location =
-            _submitResponse.Headers.Location?.ToString()
-            ?? throw new InvalidOperationException(
-                "Talk submission response did not include a Location header."
-            );
-        _talkId = Guid.Parse(location.Split('/').Last());
-    }
-
-    // Talk read models are projected asynchronously from stored events (see InMemoryEventBus),
-    // so the document can be missing for a moment right after submission — poll instead of
-    // asserting once. Reading the read-model repository directly (rather than the API's GET
-    // endpoint) verifies the data actually landed in the database, not just what the API layer
-    // returns.
-    private async Task<TalkDocument> WaitForTalkDocument()
-    {
-        using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
-        var repository = scope.ServiceProvider.GetRequiredService<ITalkDocumentRepository>();
-
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
-        while (DateTimeOffset.UtcNow < deadline)
-        {
-            var document = await repository.GetById(_talkId);
-            if (document is not null)
-                return document;
-
-            await Task.Delay(50);
-        }
-
-        throw new TimeoutException(
-            $"Talk {_talkId} did not appear in the database within the timeout."
+        Assert.Equal(
+            expectedSpeakerName,
+            $"{document.SpeakerFirstName} {document.SpeakerLastName}".Trim()
         );
+
+        state.SignInAsOrganizer();
+        var talks = await Eventually.Succeeds(
+            async () =>
+            {
+                var response = await httpClient.GetAsync(
+                    $"/api/conferences/{state.ConferenceId}/talks"
+                );
+                if (response.StatusCode != HttpStatusCode.OK)
+                    return null;
+
+                var body = await response.Content.ReadAsStringAsync();
+                return body.Contains(expectedSpeakerName, StringComparison.Ordinal) ? body : null;
+            },
+            $"GET /api/conferences/{state.ConferenceId}/talks showing {expectedSpeakerName}"
+        );
+        Assert.Contains(expectedSpeakerName, talks, StringComparison.Ordinal);
     }
 
-    // Same eventual-consistency caveat as WaitForTalkDocument, but through the GET endpoint —
-    // this verifies the API's own read path (routing, controller, DTO mapping) returns the
-    // talk correctly, which the database check above does not cover.
-    private async Task<GetTalkByIdDto> WaitForTalkResponse()
+    [Then("the talk has {int} submission(s)")]
+    public async Task ThenTheTalkHasSubmissions(int expectedCount)
     {
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
-        while (DateTimeOffset.UtcNow < deadline)
-        {
-            var response = await httpClient.GetAsync($"/api/talks/{_talkId}");
-            if (response.StatusCode == HttpStatusCode.OK)
+        var submissions = await Eventually.Succeeds(
+            async () =>
             {
-                var talk = await response.Content.ReadFromJsonAsync<GetTalkByIdDto>(
+                state.SignInAsSpeaker();
+                var response = await httpClient.GetAsync($"/api/talks/{state.TalkId}/submissions");
+                if (response.StatusCode != HttpStatusCode.OK)
+                    return null;
+
+                var body = await response.Content.ReadFromJsonAsync<List<GetTalkSubmissionsDto>>(
                     ResponseJsonOptions
                 );
-                Assert.NotNull(talk);
-                return talk;
-            }
+                return body?.Count == expectedCount ? body : null;
+            },
+            $"Talk {state.TalkId} having {expectedCount} submission(s)"
+        );
 
-            await Task.Delay(50);
-        }
+        Assert.Equal(expectedCount, submissions.Count);
+    }
 
-        throw new TimeoutException(
-            $"Talk {_talkId} did not appear in the read model within the timeout."
+    private async Task Submit(Guid conferenceId, Guid talkTypeId)
+    {
+        state.SignInAsSpeaker();
+
+        state.LastResponse = await httpClient.PostAsJsonAsync(
+            $"/api/talks/{state.TalkId}/submissions",
+            new SubmitTalkToConferenceDto(conferenceId, talkTypeId)
         );
     }
 
-    // A talk starts Pending and only reaches its final status (Submitted or Rejected) once
-    // Conference has processed it asynchronously — poll rather than assert immediately after the
-    // 201 response.
-    private async Task<TalkDocument> WaitForTalkDocumentWithStatus(string expectedStatus)
-    {
-        using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
-        var repository = scope.ServiceProvider.GetRequiredService<ITalkDocumentRepository>();
-
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(5);
-        TalkDocument? lastSeen = null;
-        while (DateTimeOffset.UtcNow < deadline)
-        {
-            lastSeen = await repository.GetById(_talkId);
-            if (lastSeen?.Status == expectedStatus)
-                return lastSeen;
-
-            await Task.Delay(50);
-        }
-
-        throw new TimeoutException(
-            $"Talk {_talkId} did not reach status {expectedStatus} within the timeout (last seen: {lastSeen?.Status ?? "not found"})."
+    private Task<TalkSubmissionDocument> WaitForSubmissionDocument(
+        Func<TalkSubmissionDocument, bool> matches
+    ) =>
+        Eventually.Succeeds(
+            async () =>
+            {
+                using var scope = AcceptanceTestEnvironment.Factory.Services.CreateScope();
+                var repository =
+                    scope.ServiceProvider.GetRequiredService<ITalkSubmissionDocumentRepository>();
+                var document = await repository.Get(state.TalkId, state.ConferenceId);
+                return document is not null && matches(document) ? document : null;
+            },
+            $"Submission of talk {state.TalkId} to conference {state.ConferenceId} in the database"
         );
-    }
 
-    private async Task<string> Register(UserRole role)
+    private Task<GetTalkSubmissionsDto> WaitForSubmissionResponse(
+        Func<GetTalkSubmissionsDto, bool> matches
+    )
     {
-        var response = await httpClient.PostAsJsonAsync(
-            "/api/auth/register",
-            new RegisterRequestDto($"{Guid.CreateVersion7():N}@test.com", "Passw0rd!1", role)
-        );
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadFromJsonAsync<RegisterResponseDto>(
-            ResponseJsonOptions
-        );
-        Assert.NotNull(result);
-        return result.Token;
-    }
+        state.SignInAsSpeaker();
 
-    private void SetBearerToken(string token)
-    {
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-            "Bearer",
-            token
-        );
-    }
+        return Eventually.Succeeds(
+            async () =>
+            {
+                var response = await httpClient.GetAsync($"/api/talks/{state.TalkId}/submissions");
+                if (response.StatusCode != HttpStatusCode.OK)
+                    return null;
 
-    private void ClearBearerToken()
-    {
-        httpClient.DefaultRequestHeaders.Authorization = null;
+                var submissions = await response.Content.ReadFromJsonAsync<
+                    List<GetTalkSubmissionsDto>
+                >(ResponseJsonOptions);
+
+                return submissions?.FirstOrDefault(s =>
+                    s.ConferenceId == state.ConferenceId && matches(s)
+                );
+            },
+            $"GET /api/talks/{state.TalkId}/submissions returning the expected submission"
+        );
     }
 }

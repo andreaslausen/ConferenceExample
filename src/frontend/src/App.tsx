@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import SpeakerProfilePage from "./pages/SpeakerProfilePage";
 import MyTalksPage from "./pages/MyTalksPage";
+import NewTalkPage from "./pages/NewTalkPage";
 import SubmitTalkPage from "./pages/SubmitTalkPage";
 import EditTalkPage from "./pages/EditTalkPage";
 import OrganizerConferenceListPage from "./pages/OrganizerConferenceListPage";
@@ -33,7 +34,6 @@ export default function App() {
           {/* Public (Attendee) */}
           <Route path="/" element={<ConferenceListPage />} />
           <Route path="/conferences/:id" element={<ConferenceProgramPage />} />
-          <Route path="/talks/:id" element={<TalkDetailPage />} />
 
           {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
@@ -61,7 +61,27 @@ export default function App() {
             }
           />
           <Route
-            path="/my-talks/submit"
+            path="/my-talks/new"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Speaker">
+                  <NewTalkPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-talks/:id"
+            element={
+              <ProtectedRoute>
+                <RoleGuard role="Speaker">
+                  <TalkDetailPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-talks/:id/submit"
             element={
               <ProtectedRoute>
                 <RoleGuard role="Speaker">
