@@ -15,6 +15,7 @@ public class SetupTestDependencies
         // container (see AcceptanceTestEnvironment) — no in-process shortcuts to the
         // application layer, every step goes through the real REST API over HTTP.
         services.AddSingleton(_ => AcceptanceTestEnvironment.Factory.CreateClient());
+        services.AddScoped<ScenarioState>();
 
         return services;
     }
