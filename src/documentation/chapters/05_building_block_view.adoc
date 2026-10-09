@@ -2,7 +2,7 @@
 
 == Whitebox Overall System — Bounded Context Map
 
-The following diagram shows the bounded contexts of the system and their relationships.
+The diagram shows the bounded contexts of the system and how they relate to each other.
 
 [plantuml, bounded-context-map, png]
 ....
@@ -42,37 +42,37 @@ att ..> idp : ACL
 
 | Conference
 | Core
-| Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of talks to slots. References talks by ID only.
+| Manages conferences, rooms, time slots, and the conference program. Schedules talks in slots. Refers to talks by ID only.
 
 | Talk
 | Core
-| Manages talks, speakers, abstracts, and tags. Talks have their own lifecycle (submit → review → accept) independent of the conference program.
+| Manages talks, speakers, abstracts, and tags. Talks have their own lifecycle (submit, review, accept). The lifecycle does not depend on the conference program.
 
 | Voting
 | Supporting
-| Handles attendee ratings of talks (thumbs up / thumbs down). Designed for high throughput and independent scalability.
+| Handles the ratings of talks by attendees (thumbs up or thumbs down). It is designed for high throughput and independent scaling.
 
 | Notification
 | Supporting
-| Delivers real-time notifications to attendees about conference program changes. Event-driven, asynchronous. Respects attendee opt-in preferences.
+| Sends real-time notifications to attendees about changes to the conference program. It is event-driven and asynchronous. It follows the opt-in preferences of the attendee.
 
 | Attendee
 | Supporting
-| Manages attendee registration, profiles, and preferences (e.g. notification opt-in).
+| Manages attendee registration, profiles, and preferences (for example, the notification opt-in).
 
 | Content
 | Supporting
-| Handles upload and distribution of presentation slides. Speakers upload slides linked to their talks.
+| Handles the upload and distribution of presentation slides. Speakers upload slides for their talks.
 
 | Identity Provider
 | Generic (external)
-| Authentication and role management. Not a custom bounded context — addressed by a standard identity product. Other contexts integrate via an anti-corruption layer that translates tokens/claims into domain-specific roles.
+| Authentication and role management. It is not a custom bounded context. A standard identity product does this task. Other contexts connect to it through an anti-corruption layer. The layer changes tokens and claims into domain-specific roles.
 |===
 
 === Important Interfaces
 
-Bounded contexts communicate through well-defined interfaces. The following integration patterns are used:
+Bounded contexts communicate through defined interfaces. The system uses these integration patterns:
 
-* *ID references* — contexts reference entities from other contexts by ID only (e.g. `TalkId`, `AttendeeId`). No shared domain models.
-* *Domain events* — the Notification context subscribes to domain events from the Conference context (e.g. `ProgramChanged`) to trigger attendee notifications.
-* *Anti-corruption layer (ACL)* — contexts that interact with the external identity provider translate external claims into internal role/permission concepts.
+* *ID references*: A context refers to entities of other contexts by ID only (for example, `TalkId` or `AttendeeId`). Contexts do not share domain models.
+* *Domain events*: The Notification context subscribes to domain events of the Conference context (for example, `ProgramChanged`). These events start the notifications to attendees.
+* *Anti-corruption layer (ACL)*: A context that connects to the external identity provider changes the external claims into internal roles and permissions.

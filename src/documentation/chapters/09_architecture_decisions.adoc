@@ -12,22 +12,22 @@
 | Accepted
 
 | Context
-| The system consists of multiple bounded contexts (Conference, Talk, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.
+| The system has multiple bounded contexts (Conference, Talk, Voting, Notification, Attendee, Content). You must choose a deployment strategy. The strategy must give a good balance between modularity, simple operation, and the ability to change the architecture over time.
 
 | Decision
-| Deploy all bounded contexts as modules within a *single ASP.NET Core application* (modular monolith). Each module owns its own database schema within a shared database instance. Modules communicate in-process via defined interfaces (domain events, mediator, or explicit contracts) — not via network calls.
+| Deploy all bounded contexts as modules in a *single ASP.NET Core application* (modular monolith). Each module has its own database schema in a shared database instance. Modules communicate in-process through defined interfaces (domain events, mediator, or explicit contracts). They do not use network calls.
 
 | Rationale
 a|
-* *Operational simplicity* — one deployable unit, one database instance. No distributed-systems overhead (service discovery, network resilience, distributed transactions).
-* *Developer experience* — straightforward local development and debugging; all modules run in a single process.
-* *Strict boundaries* — despite sharing a process, modules are isolated via schema-per-module and enforced dependency rules (architecture tests). This preserves the option to extract modules into separate services if scaling or organisational needs require it.
-* *Demonstration value* — shows how DDD bounded contexts can be implemented with strong isolation without prematurely adopting microservices.
+* *Simple operation*: There is one deployable unit and one database instance. There is no overhead of a distributed system (service discovery, network resilience, distributed transactions).
+* *Developer experience*: Local development and debugging are easy. All modules run in one process.
+* *Strict boundaries*: The modules share a process, but they are separate. Each module has its own schema, and dependency rules (checked by architecture tests) apply. Because of this, you can move modules into separate services later if scaling or organizational needs change.
+* *Demonstration value*: The ADR shows how to build DDD bounded contexts with strong isolation. It does not use microservices too early.
 
 | Consequences
 a|
-* *Positive:* Low operational complexity, fast in-process communication, simple transactions within a module, easy local development.
-* *Negative / trade-offs:* All modules must be deployed together; a bug in one module can affect the entire application. Independent scaling of individual modules is not possible without extraction. Discipline is required to maintain module boundaries over time.
+* *Positive:* Operation is simple. In-process communication is fast. Transactions in a module are simple. Local development is easy.
+* *Negative / trade-offs:* You must deploy all modules together. A bug in one module can affect the complete application. You cannot scale a single module alone unless you move it out. The team must keep the module boundaries over time.
 |===
 
 === ADR-2: Event Sourcing and CQRS
@@ -40,26 +40,26 @@ a|
 | Accepted
 
 | Context
-| The system serves as a demonstration project for talks and workshops, as well as a real-world example of modern architectural patterns. For conference and talk management, traceability of changes and efficient queries for different views are relevant concerns.
+| The system is a demonstration project for talks and workshops. It is also a real example of modern architecture patterns. For conference and talk management, two points are important: you must be able to trace changes, and queries for different views must be efficient.
 
 | Decision
-| Adopt *Event Sourcing* combined with *CQRS* (Command Query Responsibility Segregation). Aggregate state is not stored as a current snapshot but as an immutable sequence of domain events. The write and read sides are explicitly separated: commands mutate state via the event store, while queries are served by optimised read models (projections).
+| Use *Event Sourcing* with *CQRS* (Command Query Responsibility Segregation). The system does not store the current snapshot of an aggregate. It stores an immutable sequence of domain events. The write side and the read side are separate. Commands change the state through the event store. Optimized read models (projections) answer the queries.
 
 | Rationale
 a|
-* *Demonstration value* — the pattern is well-suited for illustrating DDD, domain events, and Clean Architecture in talks and workshops.
-* *Read-side performance* — read models can be tailored exactly to each use case (e.g. conference overview, talk list by track) and are pre-computed, so no joins or aggregations are required at query time.
-* *Complete audit trail* — all state changes are persisted as events; no information is ever lost through overwriting.
-* *Temporal queries* — the state at any point in the past can be reconstructed by replaying events up to a given position in the stream.
-* *Debugging and traceability* — bugs can be reproduced and analysed by inspecting the exact sequence of events that led to a given state.
-* *Natural expressiveness in the domain model* — domain events (`TalkSubmitted`, `SpeakerConfirmed`, …) are first-class citizens and directly reflect the ubiquitous language.
-* *Independent scaling* — the read and write sides can be scaled separately; read models can be materialised in a query-optimised store (e.g. Redis, Elasticsearch).
-* *Integration capability* — the event stream provides a natural foundation for integrating with other systems or bounded contexts via asynchronous message processing.
+* *Demonstration value*: The pattern is a good way to show DDD, domain events, and Clean Architecture in talks and workshops.
+* *Read-side performance*: You can make each read model for one use case (for example, the conference overview or the talk list by track). The system calculates the read models in advance. A query does not need joins or aggregations.
+* *Complete audit trail*: The system saves all state changes as events. No overwrite removes information.
+* *Temporal queries*: To get the state at a point in the past, replay the events up to a given position in the stream.
+* *Debugging and traceability*: To find a bug, read the exact sequence of events that caused a state. You can then reproduce the bug.
+* *Natural expression in the domain model*: Domain events (`TalkSubmitted`, `SpeakerConfirmed`) are first-class elements. They show the ubiquitous language directly.
+* *Independent scaling*: You can scale the read side and the write side separately. You can keep read models in a store that is optimized for queries (for example, Redis or Elasticsearch).
+* *Integration*: The event stream is a natural base for the integration with other systems or bounded contexts through asynchronous message processing.
 
 | Consequences
 a|
-* *Positive:* High traceability, flexible read models, good testability of aggregates via event sequences.
-* *Negative / trade-offs:* Higher initial complexity compared to a classic CRUD approach; eventual consistency between the write and read sides must be consciously accounted for; event schema evolution requires care (upcasting).
+* *Positive:* Traceability is high. Read models are flexible. It is easy to test aggregates with event sequences.
+* *Negative / trade-offs:* The initial complexity is higher than with a classic CRUD approach. The write side and the read side are eventually consistent. You must plan for this. You must change event schemas with care (upcasting).
 |===
 
 === ADR-3: Frontend Technology — React with Vite and TypeScript
@@ -72,30 +72,30 @@ a|
 | Accepted
 
 | Context
-| The system requires a user interface for conference organizers, speakers, and attendees. A frontend technology must be chosen that supports modern UI patterns (particularly drag-and-drop for schedule management), is widely adopted with strong community support, and integrates well with the REST API exposed by the .NET backend. The frontend should be independently deployable to allow for flexible deployment strategies.
+| The system needs a user interface for conference organizers, speakers, and attendees. You must choose a frontend technology. The technology must support modern UI patterns, in particular drag-and-drop for schedule management. It must have wide adoption and strong community support. It must work well with the REST API of the .NET backend. You must be able to deploy the frontend independently. This gives flexible deployment strategies.
 
 | Decision
-| Use *React with Vite and TypeScript* as the frontend stack. The frontend is a separate single-page application (SPA) that consumes the backend via the REST API. Component styling is done with *Tailwind CSS* and *shadcn/ui*, a modern component library built on Radix UI primitives. Drag-and-drop functionality is implemented using *@dnd-kit*, the current standard library for accessible, performant drag-and-drop in React.
+| Use *React with Vite and TypeScript* as the frontend stack. The frontend is a separate single-page application (SPA). It uses the backend through the REST API. *Tailwind CSS* and *shadcn/ui* style the components. shadcn/ui is a modern component library that is based on Radix UI primitives. *@dnd-kit* gives the drag-and-drop function. It is the current standard library for accessible and fast drag-and-drop in React.
 
 | Rationale
 a|
-* *React ecosystem* — React is the most widely adopted frontend library (18M+ weekly npm downloads), ensuring strong community support, extensive documentation, mature tooling, and a vast ecosystem of libraries and components.
-* *TypeScript* — provides type safety and excellent integration with the OpenAPI-generated API client, reducing runtime errors and improving developer experience through autocomplete and refactoring support.
-* *Vite* — modern build tool offering extremely fast hot module replacement (HMR) and optimized production builds. Simpler configuration than webpack-based alternatives.
-* *shadcn/ui* — rapidly growing component library (trendy and widely adopted, used by Vercel, Supabase, and many production applications). Built on Radix UI primitives (accessibility-first, unstyled components) and styled with Tailwind CSS. Components are copied into the codebase rather than installed as dependencies, allowing full customization.
-* *Tailwind CSS* — utility-first CSS framework that has become the industry standard for modern web development. Enables rapid UI development with consistent design tokens.
-* *@dnd-kit* — modern, accessible, and performant drag-and-drop library for React. Ideal for building interactive schedule management UIs where talks can be dragged into time slots and rooms.
-* *Independent deployment* — the frontend can be deployed separately to static hosting providers (Vercel, Netlify, Cloudflare Pages) or served as static files by the .NET backend. This decoupling enables independent scaling, frontend-specific CI/CD pipelines, and frontend-only updates without backend redeployment.
-* *API-first architecture* — the REST API layer is required anyway for public API access and potential future integrations. Using it as the frontend integration layer ensures that the API is well-designed, documented (via OpenAPI), and tested under real load.
-* *Blazor rejected* — Blazor Server requires a persistent SignalR connection per user, limiting independent scaling and introducing state management challenges. Blazor WebAssembly has a larger initial payload and longer startup time. Neither offers the mature drag-and-drop ecosystem available in React. Most importantly, the requirement for drag-and-drop and the desire to use widely adopted, JavaScript-based technologies makes React a better fit for this project's evolved goals.
-* *Next.js rejected* — while Next.js offers server-side rendering (SSR) and excellent developer experience, it introduces additional complexity (server components, routing conventions, deployment requirements) that is unnecessary for this SPA use case. Vite provides the essential features (fast dev server, optimized builds) without the framework overhead.
-* *Vue.js rejected* — while Vue offers a great developer experience and a gentler learning curve, React's larger ecosystem and significantly greater adoption make it the safer choice for long-term maintainability and community support. The drag-and-drop ecosystem in particular is more mature in React.
-* *Angular rejected* — Angular's opinionated structure and steeper learning curve introduce more complexity than necessary. React's component-based model and functional programming style align better with modern frontend development practices.
+* *React ecosystem*: React is the most widely used frontend library (more than 18 million downloads each week on npm). It has strong community support, much documentation, mature tools, and many libraries and components.
+* *TypeScript*: It gives type safety. It works well with the API client that OpenAPI generates. This reduces runtime errors. Autocomplete and refactoring support improve the developer experience.
+* *Vite*: This modern build tool has very fast hot module replacement (HMR) and optimized production builds. Its configuration is simpler than the configuration of webpack-based alternatives.
+* *shadcn/ui*: This component library grows fast. Many production applications use it (for example, Vercel and Supabase). It is based on Radix UI primitives (accessible, unstyled components) and Tailwind CSS. The components are copied into the codebase. They are not installed as dependencies. Because of this, you can change them fully.
+* *Tailwind CSS*: This utility-first CSS framework is the industry standard for modern web development. It gives fast UI development with consistent design tokens.
+* *@dnd-kit*: This modern drag-and-drop library for React is accessible and fast. It is a good choice for interactive schedule management. Users drag talks into time slots and rooms.
+* *Independent deployment*: You can deploy the frontend separately to static hosting providers (Vercel, Netlify, Cloudflare Pages). You can also let the .NET backend serve it as static files. This separation gives independent scaling and frontend-specific CI/CD pipelines. You can update the frontend without a backend redeployment.
+* *API-first architecture*: The project needs the REST API for public API access and possible future integrations. When the frontend uses the same API, the API is well designed, documented (through OpenAPI), and tested under real load.
+* *Blazor rejected*: Blazor Server needs a permanent SignalR connection for each user. This limits independent scaling and causes problems with state management. Blazor WebAssembly has a larger initial payload and a longer startup time. Neither has the mature drag-and-drop ecosystem of React. The project needs drag-and-drop and widely used JavaScript-based technologies. Therefore, React is a better choice for the evolved goals of this project.
+* *Next.js rejected*: Next.js has server-side rendering (SSR) and an excellent developer experience. But it adds complexity (server components, routing conventions, deployment requirements). This SPA does not need that complexity. Vite gives the necessary functions (fast dev server, optimized builds) without the framework overhead.
+* *Vue.js rejected*: Vue has a good developer experience and an easier learning curve. But React has a larger ecosystem and much wider adoption. This makes React the safer choice for long-term maintenance and community support. The drag-and-drop ecosystem in particular is more mature in React.
+* *Angular rejected*: Angular has a strict structure and a steeper learning curve. This adds more complexity than necessary. The component-based model and the functional programming style of React fit better with modern frontend development practices.
 
 | Consequences
 a|
-* *Positive:* Modern, widely-supported technology stack; excellent drag-and-drop capabilities for schedule management; independent deployment and scaling; type-safe API integration via TypeScript; strong ecosystem and community support; flexible deployment options.
-* *Negative / trade-offs:* Introduces a JavaScript build toolchain (npm, Vite) and a separate frontend codebase; requires maintaining the REST API layer; slightly more complex local development setup (running both backend and frontend); frontend and backend must coordinate on API contracts (mitigated by OpenAPI-generated TypeScript client).
+* *Positive:* The technology stack is modern and widely supported. Drag-and-drop for schedule management is excellent. Deployment and scaling are independent. The API integration is type-safe through TypeScript. The ecosystem and community are strong. Deployment options are flexible.
+* *Negative / trade-offs:* The project gets a JavaScript build toolchain (npm, Vite) and a separate frontend codebase. The team must keep the REST API layer. Local development is a little more complex because you run the backend and the frontend. The frontend and the backend must agree on the API contracts. The OpenAPI-generated TypeScript client reduces this problem.
 |===
 
 === ADR-4: Frontend Boundary — Single Shared Application
@@ -108,33 +108,33 @@ a|
 | Accepted
 
 | Context
-| The system has multiple bounded contexts (Conference, Talk, and others planned). A decision is needed on whether the frontend should mirror those boundaries — one frontend application per bounded context (micro frontends) — or whether a single shared application should serve all user-facing functionality.
+| The system has multiple bounded contexts (Conference, Talk, and other planned contexts). You must decide how to build the frontend. In the first option, the frontend has the same boundaries as the contexts: one frontend application for each bounded context (micro frontends). In the second option, one shared application gives all user-facing functions.
 
 | Decision
-| Use a *single shared React application* that consumes the REST API from all bounded contexts. There is no frontend decomposition along bounded context lines.
+| Use a *single shared React application*. It uses the REST API of all bounded contexts. The frontend is not divided along the boundaries of the bounded contexts.
 
 | Rationale
 a|
-* *Demonstration scope* — the bounded context boundaries in this project are an architectural concern of the backend (domain isolation, event stores per context, separate schemas). Replicating those boundaries in the frontend via micro frontends would add complexity without adding demonstration value for the architectural patterns being showcased.
-* *Micro frontend trade-offs* — micro frontend architectures introduce significant complexity: independent deployment pipelines per frontend fragment, a shell/composition layer to stitch fragments together, shared dependency management (duplicate React versions, conflicting CSS), cross-fragment state management, and routing coordination. These challenges are worth demonstrating only when frontend autonomy and independent team deployment are explicit requirements.
-* *Operational simplicity* — a single React SPA is straightforward to build, deploy, and debug. A unified application bundle simplifies CI/CD, reduces build times, and avoids the overhead of managing multiple frontend projects.
-* *User experience* — a shared application provides a unified navigation experience, consistent styling, and seamless transitions between features from different bounded contexts. No shell application or composition layer is needed.
-* *API as integration layer* — the REST API already serves as the integration point between frontend and backend. The frontend consumes well-defined API contracts (documented via OpenAPI) and is decoupled from internal backend module boundaries.
+* *Demonstration scope*: The bounded context boundaries are an architecture topic of the backend (domain isolation, event stores for each context, separate schemas). If micro frontends copy these boundaries in the frontend, complexity increases. The demonstration value for the architecture patterns does not increase.
+* *Micro frontend trade-offs*: Micro frontend architectures add much complexity. They need an independent deployment pipeline for each frontend fragment. They need a shell or composition layer that connects the fragments. They need shared dependency management (duplicate React versions, conflicting CSS), state management across fragments, and routing coordination. Show these problems only when frontend autonomy and independent deployment by separate teams are explicit requirements.
+* *Simple operation*: It is easy to build, deploy, and debug a single React SPA. One application bundle makes CI/CD simpler and reduces build times. The team does not need to manage multiple frontend projects.
+* *User experience*: A shared application gives users one navigation, consistent styling, and smooth transitions between functions of different bounded contexts. A shell application or composition layer is not necessary.
+* *API as integration layer*: The REST API is already the integration point between the frontend and the backend. The frontend uses well-defined API contracts (documented through OpenAPI). It does not depend on the internal module boundaries of the backend.
 
 | Consequences
 a|
-* *Positive:* Simple deployment, unified user experience, no composition layer required, easy local development, consistent styling and navigation, single build pipeline.
-* *Negative / trade-offs:* The frontend introduces a coupling point across bounded contexts at the UI layer. Features from different contexts are delivered as part of a single deployment unit. If bounded context autonomy at the frontend level were a hard requirement (e.g. independent frontend deployment per context by separate teams), this decision would need to be revisited. For the current scope and goals of this project, that trade-off is explicitly accepted.
+* *Positive:* Deployment is simple. The user experience is unified. No composition layer is necessary. Local development is easy. Styling and navigation are consistent. There is one build pipeline.
+* *Negative / trade-offs:* The frontend couples the bounded contexts at the UI layer. The functions of different contexts are in one deployment unit. If frontend autonomy for each context becomes a hard requirement (for example, independent frontend deployment by separate teams), you must review this decision again. The project accepts this trade-off for its current scope and goals.
 
 | Future Migration Path
 a|
-If independent frontend deployment per bounded context becomes necessary in the future, React supports several micro frontend architectures:
+Independent frontend deployment for each bounded context can become necessary in the future. React supports several micro frontend architectures for this case:
 
-* *Module Federation* — each bounded context can be extracted into a separate React application that dynamically shares components and dependencies at runtime. Webpack Module Federation (or `@module-federation/enhanced` for Vite) enables this without a full rewrite.
-* *Monorepo with independent apps* — each context becomes a separate deployable React app within a monorepo structure (using Nx, Turborepo, or pnpm workspaces). Shared code (components, API clients, types) is maintained in internal packages.
-* *Single-spa or similar frameworks* — a shell application orchestrates multiple independently deployed React apps, each owning a portion of the route space.
+* *Module Federation*: You move each bounded context into a separate React application. The applications share components and dependencies at runtime. Webpack Module Federation (or `@module-federation/enhanced` for Vite) makes this possible without a complete rewrite.
+* *Monorepo with independent apps*: Each context becomes a separate deployable React application in a monorepo (with Nx, Turborepo, or pnpm workspaces). Internal packages contain the shared code (components, API clients, types).
+* *Single-spa or similar frameworks*: A shell application controls multiple independently deployed React applications. Each application owns a part of the routes.
 
-To facilitate future migration, the codebase should be organized by bounded context from the start (e.g. `src/features/conference/`, `src/features/talk/`) with clear boundaries between context-specific code and truly shared infrastructure. This structure allows individual contexts to be extracted into separate applications with minimal refactoring if and when deployment independence becomes a requirement.
+To prepare for a future migration, organize the codebase by bounded context from the start (for example, `src/features/conference/` and `src/features/talk/`). Keep clear boundaries between the context-specific code and the truly shared infrastructure. With this structure, you can move a context into a separate application with minimal refactoring when deployment independence becomes a requirement.
 |===
 
 == Open Decisions
@@ -149,18 +149,18 @@ To facilitate future migration, the codebase should be organized by bounded cont
 | Open
 
 | Question
-| Which persistence technology should be used as the event store?
+| Which persistence technology must the system use as the event store?
 
 | Options Considered
 a|
-* *EventStoreDB* — purpose-built event store with native support for event streams, subscriptions, and projections. Ideal fit for Event Sourcing, but introduces an additional infrastructure component.
-* *PostgreSQL* — relational database used as an event store via an append-only events table. Familiar technology, easy to operate, but requires more custom infrastructure code.
-* *SQL Server* — same approach as PostgreSQL; already common in .NET ecosystems.
-* *MongoDB* — document-oriented store that can serve as an event store via an append-only collection. Designed to handle large volumes of data efficiently, which is relevant given that events are never deleted and the store grows continuously over time. Good .NET support via the official MongoDB driver.
-* *Marten* — .NET library that turns PostgreSQL into a document/event store with first-class Event Sourcing support and projections built in.
+* *EventStoreDB*: A purpose-built event store with native support for event streams, subscriptions, and projections. It is a very good fit for Event Sourcing, but it adds one more infrastructure component.
+* *PostgreSQL*: A relational database. It works as an event store with an append-only events table. The technology is familiar and easy to operate, but it needs more custom infrastructure code.
+* *SQL Server*: The approach is the same as for PostgreSQL. SQL Server is common in .NET ecosystems.
+* *MongoDB*: A document-oriented store. It works as an event store with an append-only collection. It handles large volumes of data efficiently. This is important because the system never deletes events and the store grows continuously. The official MongoDB driver has good .NET support.
+* *Marten*: A .NET library that changes PostgreSQL into a document store and event store. It has first-class Event Sourcing support and built-in projections.
 
 | Decision Criteria
-| Operational simplicity, .NET integration, suitability as a demonstration technology, and alignment with the existing infrastructure.
+| Simple operation, .NET integration, suitability as a demonstration technology, and fit with the existing infrastructure.
 |===
 
 === OD-4: Read Model Persistence Technology
@@ -173,19 +173,19 @@ a|
 | Open
 
 | Question
-| Which persistence technology should be used to store and serve read models (projections)?
+| Which persistence technology must the system use to store and serve read models (projections)?
 
 | Options Considered
 a|
-* *In-memory store* — projections are held in memory and rebuilt on startup by replaying all events. Zero operational overhead, but not suitable for production deployments with large event streams.
-* *PostgreSQL* — projections are materialised into relational tables. Flexible querying via SQL, easy to operate alongside the event store if PostgreSQL is already chosen there.
-* *Redis* — in-memory key/value store for very fast reads. Well-suited for simple, flat projections; less ideal for complex query patterns.
-* *Elasticsearch / OpenSearch* — full-text search and complex aggregations out of the box. High operational overhead; most valuable when rich search capabilities are required.
-* *MongoDB* — document-oriented store well-suited for read models, as projections map naturally to documents. Good .NET support via the official MongoDB driver; flexible schema makes it easy to evolve projection shapes without migrations.
-* *Marten (with PostgreSQL)* — if Marten is chosen for the event store, it also provides built-in projection support writing into PostgreSQL, avoiding a separate read-side store entirely.
+* *In-memory store*: The system keeps projections in memory. It rebuilds them at startup when it replays all events. There is no operational overhead, but this option is not suitable for production deployments with large event streams.
+* *PostgreSQL*: The system writes projections into relational tables. You can query them flexibly with SQL. It is easy to operate together with the event store if PostgreSQL is already the event store.
+* *Redis*: An in-memory key-value store for very fast reads. It is good for simple, flat projections. It is less good for complex query patterns.
+* *Elasticsearch / OpenSearch*: These stores have full-text search and complex aggregations. The operational overhead is high. They are most useful when the system needs rich search functions.
+* *MongoDB*: A document-oriented store that is well suited for read models, because projections map naturally to documents. The official MongoDB driver has good .NET support. The flexible schema makes it easy to change projection shapes without migrations.
+* *Marten (with PostgreSQL)*: If the project chooses Marten for the event store, Marten also has built-in projection support that writes into PostgreSQL. The project then does not need a separate read-side store.
 
 | Decision Criteria
-| Query complexity, read performance requirements, operational simplicity, and consistency with the chosen event store technology.
+| Query complexity, read performance requirements, simple operation, and fit with the chosen event store technology.
 |===
 
 === OD-5: Identity Provider
@@ -198,14 +198,14 @@ a|
 | Open
 
 | Question
-| Which identity provider should be used for authentication and role management?
+| Which identity provider must the system use for authentication and role management?
 
 | Options Considered
 a|
-* *Keycloak* — open-source, self-hosted, feature-rich (SSO, social login, fine-grained roles). Requires operational effort for hosting and maintenance.
-* *Auth0* — managed SaaS identity platform. Low operational effort, but introduces a vendor dependency and recurring costs.
-* *Microsoft Entra ID (formerly Azure AD)* — managed identity service, strong integration with the Microsoft/.NET ecosystem. Ties the system to the Azure platform.
+* *Keycloak*: Open-source and self-hosted, with many functions (SSO, social login, fine-grained roles). The team must host and maintain it.
+* *Auth0*: A managed SaaS identity platform. The operational effort is low, but it adds a vendor dependency and recurring costs.
+* *Microsoft Entra ID (formerly Azure AD)*: A managed identity service with strong integration in the Microsoft and .NET ecosystem. It ties the system to the Azure platform.
 
 | Decision Criteria
-| Operational simplicity (self-hosted vs. managed), cost, alignment with the .NET ecosystem, ease of local development (Docker-based setup), and suitability as a demonstration technology.
+| Simple operation (self-hosted or managed), cost, fit with the .NET ecosystem, ease of local development (Docker-based setup), and suitability as a demonstration technology.
 |===
