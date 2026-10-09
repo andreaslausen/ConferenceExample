@@ -2,7 +2,7 @@
 
 == Business Context
 
-The Conference Management System interacts with three primary user roles and one external system.
+The Conference Management System has three main user roles and one external system.
 
 [plantuml, business-context, png]
 ....
@@ -29,21 +29,21 @@ sys --> [Identity Provider] : authentication &\nauthorization
 | Actor / System | Interaction
 
 | Organizer
-| Creates and configures conferences (rooms, time slots). Assigns accepted talks to the program. Triggers notifications to attendees about program changes.
+| Creates conferences and sets them up (rooms, time slots). Puts accepted talks in the program. Starts notifications to attendees about program changes.
 
 | Speaker
-| Submits and edits talk proposals (title, abstract, tags). Uploads presentation slides for accepted talks.
+| Submits and edits talk proposals (title, abstract, tags). Uploads the presentation slides for accepted talks.
 
 | Attendee
-| Views the conference program (times, rooms). Rates talks (thumbs up / thumbs down). Opts in to receive real-time notifications about program changes. Accesses presentation slides.
+| Sees the conference program (times, rooms). Rates talks (thumbs up or thumbs down). Opts in to get real-time notifications about program changes. Gets the presentation slides.
 
 | Identity Provider
-| External system providing authentication and role-based authorization. The Conference Management System delegates all identity concerns to this provider and consumes tokens/claims via an anti-corruption layer.
+| External system for authentication and role-based authorization. The Conference Management System gives all identity tasks to this provider. It uses the tokens and claims of the provider through an anti-corruption layer.
 |===
 
 == Technical Context
 
-The system is deployed as a *modular monolith*: a single ASP.NET Core application that hosts all bounded contexts as in-process modules. Each module owns its own database schema within a shared database instance.
+The system is a *modular monolith*. It is one ASP.NET Core application. The application contains all bounded contexts as in-process modules. Each module has its own database schema in a shared database instance.
 
 [plantuml, technical-context, png]
 ....

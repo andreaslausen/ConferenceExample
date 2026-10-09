@@ -2,7 +2,7 @@
 
 == Domain-Driven Design
 
-The system follows a Domain-Driven Design approach. The problem space is decomposed into subdomains, each of which is mapped to a solution-space bounded context.
+The system uses Domain-Driven Design. The problem space is divided into subdomains. Each subdomain maps to a bounded context in the solution space.
 
 === Subdomains
 
@@ -12,36 +12,36 @@ The system follows a Domain-Driven Design approach. The problem space is decompo
 
 | Conference
 | Core
-| Managing conferences, rooms, time slots, and the conference program (scheduling).
+| Manages conferences, rooms, time slots, and the conference program (scheduling).
 
 | Talk
 | Core
-| Managing talks, speakers, abstracts, and tags. Talks are submitted and curated independently before being assigned to the conference program.
+| Manages talks, speakers, abstracts, and tags. Speakers submit talks, and organizers review them. This happens before the talks go into the conference program.
 
 | Voting
 | Supporting
-| Attendees rate the popularity of talks (thumbs up / thumbs down). High-traffic subdomain during a running conference — requires independent scalability.
+| Attendees rate how popular talks are (thumbs up or thumbs down). This subdomain has high traffic during a conference. It must scale independently.
 
 | Notification
 | Supporting
-| Real-time notifications to attendees about changes to the conference program. Attendees must opt in to receive notifications.
+| Real-time notifications to attendees about changes to the conference program. Attendees must opt in.
 
 | Attendee
 | Supporting
-| Attendee registration, profiles, and preferences (e.g. notification opt-in).
+| Attendee registration, profiles, and preferences (for example, the notification opt-in).
 
 | Content
 | Supporting
-| Upload and distribution of presentation slides. Speakers upload slides for their talks; attendees can access them online.
+| Upload and distribution of presentation slides. Speakers upload slides for their talks. Attendees get the slides online.
 
 | Identity
 | Generic
-| Authentication, authorization, and user/role management (speaker, organizer, attendee). This subdomain is best served by a standard identity provider (e.g. Keycloak, Auth0, Entra ID) rather than custom development.
+| Authentication, authorization, and user and role management (speaker, organizer, attendee). A standard identity provider (for example, Keycloak, Auth0, or Entra ID) is the best solution for this subdomain. Do not develop a custom solution.
 |===
 
 === Mapping Subdomains to Bounded Contexts
 
-Not every subdomain requires a custom-built bounded context. The following table shows how subdomains map to bounded contexts in the solution space.
+Not each subdomain needs a custom bounded context. The table shows how the subdomains map to bounded contexts in the solution space.
 
 [cols="1,1,2",options="header"]
 |===
@@ -49,45 +49,45 @@ Not every subdomain requires a custom-built bounded context. The following table
 
 | Conference
 | Conference
-| Custom implementation — core domain with conference-specific business rules.
+| Custom implementation. Core domain with conference-specific business rules.
 
 | Talk
 | Talk
-| Custom implementation — core domain with its own aggregate lifecycle (submit → review → accept).
+| Custom implementation. Core domain with its own aggregate lifecycle (submit, review, accept).
 
 | Voting
 | Voting
-| Custom implementation — isolated due to fundamentally different traffic and scaling characteristics (thousands of concurrent votes).
+| Custom implementation. It is separate because its traffic and scaling needs are very different (thousands of votes at the same time).
 
 | Notification
 | Notification
-| Custom implementation — event-driven, asynchronous delivery, own infrastructure concerns (WebSocket, push).
+| Custom implementation. It is event-driven and delivers asynchronously. It has its own infrastructure needs (WebSocket, push).
 
 | Attendee
 | Attendee
-| Custom implementation — manages attendee-specific domain logic (registration, preferences).
+| Custom implementation. It has the domain logic for attendees (registration, preferences).
 
 | Content
 | Content
-| Custom implementation — handles file storage and distribution, potentially backed by a CDN or object store.
+| Custom implementation. It stores and distributes files. A CDN or an object store can support it.
 
 | Identity
 | _(no custom BC)_
-| Addressed by a standard identity provider. An anti-corruption layer in the API translates external identity tokens into domain-specific role concepts.
+| A standard identity provider does this task. An anti-corruption layer in the API changes the external identity tokens into domain-specific roles.
 |===
 
 == Modular Monolith
 
-The system is built as a *modular monolith*: all bounded contexts are deployed within a single ASP.NET Core application, but are strictly isolated as modules with clear boundaries.
+The system is a *modular monolith*. One ASP.NET Core application contains all bounded contexts. Each bounded context is a separate module with clear boundaries.
 
-* *Single API* — one ASP.NET Core host exposes all endpoints. Each module registers its own controllers/endpoints, but externally there is one unified API.
-* *Event Store per module* — each module persists its aggregate state as an immutable sequence of domain events via `IEventStore`. No module may access another module's event stream directly. The concrete persistence technology behind `IEventStore` is not yet decided (see open decision OD-3); the current implementation uses an in-memory event store as a placeholder.
-* *In-process communication* — modules communicate via defined interfaces (domain events, mediator, or explicit contracts), not via network calls.
-* *Extractability* — the strict module boundaries are designed so that individual bounded contexts can be extracted into separate services later if scaling or organisational needs require it.
+* *Single API*: One ASP.NET Core host shows all endpoints. Each module registers its own controllers and endpoints. Externally, there is one API.
+* *Event store per module*: Each module saves its aggregate state as an immutable sequence of domain events. It uses `IEventStore` for this. A module must not access the event stream of another module directly. The persistence technology behind `IEventStore` is not decided (see open decision OD-3). The current implementation uses an in-memory event store as a placeholder.
+* *In-process communication*: Modules communicate through defined interfaces (domain events, mediator, or explicit contracts). They do not use network calls.
+* *Extractability*: The strict module boundaries let you move a bounded context into a separate service later. This is necessary if scaling or organizational needs change.
 
 == Clean Architecture
 
-Each custom bounded context follows a Clean Architecture layered structure:
+Each custom bounded context has the layers of Clean Architecture:
 
 ....
 API  ──►  Application  ──►  Domain
@@ -95,7 +95,7 @@ API  ──►  Application  ──►  Domain
  └──────►  Persistence  ──────┘
 ....
 
-* *Domain* — aggregates, entities, value objects, domain events. No dependencies on other layers.
-* *Application* — use cases (commands and queries). Depends on the domain only; does not know Persistence directly.
-* *Persistence* — contains the repository implementations for the bounded context. Repositories load and save aggregate state as domain events by using the `IEventStore` interface provided by the shared infrastructure. Depends on the domain.
-* *API* — ASP.NET Core entry point, dependency injection, HTTP endpoints. Depends on all other layers.
+* *Domain*: Aggregates, entities, value objects, and domain events. It does not depend on other layers.
+* *Application*: Use cases (commands and queries). It depends only on the domain. It does not know the Persistence layer.
+* *Persistence*: The repository implementations for the bounded context. The repositories load and save aggregate state as domain events. They use the `IEventStore` interface of the shared infrastructure. It depends on the domain.
+* *API*: The ASP.NET Core entry point, the dependency injection, and the HTTP endpoints. It depends on all other layers.

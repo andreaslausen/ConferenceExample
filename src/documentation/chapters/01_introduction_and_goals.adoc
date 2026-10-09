@@ -2,25 +2,25 @@
 
 == Requirements Overview
 
-Conference Example is a conference management system used by speakers (hundreds), organizers (dozens), and attendees (thousands) to organize and manage conferences in the German-speaking region.
+Conference Example is a conference management system. Speakers (hundreds), organizers (dozens), and attendees (thousands) use it to organize and manage conferences in the German-speaking region.
 
 The key features are:
 
-* *Conference program* — attendees can view the conference program including times and rooms online
-* *Talk management* — speakers can manage their talks (submit, edit)
-* *Talk rating* — attendees can rate the popularity of talks (thumbs up, thumbs down)
-* *Real-time notifications* — organizers can notify attendees in real time about changes to the conference program (opt-in required)
-* *Conference branding* — each conference can have its own branding
-* *Slide sharing* — presentation slides are made available to attendees online
-* *Mobile app* — a mobile conference app for attendees is envisioned for the future
+* *Conference program*: Attendees see the conference program online. The program shows times and rooms.
+* *Talk management*: Speakers submit and edit their talks.
+* *Talk rating*: Attendees rate how popular a talk is (thumbs up or thumbs down).
+* *Real-time notifications*: Organizers tell attendees about changes to the conference program in real time. Attendees must opt in.
+* *Conference branding*: Each conference can have its own branding.
+* *Slide sharing*: Attendees get the presentation slides online.
+* *Mobile app*: A mobile conference app for attendees is planned for the future.
 
-Beyond the functional scope, the primary purpose of this project is to serve as a comprehensive example system for presentations and workshops covering topics such as Domain-Driven Design, Clean Architecture, software architecture, architecture documentation, architecture tests, and testing.
+The main purpose of this project is to be a complete example system for presentations and workshops. The topics are Domain-Driven Design, Clean Architecture, software architecture, architecture documentation, architecture tests, and testing.
 
 === Additional Context
 
 * Conferences take place in the German-speaking region.
-* There are only a few support staff members.
-* Very high traffic is expected while a conference is running.
+* Only a few support staff are available.
+* Very high traffic is expected during a conference.
 
 == Quality Goals
 
@@ -30,15 +30,15 @@ Beyond the functional scope, the primary purpose of this project is to serve as 
 
 | 1
 | Understandability
-| The codebase is used in talks and workshops. Concepts must be immediately graspable by an audience encountering the code for the first time.
+| Talks and workshops use the codebase. An audience that sees the code for the first time must understand the concepts immediately.
 
 | 2
 | Testability
-| The system demonstrates various testing strategies (unit, acceptance, architecture tests). Every layer must be independently testable with minimal setup.
+| The system shows different test strategies (unit tests, acceptance tests, and architecture tests). You must be able to test each layer alone with minimal setup.
 
 | 3
 | Maintainability
-| The project evolves alongside new talk topics. Adding new features or demonstrating new patterns must be straightforward without breaking existing examples.
+| The project changes with new talk topics. It must be easy to add new features or to show new patterns. Existing examples must not break.
 |===
 
 == Stakeholders
@@ -49,21 +49,21 @@ Beyond the functional scope, the primary purpose of this project is to serve as 
 
 | Conference Organizer
 | (fictional)
-| Can create and publish conferences, manage rooms and schedules, and review submitted talk proposals.
+| Creates and publishes conferences. Manages rooms and schedules. Reviews the submitted talk proposals.
 
 | Speaker
 | (fictional)
-| Can register, browse published conferences, and submit talk proposals including title, abstract, and tags.
+| Registers and browses the published conferences. Submits talk proposals with a title, an abstract, and tags.
 
 | Conference Attendee
 | (fictional)
-| Can view the conference program including times and rooms, rate talks (thumbs up / thumbs down), receive real-time notifications about program changes (opt-in), and access presentation slides.
+| Sees the conference program with times and rooms. Rates talks (thumbs up or thumbs down). Gets real-time notifications about program changes (opt-in). Gets the presentation slides.
 
 | Presenter / Author
 | Andreas Lausen
-| Needs a realistic, well-structured example project that can be used across different talks and extended incrementally to demonstrate new architectural concepts.
+| Needs a realistic, well-structured example project. The project must work in different talks. The author must be able to extend it step by step to show new architecture concepts.
 
 | Talk Audience
 | (various)
-| Expects the code to be clean, readable, and representative of the concepts being presented — not oversimplified, but not overwhelming.
+| Expects clean and readable code that shows the presented concepts. The code must not be too simple and must not be too complex.
 |===

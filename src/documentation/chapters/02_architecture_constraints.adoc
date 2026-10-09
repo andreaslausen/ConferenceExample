@@ -4,18 +4,18 @@
 |===
 | Constraint | Background / Motivation
 
-| Backend implemented in .NET / C# (latest version)
-| The author's primary platform and language. Using the current version ensures the project stays relevant and showcases modern language features.
+| Backend written in .NET and C# (latest version)
+| This is the main platform and language of the author. The current version keeps the project up to date and shows modern language features.
 
-| Runnable locally without external infrastructure
-| Anyone cloning the repository must be able to start the full system — including the databases — on their own machine using Docker. No cloud account, hosted service, or manual setup beyond Docker is required.
+| Runs locally without external infrastructure
+| Anyone who clones the repository must be able to start the complete system, with the databases, on their own machine. Docker is the only tool needed. The system needs no cloud account, no hosted service, and no other manual setup.
 
 | English for all code and documentation
-| The project is publicly available and used in talks with an international audience. English as a shared language maximises accessibility.
+| The project is public. Talks with an international audience use it. A shared language, English, makes it easy for all people to use.
 
-| Architecture documentation using arc42 and AsciiDoc
-| Documentation is treated as code: stored in the repository, version-controlled, and generated reproducibly via `./build-docs.sh`. The arc42 template provides a proven, widely recognised structure for software architecture documentation.
+| Architecture documentation in arc42 and AsciiDoc
+| The documentation is handled like code. It is in the repository and under version control. The script `./build-docs.sh` generates it with the same result each time. The arc42 template is a proven structure for software architecture documentation. Many people know it.
 
 | Freely accessible source code
-| The project is open source and publicly hosted. Anyone can clone, run, and extend it — a prerequisite for its use as a teaching and reference example.
+| The project is open source and public. Anyone can clone, run, and extend it. This is necessary because the project is a teaching and reference example.
 |===
