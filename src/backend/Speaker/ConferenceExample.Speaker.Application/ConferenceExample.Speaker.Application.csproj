@@ -13,6 +13,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConferenceExample.Speaker.Domain\ConferenceExample.Speaker.Domain.csproj" />
-    <ProjectReference Include="..\ConferenceExample.Speaker.Persistence\ConferenceExample.Speaker.Persistence.csproj" />
   </ItemGroup>
 </Project>
