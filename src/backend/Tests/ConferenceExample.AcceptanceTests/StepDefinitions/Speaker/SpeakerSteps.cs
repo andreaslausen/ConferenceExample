@@ -7,7 +7,7 @@ using ConferenceExample.Authentication;
 using ConferenceExample.Speaker.Application.CreateSpeakerProfile;
 using ConferenceExample.Speaker.Application.GetMyProfile;
 using ConferenceExample.Speaker.Application.UpdateSpeakerProfile;
-using ConferenceExample.Speaker.Persistence.ReadModels;
+using ConferenceExample.Speaker.Persistence.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
 using Xunit;

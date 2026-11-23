@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace ConferenceExample.Conference.Persistence.ReadModels;
+namespace ConferenceExample.Conference.Persistence.Projections;
 
 /// <summary>
 /// Speaker profiles replicated from the Speaker BC. Read once, when a submission is registered, to

@@ -2,7 +2,7 @@ using ConferenceExample.Speaker.Domain.SharedKernel.Extensions;
 using ConferenceExample.Speaker.Domain.SpeakerManagement;
 using MongoDB.Driver;
 
-namespace ConferenceExample.Speaker.Persistence.ReadModels;
+namespace ConferenceExample.Speaker.Persistence.Projections;
 
 /// <summary>
 /// Backs all three speaker projection roles with a single Mongo collection:

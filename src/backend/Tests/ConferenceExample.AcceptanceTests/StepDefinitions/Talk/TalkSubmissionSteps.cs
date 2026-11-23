@@ -4,11 +4,11 @@ using System.Text.Json;
 using ConferenceExample.AcceptanceTests.Infrastructure;
 using ConferenceExample.Talk.Application.GetTalkSubmissions;
 using ConferenceExample.Talk.Application.SubmitTalkToConference;
-using ConferenceExample.Talk.Persistence.ReadModels;
+using ConferenceExample.Talk.Persistence.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
 using Xunit;
-using ConferenceTalkRepository = ConferenceExample.Conference.Persistence.ReadModels.IConferenceTalkDocumentRepository;
+using ConferenceTalkRepository = ConferenceExample.Conference.Persistence.Projections.IConferenceTalkDocumentRepository;
 
 namespace ConferenceExample.AcceptanceTests.StepDefinitions.Talk;
 

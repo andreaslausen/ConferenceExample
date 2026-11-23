@@ -1,4 +1,4 @@
-namespace ConferenceExample.Talk.Persistence.ReadModels;
+namespace ConferenceExample.Talk.Persistence.Projections;
 
 public interface IConferenceDocumentRepository
 {

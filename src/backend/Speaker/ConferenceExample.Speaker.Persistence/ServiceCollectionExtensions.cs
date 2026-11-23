@@ -1,6 +1,6 @@
 using ConferenceExample.Speaker.Domain.SpeakerManagement;
 using ConferenceExample.Speaker.Persistence.EventHandlers;
-using ConferenceExample.Speaker.Persistence.ReadModels;
+using ConferenceExample.Speaker.Persistence.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

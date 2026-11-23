@@ -2,7 +2,7 @@ using ConferenceExample.Talk.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
 using MongoDB.Driver;
 
-namespace ConferenceExample.Talk.Persistence.ReadModels;
+namespace ConferenceExample.Talk.Persistence.Projections;
 
 public class MongoDbConferenceReplica : IConferenceDocumentRepository, IConferenceReplica
 {

@@ -4,7 +4,7 @@ using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using MongoDB.Driver;
 
-namespace ConferenceExample.Conference.Persistence.ReadModels;
+namespace ConferenceExample.Conference.Persistence.Projections;
 
 public class MongoDbConferenceReadModelRepository
     : IConferenceDocumentRepository,

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using ConferenceExample.EventStore;
 using ConferenceExample.Talk.Domain.TalkManagement;
-using ConferenceExample.Talk.Persistence.ReadModels;
+using ConferenceExample.Talk.Persistence.Projections;
 
 namespace ConferenceExample.Talk.Persistence.EventHandlers;
 

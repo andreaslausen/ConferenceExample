@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace ConferenceExample.Conference.Persistence.ReadModels;
+namespace ConferenceExample.Conference.Persistence.Projections;
 
 /// <summary>
 /// One talk's submission to this conference. Keyed by conference and talk together, because the

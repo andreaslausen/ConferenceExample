@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace ConferenceExample.Talk.Persistence.ReadModels;
+namespace ConferenceExample.Talk.Persistence.Projections;
 
 /// <summary>
 /// UserId -> SpeakerId, replicated from the Speaker BC's SpeakerProfileCreatedEvent. Keyed by the

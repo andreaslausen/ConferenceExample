@@ -2,7 +2,7 @@ using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using MongoDB.Driver;
 
-namespace ConferenceExample.Talk.Persistence.ReadModels;
+namespace ConferenceExample.Talk.Persistence.Projections;
 
 public class MongoDbTalkSubmissionReadModelRepository
     : ITalkSubmissionDocumentRepository,

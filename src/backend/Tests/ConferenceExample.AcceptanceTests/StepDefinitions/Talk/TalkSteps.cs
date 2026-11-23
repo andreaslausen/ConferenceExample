@@ -5,7 +5,7 @@ using ConferenceExample.AcceptanceTests.Infrastructure;
 using ConferenceExample.Talk.Application.CreateTalk;
 using ConferenceExample.Talk.Application.EditTalk;
 using ConferenceExample.Talk.Application.GetTalkById;
-using ConferenceExample.Talk.Persistence.ReadModels;
+using ConferenceExample.Talk.Persistence.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
 using Xunit;

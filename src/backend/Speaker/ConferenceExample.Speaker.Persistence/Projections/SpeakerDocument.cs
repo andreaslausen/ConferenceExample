@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace ConferenceExample.Speaker.Persistence.ReadModels;
+namespace ConferenceExample.Speaker.Persistence.Projections;
 
 public class SpeakerDocument
 {

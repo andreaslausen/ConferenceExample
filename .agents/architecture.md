@@ -58,7 +58,7 @@ domain events — never a synchronous call or a shared model across the boundary
   `*ReadModelRepository` and not covered by the CQRS rule below.
 - `Talk.Domain.ConferenceManagement.IConferenceReplica` — conference names, so a speaker's
   submission list reads as names rather than ids. Display data only.
-- `Conference.Persistence.ReadModels.ISpeakerDocumentRepository` — speaker profiles, read once
+- `Conference.Persistence.Projections.ISpeakerDocumentRepository` — speaker profiles, read once
   when a submission is registered to freeze the speaker's details into it.
 
 ## Authentication & authorization
@@ -141,7 +141,7 @@ Segregation, not accidental duplication:
   `Talk.Domain.SpeakerManagement.ISpeakerReplica` for the doc comments explaining why.
   `*Replica` names a cross-BC copy specifically (`*Lookup` stays within the owning BC).
 
-Example: `Speaker.Persistence.ReadModels.MongoDbSpeakerReadModelRepository` implements
+Example: `Speaker.Persistence.Projections.MongoDbSpeakerReadModelRepository` implements
 `ISpeakerDocumentRepository`, `ISpeakerReadModelRepository`, and `ISpeakerLookup` — one
 Mongo collection, three interfaces, three distinct consumers (event handler, query
 handlers, command handlers respectively). Not every projection needs all three; add one

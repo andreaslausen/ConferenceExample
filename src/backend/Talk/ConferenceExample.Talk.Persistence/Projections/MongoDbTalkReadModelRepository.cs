@@ -4,7 +4,7 @@ using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using MongoDB.Driver;
 
-namespace ConferenceExample.Talk.Persistence.ReadModels;
+namespace ConferenceExample.Talk.Persistence.Projections;
 
 public class MongoDbTalkReadModelRepository : ITalkDocumentRepository, ITalkReadModelRepository
 {

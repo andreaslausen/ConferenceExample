@@ -1,5 +1,5 @@
 using System.Text.Json;
-using ConferenceExample.Conference.Persistence.ReadModels;
+using ConferenceExample.Conference.Persistence.Projections;
 using ConferenceExample.EventStore;
 
 namespace ConferenceExample.Conference.Persistence.EventHandlers;

@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 
-namespace ConferenceExample.Conference.Persistence.ReadModels;
+namespace ConferenceExample.Conference.Persistence.Projections;
 
 public class MongoDbSpeakerReplica : ISpeakerDocumentRepository
 {
