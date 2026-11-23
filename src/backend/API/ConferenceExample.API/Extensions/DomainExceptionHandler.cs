@@ -10,6 +10,12 @@ namespace ConferenceExample.API.Extensions;
 /// Maps any bounded context's <c>DomainException</c> (a business rule was violated given the
 /// current state of the aggregate) to a 409 Conflict response.
 /// </summary>
+/// <remarks>
+/// This mapping holds today because every current <c>DomainException</c> describes a conflict
+/// with the aggregate's current state. If a future <c>DomainException</c> describes a business
+/// rule violation that is not a state conflict, revisit this mapping (and possibly introduce a
+/// more specific exception type) rather than defaulting it to 409.
+/// </remarks>
 public class DomainExceptionHandler : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
