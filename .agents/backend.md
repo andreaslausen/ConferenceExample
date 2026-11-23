@@ -102,6 +102,13 @@ Runs automatically on staged `.cs` files via the pre-commit hook — don't skip 
   `DateTime`; use `Guid.CreateVersion7()` instead of `Guid.NewGuid()`.
 - One type per file: every non-private class, record, interface, struct, or enum gets its
   own file, named after the type. Private nested types are exempt.
+- No magic strings for things that name a type or enum member elsewhere in the code (event
+  type names passed to `IEventBus.Subscribe`/stored as `StoredEvent.EventType`, enum-backed
+  read-model status fields, `[Authorize(Roles = ...)]`, etc.) — use `nameof(...)` so renames
+  stay in sync. Where the named type lives in another bounded context's Domain project and
+  can't be referenced directly (architecture rule, see `.agents/architecture.md`), use a
+  `private const string` that mirrors the external type's name, with a comment explaining why
+  `nameof` isn't possible there, instead of an inline literal.
 
 ## OpenAPI
 

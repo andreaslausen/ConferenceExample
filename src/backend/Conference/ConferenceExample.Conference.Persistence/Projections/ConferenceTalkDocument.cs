@@ -1,3 +1,4 @@
+using ConferenceExample.Conference.Domain.TalkManagement;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -55,7 +56,7 @@ public class ConferenceTalkDocument
     // Conference BC specific fields (managed by Conference aggregate)
     [BsonElement("status")]
     [BsonRepresentation(BsonType.String)]
-    public string Status { get; set; } = "Submitted";
+    public string Status { get; set; } = nameof(TalkStatus.Submitted);
 
     [BsonElement("slotStart")]
     [BsonRepresentation(BsonType.String)]

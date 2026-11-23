@@ -1,3 +1,4 @@
+using ConferenceExample.Authentication;
 using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Application.CreateTalk;
 using ConferenceExample.Talk.Application.EditTalk;
@@ -20,7 +21,7 @@ namespace ConferenceExample.API.Controllers;
 public class TalksController(ITalkService talkService) : ControllerBase
 {
     [HttpPost(Name = "CreateTalk")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -33,7 +34,7 @@ public class TalksController(ITalkService talkService) : ControllerBase
     }
 
     [HttpGet("{id:guid}", Name = "GetTalkById")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType<GetTalkByIdDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -47,7 +48,7 @@ public class TalksController(ITalkService talkService) : ControllerBase
     }
 
     [HttpGet("my-talks", Name = "GetMyTalks")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType<PagedResult<GetMyTalksDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -61,7 +62,7 @@ public class TalksController(ITalkService talkService) : ControllerBase
     }
 
     [HttpPut("{id:guid}", Name = "EditTalk")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -74,7 +75,7 @@ public class TalksController(ITalkService talkService) : ControllerBase
     }
 
     [HttpDelete("{id:guid}", Name = "DeleteTalk")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -90,7 +91,7 @@ public class TalksController(ITalkService talkService) : ControllerBase
     /// takes the submission into review — poll the submission list for the outcome.
     /// </summary>
     [HttpPost("{id:guid}/submissions", Name = "SubmitTalkToConference")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -106,7 +107,7 @@ public class TalksController(ITalkService talkService) : ControllerBase
     }
 
     [HttpGet("{id:guid}/submissions", Name = "GetTalkSubmissions")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType<IReadOnlyList<GetTalkSubmissionsDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

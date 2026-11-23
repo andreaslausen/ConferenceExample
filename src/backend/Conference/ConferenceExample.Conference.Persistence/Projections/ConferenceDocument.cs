@@ -1,3 +1,4 @@
+using ConferenceExample.Conference.Domain.ConferenceManagement;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -43,7 +44,7 @@ public class ConferenceDocument
 
     [BsonElement("status")]
     [BsonRepresentation(BsonType.String)]
-    public string Status { get; set; } = "Draft";
+    public string Status { get; set; } = nameof(ConferenceStatus.Draft);
 
     [BsonElement("talkTypes")]
     public List<TalkTypeDocument> TalkTypes { get; set; } = new();

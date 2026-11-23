@@ -1,4 +1,5 @@
 using ConferenceExample.EventStore;
+using ConferenceExample.Speaker.Domain.SpeakerManagement.Events;
 using ConferenceExample.Speaker.Persistence.EventHandlers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,13 +16,13 @@ public static class SpeakerEventSubscriptions
         SubscribeSpeakerHandler(
             eventBus,
             scopeFactory,
-            "SpeakerProfileCreatedEvent",
+            nameof(SpeakerProfileCreatedEvent),
             (h, e) => h.HandleSpeakerProfileCreated(e)
         );
         SubscribeSpeakerHandler(
             eventBus,
             scopeFactory,
-            "SpeakerProfileUpdatedEvent",
+            nameof(SpeakerProfileUpdatedEvent),
             (h, e) => h.HandleSpeakerProfileUpdated(e)
         );
     }

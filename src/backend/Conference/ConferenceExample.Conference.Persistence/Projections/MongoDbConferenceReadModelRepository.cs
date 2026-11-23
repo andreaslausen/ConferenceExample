@@ -12,9 +12,9 @@ public class MongoDbConferenceReadModelRepository
 {
     private static readonly string[] PublicConferenceStatuses =
     [
-        "CallForSpeakers",
-        "CallForSpeakersClosed",
-        "ProgramPublished",
+        nameof(ConferenceStatus.CallForSpeakers),
+        nameof(ConferenceStatus.CallForSpeakersClosed),
+        nameof(ConferenceStatus.ProgramPublished),
     ];
 
     private readonly IMongoCollection<ConferenceDocument> _collection;

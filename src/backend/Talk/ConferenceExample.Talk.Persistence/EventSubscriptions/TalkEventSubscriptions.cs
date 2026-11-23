@@ -1,4 +1,5 @@
 using ConferenceExample.EventStore;
+using ConferenceExample.Talk.Domain.TalkManagement.Events;
 using ConferenceExample.Talk.Persistence.EventHandlers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,49 +15,62 @@ namespace ConferenceExample.Talk.Persistence.EventSubscriptions;
 /// </summary>
 public static class TalkEventSubscriptions
 {
+    // Conference BC's and Speaker BC's event classes live in Conference.Domain/Speaker.Domain,
+    // which Talk.Persistence must not reference (bounded context isolation, enforced by
+    // TalkDependencyRules). These constants mirror the external event class names so the
+    // subscriptions below are at least named constants rather than inline magic strings.
+    private const string TalkSubmissionRegisteredEventType = "TalkSubmissionRegisteredEvent";
+    private const string TalkSubmissionRejectedEventType = "TalkSubmissionRejectedEvent";
+    private const string TalkAcceptedEventType = "TalkAcceptedEvent";
+    private const string TalkRejectedEventType = "TalkRejectedEvent";
+    private const string SpeakerProfileCreatedEventType = "SpeakerProfileCreatedEvent";
+    private const string ConferenceCreatedEventType = "ConferenceCreatedEvent";
+    private const string ConferenceRenamedEventType = "ConferenceRenamedEvent";
+    private const string ConferenceDetailsUpdatedEventType = "ConferenceDetailsUpdatedEvent";
+
     public static void Subscribe(IEventBus eventBus, IServiceScopeFactory scopeFactory)
     {
         // Talk's own events
         SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkCreatedEvent",
+            nameof(TalkCreatedEvent),
             (h, e) => h.HandleTalkCreated(e)
         );
         SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkTitleEditedEvent",
+            nameof(TalkTitleEditedEvent),
             (h, e) => h.HandleTalkTitleEdited(e)
         );
         SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkAbstractEditedEvent",
+            nameof(TalkAbstractEditedEvent),
             (h, e) => h.HandleTalkAbstractEdited(e)
         );
         SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkTagAddedEvent",
+            nameof(TalkTagAddedEvent),
             (h, e) => h.HandleTalkTagAdded(e)
         );
         SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkTagRemovedEvent",
+            nameof(TalkTagRemovedEvent),
             (h, e) => h.HandleTalkTagRemoved(e)
         );
         SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkDeletedEvent",
+            nameof(TalkDeletedEvent),
             (h, e) => h.HandleTalkDeleted(e)
         );
         SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkSubmittedToConferenceEvent",
+            nameof(TalkSubmittedToConferenceEvent),
             (h, e) => h.HandleTalkSubmittedToConference(e)
         );
 
@@ -64,25 +78,25 @@ public static class TalkEventSubscriptions
         SubscribeHandler<TalkSubmissionEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkSubmissionRegisteredEvent",
+            TalkSubmissionRegisteredEventType,
             (h, e) => h.HandleSubmissionRegistered(e)
         );
         SubscribeHandler<TalkSubmissionEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkSubmissionRejectedEvent",
+            TalkSubmissionRejectedEventType,
             (h, e) => h.HandleSubmissionRejected(e)
         );
         SubscribeHandler<TalkSubmissionEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkAcceptedEvent",
+            TalkAcceptedEventType,
             (h, e) => h.HandleTalkAccepted(e)
         );
         SubscribeHandler<TalkSubmissionEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkRejectedEvent",
+            TalkRejectedEventType,
             (h, e) => h.HandleTalkRejected(e)
         );
 
@@ -90,7 +104,7 @@ public static class TalkEventSubscriptions
         SubscribeHandler<SpeakerReplicaEventHandler>(
             eventBus,
             scopeFactory,
-            "SpeakerProfileCreatedEvent",
+            SpeakerProfileCreatedEventType,
             (h, e) => h.HandleSpeakerProfileCreated(e)
         );
 
@@ -98,19 +112,19 @@ public static class TalkEventSubscriptions
         SubscribeHandler<ConferenceReplicaEventHandler>(
             eventBus,
             scopeFactory,
-            "ConferenceCreatedEvent",
+            ConferenceCreatedEventType,
             (h, e) => h.HandleConferenceCreated(e)
         );
         SubscribeHandler<ConferenceReplicaEventHandler>(
             eventBus,
             scopeFactory,
-            "ConferenceRenamedEvent",
+            ConferenceRenamedEventType,
             (h, e) => h.HandleConferenceRenamed(e)
         );
         SubscribeHandler<ConferenceReplicaEventHandler>(
             eventBus,
             scopeFactory,
-            "ConferenceDetailsUpdatedEvent",
+            ConferenceDetailsUpdatedEventType,
             (h, e) => h.HandleConferenceRenamed(e)
         );
     }
