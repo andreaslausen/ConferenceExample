@@ -37,7 +37,6 @@ public class TalksController(ITalkService talkService) : ControllerBase
     [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType<GetTalkByIdDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<GetTalkByIdDto>> GetTalkById(Guid id)
     {

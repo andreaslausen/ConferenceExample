@@ -23,6 +23,8 @@ public class GetTalkByIdQueryHandler(
 
         var currentSpeakerId = await currentSpeakerProvider.GetCurrentSpeakerId();
 
+        // 404, not 403: talks aren't listed publicly, so revealing that a talk exists but
+        // belongs to someone else would leak information an outsider shouldn't have.
         if (new SpeakerId(new GuidV7(talk.SpeakerId)) != currentSpeakerId)
             return null;
 
