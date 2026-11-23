@@ -1,4 +1,4 @@
-namespace ConferenceExample.Talk.Domain.SharedKernel;
+namespace ConferenceExample.Talk.Domain;
 
 public class DomainException : Exception
 {

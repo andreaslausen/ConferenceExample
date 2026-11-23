@@ -1,6 +1,6 @@
-using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
+using ConferenceExample.Talk.Domain.Extensions;
 
-namespace ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+namespace ConferenceExample.Talk.Domain.ValueObjects.Ids;
 
 public sealed record GuidV7
 {

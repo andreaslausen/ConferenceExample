@@ -1,5 +1,5 @@
 using ConferenceExample.Talk.Domain.ConferenceManagement;
-using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
+using ConferenceExample.Talk.Domain.Extensions;
 using MongoDB.Driver;
 
 namespace ConferenceExample.Talk.Persistence.Projections;

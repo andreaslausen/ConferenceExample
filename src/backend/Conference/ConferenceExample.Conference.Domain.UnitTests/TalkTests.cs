@@ -1,8 +1,8 @@
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.RoomManagement;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
+using ConferenceExample.Conference.Domain.ValueObjects;
+using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
 namespace ConferenceExample.Conference.Domain.UnitTests;

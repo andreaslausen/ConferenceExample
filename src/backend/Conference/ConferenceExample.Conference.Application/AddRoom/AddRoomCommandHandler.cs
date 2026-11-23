@@ -1,7 +1,7 @@
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.RoomManagement;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.ValueObjects;
+using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Application.AddRoom;
 

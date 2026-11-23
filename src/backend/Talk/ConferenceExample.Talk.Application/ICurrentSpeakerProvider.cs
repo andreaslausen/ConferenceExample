@@ -9,7 +9,7 @@ namespace ConferenceExample.Talk.Application;
 public interface ICurrentSpeakerProvider
 {
     /// <summary>
-    /// Throws <see cref="Domain.SharedKernel.NotFoundException"/> when the account has no speaker
+    /// Throws <see cref="Domain.NotFoundException"/> when the account has no speaker
     /// profile yet — talks belong to a speaker, so there is nothing to own them.
     /// </summary>
     Task<SpeakerId> GetCurrentSpeakerId();

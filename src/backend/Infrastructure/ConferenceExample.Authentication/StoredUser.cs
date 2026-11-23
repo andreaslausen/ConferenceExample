@@ -1,4 +1,4 @@
-using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Authentication.ValueObjects.Ids;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 

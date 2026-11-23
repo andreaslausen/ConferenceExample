@@ -1,4 +1,4 @@
-namespace ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
+namespace ConferenceExample.Talk.Domain.ValueObjects;
 
 public record Text
 {

@@ -82,14 +82,30 @@ API  ──►  Application  ──►  Domain
 
 - **Domain** projects contain aggregates, entities, and value objects. Strong typing is
   enforced via value objects (e.g. `TalkId`, `SpeakerId`, `UserId`, `GuidV7`, `TalkTitle`,
-  `Abstract`). Each context has its own copy of the shared kernel — they are separate contexts,
-  not a shared library.
+  `Abstract`).
 - **Application** projects contain use cases and depend on repository interfaces defined in
   their own Domain project.
 - **Persistence** projects are per bounded context (`*.Persistence`) and own that context's
   event store collection, read models, event handlers and event subscriptions.
 - **ConferenceExample.API** is the ASP.NET Core entry point. `ServiceCollectionExtensions`
   registers infrastructure and wires each context's `*EventSubscriptions` to the event bus.
+
+### Technical building blocks are duplicated on purpose
+
+Each Domain project (and `ConferenceExample.Authentication`) has its own copy of the same
+small set of technical building blocks: `AggregateRoot`, `DomainException`,
+`NotFoundException`, `IDomainEvent`, `GuidV7`, `Text`, `GuidExtensions`/`StringExtensions`,
+and a couple of generic value objects (`PageRequest`, `Time`). These used to live in a
+`SharedKernel` folder/namespace per context, which was misleading — nothing there was
+actually shared, each context held a byte-for-byte copy under its own namespace. That folder
+has been dissolved; the files now sit directly in each context's Domain project root.
+
+The duplication itself stays, deliberately: these contexts are meant to evolve
+independently, and a real shared kernel would mean a shared assembly (and shared release
+cadence) coupling all bounded contexts together — exactly the coupling bounded contexts are
+meant to avoid. If this ever becomes a real maintenance problem, the fallback is a small
+library containing *only* technical types (e.g. `IDomainEvent`, `GuidV7`) — never domain
+concepts like `SpeakerId` — but that's a tradeoff to revisit deliberately, not a default.
 
 ## Event sourcing
 

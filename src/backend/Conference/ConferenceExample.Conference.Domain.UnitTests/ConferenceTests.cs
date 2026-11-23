@@ -1,13 +1,13 @@
 namespace ConferenceExample.Conference.Domain.UnitTests;
 
+using ConferenceExample.Conference.Domain;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.ConferenceManagement.Events;
 using ConferenceExample.Conference.Domain.RoomManagement;
-using ConferenceExample.Conference.Domain.SharedKernel;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
 using ConferenceExample.Conference.Domain.TalkManagement.Events;
+using ConferenceExample.Conference.Domain.ValueObjects;
+using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 using Xunit;
 using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 

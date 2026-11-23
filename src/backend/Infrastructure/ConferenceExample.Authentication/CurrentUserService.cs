@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using ConferenceExample.Authentication.SharedKernel.Extensions;
-using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Authentication.Extensions;
+using ConferenceExample.Authentication.ValueObjects.Ids;
 using Microsoft.AspNetCore.Http;
 
 namespace ConferenceExample.Authentication;

@@ -1,4 +1,4 @@
-using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
+using ConferenceExample.Talk.Domain.Extensions;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using MongoDB.Driver;
 

@@ -1,8 +1,8 @@
+using ConferenceExample.Talk.Domain;
 using ConferenceExample.Talk.Domain.ConferenceManagement;
-using ConferenceExample.Talk.Domain.SharedKernel;
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement.Events;
+using ConferenceExample.Talk.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Talk.Domain.TalkManagement;
 

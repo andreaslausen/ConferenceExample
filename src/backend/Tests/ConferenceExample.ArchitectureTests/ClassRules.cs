@@ -1,7 +1,7 @@
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnit;
-using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.Extensions;
+using ConferenceExample.Talk.Domain.ValueObjects.Ids;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace ConferenceExample.ArchitectureTests;
@@ -22,27 +22,27 @@ public class ClassRules : ArchitectureTest
             .And()
             .AreNot(typeof(GuidV7))
             .And()
-            .AreNot(typeof(Conference.Domain.SharedKernel.ValueObjects.Ids.GuidV7))
+            .AreNot(typeof(Conference.Domain.ValueObjects.Ids.GuidV7))
             .And()
-            .AreNot(typeof(Speaker.Domain.SharedKernel.ValueObjects.Ids.GuidV7))
+            .AreNot(typeof(Speaker.Domain.ValueObjects.Ids.GuidV7))
             .And()
-            .AreNot(typeof(Authentication.SharedKernel.ValueObjects.Ids.GuidV7))
+            .AreNot(typeof(Authentication.ValueObjects.Ids.GuidV7))
             .And()
             .AreNot(typeof(GuidExtensions))
             .And()
             .AreNot(typeof(StringExtensions))
             .And()
-            .AreNot(typeof(Conference.Domain.SharedKernel.Extensions.GuidExtensions))
+            .AreNot(typeof(Conference.Domain.Extensions.GuidExtensions))
             .And()
-            .AreNot(typeof(Conference.Domain.SharedKernel.Extensions.StringExtensions))
+            .AreNot(typeof(Conference.Domain.Extensions.StringExtensions))
             .And()
-            .AreNot(typeof(Speaker.Domain.SharedKernel.Extensions.GuidExtensions))
+            .AreNot(typeof(Speaker.Domain.Extensions.GuidExtensions))
             .And()
-            .AreNot(typeof(Speaker.Domain.SharedKernel.Extensions.StringExtensions))
+            .AreNot(typeof(Speaker.Domain.Extensions.StringExtensions))
             .And()
-            .AreNot(typeof(Authentication.SharedKernel.Extensions.GuidExtensions))
+            .AreNot(typeof(Authentication.Extensions.GuidExtensions))
             .And()
-            .AreNot(typeof(Authentication.SharedKernel.Extensions.StringExtensions))
+            .AreNot(typeof(Authentication.Extensions.StringExtensions))
             .Should()
             .NotCallAny(MethodMembers().That().AreDeclaredIn(typeof(Guid)))
             .WithoutRequiringPositiveResults();

@@ -1,4 +1,4 @@
-using ConferenceExample.Conference.Domain.SharedKernel;
+using ConferenceExample.Conference.Domain;
 
 namespace ConferenceExample.Conference.Domain.ConferenceManagement.Events;
 

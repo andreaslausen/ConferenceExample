@@ -1,6 +1,6 @@
 namespace ConferenceExample.Talk.Domain.UnitTests;
 
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Talk.Domain.ValueObjects;
 
 public class PageRequestTests
 {

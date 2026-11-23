@@ -1,7 +1,7 @@
-using ConferenceExample.Speaker.Domain.SharedKernel;
-using ConferenceExample.Speaker.Domain.SharedKernel.ValueObjects;
-using ConferenceExample.Speaker.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Speaker.Domain;
 using ConferenceExample.Speaker.Domain.SpeakerManagement;
+using ConferenceExample.Speaker.Domain.ValueObjects;
+using ConferenceExample.Speaker.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Speaker.Application.CreateSpeakerProfile;
 

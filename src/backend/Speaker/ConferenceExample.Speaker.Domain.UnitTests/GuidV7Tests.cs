@@ -1,6 +1,6 @@
 namespace ConferenceExample.Speaker.Domain.UnitTests;
 
-using ConferenceExample.Speaker.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Speaker.Domain.ValueObjects.Ids;
 
 public class GuidV7Tests
 {

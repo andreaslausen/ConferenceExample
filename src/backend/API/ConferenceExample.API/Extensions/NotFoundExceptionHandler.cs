@@ -1,8 +1,8 @@
-using ConferenceExample.Conference.Domain.SharedKernel;
+using ConferenceExample.Conference.Domain;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SpeakerNotFoundException = ConferenceExample.Speaker.Domain.SharedKernel.NotFoundException;
-using TalkNotFoundException = ConferenceExample.Talk.Domain.SharedKernel.NotFoundException;
+using SpeakerNotFoundException = ConferenceExample.Speaker.Domain.NotFoundException;
+using TalkNotFoundException = ConferenceExample.Talk.Domain.NotFoundException;
 
 namespace ConferenceExample.API.Extensions;
 

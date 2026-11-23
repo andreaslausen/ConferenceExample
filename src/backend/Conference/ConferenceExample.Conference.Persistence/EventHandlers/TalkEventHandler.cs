@@ -1,9 +1,9 @@
 using System.Text.Json;
+using ConferenceExample.Conference.Domain;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
-using ConferenceExample.Conference.Domain.SharedKernel;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
 using ConferenceExample.Conference.Domain.TalkManagement.Events;
+using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 using ConferenceExample.Conference.Persistence.Projections;
 using ConferenceExample.EventStore;
 using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;

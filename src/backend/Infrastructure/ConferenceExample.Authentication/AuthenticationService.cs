@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Authentication.ValueObjects.Ids;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ConferenceExample.Authentication;

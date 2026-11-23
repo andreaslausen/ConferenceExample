@@ -1,6 +1,6 @@
-using ConferenceExample.Authentication.SharedKernel.Extensions;
+using ConferenceExample.Authentication.Extensions;
 
-namespace ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
+namespace ConferenceExample.Authentication.ValueObjects.Ids;
 
 public sealed record GuidV7
 {

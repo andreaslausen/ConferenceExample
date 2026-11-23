@@ -1,8 +1,8 @@
-using ConferenceExample.Conference.Domain.SharedKernel;
+using ConferenceExample.Conference.Domain;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SpeakerDomainException = ConferenceExample.Speaker.Domain.SharedKernel.DomainException;
-using TalkDomainException = ConferenceExample.Talk.Domain.SharedKernel.DomainException;
+using SpeakerDomainException = ConferenceExample.Speaker.Domain.DomainException;
+using TalkDomainException = ConferenceExample.Talk.Domain.DomainException;
 
 namespace ConferenceExample.API.Extensions;
 

@@ -1,6 +1,6 @@
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
+using ConferenceExample.Talk.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Talk.Application.GetTalkById;
 

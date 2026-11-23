@@ -1,7 +1,7 @@
-using ConferenceExample.Talk.Domain.SharedKernel.Extensions;
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Talk.Domain.Extensions;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
+using ConferenceExample.Talk.Domain.ValueObjects;
 using MongoDB.Driver;
 
 namespace ConferenceExample.Talk.Persistence.Projections;

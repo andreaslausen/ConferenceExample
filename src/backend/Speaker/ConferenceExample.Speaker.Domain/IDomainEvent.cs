@@ -1,4 +1,4 @@
-namespace ConferenceExample.Speaker.Domain.SharedKernel;
+namespace ConferenceExample.Speaker.Domain;
 
 public interface IDomainEvent
 {

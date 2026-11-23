@@ -1,9 +1,9 @@
 using System.Text.Json;
 using ConferenceExample.EventStore;
-using ConferenceExample.Speaker.Domain.SharedKernel;
-using ConferenceExample.Speaker.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Speaker.Domain;
 using ConferenceExample.Speaker.Domain.SpeakerManagement;
 using ConferenceExample.Speaker.Domain.SpeakerManagement.Events;
+using ConferenceExample.Speaker.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Speaker.Persistence;
 

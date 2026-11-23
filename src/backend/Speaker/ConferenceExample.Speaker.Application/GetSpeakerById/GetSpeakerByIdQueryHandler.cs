@@ -1,5 +1,5 @@
-using ConferenceExample.Speaker.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Speaker.Domain.SpeakerManagement;
+using ConferenceExample.Speaker.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Speaker.Application.GetSpeakerById;
 

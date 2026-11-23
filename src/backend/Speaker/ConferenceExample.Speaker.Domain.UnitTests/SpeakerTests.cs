@@ -1,8 +1,8 @@
-using ConferenceExample.Speaker.Domain.SharedKernel;
-using ConferenceExample.Speaker.Domain.SharedKernel.ValueObjects;
-using ConferenceExample.Speaker.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Speaker.Domain;
 using ConferenceExample.Speaker.Domain.SpeakerManagement;
 using ConferenceExample.Speaker.Domain.SpeakerManagement.Events;
+using ConferenceExample.Speaker.Domain.ValueObjects;
+using ConferenceExample.Speaker.Domain.ValueObjects.Ids;
 using SpeakerAggregate = ConferenceExample.Speaker.Domain.SpeakerManagement.Speaker;
 
 namespace ConferenceExample.Speaker.Domain.UnitTests;

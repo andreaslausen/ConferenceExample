@@ -1,5 +1,5 @@
 using ConferenceExample.Talk.Domain.ConferenceManagement;
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Talk.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Talk.Domain.UnitTests;
 

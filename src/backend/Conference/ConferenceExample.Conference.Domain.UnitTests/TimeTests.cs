@@ -1,4 +1,4 @@
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.ValueObjects;
 
 namespace ConferenceExample.Conference.Domain.UnitTests;
 

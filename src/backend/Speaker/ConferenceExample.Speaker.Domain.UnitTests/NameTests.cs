@@ -1,6 +1,6 @@
 namespace ConferenceExample.Speaker.Domain.UnitTests;
 
-using ConferenceExample.Speaker.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Speaker.Domain.ValueObjects;
 
 public class NameTests
 {

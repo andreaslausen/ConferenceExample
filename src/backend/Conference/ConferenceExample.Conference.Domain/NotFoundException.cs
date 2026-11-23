@@ -1,4 +1,4 @@
-namespace ConferenceExample.Conference.Domain.SharedKernel;
+namespace ConferenceExample.Conference.Domain;
 
 public class NotFoundException : Exception
 {

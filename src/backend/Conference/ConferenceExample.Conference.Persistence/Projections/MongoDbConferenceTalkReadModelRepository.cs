@@ -1,7 +1,7 @@
 using ConferenceExample.Conference.Domain.ConferenceManagement;
-using ConferenceExample.Conference.Domain.SharedKernel.Extensions;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.Extensions;
 using ConferenceExample.Conference.Domain.TalkManagement;
+using ConferenceExample.Conference.Domain.ValueObjects;
 using MongoDB.Driver;
 
 namespace ConferenceExample.Conference.Persistence.Projections;

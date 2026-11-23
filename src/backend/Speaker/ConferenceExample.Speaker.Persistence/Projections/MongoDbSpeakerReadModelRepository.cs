@@ -1,4 +1,4 @@
-using ConferenceExample.Speaker.Domain.SharedKernel.Extensions;
+using ConferenceExample.Speaker.Domain.Extensions;
 using ConferenceExample.Speaker.Domain.SpeakerManagement;
 using MongoDB.Driver;
 

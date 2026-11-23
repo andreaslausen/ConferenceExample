@@ -1,3 +1,3 @@
-namespace ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+namespace ConferenceExample.Conference.Domain.ValueObjects;
 
 public record Time(DateTimeOffset Start, DateTimeOffset End);

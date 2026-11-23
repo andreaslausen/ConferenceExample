@@ -1,4 +1,4 @@
-namespace ConferenceExample.Conference.Domain.SharedKernel.Extensions;
+namespace ConferenceExample.Conference.Domain.Extensions;
 
 public static class GuidExtensions
 {

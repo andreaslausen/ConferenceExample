@@ -1,4 +1,4 @@
-namespace ConferenceExample.Talk.Domain.SharedKernel.Extensions;
+namespace ConferenceExample.Talk.Domain.Extensions;
 
 public static class StringExtensions
 {

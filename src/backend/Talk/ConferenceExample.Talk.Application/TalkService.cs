@@ -5,7 +5,7 @@ using ConferenceExample.Talk.Application.GetMyTalks;
 using ConferenceExample.Talk.Application.GetTalkById;
 using ConferenceExample.Talk.Application.GetTalkSubmissions;
 using ConferenceExample.Talk.Application.SubmitTalkToConference;
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Talk.Domain.ValueObjects;
 
 namespace ConferenceExample.Talk.Application;
 

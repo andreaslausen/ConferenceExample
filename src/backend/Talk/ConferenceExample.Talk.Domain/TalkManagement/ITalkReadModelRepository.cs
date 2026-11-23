@@ -1,5 +1,5 @@
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
+using ConferenceExample.Talk.Domain.ValueObjects;
 
 namespace ConferenceExample.Talk.Domain.TalkManagement;
 
