@@ -87,7 +87,7 @@ public static class TalkEventSubscriptions
         );
 
         // Speaker BC: which profile belongs to which account
-        SubscribeHandler<SpeakerDirectoryEventHandler>(
+        SubscribeHandler<SpeakerReplicaEventHandler>(
             eventBus,
             scopeFactory,
             "SpeakerProfileCreatedEvent",
@@ -95,19 +95,19 @@ public static class TalkEventSubscriptions
         );
 
         // Conference BC: names for the speaker's submission list
-        SubscribeHandler<ConferenceDirectoryEventHandler>(
+        SubscribeHandler<ConferenceReplicaEventHandler>(
             eventBus,
             scopeFactory,
             "ConferenceCreatedEvent",
             (h, e) => h.HandleConferenceCreated(e)
         );
-        SubscribeHandler<ConferenceDirectoryEventHandler>(
+        SubscribeHandler<ConferenceReplicaEventHandler>(
             eventBus,
             scopeFactory,
             "ConferenceRenamedEvent",
             (h, e) => h.HandleConferenceRenamed(e)
         );
-        SubscribeHandler<ConferenceDirectoryEventHandler>(
+        SubscribeHandler<ConferenceReplicaEventHandler>(
             eventBus,
             scopeFactory,
             "ConferenceDetailsUpdatedEvent",

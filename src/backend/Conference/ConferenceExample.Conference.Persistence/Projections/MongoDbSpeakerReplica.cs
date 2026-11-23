@@ -2,13 +2,13 @@ using MongoDB.Driver;
 
 namespace ConferenceExample.Conference.Persistence.ReadModels;
 
-public class MongoDbSpeakerDirectory : ISpeakerDocumentRepository
+public class MongoDbSpeakerReplica : ISpeakerDocumentRepository
 {
     private readonly IMongoCollection<SpeakerDocument> _collection;
 
-    public MongoDbSpeakerDirectory(IMongoDatabase database)
+    public MongoDbSpeakerReplica(IMongoDatabase database)
     {
-        _collection = database.GetCollection<SpeakerDocument>("conference_speaker_directory");
+        _collection = database.GetCollection<SpeakerDocument>("conference_speaker_replica");
     }
 
     public async Task<SpeakerDocument?> GetById(Guid speakerId)

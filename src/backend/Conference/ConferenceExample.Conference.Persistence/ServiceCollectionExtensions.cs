@@ -1,7 +1,7 @@
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.TalkManagement;
 using ConferenceExample.Conference.Persistence.EventHandlers;
-using ConferenceExample.Conference.Persistence.ReadModels;
+using ConferenceExample.Conference.Persistence.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -31,12 +31,12 @@ public static class ServiceCollectionExtensions
         );
 
         // Speaker profiles replicated from the Speaker BC (cross-BC projection)
-        services.AddScoped<ISpeakerDocumentRepository, MongoDbSpeakerDirectory>();
+        services.AddScoped<ISpeakerDocumentRepository, MongoDbSpeakerReplica>();
 
         // Event Handlers
         services.AddScoped<ConferenceEventHandler>();
         services.AddScoped<TalkEventHandler>();
-        services.AddScoped<SpeakerDirectoryEventHandler>();
+        services.AddScoped<SpeakerReplicaEventHandler>();
 
         return services;
     }

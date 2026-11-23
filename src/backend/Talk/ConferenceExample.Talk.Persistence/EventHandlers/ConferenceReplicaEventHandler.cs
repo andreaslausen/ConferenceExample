@@ -6,9 +6,9 @@ namespace ConferenceExample.Talk.Persistence.EventHandlers;
 
 /// <summary>
 /// Keeps conference names available for a speaker's submission list. Display data only — see
-/// <see cref="Domain.ConferenceManagement.IConferenceDirectory"/>.
+/// <see cref="Domain.ConferenceManagement.IConferenceReplica"/>.
 /// </summary>
-public class ConferenceDirectoryEventHandler(IConferenceDocumentRepository repository)
+public class ConferenceReplicaEventHandler(IConferenceDocumentRepository repository)
 {
     public async Task HandleConferenceCreated(StoredEvent storedEvent)
     {

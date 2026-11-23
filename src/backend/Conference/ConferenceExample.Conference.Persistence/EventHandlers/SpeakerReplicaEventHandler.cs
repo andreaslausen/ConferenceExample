@@ -8,7 +8,7 @@ namespace ConferenceExample.Conference.Persistence.EventHandlers;
 /// Keeps the Conference BC's copy of speaker profiles current, so a submission can be stamped with
 /// who the speaker was at the moment it was registered.
 /// </summary>
-public class SpeakerDirectoryEventHandler(ISpeakerDocumentRepository repository)
+public class SpeakerReplicaEventHandler(ISpeakerDocumentRepository repository)
 {
     public async Task HandleSpeakerProfileChanged(StoredEvent storedEvent)
     {

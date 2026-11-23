@@ -4,7 +4,7 @@ using ConferenceExample.Conference.Domain.SharedKernel;
 using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Conference.Domain.TalkManagement;
 using ConferenceExample.Conference.Domain.TalkManagement.Events;
-using ConferenceExample.Conference.Persistence.ReadModels;
+using ConferenceExample.Conference.Persistence.Projections;
 using ConferenceExample.EventStore;
 using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
 
@@ -21,7 +21,7 @@ namespace ConferenceExample.Conference.Persistence.EventHandlers;
 /// </summary>
 public class TalkEventHandler(
     IConferenceTalkDocumentRepository readModelRepository,
-    ISpeakerDocumentRepository speakerDirectory,
+    ISpeakerDocumentRepository speakerReplica,
     IConferenceRepository conferenceRepository,
     IEventBus eventBus
 )
@@ -73,7 +73,7 @@ public class TalkEventHandler(
         if (!registered)
             return;
 
-        var speaker = await speakerDirectory.GetById(payload.SpeakerId);
+        var speaker = await speakerReplica.GetById(payload.SpeakerId);
 
         var newReadModel = new ConferenceTalkDocument
         {

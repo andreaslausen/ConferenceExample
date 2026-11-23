@@ -12,7 +12,7 @@ namespace ConferenceExample.Talk.Application.GetTalkSubmissions;
 public class GetTalkSubmissionsQueryHandler(
     ITalkReadModelRepository talkReadModelRepository,
     ITalkSubmissionReadModelRepository submissionReadModelRepository,
-    IConferenceDirectory conferenceDirectory,
+    IConferenceReplica conferenceReplica,
     ICurrentSpeakerProvider currentSpeakerProvider
 ) : IGetTalkSubmissionsQueryHandler
 {
@@ -32,7 +32,7 @@ public class GetTalkSubmissionsQueryHandler(
 
         var submissions = await submissionReadModelRepository.GetByTalkId(talkId);
 
-        var conferenceNames = await conferenceDirectory.GetConferenceNames(
+        var conferenceNames = await conferenceReplica.GetConferenceNames(
             submissions.Select(s => new ConferenceId(new GuidV7(s.ConferenceId))).ToList()
         );
 

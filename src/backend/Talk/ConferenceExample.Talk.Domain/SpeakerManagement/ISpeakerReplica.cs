@@ -10,7 +10,7 @@ namespace ConferenceExample.Talk.Domain.SpeakerManagement;
 /// <c>*ReadModelRepository</c> and is not covered by the CQRS rule that keeps command handlers off
 /// projections (see <c>EventSourcingRules</c> in the architecture tests).
 /// </summary>
-public interface ISpeakerDirectory
+public interface ISpeakerReplica
 {
     Task<SpeakerId?> FindSpeakerIdByUserId(UserId userId);
 }

@@ -9,7 +9,7 @@ namespace ConferenceExample.Talk.Persistence.EventHandlers;
 /// so the Talk BC can tell whose talks these are without depending on the Speaker BC directly.
 /// Profile content is deliberately not replicated: the Talk BC has no use for it.
 /// </summary>
-public class SpeakerDirectoryEventHandler(ISpeakerDirectoryDocumentRepository repository)
+public class SpeakerReplicaEventHandler(ISpeakerReplicaDocumentRepository repository)
 {
     public async Task HandleSpeakerProfileCreated(StoredEvent storedEvent)
     {
@@ -18,7 +18,7 @@ public class SpeakerDirectoryEventHandler(ISpeakerDirectoryDocumentRepository re
             return;
 
         await repository.Save(
-            new SpeakerDirectoryDocument
+            new SpeakerReplicaDocument
             {
                 Id = storedEvent.AggregateId.ToString(),
                 UserId = payload.UserId.ToString(),

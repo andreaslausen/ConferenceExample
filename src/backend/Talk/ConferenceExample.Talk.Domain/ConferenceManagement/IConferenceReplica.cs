@@ -5,7 +5,7 @@ namespace ConferenceExample.Talk.Domain.ConferenceManagement;
 /// data only — the Talk BC never decides anything based on it, and never keeps a copy of a
 /// conference's state.
 /// </summary>
-public interface IConferenceDirectory
+public interface IConferenceReplica
 {
     Task<IReadOnlyDictionary<Guid, string>> GetConferenceNames(
         IReadOnlyCollection<ConferenceId> conferenceIds

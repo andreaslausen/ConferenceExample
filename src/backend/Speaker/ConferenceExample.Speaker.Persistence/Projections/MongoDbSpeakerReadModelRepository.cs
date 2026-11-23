@@ -4,6 +4,13 @@ using MongoDB.Driver;
 
 namespace ConferenceExample.Speaker.Persistence.ReadModels;
 
+/// <summary>
+/// Backs all three speaker projection roles with a single Mongo collection:
+/// <see cref="ISpeakerDocumentRepository"/> (projection writes, for the event handler),
+/// <see cref="ISpeakerReadModelRepository"/> (domain reads, for query handlers), and
+/// <see cref="ISpeakerLookup"/> (identity index, for command handlers). One collection, three
+/// narrow interfaces segregated by consumer — see each interface for why it exists separately.
+/// </summary>
 public class MongoDbSpeakerReadModelRepository
     : ISpeakerDocumentRepository,
         ISpeakerReadModelRepository,

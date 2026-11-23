@@ -7,7 +7,7 @@ namespace ConferenceExample.Talk.Persistence.ReadModels;
 /// UserId -> SpeakerId, replicated from the Speaker BC's SpeakerProfileCreatedEvent. Keyed by the
 /// speaker id, because that is what the Talk BC stores on a talk.
 /// </summary>
-public class SpeakerDirectoryDocument
+public class SpeakerReplicaDocument
 {
     [BsonId]
     [BsonRepresentation(BsonType.String)]

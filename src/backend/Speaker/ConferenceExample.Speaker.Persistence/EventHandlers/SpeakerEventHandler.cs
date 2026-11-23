@@ -1,10 +1,10 @@
 using System.Text.Json;
 using ConferenceExample.EventStore;
-using ConferenceExample.Speaker.Persistence.ReadModels;
+using ConferenceExample.Speaker.Persistence.Projections;
 
 namespace ConferenceExample.Speaker.Persistence.EventHandlers;
 
-public class SpeakerEventHandler(ISpeakerDocumentRepository readModelRepository)
+public class SpeakerEventHandler(ISpeakerDocumentRepository documentRepository)
 {
     public async Task HandleSpeakerProfileCreated(StoredEvent storedEvent)
     {
@@ -24,7 +24,7 @@ public class SpeakerEventHandler(ISpeakerDocumentRepository readModelRepository)
             Version = storedEvent.Version,
         };
 
-        await readModelRepository.Save(newDocument);
+        await documentRepository.Save(newDocument);
     }
 
     public async Task HandleSpeakerProfileUpdated(StoredEvent storedEvent)
@@ -33,7 +33,7 @@ public class SpeakerEventHandler(ISpeakerDocumentRepository readModelRepository)
         if (payload is null)
             return;
 
-        var existingDocument = await readModelRepository.GetById(storedEvent.AggregateId);
+        var existingDocument = await documentRepository.GetById(storedEvent.AggregateId);
         if (existingDocument is null)
             return;
 
@@ -43,7 +43,7 @@ public class SpeakerEventHandler(ISpeakerDocumentRepository readModelRepository)
         existingDocument.LastModifiedAt = storedEvent.OccurredAt;
         existingDocument.Version = storedEvent.Version;
 
-        await readModelRepository.Update(existingDocument);
+        await documentRepository.Update(existingDocument);
     }
 
     private record SpeakerProfileCreatedPayload(

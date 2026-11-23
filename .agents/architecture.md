@@ -51,12 +51,12 @@ they already registered.
 A context keeps a minimal replica of another's data where it genuinely needs one, fed by
 domain events — never a synchronous call or a shared model across the boundary:
 
-- `Talk.Domain.SpeakerManagement.ISpeakerDirectory` — `UserId` → `SpeakerId`. An *identity
+- `Talk.Domain.SpeakerManagement.ISpeakerReplica` — `UserId` → `SpeakerId`. An *identity
   index*, not a read model: it answers "whose talks are these?", never "what does that profile
   say". Command handlers may use it (via `ICurrentSpeakerProvider`) to establish ownership
   before loading the aggregate from the event store; that's why it is deliberately not named
   `*ReadModelRepository` and not covered by the CQRS rule below.
-- `Talk.Domain.ConferenceManagement.IConferenceDirectory` — conference names, so a speaker's
+- `Talk.Domain.ConferenceManagement.IConferenceReplica` — conference names, so a speaker's
   submission list reads as names rather than ids. Display data only.
 - `Conference.Persistence.ReadModels.ISpeakerDocumentRepository` — speaker profiles, read once
   when a submission is registered to freeze the speaker's details into it.
@@ -115,11 +115,37 @@ each following a fixed shape:
   `*ReadModelRepository` projections, never from the event store.
 - Read models are kept up to date by event handlers wired up in `*EventSubscriptions`
   (Persistence layer), which subscribe to the `InMemoryEventBus` and update the
-  corresponding `*ReadModelRepository` when an event is published.
+  projection through its `*DocumentRepository` (see below) when an event is published.
 
 Follow this shape for new use cases rather than improvising a different one. For the
 rationale (why CQRS, why event sourcing) see ADR-2 in
 `src/documentation/chapters/09_architecture_decisions.adoc`.
+
+### Three interfaces, one projection
+
+A projection's backing Mongo class typically implements up to three narrow,
+consumer-specific interfaces rather than one general-purpose repository — Interface
+Segregation, not accidental duplication:
+
+- **`*DocumentRepository`** (Persistence layer) — raw CRUD on the storage document
+  (`Save`/`Update`/`GetById`/`Delete`). Consumed only by the projection's own event
+  handler, to build and update it from events. Not a query API for application code.
+- **`*ReadModelRepository`** (Domain layer) — returns the domain-shaped `*ReadModel`.
+  Consumed by query handlers. This is the interface the CQRS rule above means by
+  "ReadModel repository".
+- **`*Replica` / `*Lookup`** (Domain layer) — an identity index (e.g. `UserId` →
+  `SpeakerId`), not a read model. Consumed by command handlers to resolve which aggregate
+  to load from the event store next. Deliberately not named `*ReadModelRepository`, so
+  `EventSourcingRules` doesn't flag command handlers that use it — see e.g.
+  `Speaker.Domain.SpeakerManagement.ISpeakerLookup` or
+  `Talk.Domain.SpeakerManagement.ISpeakerReplica` for the doc comments explaining why.
+  `*Replica` names a cross-BC copy specifically (`*Lookup` stays within the owning BC).
+
+Example: `Speaker.Persistence.ReadModels.MongoDbSpeakerReadModelRepository` implements
+`ISpeakerDocumentRepository`, `ISpeakerReadModelRepository`, and `ISpeakerLookup` — one
+Mongo collection, three interfaces, three distinct consumers (event handler, query
+handlers, command handlers respectively). Not every projection needs all three; add one
+only when a consumer actually needs that shape.
 
 ## Layer dependency rules
 

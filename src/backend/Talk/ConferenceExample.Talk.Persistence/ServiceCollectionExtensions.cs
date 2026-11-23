@@ -2,7 +2,7 @@ using ConferenceExample.Talk.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence.EventHandlers;
-using ConferenceExample.Talk.Persistence.ReadModels;
+using ConferenceExample.Talk.Persistence.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -36,27 +36,25 @@ public static class ServiceCollectionExtensions
         );
 
         // Cross-BC projections (Speaker BC, Conference BC)
-        services.AddScoped<MongoDbSpeakerDirectory>();
-        services.AddScoped<ISpeakerDirectoryDocumentRepository>(sp =>
-            sp.GetRequiredService<MongoDbSpeakerDirectory>()
+        services.AddScoped<MongoDbSpeakerReplica>();
+        services.AddScoped<ISpeakerReplicaDocumentRepository>(sp =>
+            sp.GetRequiredService<MongoDbSpeakerReplica>()
         );
-        services.AddScoped<ISpeakerDirectory>(sp =>
-            sp.GetRequiredService<MongoDbSpeakerDirectory>()
-        );
+        services.AddScoped<ISpeakerReplica>(sp => sp.GetRequiredService<MongoDbSpeakerReplica>());
 
-        services.AddScoped<MongoDbConferenceDirectory>();
+        services.AddScoped<MongoDbConferenceReplica>();
         services.AddScoped<IConferenceDocumentRepository>(sp =>
-            sp.GetRequiredService<MongoDbConferenceDirectory>()
+            sp.GetRequiredService<MongoDbConferenceReplica>()
         );
-        services.AddScoped<IConferenceDirectory>(sp =>
-            sp.GetRequiredService<MongoDbConferenceDirectory>()
+        services.AddScoped<IConferenceReplica>(sp =>
+            sp.GetRequiredService<MongoDbConferenceReplica>()
         );
 
         // Event Handlers
         services.AddScoped<TalkEventHandler>();
         services.AddScoped<TalkSubmissionEventHandler>();
-        services.AddScoped<SpeakerDirectoryEventHandler>();
-        services.AddScoped<ConferenceDirectoryEventHandler>();
+        services.AddScoped<SpeakerReplicaEventHandler>();
+        services.AddScoped<ConferenceReplicaEventHandler>();
 
         return services;
     }

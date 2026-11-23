@@ -4,20 +4,20 @@ using MongoDB.Driver;
 
 namespace ConferenceExample.Talk.Persistence.ReadModels;
 
-public class MongoDbSpeakerDirectory : ISpeakerDirectoryDocumentRepository, ISpeakerDirectory
+public class MongoDbSpeakerReplica : ISpeakerReplicaDocumentRepository, ISpeakerReplica
 {
-    private readonly IMongoCollection<SpeakerDirectoryDocument> _collection;
+    private readonly IMongoCollection<SpeakerReplicaDocument> _collection;
 
-    public MongoDbSpeakerDirectory(IMongoDatabase database)
+    public MongoDbSpeakerReplica(IMongoDatabase database)
     {
-        _collection = database.GetCollection<SpeakerDirectoryDocument>("talk_speaker_directory");
+        _collection = database.GetCollection<SpeakerReplicaDocument>("talk_speaker_replica");
         CreateIndexes();
     }
 
     private void CreateIndexes()
     {
-        var userIndexKeys = Builders<SpeakerDirectoryDocument>.IndexKeys.Ascending(d => d.UserId);
-        var userIndexModel = new CreateIndexModel<SpeakerDirectoryDocument>(
+        var userIndexKeys = Builders<SpeakerReplicaDocument>.IndexKeys.Ascending(d => d.UserId);
+        var userIndexModel = new CreateIndexModel<SpeakerReplicaDocument>(
             userIndexKeys,
             new CreateIndexOptions { Name = "idx_userId", Unique = true }
         );
@@ -25,15 +25,15 @@ public class MongoDbSpeakerDirectory : ISpeakerDirectoryDocumentRepository, ISpe
         _collection.Indexes.CreateOne(userIndexModel);
     }
 
-    public async Task Save(SpeakerDirectoryDocument document)
+    public async Task Save(SpeakerReplicaDocument document)
     {
-        var filter = Builders<SpeakerDirectoryDocument>.Filter.Eq(d => d.Id, document.Id);
+        var filter = Builders<SpeakerReplicaDocument>.Filter.Eq(d => d.Id, document.Id);
         await _collection.ReplaceOneAsync(filter, document, new ReplaceOptions { IsUpsert = true });
     }
 
     public async Task<SpeakerId?> FindSpeakerIdByUserId(UserId userId)
     {
-        var filter = Builders<SpeakerDirectoryDocument>.Filter.Eq(
+        var filter = Builders<SpeakerReplicaDocument>.Filter.Eq(
             d => d.UserId,
             userId.Value.Value.ToString()
         );

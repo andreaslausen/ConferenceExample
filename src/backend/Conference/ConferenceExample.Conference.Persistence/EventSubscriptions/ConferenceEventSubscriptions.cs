@@ -120,7 +120,7 @@ public static class ConferenceEventSubscriptions
         IEventBus eventBus,
         IServiceScopeFactory scopeFactory,
         string eventType,
-        Func<SpeakerDirectoryEventHandler, StoredEvent, Task> dispatch
+        Func<SpeakerReplicaEventHandler, StoredEvent, Task> dispatch
     )
     {
         eventBus.Subscribe(
@@ -129,7 +129,7 @@ public static class ConferenceEventSubscriptions
             {
                 using var scope = scopeFactory.CreateScope();
                 var handler =
-                    scope.ServiceProvider.GetRequiredService<SpeakerDirectoryEventHandler>();
+                    scope.ServiceProvider.GetRequiredService<SpeakerReplicaEventHandler>();
                 await dispatch(handler, storedEvent);
             }
         );

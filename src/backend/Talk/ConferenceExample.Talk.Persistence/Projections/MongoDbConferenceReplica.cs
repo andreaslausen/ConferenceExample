@@ -4,13 +4,13 @@ using MongoDB.Driver;
 
 namespace ConferenceExample.Talk.Persistence.ReadModels;
 
-public class MongoDbConferenceDirectory : IConferenceDocumentRepository, IConferenceDirectory
+public class MongoDbConferenceReplica : IConferenceDocumentRepository, IConferenceReplica
 {
     private readonly IMongoCollection<ConferenceDocument> _collection;
 
-    public MongoDbConferenceDirectory(IMongoDatabase database)
+    public MongoDbConferenceReplica(IMongoDatabase database)
     {
-        _collection = database.GetCollection<ConferenceDocument>("talk_conference_directory");
+        _collection = database.GetCollection<ConferenceDocument>("talk_conference_replica");
     }
 
     public async Task Save(ConferenceDocument document)
