@@ -5,7 +5,7 @@ public class TalkDependencyRules : ArchitectureTest
     [Fact]
     public void TalkDomain_ShouldOnlyDependOnItself()
     {
-        Dependencies.Check(Architecture, "ConferenceExample.Talk.Domain", [], "System");
+        Dependencies.Check(TalkDomain, [], "System");
     }
 
     [Fact]

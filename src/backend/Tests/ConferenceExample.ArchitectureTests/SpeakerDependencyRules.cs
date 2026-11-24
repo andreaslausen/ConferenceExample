@@ -5,7 +5,7 @@ public class SpeakerDependencyRules : ArchitectureTest
     [Fact]
     public void SpeakerDomain_ShouldOnlyDependOnItself()
     {
-        Dependencies.Check(Architecture, "ConferenceExample.Speaker.Domain", [], "System");
+        Dependencies.Check(SpeakerDomain, [], "System");
     }
 
     [Fact]
