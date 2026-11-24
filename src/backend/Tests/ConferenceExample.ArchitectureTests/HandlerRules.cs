@@ -14,8 +14,10 @@ public class HandlerRules : ArchitectureTest
             .And()
             .ResideInAssembly(
                 ConferenceApplication,
+                SpeakerApplication,
                 TalkApplication,
                 ConferencePersistence,
+                SpeakerPersistence,
                 TalkPersistence
             );
 

@@ -3,6 +3,8 @@ using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Persistence;
 using ConferenceExample.EventStore;
+using ConferenceExample.Speaker.Application;
+using ConferenceExample.Speaker.Persistence;
 using ConferenceExample.Talk.Application;
 using ConferenceExample.Talk.Persistence;
 
@@ -22,6 +24,8 @@ builder.Services.AddConferencePersistence();
 builder.Services.AddConferenceApplication();
 builder.Services.AddTalkPersistence();
 builder.Services.AddTalkApplication();
+builder.Services.AddSpeakerPersistence();
+builder.Services.AddSpeakerApplication();
 
 builder.Services.AddCors(options =>
 {

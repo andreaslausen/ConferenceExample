@@ -12,7 +12,7 @@
 | Accepted
 
 | Context
-| The system consists of multiple bounded contexts (Conference, Talk, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.
+| The system consists of multiple bounded contexts (Speaker, Talk, Conference, Voting, Notification, Attendee, Content). A deployment strategy must be chosen that balances modularity, operational simplicity, and the ability to evolve the architecture over time.
 
 | Decision
 | Deploy all bounded contexts as modules within a *single ASP.NET Core application* (modular monolith). Each module owns its own database schema within a shared database instance. Modules communicate in-process via defined interfaces (domain events, mediator, or explicit contracts) — not via network calls.
@@ -135,6 +135,41 @@ If independent frontend deployment per bounded context becomes necessary in the 
 * *Single-spa or similar frameworks* — a shell application orchestrates multiple independently deployed React apps, each owning a portion of the route space.
 
 To facilitate future migration, the codebase should be organized by bounded context from the start (e.g. `src/features/conference/`, `src/features/talk/`) with clear boundaries between context-specific code and truly shared infrastructure. This structure allows individual contexts to be extracted into separate applications with minimal refactoring if and when deployment independence becomes a requirement.
+|===
+
+=== ADR-5: Talks Independent of Conferences, Submissions as Snapshots
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Value
+
+| Status
+| Accepted
+
+| Context
+| Originally, creating a talk and submitting it to a conference were one and the same act: a talk could not exist without a `ConferenceId` and a `TalkTypeId`, and the Speaker aggregate lived inside the Talk bounded context. That conflated three distinct concerns — who the speaker is, what the talk is about, and where it was submitted — and made it impossible for a speaker to prepare a talk before deciding where to send it, or to send the same talk to more than one conference.
+
+| Decision
+a|
+Split the domain into three bounded contexts along those lines:
+
+* *Speaker* — profiles. A profile has its own identity, distinct from the account it belongs to.
+* *Talk* — a speaker's talks, created, edited and deleted independently of any conference. The Talk aggregate also records every submission it has made.
+* *Conference* — conferences, their talk types, rooms and program. A conference receives submissions, decides on them, and schedules the accepted ones.
+
+A submission travels as a domain event from Talk to Conference and carries the talk's content as a *snapshot*. The receiving conference stamps it with the speaker's details as they stood at that moment. Neither is kept in sync afterwards. The conference's decision travels back as a domain event and reaches the speaker through a projection in the Talk context.
+
+| Rationale
+a|
+* *One reason to change per context* — a profile edit, a talk rewrite and a program decision are three unrelated events in the life of the system; they now sit in three aggregates that change for three different reasons.
+* *Snapshots keep review honest* — an organizer reviews and schedules what was actually submitted. Without snapshots, a speaker could silently rewrite a talk after acceptance, and a published program could change under the organizer's feet.
+* *The decision stays where it belongs* — a submission's outcome is the conference's call, so the Talk aggregate never claims it as its own fact. It is projected into a read model instead, which still lets a speaker see at a glance where they submitted what, and what came of it.
+* *Separate speaker identity* — keeping `SpeakerId` distinct from the account id leaves room for an account to hold several role profiles (speaker, organizer, ...) without one role's identity standing in for the account.
+
+| Consequences
+a|
+* *Positive:* A talk can be prepared once and submitted to several conferences. Editing or deleting a talk never disturbs a conference's program. Each context can be reasoned about — and tested — on its own.
+* *Negative / trade-offs:* The same content is stored more than once (the talk, plus one snapshot per submission), so a speaker's edit is deliberately not reflected in submissions already made — which has to be visible in the UI to avoid surprising them. A submission's outcome is eventually consistent: it stays `Pending` until the conference has processed it. Resolving the signed-in account to its speaker profile requires a small projection in the Talk context, since the two identities are no longer the same value.
 |===
 
 == Open Decisions

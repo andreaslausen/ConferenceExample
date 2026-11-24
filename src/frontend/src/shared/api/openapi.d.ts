@@ -349,7 +349,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["SubmitTalk"];
+        post: operations["CreateTalk"];
         delete?: never;
         options?: never;
         head?: never;
@@ -366,7 +366,7 @@ export interface paths {
         get: operations["GetTalkById"];
         put: operations["EditTalk"];
         post?: never;
-        delete?: never;
+        delete: operations["DeleteTalk"];
         options?: never;
         head?: never;
         patch?: never;
@@ -382,6 +382,22 @@ export interface paths {
         get: operations["GetMyTalks"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/Talks/{id}/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTalkSubmissions"];
+        put?: never;
+        post: operations["SubmitTalkToConference"];
         delete?: never;
         options?: never;
         head?: never;
@@ -430,6 +446,11 @@ export interface components {
             firstName: string;
             lastName: string;
             biography: string;
+        };
+        CreateTalkDto: {
+            title: string;
+            abstract: string;
+            tags: string[];
         };
         DefineTalkTypeDto: {
             name: string;
@@ -561,10 +582,9 @@ export interface components {
             id: string;
             title: string;
             abstract: string;
-            /** Format: uuid */
-            conferenceId: string;
-            status: string;
             tags: string[];
+            /** Format: int32 */
+            submissionCount: number | string;
         };
         GetSpeakerByIdDto: {
             /** Format: uuid */
@@ -579,12 +599,24 @@ export interface components {
             title: string;
             abstract: string;
             /** Format: uuid */
-            conferenceId: string;
-            status: string;
-            tags: string[];
-            /** Format: uuid */
             speakerId: string;
-            speakerName: string;
+            tags: string[];
+            /** Format: int32 */
+            submissionCount: number | string;
+        };
+        GetTalkSubmissionsDto: {
+            /** Format: uuid */
+            conferenceId: string;
+            conferenceName: string;
+            /** Format: uuid */
+            talkTypeId: string;
+            status: string;
+            reason: null | string;
+            /** Format: date-time */
+            submittedAt: string;
+            title: string;
+            abstract: string;
+            tags: string[];
         };
         LoginRequestDto: {
             email: string;
@@ -661,14 +693,11 @@ export interface components {
         };
         SpeakerProfileCreatedDto: {
             /** Format: uuid */
-            id: string;
+            speakerId: string;
         };
-        SubmitTalkDto: {
-            title: string;
-            abstract: string;
+        SubmitTalkToConferenceDto: {
             /** Format: uuid */
             conferenceId: string;
-            tags: string[];
             /** Format: uuid */
             talkTypeId: string;
         };
@@ -2143,7 +2172,7 @@ export interface operations {
             };
         };
     };
-    SubmitTalk: {
+    CreateTalk: {
         parameters: {
             query?: never;
             header?: never;
@@ -2152,9 +2181,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SubmitTalkDto"];
-                "text/json": components["schemas"]["SubmitTalkDto"];
-                "application/*+json": components["schemas"]["SubmitTalkDto"];
+                "application/json": components["schemas"]["CreateTalkDto"];
+                "text/json": components["schemas"]["CreateTalkDto"];
+                "application/*+json": components["schemas"]["CreateTalkDto"];
             };
         };
         responses: {
@@ -2198,6 +2227,17 @@ export interface operations {
                     "text/json": components["schemas"]["ProblemDetails"];
                 };
             };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
         };
     };
     GetTalkById: {
@@ -2220,6 +2260,28 @@ export interface operations {
                     "text/plain": components["schemas"]["GetTalkByIdDto"];
                     "application/json": components["schemas"]["GetTalkByIdDto"];
                     "text/json": components["schemas"]["GetTalkByIdDto"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Not Found */
@@ -2305,6 +2367,59 @@ export interface operations {
             };
         };
     };
+    DeleteTalk: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     GetMyTalks: {
         parameters: {
             query?: {
@@ -2341,6 +2456,133 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetTalkSubmissions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["GetTalkSubmissionsDto"][];
+                    "application/json": components["schemas"]["GetTalkSubmissionsDto"][];
+                    "text/json": components["schemas"]["GetTalkSubmissionsDto"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SubmitTalkToConference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitTalkToConferenceDto"];
+                "text/json": components["schemas"]["SubmitTalkToConferenceDto"];
+                "application/*+json": components["schemas"]["SubmitTalkToConferenceDto"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -73,7 +73,7 @@ export default function SpeakerProfilePage() {
           body: form,
         });
         if (error || !data) throw new Error();
-        setProfile({ id: data.id, ...form });
+        setProfile({ id: data.speakerId, ...form });
         toast({ title: "Profil angelegt." });
       }
     } catch {

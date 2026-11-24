@@ -1,11 +1,11 @@
 using System.Text.Json;
+using ConferenceExample.Conference.Domain;
 using ConferenceExample.Conference.Domain.ConferenceManagement;
 using ConferenceExample.Conference.Domain.ConferenceManagement.Events;
-using ConferenceExample.Conference.Domain.SharedKernel;
 using ConferenceExample.Conference.Domain.TalkManagement.Events;
 using ConferenceExample.EventStore;
 using ConferenceAggregate = ConferenceExample.Conference.Domain.ConferenceManagement.Conference;
-using GuidV7 = ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids.GuidV7;
+using GuidV7 = ConferenceExample.Conference.Domain.ValueObjects.Ids.GuidV7;
 
 namespace ConferenceExample.Conference.Persistence;
 
@@ -17,7 +17,7 @@ public class ConferenceRepository(IConferenceEventStore eventStore) : IConferenc
         [nameof(ConferenceRenamedEvent)] = typeof(ConferenceRenamedEvent),
         [nameof(ConferenceStatusChangedEvent)] = typeof(ConferenceStatusChangedEvent),
         [nameof(ConferenceDetailsUpdatedEvent)] = typeof(ConferenceDetailsUpdatedEvent),
-        [nameof(TalkSubmittedToConferenceEvent)] = typeof(TalkSubmittedToConferenceEvent),
+        [nameof(TalkSubmissionRegisteredEvent)] = typeof(TalkSubmissionRegisteredEvent),
         [nameof(TalkSubmissionRejectedEvent)] = typeof(TalkSubmissionRejectedEvent),
         [nameof(TalkAcceptedEvent)] = typeof(TalkAcceptedEvent),
         [nameof(TalkRejectedEvent)] = typeof(TalkRejectedEvent),

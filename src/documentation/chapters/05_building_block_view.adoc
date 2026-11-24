@@ -11,8 +11,9 @@ skinparam componentStyle rectangle
 skinparam defaultTextAlignment center
 
 package "Conference Management System" {
-  component "Conference\n(Core)" as conf
+  component "Speaker\n(Core)" as spk
   component "Talk\n(Core)" as sess
+  component "Conference\n(Core)" as conf
   component "Voting\n(Supporting)" as vote
   component "Notification\n(Supporting)" as notif
   component "Attendee\n(Supporting)" as att
@@ -21,7 +22,10 @@ package "Conference Management System" {
 
 component "Identity Provider\n(Generic — standard product)" as idp #LightGray
 
-sess ..> conf : Talk ID\n(reference only)
+sess ..> spk : which profile owns\nthis talk (projection)
+sess ..> conf : submits talks\n(domain event)
+conf ..> sess : submission outcome\n(domain event)
+conf ..> spk : speaker snapshot\n(projection)
 vote ..> sess : Talk ID\n(reference only)
 vote ..> att : Attendee ID\n(reference only)
 notif ..> conf : subscribes to\nprogram changes
@@ -29,6 +33,7 @@ notif ..> att : delivery targets\n(opt-in)
 content ..> sess : Talk ID\n(reference only)
 conf ..> idp : ACL
 sess ..> idp : ACL
+spk ..> idp : ACL
 att ..> idp : ACL
 
 @enduml
@@ -40,13 +45,17 @@ att ..> idp : ACL
 |===
 | Bounded Context | Type | Responsibility
 
-| Conference
+| Speaker
 | Core
-| Manages conferences, rooms, time slots, and the conference program. Owns the scheduling of talks to slots. References talks by ID only.
+| Manages speaker profiles (name, biography, and later a picture). A profile has its own identity, separate from the account it belongs to, so one account can hold several role profiles.
 
 | Talk
 | Core
-| Manages talks, speakers, abstracts, and tags. Talks have their own lifecycle (submit → review → accept) independent of the conference program.
+| Manages talks: a speaker creates, edits and deletes them independently of any conference. A talk records every conference it was submitted to, each submission freezing the talk's content at that moment.
+
+| Conference
+| Core
+| Manages conferences, talk types, rooms, time slots, and the conference program. Receives talk submissions, decides whether to accept them, and schedules accepted talks. References talks by ID only.
 
 | Voting
 | Supporting
@@ -74,5 +83,7 @@ att ..> idp : ACL
 Bounded contexts communicate through well-defined interfaces. The following integration patterns are used:
 
 * *ID references* — contexts reference entities from other contexts by ID only (e.g. `TalkId`, `AttendeeId`). No shared domain models.
-* *Domain events* — the Notification context subscribes to domain events from the Conference context (e.g. `ProgramChanged`) to trigger attendee notifications.
+* *Domain events* — contexts publish what happened and let others react. Talk publishes `TalkSubmittedToConferenceEvent`; Conference answers with `TalkSubmissionRegisteredEvent` or `TalkSubmissionRejectedEvent`, and later with `TalkAcceptedEvent` / `TalkRejectedEvent`. Notification subscribes to program changes from Conference.
+* *Snapshots over synchronization* — a submission carries the talk's content, and the receiving conference stamps it with the speaker's details as they were at that moment. Neither is kept in sync afterwards: editing a talk or a profile affects future submissions only, so a conference always reviews and publishes what was actually submitted.
+* *Local projections for identity and display* — a context keeps a minimal projection of another context's data where it needs it: Talk maps accounts to speaker profiles, Conference holds speaker names for submission snapshots. These are replicas fed by domain events, never a shared model or a synchronous call across the boundary.
 * *Anti-corruption layer (ACL)* — contexts that interact with the external identity provider translate external claims into internal role/permission concepts.

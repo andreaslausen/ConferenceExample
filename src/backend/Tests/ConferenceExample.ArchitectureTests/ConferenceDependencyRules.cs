@@ -5,7 +5,7 @@ public class ConferenceDependencyRules : ArchitectureTest
     [Fact]
     public void ConferenceDomain_ShouldOnlyDependOnItself()
     {
-        Dependencies.Check(Architecture, "ConferenceExample.Conference.Domain", [], "System");
+        Dependencies.Check(ConferenceDomain, [], "System");
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 namespace ConferenceExample.Talk.Domain.UnitTests;
 
-using ConferenceExample.Talk.Domain.SharedKernel.ValueObjects.Ids;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
+using ConferenceExample.Talk.Domain.ValueObjects.Ids;
 
 public class SpeakerIdTests
 {

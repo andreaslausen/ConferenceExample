@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import apiClient from "../shared/api/client";
 import type { components } from "../shared/api/openapi.d";
 import { Skeleton } from "../shared/components/Skeleton";
@@ -240,17 +240,14 @@ export default function ConferenceProgramPage() {
                     return (
                       <td key={room.id} className="align-top">
                         {entry ? (
-                          <Link
-                            to={`/talks/${entry.talkId}`}
-                            className="bg-card border-border hover:border-primary/50 hover:bg-accent block h-full rounded-md border p-3 transition-colors"
-                          >
+                          <div className="bg-card border-border block h-full rounded-md border p-3">
                             <p className="text-sm font-medium leading-snug">
                               {entry.talkTitle}
                             </p>
                             <p className="text-muted-foreground mt-1 text-xs">
                               {entry.speakerName}
                             </p>
-                          </Link>
+                          </div>
                         ) : (
                           <div className="bg-muted/30 h-full min-h-[4rem] rounded-md" />
                         )}

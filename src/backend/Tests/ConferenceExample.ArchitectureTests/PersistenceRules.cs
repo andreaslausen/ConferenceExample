@@ -10,7 +10,14 @@ public class PersistenceRules : ArchitectureTest
     {
         var repositories = Types()
             .That()
-            .ResideInAssembly(TalkDomain, TalkPersistence, ConferenceDomain, ConferencePersistence)
+            .ResideInAssembly(
+                TalkDomain,
+                TalkPersistence,
+                SpeakerDomain,
+                SpeakerPersistence,
+                ConferenceDomain,
+                ConferencePersistence
+            )
             .And()
             .HaveNameEndingWith("Repository");
 

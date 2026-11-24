@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import apiClient from "../shared/api/client";
 import type { components } from "../shared/api/openapi.d";
 import { Skeleton } from "../shared/components/Skeleton";
@@ -9,7 +9,12 @@ import { useToast } from "../shared/components/Toast";
 type Conference = components["schemas"]["GetAllConferencesDto"];
 type TalkType = components["schemas"]["GetConferenceTalkTypesDto"];
 
+/**
+ * Submits an existing talk to a conference. The talk type belongs to the conference, so it can
+ * only be picked once a conference is chosen.
+ */
 export default function SubmitTalkPage() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -19,9 +24,6 @@ export default function SubmitTalkPage() {
   const [loadingTalkTypes, setLoadingTalkTypes] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const [title, setTitle] = useState("");
-  const [abstract, setAbstract] = useState("");
-  const [tagsInput, setTagsInput] = useState("");
   const [conferenceId, setConferenceId] = useState("");
   const [talkTypeId, setTalkTypeId] = useState("");
 
@@ -54,18 +56,15 @@ export default function SubmitTalkPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!conferenceId || !talkTypeId) {
+    if (!id || !conferenceId || !talkTypeId) {
       toast({ title: "Bitte Konferenz und Talk-Typ auswählen.", variant: "destructive" });
       return;
     }
     setSubmitting(true);
-    const tags = tagsInput
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
 
-    const { error } = await apiClient.POST("/api/Talks", {
-      body: { title, abstract, conferenceId, tags, talkTypeId },
+    const { error } = await apiClient.POST("/api/Talks/{id}/submissions", {
+      params: { path: { id } },
+      body: { conferenceId, talkTypeId },
     });
 
     if (error) {
@@ -73,8 +72,9 @@ export default function SubmitTalkPage() {
       setSubmitting(false);
       return;
     }
-    toast({ title: "Talk eingereicht — wird geprüft." });
-    navigate("/my-talks");
+
+    toast({ title: "Talk eingereicht — die Konferenz prüft die Einreichung." });
+    navigate(`/my-talks/${id}`);
   }
 
   return (
@@ -82,133 +82,68 @@ export default function SubmitTalkPage() {
       <Breadcrumbs
         items={[
           { label: "Meine Talks", to: "/my-talks" },
-          { label: "Talk einreichen" },
+          { label: "Einreichen" },
         ]}
       />
       <h1 className="mb-6 text-2xl font-semibold">Talk einreichen</h1>
 
       {loadingConferences ? (
         <div className="max-w-lg space-y-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-full" />
-          ))}
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
-          <div className="space-y-1.5">
-            <label htmlFor="title" className="text-sm font-medium">
-              Titel <span aria-hidden="true" className="text-destructive">*</span>
-            </label>
-            <input
-              id="title"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
-              aria-required="true"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label htmlFor="abstract" className="text-sm font-medium">
-              Abstract <span aria-hidden="true" className="text-destructive">*</span>
-            </label>
-            <textarea
-              id="abstract"
-              required
-              rows={5}
-              value={abstract}
-              onChange={(e) => setAbstract(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
-              aria-required="true"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label htmlFor="tags" className="text-sm font-medium">
-              Tags{" "}
-              <span className="text-muted-foreground font-normal">
-                (kommagetrennt)
-              </span>
-            </label>
-            <input
-              id="tags"
-              value={tagsInput}
-              onChange={(e) => setTagsInput(e.target.value)}
-              placeholder="React, TypeScript, DDD"
-              className="border-input bg-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label htmlFor="conference" className="text-sm font-medium">
-              Konferenz <span aria-hidden="true" className="text-destructive">*</span>
+          <div>
+            <label htmlFor="conference" className="mb-1.5 block text-sm font-medium">
+              Konferenz
             </label>
             <select
               id="conference"
-              required
               value={conferenceId}
               onChange={(e) => setConferenceId(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
-              aria-required="true"
+              required
+              className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none"
             >
-              <option value="">Konferenz auswählen…</option>
-              {conferences.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
+              <option value="">Bitte wählen…</option>
+              {conferences.map((conference) => (
+                <option key={conference.id} value={conference.id}>
+                  {conference.name}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="talkType" className="text-sm font-medium">
-              Talk-Typ <span aria-hidden="true" className="text-destructive">*</span>
+          <div>
+            <label htmlFor="talkType" className="mb-1.5 block text-sm font-medium">
+              Talk-Typ
             </label>
-            {loadingTalkTypes ? (
-              <Skeleton className="h-10 w-full" />
-            ) : (
-              <select
-                id="talkType"
-                required
-                value={talkTypeId}
-                onChange={(e) => setTalkTypeId(e.target.value)}
-                disabled={!conferenceId || talkTypes.length === 0}
-                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                aria-required="true"
-              >
-                <option value="">
-                  {!conferenceId
-                    ? "Erst Konferenz auswählen"
-                    : talkTypes.length === 0
-                      ? "Keine Talk-Typen verfügbar"
-                      : "Talk-Typ auswählen…"}
+            <select
+              id="talkType"
+              value={talkTypeId}
+              onChange={(e) => setTalkTypeId(e.target.value)}
+              required
+              disabled={!conferenceId || loadingTalkTypes}
+              className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
+            >
+              <option value="">
+                {conferenceId ? "Bitte wählen…" : "Zuerst Konferenz wählen"}
+              </option>
+              {talkTypes.map((talkType) => (
+                <option key={talkType.id} value={talkType.id}>
+                  {talkType.name} ({talkType.durationInMinutes} Min.)
                 </option>
-                {talkTypes.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-            )}
+              ))}
+            </select>
           </div>
 
-          <div className="flex gap-2 pt-2">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center rounded-md px-4 text-sm font-medium disabled:pointer-events-none disabled:opacity-50"
-            >
-              {submitting ? "Einreichen…" : "Einreichen"}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/my-talks")}
-              className="border-input hover:bg-accent inline-flex h-10 items-center rounded-md border px-4 text-sm"
-            >
-              Abbrechen
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium disabled:opacity-50"
+          >
+            {submitting ? "Wird eingereicht…" : "Einreichen"}
+          </button>
         </form>
       )}
     </PageLayout>

@@ -4,9 +4,7 @@ public record GetTalkByIdDto(
     Guid Id,
     string Title,
     string Abstract,
-    Guid ConferenceId,
-    string Status,
-    IReadOnlyList<string> Tags,
     Guid SpeakerId,
-    string SpeakerName
+    IReadOnlyList<string> Tags,
+    int SubmissionCount
 );

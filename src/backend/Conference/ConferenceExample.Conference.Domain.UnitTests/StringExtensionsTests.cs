@@ -1,6 +1,6 @@
 namespace ConferenceExample.Conference.Domain.UnitTests;
 
-using ConferenceExample.Conference.Domain.SharedKernel.Extensions;
+using ConferenceExample.Conference.Domain.Extensions;
 
 public class StringExtensionsTests
 {

@@ -1,3 +1,4 @@
+using ConferenceExample.Authentication;
 using ConferenceExample.Conference.Application;
 using ConferenceExample.Conference.Application.AddRoom;
 using ConferenceExample.Conference.Application.AssignTalkToRoom;
@@ -38,7 +39,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpGet("my", Name = "GetMyConferences")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType<PagedResult<GetMyConferencesDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -64,7 +65,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPost(Name = "CreateConference")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType<ConferenceCreatedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -78,7 +79,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPut("{id:guid}/details", Name = "UpdateConferenceDetails")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -94,7 +95,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPut("{id:guid}/name", Name = "RenameConference")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -107,7 +108,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPut("{id:guid}/status", Name = "ChangeConferenceStatus")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -123,7 +124,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpGet("{id:guid}/schedule", Name = "GetConferenceSchedule")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType<IReadOnlyList<GetConferenceScheduleDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -137,7 +138,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpGet("{id:guid}/talks", Name = "GetConferenceTalks")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType<PagedResult<GetConferenceTalksDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -153,7 +154,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/accept", Name = "AcceptTalk")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -165,7 +166,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/reject", Name = "RejectTalk")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -177,7 +178,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/schedule", Name = "ScheduleTalk")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -194,7 +195,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPut("{conferenceId:guid}/talks/{talkId:guid}/room", Name = "AssignTalkToRoom")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -223,7 +224,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPost("{id:guid}/talk-types", Name = "DefineTalkType")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType<TalkTypeDefinedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -251,7 +252,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpGet("{id:guid}/rooms", Name = "GetConferenceRooms")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType<IReadOnlyList<GetConferenceRoomsDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -265,7 +266,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpPost("{id:guid}/rooms", Name = "AddRoom")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType<RoomAddedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -278,7 +279,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpDelete("{conferenceId:guid}/rooms/{roomId:guid}", Name = "RemoveRoom")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -290,7 +291,7 @@ public class ConferencesController(IConferenceService conferenceService) : Contr
     }
 
     [HttpDelete("{conferenceId:guid}/talk-types/{talkTypeId:guid}", Name = "RemoveTalkType")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = nameof(UserRole.Organizer))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

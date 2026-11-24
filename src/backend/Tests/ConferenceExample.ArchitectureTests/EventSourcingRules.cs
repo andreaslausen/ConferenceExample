@@ -20,7 +20,7 @@ public class EventSourcingRules : ArchitectureTest
         // Define what a CommandHandler is
         var commandHandlers = Types()
             .That()
-            .ResideInAssembly(ConferenceApplication, TalkApplication)
+            .ResideInAssembly(ConferenceApplication, SpeakerApplication, TalkApplication)
             .And()
             .HaveNameEndingWith("CommandHandler");
 
@@ -28,7 +28,7 @@ public class EventSourcingRules : ArchitectureTest
         // These are repositories that return DTOs/ReadModels instead of domain aggregates
         var readModelRepositories = Types()
             .That()
-            .ResideInAssembly(ConferencePersistence, TalkPersistence)
+            .ResideInAssembly(ConferencePersistence, SpeakerPersistence, TalkPersistence)
             .And()
             .HaveNameEndingWith("ReadModelRepository");
 
@@ -54,14 +54,14 @@ public class EventSourcingRules : ArchitectureTest
         // Define what a CommandHandler is
         var commandHandlers = Types()
             .That()
-            .ResideInAssembly(ConferenceApplication, TalkApplication)
+            .ResideInAssembly(ConferenceApplication, SpeakerApplication, TalkApplication)
             .And()
             .HaveNameEndingWith("CommandHandler");
 
         // Define ReadModel repository interfaces
         var readModelRepositoryInterfaces = Interfaces()
             .That()
-            .ResideInAssembly(ConferenceDomain, TalkDomain)
+            .ResideInAssembly(ConferenceDomain, SpeakerDomain, TalkDomain)
             .And()
             .HaveNameEndingWith("ReadModelRepository");
 
@@ -96,14 +96,14 @@ public class EventSourcingRules : ArchitectureTest
         // Define what a CommandHandler is
         var commandHandlers = Types()
             .That()
-            .ResideInAssembly(ConferenceApplication, TalkApplication)
+            .ResideInAssembly(ConferenceApplication, SpeakerApplication, TalkApplication)
             .And()
             .HaveNameEndingWith("CommandHandler");
 
         // Define ReadModel DTOs - these typically have "ReadModel" in their name
         var readModelDtos = Types()
             .That()
-            .ResideInAssembly(ConferencePersistence, TalkPersistence)
+            .ResideInAssembly(ConferencePersistence, SpeakerPersistence, TalkPersistence)
             .And()
             .HaveNameContaining("ReadModel");
 

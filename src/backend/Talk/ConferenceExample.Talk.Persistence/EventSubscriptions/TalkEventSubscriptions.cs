@@ -1,4 +1,5 @@
 using ConferenceExample.EventStore;
+using ConferenceExample.Talk.Domain.TalkManagement.Events;
 using ConferenceExample.Talk.Persistence.EventHandlers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,122 +7,142 @@ namespace ConferenceExample.Talk.Persistence.EventSubscriptions;
 
 /// <summary>
 /// Wires Talk BC read-model handlers to the in-memory event bus.
-/// A submitted talk starts out Pending and is only moved to Submitted or Rejected once Conference
-/// has processed it — TalkSubmittedToConferenceEvent (accepted) and TalkSubmissionRejectedEvent
-/// (not accepting submissions, or doesn't exist at all) update the submitting talk's own read
-/// model accordingly. Talk keeps no other local knowledge of Conference state.
+///
+/// Besides its own events, the Talk BC listens to two other contexts:
+/// the Speaker BC, to learn which speaker profile belongs to which account, and the Conference BC,
+/// to learn what became of a submission (registered, accepted, rejected, or refused outright).
+/// It keeps no other copy of their state.
 /// </summary>
 public static class TalkEventSubscriptions
 {
+    // Conference BC's and Speaker BC's event classes live in Conference.Domain/Speaker.Domain,
+    // which Talk.Persistence must not reference (bounded context isolation, enforced by
+    // TalkDependencyRules). These constants mirror the external event class names so the
+    // subscriptions below are at least named constants rather than inline magic strings.
+    private const string TalkSubmissionRegisteredEventType = "TalkSubmissionRegisteredEvent";
+    private const string TalkSubmissionRejectedEventType = "TalkSubmissionRejectedEvent";
+    private const string TalkAcceptedEventType = "TalkAcceptedEvent";
+    private const string TalkRejectedEventType = "TalkRejectedEvent";
+    private const string SpeakerProfileCreatedEventType = "SpeakerProfileCreatedEvent";
+    private const string ConferenceCreatedEventType = "ConferenceCreatedEvent";
+    private const string ConferenceRenamedEventType = "ConferenceRenamedEvent";
+    private const string ConferenceDetailsUpdatedEventType = "ConferenceDetailsUpdatedEvent";
+
     public static void Subscribe(IEventBus eventBus, IServiceScopeFactory scopeFactory)
     {
-        eventBus.Subscribe(
-            "ConferenceCreatedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler =
-                    scope.ServiceProvider.GetRequiredService<ConferenceOrganizerEventHandler>();
-                await handler.HandleConferenceCreated(storedEvent);
-            }
-        );
-
-        eventBus.Subscribe(
-            "TalkSubmittedToConferenceEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
-                await handler.HandleTalkSubmissionConfirmed(storedEvent);
-            }
-        );
-
-        eventBus.Subscribe(
-            "TalkSubmissionRejectedEvent",
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
-                await handler.HandleTalkSubmissionRejected(storedEvent);
-            }
-        );
-
-        SubscribeTalkHandler(
+        // Talk's own events
+        SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkSubmittedEvent",
-            (h, e) => h.HandleTalkSubmitted(e)
+            nameof(TalkCreatedEvent),
+            (h, e) => h.HandleTalkCreated(e)
         );
-        SubscribeTalkHandler(
+        SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkTitleEditedEvent",
+            nameof(TalkTitleEditedEvent),
             (h, e) => h.HandleTalkTitleEdited(e)
         );
-        SubscribeTalkHandler(
+        SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkAbstractEditedEvent",
+            nameof(TalkAbstractEditedEvent),
             (h, e) => h.HandleTalkAbstractEdited(e)
         );
-        SubscribeTalkHandler(
+        SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkTagAddedEvent",
+            nameof(TalkTagAddedEvent),
             (h, e) => h.HandleTalkTagAdded(e)
         );
-        SubscribeTalkHandler(
+        SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "TalkTagRemovedEvent",
+            nameof(TalkTagRemovedEvent),
             (h, e) => h.HandleTalkTagRemoved(e)
         );
-
-        SubscribeSpeakerHandler(
+        SubscribeHandler<TalkEventHandler>(
             eventBus,
             scopeFactory,
-            "SpeakerProfileCreatedEvent",
+            nameof(TalkDeletedEvent),
+            (h, e) => h.HandleTalkDeleted(e)
+        );
+        SubscribeHandler<TalkEventHandler>(
+            eventBus,
+            scopeFactory,
+            nameof(TalkSubmittedToConferenceEvent),
+            (h, e) => h.HandleTalkSubmittedToConference(e)
+        );
+
+        // Conference BC: what became of a submission
+        SubscribeHandler<TalkSubmissionEventHandler>(
+            eventBus,
+            scopeFactory,
+            TalkSubmissionRegisteredEventType,
+            (h, e) => h.HandleSubmissionRegistered(e)
+        );
+        SubscribeHandler<TalkSubmissionEventHandler>(
+            eventBus,
+            scopeFactory,
+            TalkSubmissionRejectedEventType,
+            (h, e) => h.HandleSubmissionRejected(e)
+        );
+        SubscribeHandler<TalkSubmissionEventHandler>(
+            eventBus,
+            scopeFactory,
+            TalkAcceptedEventType,
+            (h, e) => h.HandleTalkAccepted(e)
+        );
+        SubscribeHandler<TalkSubmissionEventHandler>(
+            eventBus,
+            scopeFactory,
+            TalkRejectedEventType,
+            (h, e) => h.HandleTalkRejected(e)
+        );
+
+        // Speaker BC: which profile belongs to which account
+        SubscribeHandler<SpeakerReplicaEventHandler>(
+            eventBus,
+            scopeFactory,
+            SpeakerProfileCreatedEventType,
             (h, e) => h.HandleSpeakerProfileCreated(e)
         );
-        SubscribeSpeakerHandler(
+
+        // Conference BC: names for the speaker's submission list
+        SubscribeHandler<ConferenceReplicaEventHandler>(
             eventBus,
             scopeFactory,
-            "SpeakerProfileUpdatedEvent",
-            (h, e) => h.HandleSpeakerProfileUpdated(e)
+            ConferenceCreatedEventType,
+            (h, e) => h.HandleConferenceCreated(e)
+        );
+        SubscribeHandler<ConferenceReplicaEventHandler>(
+            eventBus,
+            scopeFactory,
+            ConferenceRenamedEventType,
+            (h, e) => h.HandleConferenceRenamed(e)
+        );
+        SubscribeHandler<ConferenceReplicaEventHandler>(
+            eventBus,
+            scopeFactory,
+            ConferenceDetailsUpdatedEventType,
+            (h, e) => h.HandleConferenceRenamed(e)
         );
     }
 
-    private static void SubscribeTalkHandler(
+    private static void SubscribeHandler<THandler>(
         IEventBus eventBus,
         IServiceScopeFactory scopeFactory,
         string eventType,
-        Func<TalkEventHandler, StoredEvent, Task> dispatch
+        Func<THandler, StoredEvent, Task> dispatch
     )
+        where THandler : notnull
     {
         eventBus.Subscribe(
             eventType,
             async storedEvent =>
             {
                 using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<TalkEventHandler>();
-                await dispatch(handler, storedEvent);
-            }
-        );
-    }
-
-    private static void SubscribeSpeakerHandler(
-        IEventBus eventBus,
-        IServiceScopeFactory scopeFactory,
-        string eventType,
-        Func<SpeakerEventHandler, StoredEvent, Task> dispatch
-    )
-    {
-        eventBus.Subscribe(
-            eventType,
-            async storedEvent =>
-            {
-                using var scope = scopeFactory.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<SpeakerEventHandler>();
+                var handler = scope.ServiceProvider.GetRequiredService<THandler>();
                 await dispatch(handler, storedEvent);
             }
         );

@@ -2,7 +2,7 @@ using ConferenceExample.Talk.Domain.ConferenceManagement;
 using ConferenceExample.Talk.Domain.SpeakerManagement;
 using ConferenceExample.Talk.Domain.TalkManagement;
 using ConferenceExample.Talk.Persistence.EventHandlers;
-using ConferenceExample.Talk.Persistence.ReadModels;
+using ConferenceExample.Talk.Persistence.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -17,37 +17,44 @@ public static class ServiceCollectionExtensions
         // Talk Aggregate Repository
         services.AddScoped<ITalkRepository, TalkRepository>();
 
-        // Talk Read Model Repositories
-        services.AddScoped<ITalkDocumentRepository, MongoDbTalkReadModelRepository>();
+        // Talk Read Model Repository
+        services.AddScoped<MongoDbTalkReadModelRepository>();
+        services.AddScoped<ITalkDocumentRepository>(sp =>
+            sp.GetRequiredService<MongoDbTalkReadModelRepository>()
+        );
         services.AddScoped<ITalkReadModelRepository>(sp =>
-            (ITalkReadModelRepository)sp.GetRequiredService<ITalkDocumentRepository>()
+            sp.GetRequiredService<MongoDbTalkReadModelRepository>()
         );
 
-        // Speaker Aggregate Repository
-        services.AddScoped<ISpeakerRepository, SpeakerRepository>();
-
-        // Speaker Read Model Repository
-        services.AddScoped<MongoDbSpeakerReadModelRepository>();
-        services.AddScoped<ISpeakerDocumentRepository>(sp =>
-            sp.GetRequiredService<MongoDbSpeakerReadModelRepository>()
+        // Submission Read Model Repository
+        services.AddScoped<MongoDbTalkSubmissionReadModelRepository>();
+        services.AddScoped<ITalkSubmissionDocumentRepository>(sp =>
+            sp.GetRequiredService<MongoDbTalkSubmissionReadModelRepository>()
         );
-        services.AddScoped<ISpeakerReadModelRepository>(sp =>
-            sp.GetRequiredService<MongoDbSpeakerReadModelRepository>()
+        services.AddScoped<ITalkSubmissionReadModelRepository>(sp =>
+            sp.GetRequiredService<MongoDbTalkSubmissionReadModelRepository>()
         );
 
-        // Conference Organizer Read Model Repository (cross-BC ACL projection)
-        services.AddScoped<MongoDbConferenceOrganizerReadModelRepository>();
-        services.AddScoped<IConferenceOrganizerDocumentRepository>(sp =>
-            sp.GetRequiredService<MongoDbConferenceOrganizerReadModelRepository>()
+        // Cross-BC projections (Speaker BC, Conference BC)
+        services.AddScoped<MongoDbSpeakerReplica>();
+        services.AddScoped<ISpeakerReplicaDocumentRepository>(sp =>
+            sp.GetRequiredService<MongoDbSpeakerReplica>()
         );
-        services.AddScoped<IConferenceOrganizerReadModelRepository>(sp =>
-            sp.GetRequiredService<MongoDbConferenceOrganizerReadModelRepository>()
+        services.AddScoped<ISpeakerReplica>(sp => sp.GetRequiredService<MongoDbSpeakerReplica>());
+
+        services.AddScoped<MongoDbConferenceReplica>();
+        services.AddScoped<IConferenceDocumentRepository>(sp =>
+            sp.GetRequiredService<MongoDbConferenceReplica>()
+        );
+        services.AddScoped<IConferenceReplica>(sp =>
+            sp.GetRequiredService<MongoDbConferenceReplica>()
         );
 
         // Event Handlers
         services.AddScoped<TalkEventHandler>();
-        services.AddScoped<SpeakerEventHandler>();
-        services.AddScoped<ConferenceOrganizerEventHandler>();
+        services.AddScoped<TalkSubmissionEventHandler>();
+        services.AddScoped<SpeakerReplicaEventHandler>();
+        services.AddScoped<ConferenceReplicaEventHandler>();
 
         return services;
     }

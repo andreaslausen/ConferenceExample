@@ -18,7 +18,7 @@ using ConferenceExample.Conference.Application.RemoveTalkType;
 using ConferenceExample.Conference.Application.RenameConference;
 using ConferenceExample.Conference.Application.ScheduleTalk;
 using ConferenceExample.Conference.Application.UpdateConferenceDetails;
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects;
+using ConferenceExample.Conference.Domain.ValueObjects;
 
 namespace ConferenceExample.Conference.Application;
 

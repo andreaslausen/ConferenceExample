@@ -1,13 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using ConferenceExample.Authentication.SharedKernel.Extensions;
-using ConferenceExample.Authentication.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Authentication.Extensions;
+using ConferenceExample.Authentication.ValueObjects.Ids;
 using Microsoft.AspNetCore.Http;
 
 namespace ConferenceExample.Authentication;
 
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     : Conference.Application.ICurrentUserService,
+        Speaker.Application.ICurrentUserService,
         Talk.Application.ICurrentUserService
 {
     private const string UserIdClaimType = JwtRegisteredClaimNames.Sub;
@@ -27,6 +28,9 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     }
 
     Guid Conference.Application.ICurrentUserService.GetCurrentUserId() =>
+        GetCurrentUserIdAsUserId().Value.Value;
+
+    Guid Speaker.Application.ICurrentUserService.GetCurrentUserId() =>
         GetCurrentUserIdAsUserId().Value.Value;
 
     Guid Talk.Application.ICurrentUserService.GetCurrentUserId() =>

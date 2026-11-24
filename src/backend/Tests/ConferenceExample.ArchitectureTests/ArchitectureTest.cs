@@ -22,6 +22,21 @@ public abstract class ArchitectureTest
         ConferencePersistence,
     ];
 
+    // Speaker
+    protected static Assembly SpeakerApplication =>
+        typeof(Speaker.Application.SpeakerService).Assembly;
+    protected static Assembly SpeakerDomain =>
+        typeof(Speaker.Domain.SpeakerManagement.SpeakerBiography).Assembly;
+    protected static Assembly SpeakerPersistence =>
+        typeof(Speaker.Persistence.SpeakerRepository).Assembly;
+
+    protected static readonly Assembly[] SpeakerAssemblies =
+    [
+        SpeakerApplication,
+        SpeakerDomain,
+        SpeakerPersistence,
+    ];
+
     // Talk
     protected static Assembly TalkApplication => typeof(Talk.Application.TalkService).Assembly;
     protected static Assembly TalkDomain => typeof(Talk.Domain.TalkManagement.Abstract).Assembly;
@@ -55,6 +70,7 @@ public abstract class ArchitectureTest
     protected static readonly Assembly[] AllAssemblies =
     [
         .. ConferenceAssemblies,
+        .. SpeakerAssemblies,
         .. TalkAssemblies,
         .. EventStoreAssemblies,
         .. AuthenticationAssemblies,
@@ -70,6 +86,11 @@ public abstract class ArchitectureTest
         typeof(Conference.Domain.UnitTests.ConferenceTests).Assembly;
     protected static readonly Assembly[] ConferenceTestAssemblies = [ConferenceDomainUnitTests];
 
+    // Speaker Test Assemblies
+    protected static Assembly SpeakerDomainUnitTests =>
+        typeof(Speaker.Domain.UnitTests.SpeakerTests).Assembly;
+    protected static readonly Assembly[] SpeakerTestAssemblies = [SpeakerDomainUnitTests];
+
     // Talk Test Assemblies
     protected static Assembly TalkDomainUnitTests =>
         typeof(Talk.Domain.UnitTests.AbstractTests).Assembly;
@@ -84,6 +105,7 @@ public abstract class ArchitectureTest
     protected static readonly Assembly[] AllTestAssemblies =
     [
         .. ConferenceTestAssemblies,
+        .. SpeakerTestAssemblies,
         .. TalkTestAssemblies,
         .. AcceptanceTestAssemblies,
     ];

@@ -1,4 +1,4 @@
-using ConferenceExample.Conference.Domain.SharedKernel.ValueObjects.Ids;
+using ConferenceExample.Conference.Domain.ValueObjects.Ids;
 
 namespace ConferenceExample.Conference.Domain.RoomManagement;
 

@@ -11,6 +11,7 @@ echo ""
 # Define all unit test projects (Domain layer only, per the test strategy)
 UNIT_TEST_PROJECTS=(
   "src/backend/Conference/ConferenceExample.Conference.Domain.UnitTests"
+  "src/backend/Speaker/ConferenceExample.Speaker.Domain.UnitTests"
   "src/backend/Talk/ConferenceExample.Talk.Domain.UnitTests"
 )
 

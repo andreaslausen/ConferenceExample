@@ -10,7 +10,7 @@ public class ApplicationRules : ArchitectureTest
     {
         var applicationServices = Types()
             .That()
-            .ResideInAssembly(ConferenceApplication, TalkApplication)
+            .ResideInAssembly(ConferenceApplication, SpeakerApplication, TalkApplication)
             .And()
             .HaveNameEndingWith("Service");
 

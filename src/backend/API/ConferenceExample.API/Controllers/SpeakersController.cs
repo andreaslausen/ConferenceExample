@@ -1,8 +1,9 @@
-using ConferenceExample.Talk.Application;
-using ConferenceExample.Talk.Application.CreateSpeakerProfile;
-using ConferenceExample.Talk.Application.GetMyProfile;
-using ConferenceExample.Talk.Application.GetSpeakerById;
-using ConferenceExample.Talk.Application.UpdateSpeakerProfile;
+using ConferenceExample.Authentication;
+using ConferenceExample.Speaker.Application;
+using ConferenceExample.Speaker.Application.CreateSpeakerProfile;
+using ConferenceExample.Speaker.Application.GetMyProfile;
+using ConferenceExample.Speaker.Application.GetSpeakerById;
+using ConferenceExample.Speaker.Application.UpdateSpeakerProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +15,7 @@ namespace ConferenceExample.API.Controllers;
 public class SpeakersController(ISpeakerService speakerService) : ControllerBase
 {
     [HttpPost("profile", Name = "CreateSpeakerProfile")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType<SpeakerProfileCreatedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -22,11 +23,11 @@ public class SpeakersController(ISpeakerService speakerService) : ControllerBase
     public async Task<IActionResult> CreateProfile([FromBody] CreateSpeakerProfileDto dto)
     {
         var result = await speakerService.CreateProfile(dto);
-        return Created("/api/speakers/profile", result);
+        return Created($"/api/speakers/{result.SpeakerId}", result);
     }
 
     [HttpPut("profile", Name = "UpdateSpeakerProfile")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -39,7 +40,7 @@ public class SpeakersController(ISpeakerService speakerService) : ControllerBase
     }
 
     [HttpGet("profile", Name = "GetMyProfile")]
-    [Authorize(Roles = "Speaker")]
+    [Authorize(Roles = nameof(UserRole.Speaker))]
     [ProducesResponseType<GetMyProfileDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
