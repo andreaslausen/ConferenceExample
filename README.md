@@ -1,6 +1,8 @@
 # ConferenceExample
 
-This is an example which I use in some of my conference talks.
+This is an example which I use in some of my conference talks: a conference management
+system with an ASP.NET Core backend (Clean Architecture, DDD, Event Sourcing) and a
+React/TypeScript frontend.
 
 ![](logo.png)
 
@@ -10,116 +12,61 @@ This is an example which I use in some of my conference talks.
 
 ## Getting Started
 
-After cloning the repository, run the following script once to set up the git hooks and install required tools:
-
-```bash
-./init-hooks.sh
-```
-
-This will:
-- Register the `.githooks` directory so git picks up the pre-commit hook
-- Install [CSharpier](https://csharpier.com/) as a local dotnet tool if not already present
-
-The pre-commit hook automatically formats all staged C# files with CSharpier before each commit. **The hook must be active** to ensure consistent code formatting across the team. Commits that skip the hook may introduce formatting inconsistencies.
-
-## Frontend
-
-The frontend is a React + TypeScript application located in [src/frontend/](src/frontend/), built with Vite and styled with Tailwind CSS v4 and shadcn/ui components.
-
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v20 or later recommended, e.g. via [nvm](https://github.com/nvm-sh/nvm))
+- [.NET SDK](https://dotnet.microsoft.com/download)
+- [Docker](https://www.docker.com/)
+- [Node.js](https://nodejs.org/) (e.g. via [nvm](https://github.com/nvm-sh/nvm))
 
-### Setup
+### Setup (once after cloning)
 
 ```bash
+./init-hooks.sh                 # registers git hooks, installs CSharpier
+cd src/frontend && npm install
+```
+
+The pre-commit hook formats staged C# files with CSharpier and regenerates the architecture
+docs when `.adoc` files are staged. Don't bypass it.
+
+### Run
+
+```bash
+./scripts/dev-start.sh                                       # 1. MongoDB + Mongo Express
+dotnet run --project src/backend/API/ConferenceExample.API   # 2. Backend  → http://localhost:5185
+cd src/frontend && npm run dev                               # 3. Frontend → http://localhost:5173
+```
+
+The frontend proxies `/api/*` to the backend. Mongo Express is available at http://localhost:8081.
+
+```bash
+./scripts/dev-stop.sh    # Stop dev services (keeps data)
+./scripts/dev-reset.sh   # Reset dev services (deletes all data!)
+```
+
+More details: [scripts/README.md](scripts/README.md), [docs/mongodb-setup.md](docs/mongodb-setup.md).
+
+## Everyday commands
+
+```bash
+dotnet build                       # Build backend (also regenerates openapi.json)
+dotnet test                        # Backend tests (acceptance tests need Docker)
+dotnet csharpier .                 # Format backend code
+
 cd src/frontend
-npm install
-```
-
-### Development
-
-Start the backend first (see [MongoDB Event Store](#mongodb-event-store) below), then run the dev server:
-
-```bash
-cd src/frontend
-npm run dev
-```
-
-The app is available at **http://localhost:5173**. API requests to `/api/*` are proxied to the backend at `http://localhost:5185`.
-
-### Other commands
-
-```bash
-npm run build          # Type-check and build for production
-npm run lint           # Run ESLint
-npm run generate-api   # Regenerate TypeScript types from openapi.json (run `dotnet build` on the backend first)
-```
-
-### API type generation
-
-The frontend uses generated TypeScript types from the backend's OpenAPI spec. `openapi.json`
-is regenerated automatically at the repo root whenever the backend is built. To update the
-types after backend changes:
-
-```bash
-dotnet build src/backend/ConferenceExample.sln   # Regenerates openapi.json
-cd src/frontend && npm run generate-api
+npm run lint                       # Lint
+npm run build                      # Type-check and build
+npm run generate-api               # Regenerate API types from openapi.json (build backend first)
 ```
 
 ## Architecture Documentation
 
-The architecture documentation follows the [arc42](https://arc42.org/) template and is written in AsciiDoc. The source files are located in [src/documentation/](src/documentation/).
-
-The published documentation is available at: **https://andreaslausen.github.io/ConferenceExample/**
-
-### Generating the Documentation
-
-The documentation is built using [Asciidoctor](https://asciidoctor.org/) via Docker. Make sure Docker is running, then execute:
+The arc42 documentation (AsciiDoc, in [src/documentation/](src/documentation/)) is published at
+**https://andreaslausen.github.io/ConferenceExample/**. To build it locally (requires Docker):
 
 ```bash
 ./build-docs.sh
 ```
 
-This will:
-- Render the AsciiDoc sources from `src/documentation/` into `docs/index.html`
-- Process any embedded diagrams using [Asciidoctor Diagram](https://docs.asciidoctor.org/diagram-extension/latest/)
-- Copy the generated images into the `docs/images/` directory
+## AI coding agents
 
-The output can be previewed by opening `docs/index.html` in a browser. Committing changes to `docs/` will update the GitHub Pages site.
-
-## Event Store Persistence
-
-The system uses **Event Sourcing** with **MongoDB** as the persistence layer:
-
-### MongoDB Event Store
-
-MongoDB provides production-ready persistence with:
-- **Optimistic Concurrency Control** via MongoDB transactions
-- **In-process Event Bus** (`InMemoryEventBus`) publishing events after each append
-- **Horizontal Scaling** support for millions of events
-- **BSON Storage** for efficient event serialization
-
-**Quick Start:**
-```bash
-# Start MongoDB infrastructure
-./scripts/dev-start.sh
-
-# Run the application
-dotnet run --project src/backend/API/ConferenceExample.API
-```
-
-**Development Scripts:**
-```bash
-./scripts/dev-start.sh   # Start MongoDB and all dev services
-./scripts/dev-stop.sh    # Stop all dev services (keeps data)
-./scripts/dev-reset.sh   # Reset all dev services (deletes all data!)
-```
-
-For detailed documentation, see [scripts/README.md](scripts/README.md).
-
-**Services:**
-- MongoDB: `mongodb://localhost:27017`
-- Mongo Express UI: `http://localhost:8081`
-
-See [MongoDB Setup Guide](docs/mongodb-setup.md) for detailed configuration and production considerations.
+See [AGENTS.md](AGENTS.md).
