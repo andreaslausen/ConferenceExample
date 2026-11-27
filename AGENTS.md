@@ -4,7 +4,7 @@ Guidance for AI coding agents (Claude Code, Codex, Cursor, ...) working in this 
 
 ## Project
 
-Conference management system used in conference talks: .NET 10 / ASP.NET Core backend
+Conference management system used in conference talks: .NET 11 / ASP.NET Core backend
 (Clean Architecture + DDD, event-sourced) and a React/TypeScript frontend.
 
 ## Setup

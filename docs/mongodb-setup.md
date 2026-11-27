@@ -14,7 +14,7 @@ The system uses **Event Sourcing** with MongoDB as the persistence layer:
 ## Prerequisites
 
 - Docker and Docker Compose
-- .NET 10 SDK
+- .NET 11 SDK
 - MongoDB.Driver NuGet package (already included)
 
 ## Quick Start
