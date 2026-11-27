@@ -9,6 +9,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConferenceExample.Conference.Domain\ConferenceExample.Conference.Domain.csproj" />
-    <ProjectReference Include="..\ConferenceExample.Conference.Persistence\ConferenceExample.Conference.Persistence.csproj" />
   </ItemGroup>
 </Project>
